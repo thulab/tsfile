@@ -30,6 +30,6 @@ The features of TsFile is as follow:
 
 ## Online Documents
 * [Installation](https://github.com/thulab/tsfile/wiki/Installation)
-* [Get Started](https://github.com/thulab/tsfile/wiki/GetStarted)
+* [Get Started](https://github.com/thulab/tsfile/wiki/Get-Started)
 * [TsFile-Spark Connector](https://github.com/thulab/tsfile/wiki/TsFile-Spark-Connector)
 
