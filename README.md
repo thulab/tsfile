@@ -33,7 +33,7 @@ The features of TsFile is as follow:
 * **Integration**
 	* HDFS
 	* Spark and Hive
-	* etc.
+	* etc. 
 
 ## Online Documents
 * [Installation](https://github.com/thulab/tsfile/wiki/Installation)
