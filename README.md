@@ -1,8 +1,6 @@
 # TsFile Document
 version 0.1.0
 
-[!toc]
-
 ## Abstract
 
 TsFile is a columnar storage format designed for time-series data, which supports efficient compression and query. It is available for integrition with data processing frameworks.
