@@ -21,7 +21,7 @@ Recent advances in time-series data management system are developed for data cen
 
 The target of TsFile project is to support: high ingestion rate up to tens of million data points per second and rare updates only for the correction of low quality data; compact data packaging and deep compression for long-live historical data; traditional sequential and conditional query, complex exploratory query, signal processing, data mining and machine learning.
 
-The features of TsFile is as follow:
+The features of TsFile is as follow: 
 
 * **Write**
 	* Fast data import
