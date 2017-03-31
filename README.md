@@ -1,4 +1,4 @@
-#TsFile Document
+# TsFile Document
 version 0.1.0
 
 
@@ -80,8 +80,8 @@ Table 1 illustates a set of time-series data. The set showed in the following ta
 
 <center>
 <table style="text-align:center">
-	<tr><th colspan="6">device\_1</th></tr>
-	<tr><th colspan="2">sensor\_1</th><th colspan="2">sensor\_2</th><th colspan="2">sensor\_3</th></tr>
+	<tr><th colspan="6">device_1</th></tr>
+	<tr><th colspan="2">sensor_1</th><th colspan="2">sensor_2</th><th colspan="2">sensor_3</th></tr>
 	<tr><th>time</th><th>value</td><th>time</th><th>value</td><th>time</th><th>value</td>
 	<tr><td>1</td><td>1.2</td><td>1</td><td>20</td><td>2</td><td>50</td></tr>
 	<tr><td>3</td><td>1.4</td><td>2</td><td>20</td><td>4</td><td>51</td></tr>
