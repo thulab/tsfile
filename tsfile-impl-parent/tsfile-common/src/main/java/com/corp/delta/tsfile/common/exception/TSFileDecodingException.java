@@ -1,0 +1,28 @@
+package com.corp.delta.tsfile.common.exception;
+
+/**
+ * This Exception is used while decoding failed. <br>
+ * This Exception extends super class
+ * {@link com.corp.delta.tsfile.common.exception.TSFileRuntimeException}
+ * 
+ * @author kangrong
+ *
+ */
+public class TSFileDecodingException extends TSFileRuntimeException {
+  private static final long serialVersionUID = -8632392900655017028L;
+
+  public TSFileDecodingException() {}
+
+  public TSFileDecodingException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  public TSFileDecodingException(String message) {
+    super(message);
+  }
+
+  public TSFileDecodingException(Throwable cause) {
+    super(cause);
+  }
+
+}

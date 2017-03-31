@@ -1,0 +1,36 @@
+{
+    "schema": [
+        {
+                    "measurement_id": "sensor_cpu_50",
+                    "data_type": "INT32",
+                    "encoding": "RLE"
+                },
+                {
+                    "measurement_id": "sensor_ms_50",
+                    "data_type": "INT64",
+                    "encoding": "RLE"
+                },
+                {
+                    "measurement_id": "sensor_df_50",
+                    "data_type": "INT32",
+                    "encoding": "RLE",
+                    "compressor":"SNAPPY"
+                },
+                {
+                    "measurement_id": "sensor_cpu_10",
+                    "data_type": "INT32",
+                    "encoding": "RLE"
+                },
+                {
+                    "measurement_id": "sensor_mr_10",
+                    "data_type": "INT32",
+                    "encoding": "RLE"
+                },
+                {
+                    "measurement_id": "sensor_cpu_1",
+                    "data_type": "INT32",
+                    "encoding": "RLE"
+                }
+    ],
+    "delta_type": "advanced"
+}
