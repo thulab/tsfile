@@ -49,6 +49,7 @@ public class TSFileDescriptor {
 		InputStream inputStream = null;
 		if (url.equals(CONFIG_DEFAULT_PATH)) {
 			inputStream = this.getClass().getResourceAsStream(url);
+			return;
 		} else {
 			url = url + "/conf/tsfile.yaml";
 			try {
