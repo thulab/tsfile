@@ -12,7 +12,7 @@ import cn.edu.thu.tsfile.timeseries.read.management.FileStreamManager;
  * @author Jinrui Zhang
  *
  */
-public class LocalFileInput implements TSRandomAccessFileReader{
+public class LocalFileInput implements TSRandomAccessFileReader {
 
     private RandomAccessFile raf;
 

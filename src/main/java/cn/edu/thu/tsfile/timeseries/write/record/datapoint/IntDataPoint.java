@@ -2,12 +2,12 @@ package cn.edu.thu.tsfile.timeseries.write.record.datapoint;
 
 import java.io.IOException;
 
-import cn.edu.thu.tsfile.timeseries.write.record.DataPoint;
 import cn.edu.thu.tsfile.timeseries.write.series.ISeriesWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.thu.tsfile.timeseries.write.record.DataPoint;
 
 /**
  * a subclass for Integer data type extends DataPoint

@@ -9,8 +9,16 @@ import java.util.PriorityQueue;
 import cn.edu.thu.tsfile.timeseries.read.qp.Path;
 import cn.edu.thu.tsfile.timeseries.read.readSupport.Field;
 import cn.edu.thu.tsfile.timeseries.read.readSupport.RowRecord;
+import cn.edu.thu.tsfile.timeseries.read.qp.Path;
+import cn.edu.thu.tsfile.timeseries.read.readSupport.Field;
+import cn.edu.thu.tsfile.timeseries.read.readSupport.RowRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import cn.edu.thu.tsfile.timeseries.read.qp.Path;
+import cn.edu.thu.tsfile.timeseries.read.readSupport.Field;
+import cn.edu.thu.tsfile.timeseries.read.readSupport.RowRecord;
+
 
 
 public abstract class IteratorQueryDataSet extends QueryDataSet{

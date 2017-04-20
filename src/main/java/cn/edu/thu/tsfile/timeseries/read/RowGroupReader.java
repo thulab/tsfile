@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.thu.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.thu.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;

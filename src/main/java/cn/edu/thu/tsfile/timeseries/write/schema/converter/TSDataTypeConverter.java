@@ -2,15 +2,15 @@ package cn.edu.thu.tsfile.timeseries.write.schema.converter;
 
 import java.util.List;
 
+import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
+import cn.edu.thu.tsfile.common.exception.metadata.MetadataArgsErrorException;
+import cn.edu.thu.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
 import cn.edu.thu.tsfile.timeseries.utils.TSFileEnum;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.thu.tsfile.common.exception.metadata.MetadataArgsErrorException;
-import cn.edu.thu.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 
 /**

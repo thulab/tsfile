@@ -2,8 +2,8 @@ package cn.edu.thu.tsfile.timeseries.write;
 
 import cn.edu.thu.tsfile.common.conf.TSFileConfig;
 import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
-import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
+import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

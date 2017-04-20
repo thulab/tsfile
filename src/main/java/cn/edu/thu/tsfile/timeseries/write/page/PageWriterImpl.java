@@ -2,17 +2,18 @@ package cn.edu.thu.tsfile.timeseries.write.page;
 
 import java.io.IOException;
 
-import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
-import cn.edu.thu.tsfile.common.utils.bytesinput.BytesInput;
 import cn.edu.thu.tsfile.compress.Compressor;
-import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
-import cn.edu.thu.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.thu.tsfile.common.utils.bytesinput.ListBytesInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.thu.tsfile.common.utils.bytesinput.ListBytesInput;
+import cn.edu.thu.tsfile.common.utils.bytesinput.BytesInput;
+import cn.edu.thu.tsfile.common.utils.bytesinput.BytesInput.PublicBAOS;
+import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
+import cn.edu.thu.tsfile.file.utils.ReadWriteThriftFormatUtils;
+import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.thu.tsfile.timeseries.write.exception.PageException;
+import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 
 /**
  * a implementation of {@linkplain IPageWriter IPageWriter}
@@ -40,7 +41,7 @@ public class PageWriterImpl implements IPageWriter {
 
     @Override
     public void writePage(BytesInput bytesInput, int valueCount, Statistics<?> statistics,
-                          long maxTimestamp, long minTimestamp) throws PageException {
+            long maxTimestamp, long minTimestamp) throws PageException {
         // compress the input data
         if (this.minTimestamp == -1)
             this.minTimestamp = minTimestamp;
@@ -56,7 +57,7 @@ public class PageWriterImpl implements IPageWriter {
             resetTimeStamp();
             throw new PageException("write too much bytes: " + compressedSize);
         }
-        BytesInput.PublicBAOS tempOutputStream = new BytesInput.PublicBAOS();
+        PublicBAOS tempOutputStream = new PublicBAOS();
         // write the page header to IOWriter
         try {
             ReadWriteThriftFormatUtils.writeDataPageHeader((int) uncompressedSize,

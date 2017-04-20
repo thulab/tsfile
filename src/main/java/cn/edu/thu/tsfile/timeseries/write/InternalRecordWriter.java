@@ -1,11 +1,11 @@
 package cn.edu.thu.tsfile.timeseries.write;
 
-import cn.edu.thu.tsfile.common.conf.TSFileConfig;
-import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
-import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
 import cn.edu.thu.tsfile.timeseries.write.series.RowGroupWriterImpl;
+import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
+import cn.edu.thu.tsfile.common.conf.TSFileConfig;
+import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ public abstract class InternalRecordWriter<T> {
 	private int oneRowMaxSize;
 
 	public InternalRecordWriter(TSFileConfig conf, TSFileIOWriter tsfileWriter, WriteSupport<T> writeSupport,
-								FileSchema schema) {
+			FileSchema schema) {
 		this.deltaFileWriter = tsfileWriter;
 		this.writeSupport = writeSupport;
 		this.schema = schema;

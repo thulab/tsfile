@@ -3,14 +3,14 @@ package cn.edu.thu.tsfile.timeseries.read.readSupport;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
-import cn.edu.thu.tsfile.timeseries.write.record.datapoint.DoubleDataPoint;
-import cn.edu.thu.tsfile.timeseries.write.record.DataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.BooleanDataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.FloatDataPoint;
-import cn.edu.thu.tsfile.timeseries.write.record.datapoint.IntDataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.LongDataPoint;
+import cn.edu.thu.tsfile.timeseries.write.record.datapoint.DoubleDataPoint;
+import cn.edu.thu.tsfile.timeseries.write.record.datapoint.IntDataPoint;
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.thu.tsfile.timeseries.write.record.DataPoint;
 
 /**
  * This class is used to store one Row-Record<br>

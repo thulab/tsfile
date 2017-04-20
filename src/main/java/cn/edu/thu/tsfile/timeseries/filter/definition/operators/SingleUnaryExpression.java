@@ -2,12 +2,13 @@ package cn.edu.thu.tsfile.timeseries.filter.definition.operators;
 
 import java.io.Serializable;
 
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
-import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
-import cn.edu.thu.tsfile.common.exception.FilterInvokeException;
-import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import cn.edu.thu.tsfile.common.exception.FilterInvokeException;
+import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
+import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
+import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
 
 /**
  * Definition for unary filter operations of single series.

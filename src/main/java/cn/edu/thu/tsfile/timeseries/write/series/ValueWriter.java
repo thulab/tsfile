@@ -5,9 +5,9 @@ import java.math.BigDecimal;
 
 import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
-import cn.edu.thu.tsfile.common.utils.bytesinput.ListBytesInput;
-import cn.edu.thu.tsfile.encoding.encoder.Encoder;
 import cn.edu.thu.tsfile.common.utils.bytesinput.BytesInput;
+import cn.edu.thu.tsfile.encoding.encoder.Encoder;
+import cn.edu.thu.tsfile.common.utils.bytesinput.ListBytesInput;
 
 /**
  * This function is used to write time-value into a time series. It consists of a time encoder, a

@@ -1,14 +1,13 @@
 package cn.edu.thu.tsfile.timeseries.utils;
 
+import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.thu.tsfile.common.utils.Binary;
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.*;
 import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 
 /**
  * RecordUtils is a utility class for parsing data in form of CSV string.

@@ -1,41 +1,34 @@
 package cn.edu.thu.tsfile.timeseries.write.schema.converter;
 
+import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
+import cn.edu.thu.tsfile.encoding.encoder.PlainEncoder;
+import cn.edu.thu.tsfile.encoding.encoder.dft.DFTDoubleEncoder;
+import cn.edu.thu.tsfile.encoding.encoder.dft.DFTEncoder;
 import cn.edu.thu.tsfile.common.conf.TSFileConfig;
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
+import cn.edu.thu.tsfile.encoding.common.EndianType;
+import cn.edu.thu.tsfile.encoding.encoder.dft.DFTFloatEncoder;
+import cn.edu.thu.tsfile.encoding.encoder.dft.DFTIntEncoder;
 import cn.edu.thu.tsfile.timeseries.utils.StringContainer;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.thu.tsfile.common.exception.metadata.MetadataArgsErrorException;
-import cn.edu.thu.tsfile.encoding.common.EndianType;
 import cn.edu.thu.tsfile.encoding.encoder.BitmapEncoder;
 import cn.edu.thu.tsfile.encoding.encoder.DeltaBinaryEncoder;
 import cn.edu.thu.tsfile.encoding.encoder.Encoder;
 import cn.edu.thu.tsfile.encoding.encoder.FloatEncoder;
 import cn.edu.thu.tsfile.encoding.encoder.IntRleEncoder;
 import cn.edu.thu.tsfile.encoding.encoder.LongRleEncoder;
-import cn.edu.thu.tsfile.encoding.encoder.PlainEncoder;
-import cn.edu.thu.tsfile.encoding.encoder.dft.DFTDoubleEncoder;
-import cn.edu.thu.tsfile.encoding.encoder.dft.DFTEncoder;
-import cn.edu.thu.tsfile.encoding.encoder.dft.DFTFloatEncoder;
-import cn.edu.thu.tsfile.encoding.encoder.dft.DFTIntEncoder;
 import cn.edu.thu.tsfile.encoding.encoder.dft.DFTLongEncoder;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import static cn.edu.thu.tsfile.common.constant.JsonFormatConstant.DFT_PACK_LENGTH;
-import static cn.edu.thu.tsfile.common.constant.JsonFormatConstant.DFT_RATE;
-import static cn.edu.thu.tsfile.common.constant.JsonFormatConstant.DFT_WRITE_Main_FREQ;
-import static cn.edu.thu.tsfile.common.constant.JsonFormatConstant.DFT_WRITE_ENCODING;
-import static cn.edu.thu.tsfile.common.constant.JsonFormatConstant.DFT_OVERLAP_RATE;
-import static cn.edu.thu.tsfile.common.constant.JsonFormatConstant.DFT_MAIN_FREQ_NUM;
 
 /**
  * Each subclass of TSEncodingConverter responds a enumerate value in
@@ -84,12 +77,12 @@ public abstract class TSEncodingConverter {
         @Override
         public Encoder getEncoder(String measurementId, TSDataType type) {
             switch (type) {
+                case ENUMS:
                 case INT32:
                     return new IntRleEncoder(EndianType.LITTLE_ENDIAN);
                 case INT64:
                     return new LongRleEncoder(EndianType.LITTLE_ENDIAN);
                 case FLOAT:
-                    return new FloatEncoder(TSEncoding.RLE, TSDataType.FLOAT, maxPointNumber);
                 case DOUBLE:
                 case BIGDECIMAL:
                     return new FloatEncoder(TSEncoding.RLE, type, maxPointNumber);
@@ -227,11 +220,11 @@ public abstract class TSEncodingConverter {
         @Override
         public void initFromJsonObject(String measurementId, JSONObject seriesObject) {
             // set pack length from initialized map or default value if not set
-            if (!seriesObject.has(DFT_PACK_LENGTH)) {
+            if (!seriesObject.has(JsonFormatConstant.DFT_PACK_LENGTH)) {
                 packLength = conf.defaultDFTPackLength;
                 LOG.warn("DFT doesn't specify pack length,set default value:{}", packLength);
             } else {
-                packLength = seriesObject.getInt(DFT_PACK_LENGTH);
+                packLength = seriesObject.getInt(JsonFormatConstant.DFT_PACK_LENGTH);
                 if (packLength < 0) {
                     packLength = conf.defaultDFTPackLength;
                     LOG.warn(
@@ -239,11 +232,11 @@ public abstract class TSEncodingConverter {
                             packLength);
                 }
             }
-            if (!seriesObject.has(DFT_RATE)) {
+            if (!seriesObject.has(JsonFormatConstant.DFT_RATE)) {
                 rate = conf.defaultDFTRate;
                 LOG.warn("DFT doesn't specify rate,set default value:{}", rate);
             } else {
-                rate = seriesObject.getDouble(DFT_RATE);
+                rate = seriesObject.getDouble(JsonFormatConstant.DFT_RATE);
                 if (rate <= 0 || rate > 1) {
                     rate = conf.defaultDFTRate;
                     LOG.warn("cannot set DFT rate outside [0,1], replaced with default value:{}",
@@ -257,11 +250,11 @@ public abstract class TSEncodingConverter {
                 overlapRate = (float) seriesObject.getDouble(JsonFormatConstant.DFT_OVERLAP_RATE);
             }
 
-            if (!seriesObject.has(DFT_WRITE_Main_FREQ)) {
+            if (!seriesObject.has(JsonFormatConstant.DFT_WRITE_Main_FREQ)) {
                 isWriteMainFreq = conf.defaultDFTWriteMain;
                 LOG.warn("DFT doesn't specify boolean main,set default value:{}", isWriteMainFreq);
             } else {
-                isWriteMainFreq = seriesObject.getBoolean(DFT_WRITE_Main_FREQ);
+                isWriteMainFreq = seriesObject.getBoolean(JsonFormatConstant.DFT_WRITE_Main_FREQ);
             }
 
             if (!seriesObject.has(JsonFormatConstant.DFT_WRITE_ENCODING)) {
@@ -322,17 +315,17 @@ public abstract class TSEncodingConverter {
                 throws MetadataArgsErrorException {
             try {
                 switch (pmKey) {
-                    case DFT_PACK_LENGTH:
+                    case JsonFormatConstant.DFT_PACK_LENGTH:
                         return Integer.valueOf(value);
-                    case DFT_RATE:
+                    case JsonFormatConstant.DFT_RATE:
                         return Double.valueOf(value);
-                    case DFT_WRITE_Main_FREQ:
+                    case JsonFormatConstant.DFT_WRITE_Main_FREQ:
                         return Boolean.valueOf(value);
-                    case DFT_WRITE_ENCODING:
+                    case JsonFormatConstant.DFT_WRITE_ENCODING:
                         return Boolean.valueOf(value);
-                    case DFT_OVERLAP_RATE:
+                    case JsonFormatConstant.DFT_OVERLAP_RATE:
                         return Float.valueOf(value);
-                    case DFT_MAIN_FREQ_NUM:
+                    case JsonFormatConstant.DFT_MAIN_FREQ_NUM:
                         return Integer.valueOf(value);
                     default:
                         throw new MetadataArgsErrorException("don't need args:{}" + pmKey);

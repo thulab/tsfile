@@ -4,25 +4,23 @@ import cn.edu.thu.tsfile.common.conf.TSFileConfig;
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
-import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
-import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
-import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
 import cn.edu.thu.tsfile.timeseries.read.RecordReader;
 import cn.edu.thu.tsfile.timeseries.read.metadata.SeriesSchema;
 import cn.edu.thu.tsfile.timeseries.read.qp.Path;
-import cn.edu.thu.tsfile.timeseries.read.query.QueryDataSet;
 import cn.edu.thu.tsfile.timeseries.read.query.QueryEngine;
-import cn.edu.thu.tsfile.timeseries.utils.RecordUtils;
 import cn.edu.thu.tsfile.timeseries.write.InternalRecordWriter;
 import cn.edu.thu.tsfile.timeseries.write.TSRecordWriteSupport;
 import cn.edu.thu.tsfile.timeseries.write.TSRecordWriter;
 import cn.edu.thu.tsfile.timeseries.write.WriteSupport;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
+import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
+import cn.edu.thu.tsfile.timeseries.read.query.QueryDataSet;
+import cn.edu.thu.tsfile.timeseries.utils.RecordUtils;
+import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -127,13 +125,6 @@ public class TsFile {
     public QueryDataSet query(List<Path> paths, FilterExpression timeFilter,
                               FilterExpression valueFilter) throws IOException {
         checkStatus(READ);
-        if (paths.size()==1 && valueFilter instanceof SingleSeriesFilterExpression
-                && paths.get(0).getDeltaObjectToString().equals(valueFilter.getFilterSeries().getDeltaObjectUID())
-                && paths.get(0).getMeasurementToString().equals(valueFilter.getFilterSeries().getMeasurementUID())) {
-
-        } else if (valueFilter != null){
-            valueFilter = FilterFactory.csAnd(valueFilter, valueFilter);
-        }
         return queryEngine.query(paths, timeFilter, null, valueFilter);
     }
 

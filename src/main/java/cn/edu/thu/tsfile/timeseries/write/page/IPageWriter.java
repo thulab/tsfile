@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import cn.edu.thu.tsfile.common.utils.bytesinput.BytesInput;
 import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
-import cn.edu.thu.tsfile.timeseries.write.series.ISeriesWriter;
 import cn.edu.thu.tsfile.timeseries.write.exception.PageException;
+import cn.edu.thu.tsfile.timeseries.write.series.ISeriesWriter;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 
 /**
@@ -26,10 +26,10 @@ public interface IPageWriter {
      * @param maxTimestamp - timestamp maximum in given data
      * @param minTimestamp - timestamp minimum in given data
      * @throws IOException
-     * @throws PageException 
+     * @throws PageException
      */
     void writePage(BytesInput bytesInput, int valueCount, Statistics<?> statistics,
-            long maxTimestamp, long minTimestamp) throws PageException;
+                   long maxTimestamp, long minTimestamp) throws PageException;
 
     /**
      * write the page to specified IOWriter

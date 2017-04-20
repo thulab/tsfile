@@ -1,6 +1,8 @@
 package cn.edu.thu.tsfile.timeseries.filter.definition.operators;
 
 import cn.edu.thu.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
+import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
+import cn.edu.thu.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;

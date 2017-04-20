@@ -1,20 +1,24 @@
 package cn.edu.thu.tsfile.timeseries.filter.definition;
 
-import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.LongFilterSeries;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.GtEq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.LtEq;
+import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
+import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.BooleanFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.DoubleFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeriesType;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FloatFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.IntFilterSeries;
+import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.LongFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.StringFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.And;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSAnd;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSOr;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Eq;
+import cn.edu.thu.tsfile.timeseries.filter.definition.operators.GtEq;
+import cn.edu.thu.tsfile.timeseries.filter.definition.operators.LtEq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Not;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
@@ -135,7 +139,7 @@ public final class FilterFactory {
 	 * @return
 	 */
 	public static <T extends Comparable<T>, C extends FilterSeries<T>> LtEq<T> ltEq(C filterSeries, T value,
-																					Boolean ifEq) {
+                                                                                    Boolean ifEq) {
 		return new LtEq<T>(filterSeries, value, ifEq);
 	}
 
@@ -148,7 +152,7 @@ public final class FilterFactory {
 	 * @return
 	 */
 	public static <T extends Comparable<T>, C extends FilterSeries<T>> GtEq<T> gtEq(C filterSeries, T value,
-																					Boolean ifEq) {
+			Boolean ifEq) {
 		return new GtEq<T>(filterSeries, value, ifEq);
 	}
 

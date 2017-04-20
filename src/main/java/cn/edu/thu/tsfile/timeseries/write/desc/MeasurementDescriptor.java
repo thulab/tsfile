@@ -1,18 +1,18 @@
 package cn.edu.thu.tsfile.timeseries.write.desc;
 
+import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
+import cn.edu.thu.tsfile.compress.Compressor;
+import cn.edu.thu.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
+import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.thu.tsfile.common.conf.TSFileConfig;
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
-import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
-import cn.edu.thu.tsfile.compress.Compressor;
 import cn.edu.thu.tsfile.encoding.encoder.Encoder;
-import cn.edu.thu.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
-import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 import cn.edu.thu.tsfile.timeseries.utils.StringContainer;
 import cn.edu.thu.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
+import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 import cn.edu.thu.tsfile.timeseries.write.schema.converter.TSDataTypeConverter;
 import cn.edu.thu.tsfile.timeseries.write.schema.converter.TSEncodingConverter;
 import org.json.JSONObject;

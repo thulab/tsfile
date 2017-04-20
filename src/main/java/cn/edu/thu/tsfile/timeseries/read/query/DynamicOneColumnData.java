@@ -3,80 +3,80 @@ package cn.edu.thu.tsfile.timeseries.read.query;
 import java.util.ArrayList;
 
 import cn.edu.thu.tsfile.common.utils.Binary;
-import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 
 /**
- * DynamicOneColumnData is a self-defined data structure which is optimized for different type 
- * of values. This class can be viewed as a collection which is more efficient than ArrayList<>. 
+ * DynamicOneColumnData is a self-defined data structure which is optimized for different type
+ * of values. This class can be viewed as a collection which is more efficient than ArrayList<>.
  * @author Jinrui Zhang
  *
  */
 public class DynamicOneColumnData {
-	
+
 	//Read status
 	public int rowGroupIndex = 0;
 	public long pageOffset = -1;
 	public long leftSize = -1;
 	public boolean hasReadAll = false;
 	public int insertTrueIndex = 0;
-	
-	public static final int CAPACITY = 10000; 
-	
+
+	public static final int CAPACITY = 10000;
+
 	private String deltaObjectType;
 	public TSDataType dataType;
 	public String deltaObject;
 	public String measurementID;
-	
+
 	public int arrayIdx;
 	public int valueIdx;
 	public int length;
 	public int curIdx;
-	
+
 	//Some variables that record overflow information
 	public DynamicOneColumnData insertTrue;
 	public DynamicOneColumnData updateTrue;
 	public DynamicOneColumnData updateFalse;
 	public SingleSeriesFilterExpression timeFilter;
 	//End read status
-	
+
 	//Some variables that record time values
 	public ArrayList<long[]> timeRet = null;
 	public int timeArrayIdx;
 	public int timeValueIdx;
 	public int timeLength;
-	
+
 	public ArrayList<boolean[]> booleanRet;
 	public ArrayList<int[]> intRet;
 	public ArrayList<long[]> longRet;
 	public ArrayList<float[]> floatRet;
 	public ArrayList<double[]> doubleRet;
 	public ArrayList<Binary[]> binaryRet;
-	
+
 	public DynamicOneColumnData(){
 		dataType = null;
 	}
-	
+
 	public DynamicOneColumnData(TSDataType type){
 		dataType = type;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param type Data type to record for this DynamicOneColumnData
 	 * @param recordTime whether to record time value for this DynamicOneColumnData
 	 */
 	public DynamicOneColumnData(TSDataType type, boolean recordTime){
 		init(type, recordTime);
 	}
-	
+
 	public void init(TSDataType type, boolean recordTime){
 		this.dataType = type;
 		this.arrayIdx = 0;
 		this.valueIdx = 0;
 		this.length = 0;
 		this.curIdx = 0;
-		
+
 		if(recordTime){
 			timeRet = new ArrayList<>();
 			timeRet.add(new long[CAPACITY]);
@@ -84,7 +84,7 @@ public class DynamicOneColumnData {
 			timeValueIdx = 0;
 			timeLength = 0;
 		}
-		
+
 		switch(dataType){
 		case BOOLEAN:
 			booleanRet = new ArrayList<>();
@@ -110,11 +110,15 @@ public class DynamicOneColumnData {
 			binaryRet = new ArrayList<>();
 			binaryRet.add(new Binary[CAPACITY]);
 			break;
+        case ENUMS:
+            binaryRet = new ArrayList<>();
+            binaryRet.add(new Binary[CAPACITY]);
+            break;
 		default:
 			break;
 		}
 	}
-	
+
 	public void putTime(long v){
 		if(timeValueIdx == CAPACITY){
 			this.timeRet.add(new long[CAPACITY]);
@@ -150,7 +154,7 @@ public class DynamicOneColumnData {
 		timeValueIdx = 0;
 		timeLength = 0;
 	}
-	
+
 	/**
 	 * add all time and value from another DynamicOneColumnData to self.
 	 * @param col
@@ -190,11 +194,16 @@ public class DynamicOneColumnData {
 				putBinary(col.getBinary(i));
 			}
 			break;
+        case ENUMS:
+            for(int i = 0 ; i < col.length ; i ++){
+                putBinary(col.getBinary(i));
+            }
+            break;
 		default:
 			break;
 		}
 	}
-	
+
 	public void putBoolean(boolean v){
 		if(valueIdx == CAPACITY){
 			if(this.booleanRet.size() <= arrayIdx + 1){
@@ -206,7 +215,7 @@ public class DynamicOneColumnData {
 		(this.booleanRet.get(arrayIdx))[valueIdx++] = v;
 		length ++;
 	}
-	
+
 	public void putInt(int v){
 		if(valueIdx == CAPACITY){
 			if(this.intRet.size() <= arrayIdx + 1){
@@ -218,7 +227,7 @@ public class DynamicOneColumnData {
 		(this.intRet.get(arrayIdx))[valueIdx++] = v;
 		length ++;
 	}
-	
+
 	public void putLong(long v){
 		if(valueIdx == CAPACITY){
 			if(this.longRet.size() <= arrayIdx + 1){
@@ -230,7 +239,7 @@ public class DynamicOneColumnData {
 		(this.longRet.get(arrayIdx))[valueIdx++] = v;
 		length ++;
 	}
-	
+
 	public void putFloat(float v){
 		if(valueIdx == CAPACITY){
 			if(this.floatRet.size() <= arrayIdx + 1){
@@ -242,7 +251,7 @@ public class DynamicOneColumnData {
 		(this.floatRet.get(arrayIdx))[valueIdx++] = v;
 		length ++;
 	}
-	
+
 	public void putDouble(double v){
 		if(valueIdx == CAPACITY){
 			if(this.doubleRet.size() <= arrayIdx + 1){
@@ -254,7 +263,7 @@ public class DynamicOneColumnData {
 		(this.doubleRet.get(arrayIdx))[valueIdx++] = v;
 		length ++;
 	}
-	
+
 	public void putBinary(Binary v){
 		if(valueIdx == CAPACITY){
 			if(this.binaryRet.size() <= arrayIdx + 1){
@@ -266,10 +275,10 @@ public class DynamicOneColumnData {
 		(this.binaryRet.get(arrayIdx))[valueIdx++] = v;
 		length ++;
 	}
-	
+
 	/**
      * Checks if the given index is in range.  If not, throws an appropriate
-     * runtime exception. 
+     * runtime exception.
      */
 	private void rangeCheck(int idx) {
 		if(idx < 0){
@@ -279,10 +288,10 @@ public class DynamicOneColumnData {
             throw new IndexOutOfBoundsException("Index : " + idx + ". Length : " + length);
         }
     }
-	
+
 	/**
      * Checks if the given index is in range.  If not, throws an appropriate
-     * runtime exception. 
+     * runtime exception.
      */
 	private void rangeCheckForTime(int idx) {
 		if(idx < 0){
@@ -292,42 +301,42 @@ public class DynamicOneColumnData {
             throw new IndexOutOfBoundsException("Index : " + idx + ". Length : " + length);
         }
     }
-	
+
 	public boolean getBoolean(int idx){
 		rangeCheck(idx);
 		return this.booleanRet.get(idx / CAPACITY)[idx % CAPACITY];
 	}
-	
+
 	public int getInt(int idx){
 		rangeCheck(idx);
 		return this.intRet.get(idx / CAPACITY)[idx % CAPACITY];
 	}
-	
+
 	public long getLong(int idx){
 		rangeCheck(idx);
 		return this.longRet.get(idx / CAPACITY)[idx % CAPACITY];
 	}
-	
+
 	public float getFloat(int idx){
 		rangeCheck(idx);
 		return this.floatRet.get(idx / CAPACITY)[idx % CAPACITY];
 	}
-	
+
 	public double getDouble(int idx){
 		rangeCheck(idx);
 		return this.doubleRet.get(idx / CAPACITY)[idx % CAPACITY];
 	}
-	
+
 	public Binary getBinary(int idx){
 		rangeCheck(idx);
 		return this.binaryRet.get(idx / CAPACITY)[idx % CAPACITY];
 	}
-	
+
 	public long getTime(int idx){
 		rangeCheckForTime(idx);
 		return this.timeRet.get(idx / CAPACITY)[idx % CAPACITY];
 	}
-	
+
 	public long[] getTimeAsArray(){
 		long[] res = new long[timeLength];
 		for(int i = 0 ; i < timeLength; i++){
@@ -335,7 +344,7 @@ public class DynamicOneColumnData {
 		}
 		return res;
 	}
-	
+
 	public String getStringValue(int idx){
 		switch(dataType){
 		case BOOLEAN:
@@ -350,11 +359,13 @@ public class DynamicOneColumnData {
 			return String.valueOf(getDouble(idx));
 		case BYTE_ARRAY:
 			return String.valueOf(getBinary(idx));
+        case ENUMS:
+            return String.valueOf(getBinary(idx));
 		default:
 			return null;
 		}
 	}
-	
+
 	public String getStringTimeValuePair(int idx){
 		String v;
 		switch(dataType){
@@ -376,6 +387,9 @@ public class DynamicOneColumnData {
 		case BYTE_ARRAY:
 			v = String.valueOf(getBinary(idx));
 			break;
+        case ENUMS:
+            v = String.valueOf(getBinary(idx));
+            break;
 		default:
 			v = "";
 			break;
@@ -387,7 +401,7 @@ public class DynamicOneColumnData {
 		sb.append(v);
 		return sb.toString();
 	}
-	
+
 	public void putAValueFromDynamicOneColumnData(DynamicOneColumnData B, int idx){
 		switch (dataType) {
 		case BOOLEAN:
@@ -408,11 +422,14 @@ public class DynamicOneColumnData {
 		case BYTE_ARRAY:
 			putBinary(B.getBinary(idx));
 			break;
+        case ENUMS:
+            putBinary(B.getBinary(idx));
+            break;
 		default:
 			break;
 		}
 	}
-	
+
 	public void rollBack(int size){
 		//rollback the length
 		length -= size;
@@ -443,27 +460,30 @@ public class DynamicOneColumnData {
 				case BYTE_ARRAY:
 					binaryRet.remove(arrayIdx);
 					break;
+                case ENUMS:
+                    binaryRet.remove(arrayIdx);
+                    break;
 				default:
 					break;
 				}
 				arrayIdx --;
 				timeRet.remove(timeArrayIdx);
 				timeArrayIdx --;
-				
+
 				size -= CAPACITY;
 			}
-			valueIdx = CAPACITY - size; 
+			valueIdx = CAPACITY - size;
 		}
 	}
-	
+
 	public void clearData(){
 		this.init(dataType, true);
 	}
-	
+
 	public DynamicOneColumnData sub(int startPos){
 		return sub(startPos, this.length - 1);
 	}
-	
+
 	public DynamicOneColumnData sub(int startPos, int endPos){
 		DynamicOneColumnData subRes = new DynamicOneColumnData(dataType, true);
 		for(int i = startPos; i <= endPos; i ++){
@@ -472,7 +492,7 @@ public class DynamicOneColumnData {
 		}
 		return subRes;
 	}
-	
+
 	public String getDeltaObjectType() {
 		return deltaObjectType;
 	}
@@ -480,7 +500,7 @@ public class DynamicOneColumnData {
 	public void setDeltaObjectType(String deltaObjectType) {
 		this.deltaObjectType = deltaObjectType;
 	}
-	
+
 	public void putOverflowInfo(DynamicOneColumnData insertTrue, DynamicOneColumnData updateTrue,
 			DynamicOneColumnData updateFalse, SingleSeriesFilterExpression timeFilter){
 		this.insertTrue = insertTrue;
@@ -488,7 +508,7 @@ public class DynamicOneColumnData {
 		this.updateFalse = updateFalse;
 		this.timeFilter = timeFilter;
 	}
-	
+
 	public void copyFetchInfoTo(DynamicOneColumnData oneColRet){
 		oneColRet.rowGroupIndex = this.rowGroupIndex;
 		oneColRet.pageOffset = this.pageOffset;
@@ -500,9 +520,9 @@ public class DynamicOneColumnData {
 		oneColRet.updateTrue = this.updateTrue;
 		oneColRet.timeFilter = this.timeFilter;
 	}
-	
+
 	public void plusRowGroupIndexAndInitPageOffset(){
-		
+
 		this.rowGroupIndex ++;
 		//RowGroupIndex's change means that The pageOffset should be updateTo the value in next RowGroup.
 		//But we don't know the value, so set the pageOffset to -1. And we calculate the accuracy value

@@ -87,6 +87,8 @@ public class Field {
 			return String.valueOf(doubleV);
 		case BYTE_ARRAY:
 			return binaryV.toString();
+		case ENUMS:
+			return binaryV.toString();
 		default:
 			return "Unknown Datatype";
 		}

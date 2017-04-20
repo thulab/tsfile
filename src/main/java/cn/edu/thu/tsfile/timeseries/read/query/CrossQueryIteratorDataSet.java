@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 
 import cn.edu.thu.tsfile.timeseries.read.readSupport.RowRecord;
+import cn.edu.thu.tsfile.timeseries.read.readSupport.RowRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.thu.tsfile.timeseries.read.readSupport.Field;
+import cn.edu.thu.tsfile.timeseries.read.readSupport.RowRecord;
 
 /**
  * This class is the subClass of {@code QueryDataSet}. It is used to store
@@ -21,14 +23,10 @@ public abstract class CrossQueryIteratorDataSet extends QueryDataSet{
 	//special for save time values when processing cross getIndex
 	private boolean hasReadAll;
 	
-	public CrossQueryIteratorDataSet(CrossQueryTimeGenerator timeGenerator){
+	public CrossQueryIteratorDataSet(CrossQueryTimeGenerator timeGenerator) throws IOException{
 		this.timeQueryDataSet = timeGenerator;
 		mapRet = new LinkedHashMap<>();
-		try {
-			hasReadAll = getMoreRecords();
-		} catch (IOException e) {
-			logger.error("Error in create CrossQueryIteratorDataSet:", e);
-		}
+		hasReadAll = getMoreRecords();
 		size = mapRet.size();
 	}
 	

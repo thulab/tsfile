@@ -4,9 +4,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.PriorityQueue;
 
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.thu.tsfile.timeseries.read.qp.Path;
 import cn.edu.thu.tsfile.timeseries.read.readSupport.Field;
 import cn.edu.thu.tsfile.timeseries.read.readSupport.RowRecord;
-import cn.edu.thu.tsfile.timeseries.read.qp.Path;
 
 
 public class QueryDataSet {
@@ -150,6 +151,9 @@ public class QueryDataSet {
 		case BYTE_ARRAY:
 			f.setBinaryV(col.getBinary(idx));
 			break;
+		case ENUMS:
+			f.setBinaryV(col.getBinary(idx));
+			break;
 		default:
 			break;
 		}
@@ -191,6 +195,9 @@ public class QueryDataSet {
 				mapRet.get(key).putDouble(f.getFloatV());
 				break;
 			case BYTE_ARRAY:
+				mapRet.get(key).putBinary(f.getBinaryV());
+				break;
+			case ENUMS:
 				mapRet.get(key).putBinary(f.getBinaryV());
 				break;
 			default:

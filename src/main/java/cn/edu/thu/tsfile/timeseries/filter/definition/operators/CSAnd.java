@@ -1,9 +1,11 @@
 package cn.edu.thu.tsfile.timeseries.filter.definition.operators;
 
+import cn.edu.thu.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
+import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
+import cn.edu.thu.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
-import cn.edu.thu.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
 
 /**
  * Both the left and right operators of CSAnd must satisfy the condition.</br>

@@ -3,8 +3,8 @@ package cn.edu.thu.tsfile.timeseries.read.management;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import cn.edu.thu.tsfile.timeseries.read.LocalFileInput;
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
+import cn.edu.thu.tsfile.timeseries.read.LocalFileInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

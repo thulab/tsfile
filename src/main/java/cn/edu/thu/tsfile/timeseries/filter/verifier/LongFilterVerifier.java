@@ -2,16 +2,23 @@ package cn.edu.thu.tsfile.timeseries.filter.verifier;
 
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.And;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.GtEq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.LtEq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
-import cn.edu.thu.tsfile.timeseries.filter.utils.LongInterval;
-import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Eq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Not;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
+import cn.edu.thu.tsfile.timeseries.filter.utils.LongInterval;
+import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
+import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
+import cn.edu.thu.tsfile.timeseries.filter.definition.operators.And;
+import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Eq;
+import cn.edu.thu.tsfile.timeseries.filter.definition.operators.GtEq;
+import cn.edu.thu.tsfile.timeseries.filter.definition.operators.LtEq;
+import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Not;
+import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
+import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
+import cn.edu.thu.tsfile.timeseries.filter.utils.LongInterval;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.ConvertExpressionVisitor;
+import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
 
 /**
  * 
@@ -19,7 +26,7 @@ import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.ConvertExpressionVisitor;
  *
  */
 public class LongFilterVerifier extends FilterVerifier implements FilterVisitor<LongInterval> {
-	private ConvertExpressionVisitor convertor = new ConvertExpressionVisitor();
+	private ConvertExpressionVisitor convertor = new ConvertExpressionVisitor(); 
 	
 	@Override
 	public LongInterval getInterval(SingleSeriesFilterExpression filter) {

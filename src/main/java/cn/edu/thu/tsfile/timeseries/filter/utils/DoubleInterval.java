@@ -1,9 +1,8 @@
 package cn.edu.thu.tsfile.timeseries.filter.utils;
 
+import cn.edu.thu.tsfile.common.exception.FilterInvokeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import cn.edu.thu.tsfile.common.exception.FilterInvokeException;
 
 /**
  * used for filter Double type optimization see {@link Interval}

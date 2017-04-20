@@ -3,8 +3,13 @@ package cn.edu.thu.tsfile.timeseries.write;
 import java.io.IOException;
 import java.util.Map;
 
+import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
+import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
+import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
+import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
+import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
 
 /**

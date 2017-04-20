@@ -10,14 +10,14 @@ import java.util.Set;
 
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.thu.tsfile.file.metadata.TimeSeriesMetadata;
-import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.file.metadata.enums.TSFreqType;
 import cn.edu.thu.tsfile.timeseries.write.InternalRecordWriter;
-import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.thu.tsfile.timeseries.write.schema.converter.JsonConverter;
+import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
+import cn.edu.thu.tsfile.file.metadata.TimeSeriesMetadata;
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.thu.tsfile.timeseries.write.schema.converter.JsonConverter;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;

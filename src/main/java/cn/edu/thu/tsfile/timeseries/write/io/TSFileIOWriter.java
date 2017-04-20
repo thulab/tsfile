@@ -2,8 +2,16 @@ package cn.edu.thu.tsfile.timeseries.write.io;
 
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.utils.BytesUtils;
-import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
 import cn.edu.thu.tsfile.common.utils.bytesinput.BytesInput;
+import cn.edu.thu.tsfile.file.metadata.converter.TSFileMetaDataConverter;
+import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
+import cn.edu.thu.tsfile.file.metadata.enums.TSChunkType;
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.thu.tsfile.file.utils.ReadWriteThriftFormatUtils;
+import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
+import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
+import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
 import cn.edu.thu.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.thu.tsfile.file.metadata.TInTimeSeriesChunkMetaData;
 import cn.edu.thu.tsfile.file.metadata.TSDigest;
@@ -11,14 +19,6 @@ import cn.edu.thu.tsfile.file.metadata.TSFileMetaData;
 import cn.edu.thu.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.thu.tsfile.file.metadata.TimeSeriesMetadata;
 import cn.edu.thu.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
-import cn.edu.thu.tsfile.file.metadata.converter.TSFileMetaDataConverter;
-import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
-import cn.edu.thu.tsfile.file.metadata.enums.TSChunkType;
-import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
-import cn.edu.thu.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
-import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,8 +101,8 @@ public class TSFileIOWriter {
      * @throws IOException
      */
     public void startSeries(MeasurementDescriptor descriptor,
-            CompressionTypeName compressionCodecName, TSDataType tsDataType,
-            Statistics<?> statistics, long maxTime, long minTime) throws IOException {
+                            CompressionTypeName compressionCodecName, TSDataType tsDataType,
+                            Statistics<?> statistics, long maxTime, long minTime) throws IOException {
         LOG.debug("start series:{}", descriptor);
         currentSeries =
                 new TimeSeriesChunkMetaData(descriptor.getMeasurementId(), TSChunkType.VALUE,

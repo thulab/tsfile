@@ -2,8 +2,8 @@ package cn.edu.thu.tsfile.timeseries.read.metadata;
 
 import java.util.HashMap;
 
-import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 
 /**
  * @description <p>This class define a schema for one time series.</p><br>

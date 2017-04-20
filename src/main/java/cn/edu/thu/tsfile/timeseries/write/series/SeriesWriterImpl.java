@@ -6,15 +6,16 @@ import java.math.BigDecimal;
 import cn.edu.thu.tsfile.common.conf.TSFileConfig;
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.utils.Binary;
-import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.thu.tsfile.encoding.encoder.Encoder;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.thu.tsfile.timeseries.write.exception.PageException;
-import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 import cn.edu.thu.tsfile.timeseries.write.page.IPageWriter;
+import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 
 /**
  * A implementation of {@code ISeriesWriter}. {@code SeriesWriterImpl} consists of a

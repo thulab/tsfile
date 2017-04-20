@@ -6,23 +6,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.edu.thu.tsfile.common.exception.ProcessorException;
+import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cn.edu.thu.tsfile.common.constant.QueryConstant;
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.utils.FilterUtils;
+import cn.edu.thu.tsfile.timeseries.read.LocalFileInput;
+import cn.edu.thu.tsfile.timeseries.read.RecordReader;
 import cn.edu.thu.tsfile.timeseries.read.RowGroupReader;
 import cn.edu.thu.tsfile.timeseries.read.metadata.SeriesSchema;
 import cn.edu.thu.tsfile.timeseries.read.qp.Path;
-import cn.edu.thu.tsfile.common.constant.QueryConstant;
-import cn.edu.thu.tsfile.timeseries.read.LocalFileInput;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import cn.edu.thu.tsfile.common.exception.ProcessorException;
-import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
-import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.thu.tsfile.timeseries.read.RecordReader;
 
 
 public class QueryEngine {
@@ -64,7 +64,7 @@ public class QueryEngine {
 	}
 
 	public QueryDataSet query(List<Path> paths, FilterExpression timeFilter, FilterExpression freqFilter,
-							  FilterExpression valueFilter) throws IOException {
+			FilterExpression valueFilter) throws IOException {
 
 		if (timeFilter == null && freqFilter == null && valueFilter == null) {
 			return readWithoutFilter(paths);
@@ -282,7 +282,7 @@ public class QueryEngine {
 	 * @throws IOException 
 	 */
 	public QueryDataSet crossColumnQuery(List<Path> paths, SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
-			CrossSeriesFilterExpression valueFilter){
+			CrossSeriesFilterExpression valueFilter) throws IOException{
 		CrossQueryTimeGenerator timeQueryDataSet = new CrossQueryTimeGenerator(timeFilter, freqFilter, valueFilter, FETCH_SIZE){
 			@Override
 			public DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize,
@@ -328,7 +328,7 @@ public class QueryEngine {
 	 * @throws IOException 
 	 */
 	public QueryDataSet crossColumnQuery(List<Path> paths, SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
-			CrossSeriesFilterExpression valueFilter, ArrayList<Integer> RowGroupIdxList){
+			CrossSeriesFilterExpression valueFilter, ArrayList<Integer> RowGroupIdxList) throws IOException {
 		CrossQueryTimeGenerator timeQueryDataSet = new CrossQueryTimeGenerator(timeFilter, freqFilter, valueFilter, FETCH_SIZE){
 			@Override
 			public DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize,

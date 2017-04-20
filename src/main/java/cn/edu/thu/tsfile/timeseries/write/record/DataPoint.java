@@ -3,17 +3,17 @@ package cn.edu.thu.tsfile.timeseries.write.record;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.thu.tsfile.timeseries.write.series.ISeriesWriter;
 import cn.edu.thu.tsfile.timeseries.utils.StringContainer;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.BigDecimalDataPoint;
-import cn.edu.thu.tsfile.timeseries.write.record.datapoint.DoubleDataPoint;
-import cn.edu.thu.tsfile.timeseries.write.record.datapoint.FloatDataPoint;
-import cn.edu.thu.tsfile.timeseries.write.series.ISeriesWriter;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.BooleanDataPoint;
-import cn.edu.thu.tsfile.timeseries.write.record.datapoint.EnumDataPoint;
+import cn.edu.thu.tsfile.timeseries.write.record.datapoint.DoubleDataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.IntDataPoint;
+import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
+import cn.edu.thu.tsfile.timeseries.write.record.datapoint.EnumDataPoint;
+import cn.edu.thu.tsfile.timeseries.write.record.datapoint.FloatDataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.LongDataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.StringDataPoint;
 

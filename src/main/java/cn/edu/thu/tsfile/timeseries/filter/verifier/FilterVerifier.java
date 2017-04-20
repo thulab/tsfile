@@ -1,7 +1,7 @@
 package cn.edu.thu.tsfile.timeseries.filter.verifier;
 
-import cn.edu.thu.tsfile.timeseries.filter.utils.Interval;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
+import cn.edu.thu.tsfile.timeseries.filter.utils.Interval;
 
 /**
  * optimizing of filter, transfer SingleSensorFilter to interval comparison
