@@ -83,12 +83,6 @@
 			<artifactId>snappy-java</artifactId>
 			<version>1.0.5-M1</version>
 		</dependency>
-		<dependency>
-			<groupId>com.github.wendykierp</groupId>
-			<artifactId>JTransforms</artifactId>
-			<version>3.1</version>
-			<classifier>with-dependencies</classifier>
-		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

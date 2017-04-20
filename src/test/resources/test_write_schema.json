@@ -9,7 +9,6 @@
             "measurement_id": "s1",
             "data_type": "INT64",
             "encoding": "TS_2DIFF",
-            "freq_encoding":"DFT"
         },
         {
             "measurement_id": "s2",

@@ -7,5 +7,5 @@ package cn.edu.thu.tsfile.file.metadata.enums;
  * @date Apr 29, 2016 9:45:04 PM
  */
 public enum TSEncoding {
-  PLAIN, PLAIN_DICTIONARY, RLE, DIFF, TS_2DIFF, BITMAP, PLA, SDT, DFT
+  PLAIN, PLAIN_DICTIONARY, RLE, DIFF, TS_2DIFF, BITMAP
 }
