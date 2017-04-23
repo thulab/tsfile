@@ -10,7 +10,7 @@ ___________    ___________.__.__
 
 ## Abstract
 
-TsFile is a columnar storage file format designed for time series data, which supports efficient compression and query. It is easy to integrate TsFile into your IoT big data processing frameworks.
+TsFile is a columnar storage file format designed for  time series data, which supports efficient compression and query. It is easy to integrate TsFile into your IoT big data processing frameworks.
 
 
 ## Motivation
