@@ -5,10 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
 import cn.edu.thu.tsfile.common.constant.SystemConstant;
 
@@ -24,7 +24,7 @@ public class TSFileDescriptor {
 
 	private static TSFileDescriptor descriptor = new TSFileDescriptor();
 
-	private final String CONFIG_DEFAULT_PATH = "/tsfile.yaml";
+	private final String CONFIG_DEFAULT_PATH = "/tsfile.properties";
 
 	private TSFileDescriptor() {
 		loadYaml();
@@ -51,7 +51,7 @@ public class TSFileDescriptor {
 			inputStream = this.getClass().getResourceAsStream(url);
 			return;
 		} else {
-			url = url + "/conf/tsfile.yaml";
+			url = url + "/conf/tsfile.properties";
 			try {
 				File file = new File(url);
 				inputStream = new FileInputStream(file);
@@ -60,22 +60,66 @@ public class TSFileDescriptor {
 				System.exit(1);
 			}
 		}
-		LOGGER.info("start to read config file {}", url);
+		LOGGER.info("Start to read config file {}", url);
+		Properties properties = new Properties();
 		try {
-			Yaml yaml = new Yaml();
-			conf = yaml.loadAs(inputStream, TSFileConfig.class);
-		} catch (Exception e) {
-			LOGGER.error("Loading settings {} failed.", url, e);
-			System.exit(1);
-		} finally {
-			if (inputStream != null) {
-				try {
-					inputStream.close();
-					inputStream = null;
-				} catch (IOException e) {
-				}
-			}
+		    properties.load(inputStream);
+		    
+		    String rowGroupSize = properties.getProperty("rowGroupSize");
+		    conf.rowGroupSize = Integer.parseInt(rowGroupSize);
+		    
+		    String pageSize = properties.getProperty("pageSize");
+		    conf.pageSize = Integer.parseInt(pageSize);
+
+		    String timeSeriesEncoder = properties.getProperty("timeSeriesEncoder");
+		    conf.timeSeriesEncoder = timeSeriesEncoder;		    
+		    
+		    String defaultSeriesEncoder = properties.getProperty("defaultSeriesEncoder");
+		    conf.defaultSeriesEncoder = defaultSeriesEncoder;		    
+		    
+		    String compressName = properties.getProperty("compressName");
+		    conf.compressName = compressName;		    
+		    
+		    String defaultRleBitWidth = properties.getProperty("defaultRleBitWidth");
+		    conf.defaultRleBitWidth = Integer.parseInt(defaultRleBitWidth);
+
+		    String defaultEndian = properties.getProperty("defaultEndian");
+		    conf.defaultEndian = defaultEndian;
+		    
+		    String defaultDeltaBlockSize = properties.getProperty("defaultDeltaBlockSize");
+		    conf.defaultDeltaBlockSize = Integer.parseInt(defaultDeltaBlockSize);
+		    
+		    String defaultPLAMaxError = properties.getProperty("defaultPLAMaxError");
+		    conf.defaultPLAMaxError = Double.parseDouble(defaultPLAMaxError);
+		    
+		    String defaultSDTMaxError = properties.getProperty("defaultSDTMaxError");
+		    conf.defaultSDTMaxError = Double.parseDouble(defaultSDTMaxError);
+		} catch (IOException e) {
+		    LOGGER.warn("Error format in config file, use default configuration", e);
 		}
+		if(inputStream != null){
+		    try {
+			inputStream.close();
+		    } catch (IOException e) {
+			LOGGER.error("Fail to close config file input stream", e);
+		    }
+		}
+	}
+
+	public static void main(String[] args) {
+	    TSFileDescriptor descriptor = TSFileDescriptor.getInstance();
+	    TSFileConfig config = descriptor.getConfig();
+	    
+	    System.out.println(config.rowGroupSize);
+	    System.out.println(config.pageSize);
+	    System.out.println(config.timeSeriesEncoder);
+	    System.out.println(config.defaultSeriesEncoder);
+	    System.out.println(config.compressName);
+	    System.out.println(config.defaultRleBitWidth);
+	    System.out.println(config.defaultEndian);
+	    System.out.println(config.defaultDeltaBlockSize);
+	    System.out.println(config.defaultPLAMaxError);
+	    System.out.println(config.defaultSDTMaxError);
 	}
 
 }
