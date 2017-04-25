@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,13 +97,13 @@ public class FloatDecoderTest {
     }
   }
 
-  @Test
-  public void testBigDecimal() throws Exception {
-    for (int i = 1; i <= 5; i++) {
-      testDecimalLenght(TSEncoding.TS_2DIFF, doubleList, doubleMaxPointNumber, false, i);
-      testDecimalLenght(TSEncoding.RLE, doubleList, doubleMaxPointNumber, false, i);
-    }
-  }
+//  @Test
+//  public void testBigDecimal() throws Exception {
+//    for (int i = 1; i <= 5; i++) {
+//      testDecimalLenght(TSEncoding.TS_2DIFF, doubleList, doubleMaxPointNumber, false, i);
+//      testDecimalLenght(TSEncoding.RLE, doubleList, doubleMaxPointNumber, false, i);
+//    }
+//  }
 
   @Test
   public void test() throws Exception {
@@ -177,29 +176,29 @@ public class FloatDecoderTest {
     }
   }
 
-  private void testDecimalLenght(TSEncoding encoding, List<Double> valueList, int maxPointValue,
-      boolean isDebug, int repeatCount) throws Exception {
-    Encoder encoder = new FloatEncoder(encoding, TSDataType.BIGDECIMAL, maxPointValue);
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    for (int i = 0; i < repeatCount; i++) {
-      for (double value : valueList) {
-        encoder.encode(new BigDecimal(value), baos);
-      }
-      encoder.flush(baos);
-    }
-    LOGGER.debug("Repeated {} encoding done ", repeatCount);
-    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-
-    for (int i = 0; i < repeatCount; i++) {
-      Decoder decoder = new FloatDecoder(encoding, TSDataType.BIGDECIMAL);
-      for (double value : valueList) {
-        double value_ = decoder.readBigDecimal(bais).doubleValue();
-        if (isDebug) {
-          LOGGER.debug("{} // {}", value_, value);
-        }
-        assertEquals(value, value_, delta);
-      }
-      LOGGER.debug("Repeated {} turn ", repeatCount, i);
-    }
-  }
+//  private void testDecimalLenght(TSEncoding encoding, List<Double> valueList, int maxPointValue,
+//      boolean isDebug, int repeatCount) throws Exception {
+//    Encoder encoder = new FloatEncoder(encoding, TSDataType.BIGDECIMAL, maxPointValue);
+//    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//    for (int i = 0; i < repeatCount; i++) {
+//      for (double value : valueList) {
+//        encoder.encode(new BigDecimal(value), baos);
+//      }
+//      encoder.flush(baos);
+//    }
+//    LOGGER.debug("Repeated {} encoding done ", repeatCount);
+//    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+//
+//    for (int i = 0; i < repeatCount; i++) {
+//      Decoder decoder = new FloatDecoder(encoding, TSDataType.BIGDECIMAL);
+//      for (double value : valueList) {
+//        double value_ = decoder.readBigDecimal(bais).doubleValue();
+//        if (isDebug) {
+//          LOGGER.debug("{} // {}", value_, value);
+//        }
+//        assertEquals(value, value_, delta);
+//      }
+//      LOGGER.debug("Repeated {} turn ", repeatCount, i);
+//    }
+//  }
 }
