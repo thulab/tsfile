@@ -120,8 +120,9 @@ public class RecordReader {
 	public DynamicOneColumnData getValueInOneColumn(DynamicOneColumnData res, int fetchSize, String deltaObjectUID,
 			String measurementId, ArrayList<Integer> idxs) throws IOException {
 		checkSeries(deltaObjectUID, measurementId);
+		int rowGroupSkipCount = 0;
+		
 		List<RowGroupReader> rowGroupReaderList = readerManager.getAllRowGroupReaders();
-
 		int i = 0;
 		if (res != null) {
 			i = res.getRowGroupIndex();
@@ -130,10 +131,14 @@ public class RecordReader {
 			int idx = idxs.get(i);
 			RowGroupReader rowGroupReader = rowGroupReaderList.get(idx);
 			if (!deltaObjectUID.equals(rowGroupReader.getDeltaObjectUID())) {
+				rowGroupSkipCount ++;
 				continue;
 			}
 			res = getValueInOneColumn(res, fetchSize, rowGroupReader, measurementId);
 			res.setDeltaObjectType(rowGroupReader.getDeltaObjectType());
+			for(int k = 0; k < rowGroupSkipCount; k++){
+				res.plusRowGroupIndexAndInitPageOffset();
+			}
 			if (res.length >= fetchSize) {
 				res.hasReadAll = false;
 				break;
@@ -257,6 +262,8 @@ public class RecordReader {
 			String measurementId, SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
 			SingleSeriesFilterExpression valueFilter, ArrayList<Integer> idxs) throws IOException {
 		checkSeries(deltaObjectUID, measurementId);
+		int rowGroupSkipCount = 0;
+		
 		List<RowGroupReader> rowGroupReaderList = readerManager.getAllRowGroupReaders();
 		int i = 0;
 		if (res != null) {
@@ -267,10 +274,14 @@ public class RecordReader {
 			int idx = idxs.get(i);
 			RowGroupReader rowGroupReader = rowGroupReaderList.get(idx);
 			if (!deltaObjectUID.equals(rowGroupReader.getDeltaObjectUID())) {
+				rowGroupSkipCount ++;
 				continue;
 			}
 			res = getValuesUseFilter(res, fetchSize, rowGroupReader, measurementId, timeFilter, freqFilter, valueFilter);
 			res.setDeltaObjectType(rowGroupReader.getDeltaObjectType());
+			for(int k = 0 ; k < rowGroupSkipCount ; k ++){
+				res.plusRowGroupIndexAndInitPageOffset();
+			}
 			if (res.length >= fetchSize) {
 				res.hasReadAll = false;
 				break;
