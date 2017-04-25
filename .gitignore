@@ -18,3 +18,4 @@
 **/logs/
 **/lib/
 *.jar
+/target/

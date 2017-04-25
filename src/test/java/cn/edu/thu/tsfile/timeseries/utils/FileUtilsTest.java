@@ -1,15 +1,11 @@
 package cn.edu.thu.tsfile.timeseries.utils;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import cn.edu.thu.tsfile.timeseries.constant.TimeseriesTestConstant;
 import org.junit.Test;
 
 import cn.edu.thu.tsfile.timeseries.constant.TimeseriesTestConstant;
-import cn.edu.thu.tsfile.timeseries.utils.FileUtils;
 import cn.edu.thu.tsfile.timeseries.utils.FileUtils.Unit;
-
-import java.util.Random;
 
 /**
  * 
@@ -49,20 +45,5 @@ public class FileUtilsTest {
                 TimeseriesTestConstant.double_min_delta);
         assertEquals(0.51, FileUtils.getLocalFileByte(fileName, Unit.KB),
                 TimeseriesTestConstant.double_min_delta);
-    }
-
-    @Test
-    public void test() {
-        Random r = new Random();
-        char ch1 = (char) (97+r.nextInt(25));
-        System.out.println("ch1 = " + ch1);  // 将char类型数字8转换为int类型数字8
-        // 方法一：
-        Character ch2 = '8'; // char是基本数据类型，Character是其包装类型。
-        int num2 = Integer.parseInt(ch2.toString());
-        System.out.println("num2 = " + num2);
-        // 方法二：
-        char ch3 = '8';
-        int num3 = ch3 - 48;
-        System.out.println("num3 = " + num3);
     }
 }

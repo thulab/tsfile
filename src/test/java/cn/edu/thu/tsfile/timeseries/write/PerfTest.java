@@ -1,19 +1,12 @@
 package cn.edu.thu.tsfile.timeseries.write;
 
-import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
-import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.thu.tsfile.common.utils.RandomAccessOutputStream;
-import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
-import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
-import cn.edu.thu.tsfile.timeseries.utils.RecordUtils;
-import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
-import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
-import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
-import cn.edu.thu.tsfile.common.conf.TSFileConfig;
-import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.thu.tsfile.timeseries.utils.FileUtils;
-import cn.edu.thu.tsfile.timeseries.utils.FileUtils.Unit;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Random;
+import java.util.Scanner;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -22,12 +15,20 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Random;
-import java.util.Scanner;
+import cn.edu.thu.tsfile.common.conf.TSFileConfig;
+import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
+import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
+import cn.edu.thu.tsfile.common.utils.RandomAccessOutputStream;
+import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
+import cn.edu.thu.tsfile.timeseries.utils.FileUtils;
+import cn.edu.thu.tsfile.timeseries.utils.FileUtils.Unit;
+import cn.edu.thu.tsfile.timeseries.utils.RecordUtils;
+import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
+import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
+import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 
 /**
  * This is used for performance test, no asserting. User could change {@code ROW_COUNT} for larger
@@ -125,7 +126,6 @@ public class PerfTest {
         FileSchema schema = new FileSchema(jsonSchema);
         WriteSupport<TSRecord> writeSupport = new TSRecordWriteSupport();
         TSRandomAccessFileWriter outputStream = new RandomAccessOutputStream(file);
-        TSRandomAccessFileWriter errorOutputStream = new RandomAccessOutputStream(errorFile);
         TSFileIOWriter tsfileWriter = new TSFileIOWriter(schema, outputStream);
 
         // TSFileDescriptor.conf.rowGroupSize = 2000;

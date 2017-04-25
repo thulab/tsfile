@@ -85,30 +85,6 @@ public class TSFileConfig {
      * the default point number is 2
      */
     public int defaultMaxPointNumber = 2;
-    /**
-     * the default point number is 10000
-     */
-    public int defaultDFTPackLength = 10000;
-    /**
-     * the default point number is 0.4
-     */
-    public double defaultDFTRate = 0.4;
-    /**
-     * the default DFTWriteMain is false
-     */
-    public boolean defaultDFTWriteMain = false;
-    /**
-     * the default DFTWriteEncoding is false
-     */
-    public boolean defaultDFTWriteEncoding = false;
-    /**
-     * the default overlap rate is 0
-     */
-    public float defaultDFTOverlapRate = 0;
-    /**
-     * the default main frequency number is 1
-     */
-    public int defaultDFTMainFreqNum = 2;
 
     public double dftSatisfyRate = 0.1;
     /**

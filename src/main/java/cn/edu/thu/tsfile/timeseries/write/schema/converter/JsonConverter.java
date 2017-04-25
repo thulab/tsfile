@@ -1,18 +1,18 @@
 package cn.edu.thu.tsfile.timeseries.write.schema.converter;
 
-import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.thu.tsfile.encoding.encoder.Encoder;
-import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
-import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
-import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
-import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
-import cn.edu.thu.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
+import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.thu.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
+import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
+import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
+import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 
 /**
  * <p>
@@ -102,17 +102,10 @@ public class JsonConverter {
         TSEncoding encoding =
                 TSEncoding.valueOf(measurementObj
                         .getString(JsonFormatConstant.MEASUREMENT_ENCODING));
-        if(TSEncodingConverter.freqEncodings.contains(encoding))
-            throw new InvalidJsonSchemaException("invalid encoding for time domain:" + encoding);
-
         MeasurementDescriptor md =
                 new MeasurementDescriptor(type, measurementId, encoding, measurementObj);
         fileSchema.setDescriptor(measurementId, md);
-        int oneLineMaxSize = md.getTimeEncoder().getOneItemMaxSize() +
+        return md.getTimeEncoder().getOneItemMaxSize() +
                 md.getValueEncoder().getOneItemMaxSize();
-        Encoder freqEncoder = md.getFreqEncoder();
-        if(freqEncoder != null)
-            oneLineMaxSize += freqEncoder.getOneItemMaxSize();
-        return oneLineMaxSize;
     }
 }
