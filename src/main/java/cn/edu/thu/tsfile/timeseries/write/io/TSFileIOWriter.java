@@ -2,16 +2,8 @@ package cn.edu.thu.tsfile.timeseries.write.io;
 
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.utils.BytesUtils;
-import cn.edu.thu.tsfile.common.utils.bytesinput.BytesInput;
-import cn.edu.thu.tsfile.file.metadata.converter.TSFileMetaDataConverter;
-import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
-import cn.edu.thu.tsfile.file.metadata.enums.TSChunkType;
-import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.thu.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
-import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
-import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
+import cn.edu.thu.tsfile.common.utils.bytesinput.BytesInput;
 import cn.edu.thu.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.thu.tsfile.file.metadata.TInTimeSeriesChunkMetaData;
 import cn.edu.thu.tsfile.file.metadata.TSDigest;
@@ -19,12 +11,21 @@ import cn.edu.thu.tsfile.file.metadata.TSFileMetaData;
 import cn.edu.thu.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.thu.tsfile.file.metadata.TimeSeriesMetadata;
 import cn.edu.thu.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
+import cn.edu.thu.tsfile.file.metadata.converter.TSFileMetaDataConverter;
+import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
+import cn.edu.thu.tsfile.file.metadata.enums.TSChunkType;
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
+import cn.edu.thu.tsfile.file.utils.ReadWriteThriftFormatUtils;
+import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +54,21 @@ public class TSFileIOWriter {
         this.schema = schema;
         this.out = output;
         startFile();
+    }
+    
+    /**
+     * This is just used to restore one TSFile from List of RowGroupMetaData and the offset
+     * 
+     * @param schema
+     * @param output
+     * @param rowGroups
+     * @throws IOException 
+     */
+    public TSFileIOWriter(FileSchema schema,TSRandomAccessFileWriter output, long offset, List<RowGroupMetaData> rowGroups) throws IOException{
+    	this.schema = schema;
+    	this.out = output;
+    	out.seek(offset);
+    	this.rowGroups = rowGroups;
     }
 
     /**
@@ -89,7 +105,7 @@ public class TSFileIOWriter {
 
     /**
      * start a
-     * {@linkplain TimeSeriesChunkMetaData
+     * {@linkplain cn.edu.thu.tsfile.file.metadata.TimeSeriesChunkMetaData
      * TimeSeriesChunkMetaData}
      * 
      * @param descriptor - measurement of this time series
@@ -101,8 +117,8 @@ public class TSFileIOWriter {
      * @throws IOException
      */
     public void startSeries(MeasurementDescriptor descriptor,
-                            CompressionTypeName compressionCodecName, TSDataType tsDataType,
-                            Statistics<?> statistics, long maxTime, long minTime) throws IOException {
+            CompressionTypeName compressionCodecName, TSDataType tsDataType,
+            Statistics<?> statistics, long maxTime, long minTime) throws IOException {
         LOG.debug("start series:{}", descriptor);
         currentSeries =
                 new TimeSeriesChunkMetaData(descriptor.getMeasurementId(), TSChunkType.VALUE,
@@ -137,7 +153,7 @@ public class TSFileIOWriter {
     }
 
     /**
-     * write {@linkplain TSFileMetaData TSFileMetaData} to
+     * write {@linkplain cn.edu.thu.tsfile.file.metadata.TSFileMetaData TSFileMetaData} to
      * output stream and close it.
      * 
      * @throws IOException
@@ -180,4 +196,14 @@ public class TSFileIOWriter {
         else
             throw new IOException("write too much blank byte array!array size:"+diff);
     }
+    
+    /**
+     * Get the list of RowGroupMetaData in memory
+     * 
+     * @return - current list of RowGroupMetaData
+     */
+    public List<RowGroupMetaData> getRowGroups(){
+    	return rowGroups;
+    }
+    
 }

@@ -15,6 +15,8 @@ import java.io.OutputStream;
  */
 public interface TSRandomAccessFileWriter {
   public long getPos() throws IOException;
+  
+  public void seek(long offset) throws IOException;
 
   public void write(byte[] b) throws IOException;
 

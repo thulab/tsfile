@@ -24,7 +24,6 @@ public class RandomAccessOutputStream extends OutputStream implements TSRandomAc
 
     public RandomAccessOutputStream(File file, String mode) throws IOException {
         out = new RandomAccessFile(file, mode);
-        out.seek(out.length());
     }
 
     @Override
@@ -44,6 +43,10 @@ public class RandomAccessOutputStream extends OutputStream implements TSRandomAc
 
     public long getPos() throws IOException {
         return out.length();
+    }
+    
+    public void seek(long offset) throws IOException {
+    	out.seek(offset);
     }
 
     @Override
