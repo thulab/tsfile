@@ -1,23 +1,23 @@
 package cn.edu.thu.tsfile.timeseries.write.desc;
 
-import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.thu.tsfile.compress.Compressor;
-import cn.edu.thu.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
-import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cn.edu.thu.tsfile.common.conf.TSFileConfig;
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
+import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
+import cn.edu.thu.tsfile.compress.Compressor;
 import cn.edu.thu.tsfile.encoding.encoder.Encoder;
+import cn.edu.thu.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.thu.tsfile.timeseries.utils.StringContainer;
-import cn.edu.thu.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 import cn.edu.thu.tsfile.timeseries.write.schema.converter.TSDataTypeConverter;
 import cn.edu.thu.tsfile.timeseries.write.schema.converter.TSEncodingConverter;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -37,8 +37,6 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     private TSDataTypeConverter typeConverter;
     private final TSEncoding encoding;
     private TSEncodingConverter encodingConverter;
-    private TSEncoding freqDomainEncoding;
-    private TSEncodingConverter freqEncodingConverter;
     private Compressor compressor;
     private TSFileConfig conf;
 
@@ -66,19 +64,6 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
                             .getString(JsonFormatConstant.COMPRESS_TYPE));
         } else {
             this.compressor = Compressor.getCompressor(TSFileDescriptor.getInstance().getConfig().compressName);
-        }
-        // initialize frequency domain encoding
-        if (seriesObject.has(JsonFormatConstant.FREQUENCY_ENCODING)) {
-            this.freqDomainEncoding =
-                    TSEncoding.valueOf(seriesObject
-                            .getString(JsonFormatConstant.FREQUENCY_ENCODING));
-            if(!TSEncodingConverter.freqEncodings.contains(freqDomainEncoding))
-                throw new InvalidJsonSchemaException("invalid encoding for frequency domain:" + freqDomainEncoding);
-            this.freqEncodingConverter = TSEncodingConverter.getConverter(this.freqDomainEncoding);
-            seriesObject.put(JsonFormatConstant.DFT_WRITE_Main_FREQ, true);
-            this.freqEncodingConverter.initFromJsonObject(measurementId, seriesObject);
-        } else {
-            this.freqDomainEncoding = null;
         }
     }
 
@@ -148,13 +133,6 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
         return encodingConverter.getEncoder(measurementId, type);
     }
 
-    public Encoder getFreqEncoder() {
-        if (this.freqDomainEncoding != null)
-            return freqEncodingConverter.getEncoder(measurementId, type);
-        else
-            return null;
-    }
-
     public Compressor getCompressor() {
         return compressor;
     }
@@ -201,10 +179,6 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
         StringContainer sc = new StringContainer(",");
         sc.addTail("[", measurementId, type.toString(), encoding.toString(),
                 encodingConverter.toString(), compressor.getCodecName().toString());
-        if (freqDomainEncoding != null) {
-            sc.addTail(freqDomainEncoding.toString());
-            sc.addTail(freqEncodingConverter.toString());
-        }
         if (typeConverter != null)
             sc.addTail(typeConverter.toString());
         sc.addTail("]");

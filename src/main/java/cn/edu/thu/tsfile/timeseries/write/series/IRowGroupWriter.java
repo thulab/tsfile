@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 import cn.edu.thu.tsfile.timeseries.write.record.DataPoint;
 

@@ -1,27 +1,17 @@
 package cn.edu.thu.tsfile.timeseries.write.schema;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
-import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.thu.tsfile.file.metadata.enums.TSFreqType;
-import cn.edu.thu.tsfile.timeseries.write.InternalRecordWriter;
-import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
-import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
 import cn.edu.thu.tsfile.file.metadata.TimeSeriesMetadata;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.thu.tsfile.timeseries.write.InternalRecordWriter;
+import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.schema.converter.JsonConverter;
-
+import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 
 
@@ -132,10 +122,6 @@ public class FileSchema {
     public void addTimeSeriesMetadata(String measurementId, TSDataType type,
             JSONObject measurementObj) {
         TimeSeriesMetadata ts = new TimeSeriesMetadata(measurementId, type, deltaType);
-        if (measurementObj.has(JsonFormatConstant.FreqType))
-            ts.setFreqType(TSFreqType.valueOf(measurementObj.getString(JsonFormatConstant.FreqType)));
-        else
-            ts.setFreqType(TSFreqType.valueOf(TSFileDescriptor.getInstance().getConfig().defaultFreqType));
         LOG.debug("add Time Series:{}", ts);
         this.tsMetadata.add(ts);
     }

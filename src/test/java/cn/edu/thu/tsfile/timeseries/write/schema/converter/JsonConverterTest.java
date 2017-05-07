@@ -40,10 +40,8 @@ public class JsonConverterTest {
         String[] measureDescsStrings =
                 {
                         "[,s3,ENUMS,BITMAP,,SNAPPY,[MAN, WOMAN],]",
-                        "[,s4,DOUBLE,RLE,maxPointNumber:2,UNCOMPRESSED,DFT,DFT_PACK_LENGTH,32,DFT_RATE,0.8,DFT_WRITE_Main_FREQ,true,DFT_WRITE_ENCODING,false,DFT_OVERLAP_RATE,0.02,DFT_MAIN_FREQ_NUM,3,]",
-                        "[,s5,INT32,TS_2DIFF,maxPointNumber:2,UNCOMPRESSED,DFT,DFT_PACK_LENGTH,10000,DFT_RATE," +
-                                "0.4,DFT_WRITE_Main_FREQ,true,DFT_WRITE_ENCODING,false,DFT_OVERLAP_RATE,0.0," +
-                                "DFT_MAIN_FREQ_NUM,2,]",
+                        "[,s4,DOUBLE,RLE,maxPointNumber:2,UNCOMPRESSED,]",
+                        "[,s5,INT32,TS_2DIFF,maxPointNumber:2,UNCOMPRESSED,]",
                         "[,s1,INT32,RLE,maxPointNumber:2,UNCOMPRESSED,]",
                         "[,s2,INT64,TS_2DIFF,maxPointNumber:2,UNCOMPRESSED,]",
 
@@ -57,11 +55,11 @@ public class JsonConverterTest {
         List<TimeSeriesMetadata> tsMetadatas = fileSchema.getTimeSeriesMetadatas();
         String[] tsMetadatasList =
                 {
-                        "TimeSeriesMetadata: measurementUID s1, type ength 0, DataType INT32, FreqType SINGLE_FREQ,frequencies null",
-                        "TimeSeriesMetadata: measurementUID s2, type ength 0, DataType INT64, FreqType SINGLE_FREQ,frequencies null",
-                        "TimeSeriesMetadata: measurementUID s3, type ength 0, DataType ENUMS, FreqType SINGLE_FREQ,frequencies null",
-                        "TimeSeriesMetadata: measurementUID s4, type ength 0, DataType DOUBLE, FreqType SINGLE_FREQ,frequencies null",
-                        "TimeSeriesMetadata: measurementUID s5, type ength 0, DataType INT32, FreqType SINGLE_FREQ,frequencies null",
+                        "TimeSeriesMetadata: measurementUID s1, type ength 0, DataType INT32, FreqType null,frequencies null",
+                        "TimeSeriesMetadata: measurementUID s2, type ength 0, DataType INT64, FreqType null,frequencies null",
+                        "TimeSeriesMetadata: measurementUID s3, type ength 0, DataType ENUMS, FreqType null,frequencies null",
+                        "TimeSeriesMetadata: measurementUID s4, type ength 0, DataType DOUBLE, FreqType null,frequencies null",
+                        "TimeSeriesMetadata: measurementUID s5, type ength 0, DataType INT32, FreqType null,frequencies null",
                 };
         for (int j = 0; j < tsMetadatas.size(); j++) {
 //            System.out.println(tsMetadatas.get(j).toString());

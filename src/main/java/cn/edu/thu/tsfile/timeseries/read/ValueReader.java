@@ -15,9 +15,6 @@ import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.thu.tsfile.encoding.decoder.Decoder;
 import cn.edu.thu.tsfile.encoding.decoder.DeltaBinaryDecoder;
-import cn.edu.thu.tsfile.encoding.decoder.dft.DFTDecoder;
-import cn.edu.thu.tsfile.encoding.decoder.dft.DFTDoubleDecoder;
-import cn.edu.thu.tsfile.encoding.decoder.dft.DFTFloatDecoder;
 import cn.edu.thu.tsfile.file.metadata.TSDigest;
 import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
@@ -29,7 +26,6 @@ import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.SingleValueVisitorFactory
 import cn.edu.thu.tsfile.format.Digest;
 import cn.edu.thu.tsfile.format.PageHeader;
 import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
-import cn.edu.thu.tsfile.timeseries.utils.freq.FrequencyUtil;
 
 /**
  * @description This class is mainly used to read one column of data in
@@ -101,40 +97,6 @@ public class ValueReader {
 		this(offset, totalSize, dataType, digest, raf, compressionTypeName);
 		this.enumValues = enumValues;
 		this.rowNums = rowNums;
-	}
-
-	/**
-	 * Read the freqency values from current page.
-	 * 
-	 * @throws IOException
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void initFrequenceValue(InputStream page) throws IOException {
-
-		int hasFrequency = ReadWriteStreamUtils.readUnsignedVarInt(page);
-		if (hasFrequency == 0)
-			return;
-		int length = ReadWriteStreamUtils.readUnsignedVarInt(page);
-		byte[] buf = new byte[length];
-		int readSize = 0;
-		readSize = page.read(buf, 0, length);
-		if (readSize != length) {
-			throw new IOException("Expect byte size : " + totalSize + ". Read size : " + readSize);
-		}
-		ByteArrayInputStream bis = new ByteArrayInputStream(buf);
-		this.setFreqDecoderByDatatype();
-
-		this.setMainFrequency(((DFTDecoder)freqDecoder).getMainFrequency(bis));
-
-	}
-
-	private void setFreqDecoderByDatatype() {
-		 
-		 if (this.dataType == TSDataType.FLOAT) {
-		 this.freqDecoder = new DFTFloatDecoder();
-		 } else if (this.dataType == TSDataType.DOUBLE) {
-		 this.freqDecoder = new DFTDoubleDecoder();
-		 }
 	}
 
 	/**
@@ -349,14 +311,6 @@ public class ValueReader {
 
 					setDecoder(Decoder.getDecoderByType(pageHeader.getData_page_header().getEncoding(), getDataType()));
 
-					initFrequenceValue(page);
-					log.debug("MainF:" + this.mainFrequency);
-
-					// If the freqency is not satisfied, then skip current page.
-					if (!frequencySatisfy(freqFilter)) {
-						continue;
-					}
-
 					// get timevalues in this page
 					long[] timeValues = initTimeValue(page, pageHeader.data_page_header.num_rows, false);
 
@@ -541,7 +495,6 @@ public class ValueReader {
 
 				setDecoder(Decoder.getDecoderByType(pageHeader.getData_page_header().getEncoding(), getDataType()));
 
-				initFrequenceValue(page);
 				long[] timeValues = initTimeValue(page, pageHeader.data_page_header.num_rows, false);
 
 				int i = 0;
@@ -675,13 +628,6 @@ public class ValueReader {
 		return res;
 	}
 
-	private boolean frequencySatisfy(SingleSeriesFilterExpression freqFilter) {
-		 if (freqFilter != null && this.mainFrequency != null) {
-			 return FrequencyUtil.satisfy(freqFilter, mainFrequency);
-		 }
-		// That the freqFilter is null represents that this page is need to be check
-		return true;
-	}
 
 	private void setDecoder(Decoder d) {
 		this.decoder = d;
