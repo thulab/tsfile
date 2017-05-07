@@ -5,6 +5,8 @@ import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
+import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
+import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
 import cn.edu.thu.tsfile.timeseries.read.RecordReader;
 import cn.edu.thu.tsfile.timeseries.read.metadata.SeriesSchema;
@@ -125,6 +127,13 @@ public class TsFile {
     public QueryDataSet query(List<Path> paths, FilterExpression timeFilter,
                               FilterExpression valueFilter) throws IOException {
         checkStatus(READ);
+        if (paths.size()==1 && valueFilter instanceof SingleSeriesFilterExpression
+                && paths.get(0).getDeltaObjectToString().equals(valueFilter.getFilterSeries().getDeltaObjectUID())
+                && paths.get(0).getMeasurementToString().equals(valueFilter.getFilterSeries().getMeasurementUID())) {
+
+        } else if (valueFilter != null){
+            valueFilter = FilterFactory.csAnd(valueFilter, valueFilter);
+        }
         return queryEngine.query(paths, timeFilter, null, valueFilter);
     }
 
