@@ -108,7 +108,7 @@ public class ValueReader {
 	 *            If skip is true, then return long[] which is null.
 	 * @throws IOException
 	 */
-	private long[] initTimeValue(InputStream page, int size, boolean skip) throws IOException {
+	protected long[] initTimeValue(InputStream page, int size, boolean skip) throws IOException {
 		long[] res = null;
 		int idx = 0;
 
@@ -629,7 +629,7 @@ public class ValueReader {
 	}
 
 
-	private void setDecoder(Decoder d) {
+	public void setDecoder(Decoder d) {
 		this.decoder = d;
 	}
 
