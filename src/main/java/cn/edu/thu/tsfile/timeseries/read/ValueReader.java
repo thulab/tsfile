@@ -213,7 +213,7 @@ public class ValueReader {
 		return readOneColumnUseFilter(res, fetchSize, null, null, null);
 	}
 
-	private SingleValueVisitor<?> getSingleValueVisitorByDataType(TSDataType type, SingleSeriesFilterExpression filter) {
+	protected SingleValueVisitor<?> getSingleValueVisitorByDataType(TSDataType type, SingleSeriesFilterExpression filter) {
 		switch (type) {
 		case INT32:
 			return new SingleValueVisitor<Integer>(filter);
