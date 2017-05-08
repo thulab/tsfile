@@ -36,22 +36,22 @@ import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
  */
 public class ValueReader {
 
-	private static final Logger log = LoggerFactory.getLogger(ValueReader.class);
+	protected static final Logger log = LoggerFactory.getLogger(ValueReader.class);
 
-	private Decoder decoder;
-	private Decoder timeDecoder;
-	private Decoder freqDecoder;
-	private long fileOffset = -1;
-	private long totalSize = -1;
-	private TSDataType dataType;
-	private TSDigest digest;
-	private TSRandomAccessFileReader raf;
-	private List<String> enumValues;
-	private CompressionTypeName compressionTypeName;
-	private long rowNums;
+	protected Decoder decoder;
+	protected Decoder timeDecoder;
+	protected Decoder freqDecoder;
+	protected long fileOffset = -1;
+	protected long totalSize = -1;
+	protected TSDataType dataType;
+	protected TSDigest digest;
+	protected TSRandomAccessFileReader raf;
+	protected List<String> enumValues;
+	protected CompressionTypeName compressionTypeName;
+	protected long rowNums;
 	
 	// save the mainFrequency of this page
-	private List<float[]> mainFrequency = null;
+	protected List<float[]> mainFrequency = null;
 
 	/**
 	 * 
@@ -64,7 +64,7 @@ public class ValueReader {
 	 * @param digest
 	 *            Digest for this column.
 	 */
-	private ValueReader(long offset, long totalSize, TSDataType dataType, TSDigest digest) {
+	protected ValueReader(long offset, long totalSize, TSDataType dataType, TSDigest digest) {
 		this.timeDecoder = new DeltaBinaryDecoder.LongDeltaDecoder();
 		this.fileOffset = offset;
 		this.totalSize = totalSize;
