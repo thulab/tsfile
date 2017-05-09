@@ -336,6 +336,11 @@ public class DynamicOneColumnData {
 		rangeCheckForTime(idx);
 		return this.timeRet.get(idx / CAPACITY)[idx % CAPACITY];
 	}
+	
+	public void setTime(int idx, long v){
+		rangeCheckForTime(idx);
+		this.timeRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
+	}
 
 	public long[] getTimeAsArray(){
 		long[] res = new long[timeLength];
