@@ -22,17 +22,17 @@ import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
  */
 public class RowGroupReader {
 
-	private static final Logger logger = LoggerFactory.getLogger(RowGroupReader.class);
+	protected static final Logger logger = LoggerFactory.getLogger(RowGroupReader.class);
 	public HashMap<String, TSDataType> seriesTypeMap;
-	private HashMap<String, ValueReader> valueReaders = new HashMap<>();
-	private String deltaObjectUID;
+	protected HashMap<String, ValueReader> valueReaders = new HashMap<>();
+	protected String deltaObjectUID;
 
 	int lastRetIndex = -1;
-	private ArrayList<String> sids;
-	private String deltaObjectType;
-	private long totalByteSize;
+	protected ArrayList<String> sids;
+	protected String deltaObjectType;
+	protected long totalByteSize;
 
-	private TSRandomAccessFileReader raf;
+	protected TSRandomAccessFileReader raf;
 	
 	public RowGroupReader(RowGroupMetaData rowGroupMetaData, TSRandomAccessFileReader raf) {
 		logger.debug("init a new RowGroupReader..");

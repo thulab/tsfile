@@ -2,6 +2,7 @@ package cn.edu.thu.tsfile.timeseries.read.query;
 
 import java.util.ArrayList;
 
+import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
@@ -307,19 +308,37 @@ public class DynamicOneColumnData {
 		return this.booleanRet.get(idx / CAPACITY)[idx % CAPACITY];
 	}
 
+	public void setBoolean(int idx ,boolean v){
+		rangeCheck(idx);
+		this.booleanRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
+	}
+	
 	public int getInt(int idx){
 		rangeCheck(idx);
 		return this.intRet.get(idx / CAPACITY)[idx % CAPACITY];
 	}
-
+	public void setInt(int idx ,int v){
+		rangeCheck(idx);
+		this.intRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
+	}
+	
 	public long getLong(int idx){
 		rangeCheck(idx);
 		return this.longRet.get(idx / CAPACITY)[idx % CAPACITY];
+	}
+	
+	public void setLong(int idx ,long v){
+		rangeCheck(idx);
+		this.longRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
 	}
 
 	public float getFloat(int idx){
 		rangeCheck(idx);
 		return this.floatRet.get(idx / CAPACITY)[idx % CAPACITY];
+	}
+	public void setFloat(int idx ,float v){
+		rangeCheck(idx);
+		this.floatRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
 	}
 
 	public double getDouble(int idx){
@@ -327,11 +346,19 @@ public class DynamicOneColumnData {
 		return this.doubleRet.get(idx / CAPACITY)[idx % CAPACITY];
 	}
 
+	public void setDouble(int idx ,double v){
+		rangeCheck(idx);
+		this.doubleRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
+	}
+	
 	public Binary getBinary(int idx){
 		rangeCheck(idx);
 		return this.binaryRet.get(idx / CAPACITY)[idx % CAPACITY];
 	}
-
+	public void setBinary(int idx ,Binary v){
+		this.binaryRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
+	}
+	
 	public long getTime(int idx){
 		rangeCheckForTime(idx);
 		return this.timeRet.get(idx / CAPACITY)[idx % CAPACITY];
@@ -350,6 +377,67 @@ public class DynamicOneColumnData {
 		return res;
 	}
 
+	public void putAnObject(Object v){
+		switch (dataType) {
+		case BOOLEAN:
+			putBoolean((boolean)v);
+			break;
+		case INT32:
+			putInt((int)v);
+			break;
+		case INT64:
+			putLong((long)v);
+			break;
+		case FLOAT:
+			putFloat((float)v);
+			break;
+		case DOUBLE:
+			putDouble((double)v);
+			break;
+		case FIXED_LEN_BYTE_ARRAY:
+			putBinary((Binary)v);
+			break;
+		}
+	}
+	
+	public Comparable<?> getAnObject(int idx){
+		switch(dataType){	
+		case BOOLEAN:
+			return getBoolean(idx);
+		case DOUBLE:
+			return getDouble(idx);
+		case FIXED_LEN_BYTE_ARRAY:
+			return getBinary(idx);
+		case FLOAT:
+			return getFloat(idx);
+		case INT32:
+			return getInt(idx);
+		case INT64:
+			return getLong(idx);
+		default:
+			return null;
+		}
+	}
+	
+	public void setAnObject(int idx, Comparable<?> v){
+		switch(dataType){	
+		case BOOLEAN:
+			setBoolean(idx, (Boolean)v);
+		case DOUBLE:
+			setDouble(idx, (Double)v);
+		case FIXED_LEN_BYTE_ARRAY:
+			setBinary(idx, (Binary)v);
+		case FLOAT:
+			setFloat(idx, (Float)v);
+		case INT32:
+			setInt(idx, (Integer)v);
+		case INT64:
+			setLong(idx, (Long)v);
+		default:
+			break;
+		}
+	}
+	
 	public String getStringValue(int idx){
 		switch(dataType){
 		case BOOLEAN:
@@ -481,6 +569,36 @@ public class DynamicOneColumnData {
 		}
 	}
 
+	public void updateAValueFromDynamicOneColumnData(DynamicOneColumnData B, int idx, int aimIdx){
+		switch (dataType) {
+		case BOOLEAN:
+			setBoolean(aimIdx, B.getBoolean(idx));
+			break;
+		case INT32:
+			setInt(aimIdx, B.getInt(idx));
+			break;
+		case INT64:
+			putLong(B.getLong(idx));
+			setLong(aimIdx, B.getLong(idx));
+			break;
+		case FLOAT:
+			putFloat(B.getFloat(idx));
+			setFloat(aimIdx, B.getFloat(idx));
+			break;
+		case DOUBLE:
+			putDouble(B.getDouble(idx));
+			setDouble(aimIdx, B.getDouble(idx));
+			break;
+		case ENUMS:
+		case BYTE_ARRAY:
+			putBinary(B.getBinary(idx));
+			setBinary(aimIdx, B.getBinary(idx));
+			break;
+		default:
+			throw new UnSupportedDataTypeException(String.valueOf(B.dataType));
+		}
+	}
+	
 	public void clearData(){
 		this.init(dataType, true);
 	}

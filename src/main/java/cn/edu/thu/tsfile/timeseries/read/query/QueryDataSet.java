@@ -14,8 +14,8 @@ public class QueryDataSet {
 	private static final char PATH_SPLITER = '.';
 	
 	//Time Generator for Cross Query when using batching read
-	protected CrossQueryTimeGenerator timeQueryDataSet;
-	private BatchReadRecordGenerator batchReaderRetGenerator;
+	public CrossQueryTimeGenerator timeQueryDataSet;
+	protected BatchReadRecordGenerator batchReaderRetGenerator;
 	
 	//special for save time values when processing cross getIndex
 	protected PriorityQueue<Long> heap;
