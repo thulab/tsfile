@@ -4,6 +4,7 @@ import cn.edu.thu.tsfile.file.metadata.TimeSeriesMetadata;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.write.InternalRecordWriter;
 import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.thu.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.schema.converter.JsonConverter;
 import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
@@ -57,7 +58,7 @@ public class FileSchema {
         this.currentRowMaxSize = currentRowMaxSize;
     }
 
-    public FileSchema(JSONObject jsonSchema) throws WriteProcessException {
+    public FileSchema(JSONObject jsonSchema) throws InvalidJsonSchemaException {
         JsonConverter.converterJsonToSchema(jsonSchema, this);
     }
 

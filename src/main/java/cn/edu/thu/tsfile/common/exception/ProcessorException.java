@@ -14,6 +14,14 @@ public class ProcessorException extends Exception {
         super(msg);
     }
 	
+	public ProcessorException(Throwable e){
+		super(e);
+	}
+	
+	public ProcessorException(Exception e){
+		super(e);
+	}
+	
     public ProcessorException() {
         super();
     }

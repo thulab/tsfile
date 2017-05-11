@@ -48,7 +48,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     }
 
     public MeasurementDescriptor(TSDataType type, String measurementId, TSEncoding encoding,
-            JSONObject seriesObject) throws WriteProcessException {
+            JSONObject seriesObject){
         this(type, measurementId, encoding);
         // initialize TSDataType. e.g. set data values for enum type
         if (type == TSDataType.ENUMS) {
