@@ -65,36 +65,20 @@ public class TSFileDescriptor {
 		try {
 		    properties.load(inputStream);
 		    
-		    String rowGroupSize = properties.getProperty("rowGroupSize");
-		    conf.rowGroupSize = Integer.parseInt(rowGroupSize);
+		    conf.rowGroupSize = Integer.parseInt(properties.getProperty("rowGroupSize", conf.rowGroupSize+""));
+		    conf.pageSize = Integer.parseInt(properties.getProperty("pageSize",conf.pageSize+""));
+		    conf.timeSeriesEncoder = properties.getProperty("timeSeriesEncoder", conf.timeSeriesEncoder);
+		    conf.defaultSeriesEncoder = properties.getProperty("defaultSeriesEncoder", conf.defaultSeriesEncoder);
+		    conf.compressName = properties.getProperty("compressName", conf.compressName);
+		    conf.defaultRleBitWidth = Integer.parseInt(properties.getProperty("defaultRleBitWidth", conf.defaultRleBitWidth+""));
+		    conf.defaultEndian = properties.getProperty("defaultEndian", conf.defaultEndian);
+		    conf.defaultDeltaBlockSize = Integer.parseInt(properties.getProperty("defaultDeltaBlockSize", conf.defaultDeltaBlockSize+""));
+		    conf.defaultPLAMaxError = Double.parseDouble(properties.getProperty("defaultPLAMaxError", conf.defaultPLAMaxError+""));
+		    conf.defaultSDTMaxError = Double.parseDouble(properties.getProperty("defaultSDTMaxError", conf.defaultSDTMaxError+""));
 		    
-		    String pageSize = properties.getProperty("pageSize");
-		    conf.pageSize = Integer.parseInt(pageSize);
-
-		    String timeSeriesEncoder = properties.getProperty("timeSeriesEncoder");
-		    conf.timeSeriesEncoder = timeSeriesEncoder;		    
-		    
-		    String defaultSeriesEncoder = properties.getProperty("defaultSeriesEncoder");
-		    conf.defaultSeriesEncoder = defaultSeriesEncoder;		    
-		    
-		    String compressName = properties.getProperty("compressName");
-		    conf.compressName = compressName;		    
-		    
-		    String defaultRleBitWidth = properties.getProperty("defaultRleBitWidth");
-		    conf.defaultRleBitWidth = Integer.parseInt(defaultRleBitWidth);
-
-		    String defaultEndian = properties.getProperty("defaultEndian");
-		    conf.defaultEndian = defaultEndian;
-		    
-		    String defaultDeltaBlockSize = properties.getProperty("defaultDeltaBlockSize");
-		    conf.defaultDeltaBlockSize = Integer.parseInt(defaultDeltaBlockSize);
-		    
-		    String defaultPLAMaxError = properties.getProperty("defaultPLAMaxError");
-		    conf.defaultPLAMaxError = Double.parseDouble(defaultPLAMaxError);
-		    
-		    String defaultSDTMaxError = properties.getProperty("defaultSDTMaxError");
-		    conf.defaultSDTMaxError = Double.parseDouble(defaultSDTMaxError);
 		} catch (IOException e) {
+		    LOGGER.warn("Cannot load config file, use default configuration", e);
+		} catch (Exception e) {
 		    LOGGER.warn("Error format in config file, use default configuration", e);
 		}
 		if(inputStream != null){
@@ -121,5 +105,4 @@ public class TSFileDescriptor {
 	    System.out.println(config.defaultPLAMaxError);
 	    System.out.println(config.defaultSDTMaxError);
 	}
-
 }
