@@ -3,18 +3,22 @@ package cn.edu.thu.tsfile.timeseries.read.readSupport;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.activation.UnsupportedDataTypeException;
+
 import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.BooleanDataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.FloatDataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.LongDataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.DoubleDataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.IntDataPoint;
+import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.write.record.DataPoint;
 
 /**
  * This class is used to store one Row-Record<br>
  * All query results can be transformed to this format
+ * 
  * @author Jinrui Zhang
  *
  */
@@ -73,15 +77,17 @@ public class RowRecord {
 	public TSRecord toTSRecord() {
 		TSRecord r = new TSRecord(timestamp, deltaObjectId);
 		for (Field f : fields) {
-			DataPoint d = createDataPoint(f.dataType, f.measurementId, f);
-			r.addTuple(d);
+			if (!f.isNull()) {
+				DataPoint d = createDataPoint(f.dataType, f.measurementId, f);
+				r.addTuple(d);
+			}
 		}
 		return r;
 	}
 
-	public DataPoint createDataPoint(TSDataType dataType, String measurementId, Field f){
-		switch(dataType){
-		
+	public DataPoint createDataPoint(TSDataType dataType, String measurementId, Field f) {
+		switch (dataType) {
+
 		case BOOLEAN:
 			return new BooleanDataPoint(measurementId, f.getBoolV());
 		case DOUBLE:
@@ -93,10 +99,10 @@ public class RowRecord {
 		case INT64:
 			return new LongDataPoint(measurementId, f.getLongV());
 		default:
-			return null;
+			throw new UnSupportedDataTypeException(String.valueOf(dataType));
 		}
 	}
-	
+
 	/**
 	 * @return the fields
 	 */
