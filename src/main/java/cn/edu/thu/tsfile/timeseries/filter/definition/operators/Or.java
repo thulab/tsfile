@@ -21,8 +21,8 @@ public class Or extends SingleBinaryExpression implements Serializable {
 	}
 
 	@Override
-	public <T> T accept(FilterVisitor<T> vistor) {
-		return vistor.visit(this);
+	public <T> T accept(FilterVisitor<T> visitor) {
+		return visitor.visit(this);
 	}
 
 	@Override

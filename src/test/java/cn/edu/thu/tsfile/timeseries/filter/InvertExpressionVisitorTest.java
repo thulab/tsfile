@@ -1,6 +1,5 @@
 package cn.edu.thu.tsfile.timeseries.filter;
 
-import static cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory.and;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -14,13 +13,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeriesType;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.IntFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.SingleUnaryExpression;
-import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.InvertExpressionVisitor;
 
 /**
  * 

@@ -12,17 +12,11 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.SingleValueVisitor;
 import org.junit.Test;
 
-import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeriesType;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.And;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Eq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.GtEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.LtEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
 import cn.edu.thu.tsfile.timeseries.filter.utils.LongInterval;
 import cn.edu.thu.tsfile.timeseries.filter.verifier.LongFilterVerifier;
-import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.SingleValueVisitor;
 
 /**
  * 
@@ -37,7 +31,7 @@ public class FilterVerifierLongTest {
     @Test
     public void eqTest() {
         Eq<Long> eq = FilterFactory.eq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 45L);
-        LongInterval x = (LongInterval) new LongFilterVerifier().getInterval(eq);
+        LongInterval x = new LongFilterVerifier().getInterval(eq);
         assertEquals(x.count, 2);
         assertEquals(x.v[0], 45L);
         assertEquals(x.v[1], 45L);
@@ -46,7 +40,7 @@ public class FilterVerifierLongTest {
     @Test
     public void ltEqTest() {
         LtEq<Long> ltEq = FilterFactory.ltEq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 45L, true);
-        LongInterval x= (LongInterval) new LongFilterVerifier().getInterval(ltEq);
+        LongInterval x= new LongFilterVerifier().getInterval(ltEq);
         assertEquals(x.count, 2);
         assertEquals(x.v[0], Long.MIN_VALUE);
         assertEquals(x.v[1], 45L);
@@ -70,7 +64,7 @@ public class FilterVerifierLongTest {
         Or or1 = (Or) FilterFactory.or(and2, and3);
         
         And andCombine1 = (And) FilterFactory.and(and1, or1);
-        LongInterval ans = (LongInterval) new LongFilterVerifier().getInterval(andCombine1);
+        LongInterval ans = new LongFilterVerifier().getInterval(andCombine1);
         // ans.output();
         assertEquals(ans.count, 4);
         assertEquals(ans.v[0], 500L);
@@ -93,7 +87,7 @@ public class FilterVerifierLongTest {
         And and5 = (And) FilterFactory.and(gtEq5, ltEq5);
         
         And andNew = (And) FilterFactory.and(and4, and5);
-        LongInterval ansNew = (LongInterval) new LongFilterVerifier().getInterval(andNew);
+        LongInterval ansNew = new LongFilterVerifier().getInterval(andNew);
         assertEquals(ansNew.count, 0);
         
         // for filter test coverage2
@@ -107,14 +101,14 @@ public class FilterVerifierLongTest {
         And and7 = (And) FilterFactory.and(gtEq7, ltEq8);
         
         And andCombine3 = (And) FilterFactory.and(and6, and7);
-        LongInterval intervalAns = (LongInterval) new LongFilterVerifier().getInterval(andCombine3);
+        LongInterval intervalAns = new LongFilterVerifier().getInterval(andCombine3);
         assertEquals(intervalAns.count, 0);
     }
     
     @Test
     public void notEqTest() {
         NotEq<Long> notEq = FilterFactory.noteq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 1000L);
-        LongInterval ans = (LongInterval) new LongFilterVerifier().getInterval(notEq);
+        LongInterval ans = new LongFilterVerifier().getInterval(notEq);
         
         assertEquals(ans.count, 4);
         assertEquals(ans.v[0], Long.MIN_VALUE);

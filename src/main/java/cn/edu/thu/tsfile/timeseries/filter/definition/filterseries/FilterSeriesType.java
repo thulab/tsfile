@@ -8,5 +8,5 @@ package cn.edu.thu.tsfile.timeseries.filter.definition.filterseries;
  *
  */
 public enum FilterSeriesType {
-	TIME_FILTER, FREQUENCY_FILTER, VALUE_FILTER;
+	TIME_FILTER, FREQUENCY_FILTER, VALUE_FILTER
 }

@@ -5,12 +5,9 @@ import java.io.Serializable;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
-import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
-import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
 
 /**
- * Not necessary. Use InvertExpressionVistor
+ * Not necessary. Use InvertExpressionVisitor
  * 
  * @author CGF
  *
@@ -25,8 +22,8 @@ public class Not extends SingleSeriesFilterExpression implements Serializable {
 	}
 
 	@Override
-	public <T> T accept(FilterVisitor<T> vistor) {
-		return vistor.visit(this);
+	public <T> T accept(FilterVisitor<T> visitor) {
+		return visitor.visit(this);
 	}
 
 	public SingleSeriesFilterExpression getFilterExpression() {

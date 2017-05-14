@@ -24,8 +24,8 @@ public class LtEq<T extends Comparable<T>> extends SingleUnaryExpression<T> {
 	}
 
 	@Override
-	public <R> R accept(FilterVisitor<R> vistor) {
-		return vistor.visit(this);
+	public <R> R accept(FilterVisitor<R> visitor) {
+		return visitor.visit(this);
 	}
 
 	public Boolean getIfEq() {

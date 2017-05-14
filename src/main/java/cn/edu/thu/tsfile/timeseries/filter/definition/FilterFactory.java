@@ -11,17 +11,13 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeriesType;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FloatFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.IntFilterSeries;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.LongFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.StringFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.And;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSAnd;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSOr;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Eq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.GtEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.LtEq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Not;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
 
 /**
  * The FilterFactory is used to construct FilterSeries, SingleSeriesFilter, and

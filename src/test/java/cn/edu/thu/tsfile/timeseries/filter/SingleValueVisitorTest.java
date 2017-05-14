@@ -25,14 +25,14 @@ import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.SingleValueVisitorFactory
  */
 public class SingleValueVisitorTest {
     
-    private static final SingleValueVisitor<?> int32Vistor = SingleValueVisitorFactory.getSingleValueVistor(TSDataType.INT32);
+    private static final SingleValueVisitor<?> int32Vistor = SingleValueVisitorFactory.getSingleValueVisitor(TSDataType.INT32);
 	private static String deltaObjectUID = FilterTestConstant.deltaObjectUID;
 	private static String measurementUID = FilterTestConstant.measurementUID;
     
     @Test
     public void genericErrorTest() {
         Eq<Integer> eq = FilterFactory.eq(FilterFactory.intFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 45);
-        SingleValueVisitor<?> vistor = SingleValueVisitorFactory.getSingleValueVistor(TSDataType.INT32);
+        SingleValueVisitor<?> vistor = SingleValueVisitorFactory.getSingleValueVisitor(TSDataType.INT32);
         //System.out.println(vistor.satisfyObject(10.0, eq));
         assertFalse(vistor.satisfyObject(45L, eq));
     }

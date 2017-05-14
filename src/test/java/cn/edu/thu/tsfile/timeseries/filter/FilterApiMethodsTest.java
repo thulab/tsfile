@@ -1,7 +1,5 @@
 package cn.edu.thu.tsfile.timeseries.filter;
 
-
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

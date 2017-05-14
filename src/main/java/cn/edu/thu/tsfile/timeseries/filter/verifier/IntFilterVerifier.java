@@ -9,12 +9,7 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.And;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Eq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.GtEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.LtEq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Not;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
-import cn.edu.thu.tsfile.timeseries.filter.utils.IntInterval;
 import cn.edu.thu.tsfile.timeseries.filter.utils.Interval;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.ConvertExpressionVisitor;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
@@ -84,7 +79,7 @@ public class IntFilterVerifier extends FilterVerifier implements FilterVisitor<I
 			ans.flag[1] = false;
 		}
 		
-		if(ans.v[1] == Integer.MIN_VALUE && ans.flag[1] == false)
+		if(ans.v[1] == Integer.MIN_VALUE && !ans.flag[1])
 			ans.flag[0] = false;
 		else 
 			ans.flag[0] = true;
@@ -106,7 +101,7 @@ public class IntFilterVerifier extends FilterVerifier implements FilterVisitor<I
 		}
 		
 		ans.v[1] = Integer.MAX_VALUE;
-		if(ans.v[0] == Integer.MAX_VALUE && ans.flag[0] == false)
+		if(ans.v[0] == Integer.MAX_VALUE && !ans.flag[0])
 			ans.flag[1] = false;
 		else 
 			ans.flag[1] = true;
@@ -146,7 +141,7 @@ public class IntFilterVerifier extends FilterVerifier implements FilterVisitor<I
 		return union(visit(or.getLeft()), visit(or.getRight()));
 	}
 
-	public IntInterval intersection(IntInterval left, IntInterval right) {
+	private IntInterval intersection(IntInterval left, IntInterval right) {
 		IntInterval ans = new IntInterval();
 		IntInterval partResult = new IntInterval();
 
@@ -164,8 +159,6 @@ public class IntFilterVerifier extends FilterVerifier implements FilterVisitor<I
                     if (left.v[i] == right.v[j + 1]) {
                         partResult.addValueFlag(left.v[i], true);
                         partResult.addValueFlag(left.v[i], true);
-                    } else {
-                        continue;
                     }
                 } else {
                     if (left.v[i] > right.v[j]) {
@@ -190,7 +183,7 @@ public class IntFilterVerifier extends FilterVerifier implements FilterVisitor<I
 		return ans;
 	}
 
-	public IntInterval union(IntInterval left, IntInterval right) {	 
+	private IntInterval union(IntInterval left, IntInterval right) {
 		int l = 0, r = 0;
 		IntInterval res = new IntInterval();
 		while(l < left.count || r < right.count) {
@@ -213,8 +206,7 @@ public class IntFilterVerifier extends FilterVerifier implements FilterVisitor<I
 				res.addValueFlag(right.v[r], right.flag[r]); 
 				res.addValueFlag(right.v[r+1], right.flag[r+1]); 
 				r += 2;
-				continue;
-			} else if (left.v[l]>=right.v[r] && left.v[l]<=right.v[r+1] && left.v[l+1]>=right.v[r+1]) { // right first cross 
+			} else if (left.v[l]>=right.v[r] && left.v[l]<=right.v[r+1] && left.v[l+1]>=right.v[r+1]) { // right first cross
 				if(left.v[l] == right.v[r]) {
 					res.addValueFlag(left.v[l], left.flag[l] | right.flag[r]);
 				} else {
@@ -224,13 +216,11 @@ public class IntFilterVerifier extends FilterVerifier implements FilterVisitor<I
 					res.addValueFlag(left.v[l+1], left.flag[l+1] | right.flag[r+1]);
 					l += 2;
 					r += 2;
-					continue;
 				} else {
 					res.addValueFlag(right.v[r+1], right.flag[r+1]);
 					left.v[l] = right.v[r+1];
 					left.flag[l] = !right.flag[r+1];
 					r += 2;
-					continue;
 				}
 			} else if (left.v[l]<=right.v[r] && left.v[l+1]>=right.v[r+1]) { // left covers right
 				res.addValueFlag(left.v[l], left.flag[l]);
@@ -238,13 +228,11 @@ public class IntFilterVerifier extends FilterVerifier implements FilterVisitor<I
 					res.addValueFlag(left.v[l+1], left.flag[l+1] | right.flag[r+1]);
 					l += 2;
 					r += 2;
-					continue;
 				} else {
 					res.addValueFlag(right.v[r+1], right.flag[r+1]);
 					left.v[l] = right.v[r+1];
 					left.flag[l] = !right.flag[r+1];
 					r += 2;
-					continue;
 				}
 			} else if (right.v[r]>=left.v[l] && right.v[r]<=left.v[l+1] && left.v[l+1]<=right.v[r+1]) { // left first cross
 				if(left.v[l] == right.v[r]) {
@@ -261,7 +249,6 @@ public class IntFilterVerifier extends FilterVerifier implements FilterVisitor<I
 				res.addValueFlag(left.v[l], left.flag[l]);
 				res.addValueFlag(left.v[l+1], left.flag[l+1]);
 				l += 2;
-				continue;
 			} else { // right covers left
 				res.addValueFlag(right.v[r], right.flag[r]); 
 				// right first cross contains (left.v[l+1] == right.v[r+1])

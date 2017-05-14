@@ -8,10 +8,7 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpressi
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.And;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Eq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.GtEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.LtEq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Not;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
 import cn.edu.thu.tsfile.timeseries.filter.utils.FloatInterval;
 import cn.edu.thu.tsfile.timeseries.filter.utils.Interval;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.ConvertExpressionVisitor;

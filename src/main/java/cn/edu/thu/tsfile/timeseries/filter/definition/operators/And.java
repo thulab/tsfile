@@ -3,9 +3,6 @@ package cn.edu.thu.tsfile.timeseries.filter.definition.operators;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
-import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
-import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
 
 /**
  * Both the left and right operators of And must satisfy the condition.
@@ -22,8 +19,8 @@ public class And extends SingleBinaryExpression {
 	}
 
 	@Override
-	public <T> T accept(FilterVisitor<T> vistor) {
-		return vistor.visit(this);
+	public <T> T accept(FilterVisitor<T> visitor) {
+		return visitor.visit(this);
 	}
 
 	@Override

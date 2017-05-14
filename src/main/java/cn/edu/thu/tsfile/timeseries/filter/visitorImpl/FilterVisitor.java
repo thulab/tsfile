@@ -13,7 +13,7 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
 
 /**
- * FilterVistor is implemented by visitor pattern.
+ * FilterVisitor is implemented by visitor pattern.
  * Implemented using visitor pattern.
  * 
  * @author CGF

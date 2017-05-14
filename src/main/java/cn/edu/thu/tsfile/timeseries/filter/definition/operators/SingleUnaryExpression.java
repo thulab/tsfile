@@ -44,7 +44,7 @@ public class SingleUnaryExpression<T extends Comparable<T>> extends SingleSeries
 
 	@SuppressWarnings("hiding")
 	@Override
-	public <T> T accept(FilterVisitor<T> vistor) {
+	public <T> T accept(FilterVisitor<T> visitor) {
 		// Never be invoked
 		// This method is invoked by specific UnarySeriesFilter which is
 		// subclass of UnarySeriesFilter,

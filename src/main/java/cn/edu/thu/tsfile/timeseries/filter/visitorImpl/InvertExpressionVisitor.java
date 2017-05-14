@@ -14,7 +14,7 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
 /**
  * Invert(FilterExpression) = Not(FilterExpression).</br>
  * Implemented using visitor pattern.</br>
- * see {@link com.corp.delta.tsfile.filter.InvertExpressionVisitorTest}
+ * see {@link cn.edu.thu.tsfile.timeseries.filter.InvertExpressionVisitorTest}
  * 
  * @author CGF
  * 

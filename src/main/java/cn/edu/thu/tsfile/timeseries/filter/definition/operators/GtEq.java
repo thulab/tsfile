@@ -1,7 +1,6 @@
 package cn.edu.thu.tsfile.timeseries.filter.definition.operators;
 
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
 
 /**
@@ -22,8 +21,8 @@ public class GtEq<T extends Comparable<T>> extends SingleUnaryExpression<T> {
 	}
 
 	@Override
-	public <R> R accept(FilterVisitor<R> vistor) {
-		return vistor.visit(this);
+	public <R> R accept(FilterVisitor<R> visitor) {
+		return visitor.visit(this);
 	}
 
 	public Boolean getIfEq() {

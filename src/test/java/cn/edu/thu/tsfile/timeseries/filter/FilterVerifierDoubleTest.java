@@ -16,11 +16,9 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.operators.And;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Eq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.GtEq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.LtEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
 import cn.edu.thu.tsfile.timeseries.filter.utils.DoubleInterval;
 import cn.edu.thu.tsfile.timeseries.filter.verifier.DoubleFilterVerifier;
-import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.SingleValueVisitor;
 
 /**
  * 
@@ -29,9 +27,9 @@ import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.SingleValueVisitor;
  */
 public class FilterVerifierDoubleTest {
 
-    static final Logger LOG = LoggerFactory.getLogger(FilterVerifierDoubleTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FilterVerifierDoubleTest.class);
 
-    public static final double double_min_delta = 0.00001f;
+    private static final double double_min_delta = 0.00001f;
 	private static String deltaObjectUID = FilterTestConstant.deltaObjectUID;
 	private static String measurementUID = FilterTestConstant.measurementUID;
 	

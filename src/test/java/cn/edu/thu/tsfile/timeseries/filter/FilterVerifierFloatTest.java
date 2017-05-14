@@ -15,23 +15,16 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeriesType;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.And;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Eq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.GtEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.LtEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
-import cn.edu.thu.tsfile.timeseries.filter.utils.FloatInterval;
 import cn.edu.thu.tsfile.timeseries.filter.verifier.FloatFilterVerifier;
-import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.SingleValueVisitor;
 
 public class FilterVerifierFloatTest {
     
     private static final Logger LOG = LoggerFactory.getLogger(FilterVerifierFloatTest.class);
     
-    public static final float float_min_delta = 0.00001f;
+    private static final float float_min_delta = 0.00001f;
 	private static String deltaObjectUID = FilterTestConstant.deltaObjectUID;
 	private static String measurementUID = FilterTestConstant.measurementUID;
 	

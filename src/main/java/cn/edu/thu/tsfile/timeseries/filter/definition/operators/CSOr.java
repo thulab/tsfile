@@ -2,9 +2,7 @@ package cn.edu.thu.tsfile.timeseries.filter.definition.operators;
 
 import cn.edu.thu.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
-import cn.edu.thu.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
 
 /**
@@ -25,12 +23,12 @@ public class CSOr extends CrossSeriesFilterExpression {
 
 	/**
 	 * Not Used
-	 * @param vistor
+	 * @param visitor
 	 * @param <T>
 	 * @return
 	 */
 	@Override
-	public <T> T accept(FilterVisitor<T> vistor) {
+	public <T> T accept(FilterVisitor<T> visitor) {
 		return null;
 	}
 

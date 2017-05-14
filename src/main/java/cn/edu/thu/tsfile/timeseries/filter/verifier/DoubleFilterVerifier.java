@@ -78,7 +78,7 @@ public class DoubleFilterVerifier extends FilterVerifier implements FilterVisito
 			ans.flag[1] = false;
 		}
 		
-		if(ans.v[1] == Double.MIN_VALUE && ans.flag[1] == false)
+		if(ans.v[1] == Double.MIN_VALUE && !ans.flag[1])
 			ans.flag[0] = false;
 		else 
 			ans.flag[0] = true;
@@ -100,7 +100,7 @@ public class DoubleFilterVerifier extends FilterVerifier implements FilterVisito
 		}
 		
 		ans.v[1] = Double.MAX_VALUE;
-		if(ans.v[0] == Double.MAX_VALUE && ans.flag[0] == false)
+		if(ans.v[0] == Double.MAX_VALUE && !ans.flag[0])
 			ans.flag[1] = false;
 		else 
 			ans.flag[1] = true;
@@ -140,7 +140,7 @@ public class DoubleFilterVerifier extends FilterVerifier implements FilterVisito
         return union(visit(or.getLeft()), visit(or.getRight()));
     }
 
-    public DoubleInterval intersection(DoubleInterval left, DoubleInterval right) {
+    private DoubleInterval intersection(DoubleInterval left, DoubleInterval right) {
         DoubleInterval ans = new DoubleInterval();
         DoubleInterval partResult = new DoubleInterval();
 
@@ -158,8 +158,6 @@ public class DoubleFilterVerifier extends FilterVerifier implements FilterVisito
                     if (left.v[i] == right.v[j + 1]) {
                         partResult.addValueFlag(left.v[i], true);
                         partResult.addValueFlag(left.v[i], true);
-                    } else {
-                        continue;
                     }
                 } else {
                     if (left.v[i] > right.v[j]) {
@@ -184,7 +182,7 @@ public class DoubleFilterVerifier extends FilterVerifier implements FilterVisito
         return ans;
     }
 
-    public DoubleInterval union(DoubleInterval left, DoubleInterval right) {
+    private DoubleInterval union(DoubleInterval left, DoubleInterval right) {
     	int l = 0, r = 0;
 		DoubleInterval res = new DoubleInterval();
 		while(l < left.count || r < right.count) {
@@ -207,8 +205,7 @@ public class DoubleFilterVerifier extends FilterVerifier implements FilterVisito
 				res.addValueFlag(right.v[r], right.flag[r]); 
 				res.addValueFlag(right.v[r+1], right.flag[r+1]); 
 				r += 2;
-				continue;
-			} else if (left.v[l]>=right.v[r] && left.v[l]<=right.v[r+1] && left.v[l+1]>=right.v[r+1]) { // right first cross 
+			} else if (left.v[l]>=right.v[r] && left.v[l]<=right.v[r+1] && left.v[l+1]>=right.v[r+1]) { // right first cross
 				if(left.v[l] == right.v[r]) {
 					res.addValueFlag(left.v[l], left.flag[l] | right.flag[r]);
 				} else {
@@ -218,13 +215,11 @@ public class DoubleFilterVerifier extends FilterVerifier implements FilterVisito
 					res.addValueFlag(left.v[l+1], left.flag[l+1] | right.flag[r+1]);
 					l += 2;
 					r += 2;
-					continue;
 				} else {
 					res.addValueFlag(right.v[r+1], right.flag[r+1]);
 					left.v[l] = right.v[r+1];
 					left.flag[l] = !right.flag[r+1];
 					r += 2;
-					continue;
 				}
 			} else if (left.v[l]<=right.v[r] && left.v[l+1]>=right.v[r+1]) { // left covers right
 				res.addValueFlag(left.v[l], left.flag[l]);
@@ -232,13 +227,11 @@ public class DoubleFilterVerifier extends FilterVerifier implements FilterVisito
 					res.addValueFlag(left.v[l+1], left.flag[l+1] | right.flag[r+1]);
 					l += 2;
 					r += 2;
-					continue;
 				} else {
 					res.addValueFlag(right.v[r+1], right.flag[r+1]);
 					left.v[l] = right.v[r+1];
 					left.flag[l] = !right.flag[r+1];
 					r += 2;
-					continue;
 				}
 			} else if (right.v[r]>=left.v[l] && right.v[r]<=left.v[l+1] && left.v[l+1]<=right.v[r+1]) { // left first cross
 				if(left.v[l] == right.v[r]) {
@@ -255,7 +248,6 @@ public class DoubleFilterVerifier extends FilterVerifier implements FilterVisito
 				res.addValueFlag(left.v[l], left.flag[l]);
 				res.addValueFlag(left.v[l+1], left.flag[l+1]);
 				l += 2;
-				continue;
 			} else { // right covers left
 				res.addValueFlag(right.v[r], right.flag[r]); 
 				// right first cross contains (left.v[l+1] == right.v[r+1])

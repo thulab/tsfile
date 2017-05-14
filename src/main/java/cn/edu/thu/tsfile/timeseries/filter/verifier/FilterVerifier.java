@@ -1,17 +1,20 @@
 package cn.edu.thu.tsfile.timeseries.filter.verifier;
 
+import cn.edu.thu.tsfile.common.exception.filter.UnSupportFilterDataTypeException;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.utils.Interval;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * optimizing of filter, transfer SingleSensorFilter to interval comparison
  * see {@link Interval}
- * 
- * @author CGF
- * 
  *
+ * @author CGF
  */
 public abstract class FilterVerifier {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FilterVerifier.class);
 
     public static FilterVerifier get(SingleSeriesFilterExpression filter) {
         switch (filter.getFilterSeries().getSeriesDataType()) {
@@ -24,7 +27,8 @@ public abstract class FilterVerifier {
             case DOUBLE:
                 return new DoubleFilterVerifier();
             default:
-                return null;
+                LOG.error("wrong filter verifier invoke, FilterVerifier only support INT32,INT64,FLOAT and DOUBLE.");
+                throw new UnSupportFilterDataTypeException("wrong filter verifier invoke");
         }
     }
 

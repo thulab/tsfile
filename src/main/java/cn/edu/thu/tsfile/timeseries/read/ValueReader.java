@@ -224,7 +224,7 @@ public class ValueReader {
 		case DOUBLE:
 			return new SingleValueVisitor<Double>(filter);
 		default:
-			return SingleValueVisitorFactory.getSingleValueVistor(type);
+			return SingleValueVisitorFactory.getSingleValueVisitor(type);
 		}
 	}
 

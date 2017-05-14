@@ -1,7 +1,6 @@
 package cn.edu.thu.tsfile.timeseries.filter.definition;
 
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
 
 /**
@@ -18,14 +17,14 @@ public interface FilterExpression {
      * All subclass of
      * {@link SingleBinaryExpression.SingleFilterBinaryExpression} and
      * {@link SingleBinaryExpression.SingleFilterBinaryExpression} must
-     * accept a FilterVistor, per the visitor pattern.
+     * accept a FilterVisitor, per the visitor pattern.
      */
-    public abstract <T> T accept(FilterVisitor<T> vistor);
+    <T> T accept(FilterVisitor<T> visitor);
 
     /**
      * FilterSeries get method.
      *
      * @return FilterSeries
      */
-    public abstract FilterSeries<?> getFilterSeries();
+    FilterSeries<?> getFilterSeries();
 }

@@ -6,11 +6,9 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.IntFilterSeries;
 import org.junit.Test;
 
-import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.DoubleFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeriesType;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.IntFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSAnd;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSOr;
 
@@ -33,9 +31,9 @@ public class CrossSeriesFilterTest {
 
 	@Test
 	public void testCrossSeriesFilterApi() {
-		SingleSeriesFilterExpression left = (SingleSeriesFilterExpression) FilterFactory.ltEq(intFilterSeries, 60, true);
+		SingleSeriesFilterExpression left =  FilterFactory.ltEq(intFilterSeries, 60, true);
 
-		SingleSeriesFilterExpression right = (SingleSeriesFilterExpression) FilterFactory.ltEq(doubleFilterSeries, 60.0, true);
+		SingleSeriesFilterExpression right =  FilterFactory.ltEq(doubleFilterSeries, 60.0, true);
 
 		CSAnd csand = (CSAnd) FilterFactory.and(left, right);
 		assertEquals(csand.getLeft(), left);
