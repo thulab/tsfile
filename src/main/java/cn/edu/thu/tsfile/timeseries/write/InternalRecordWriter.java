@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public abstract class InternalRecordWriter<T> {
 	private static final Logger LOG = LoggerFactory.getLogger(InternalRecordWriter.class);
-	private static final int MINIMUM_RECORD_COUNT_FOR_CHECK = 100;
+	private static final int MINIMUM_RECORD_COUNT_FOR_CHECK = 1;
 
 	protected long recordCount = 0;
 	private long recordCountForNextMemCheck = MINIMUM_RECORD_COUNT_FOR_CHECK;

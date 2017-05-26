@@ -26,6 +26,7 @@ import cn.edu.thu.tsfile.timeseries.write.page.IPageWriter;
  */
 public class SeriesWriterImpl implements ISeriesWriter {
     private static final Logger LOG = LoggerFactory.getLogger(SeriesWriterImpl.class);
+    private static final int MINIMUM_RECORD_COUNT_FOR_CHECK = 1;
 
     private final TSDataType dataType;
     private final IPageWriter pageWriter;
@@ -57,7 +58,6 @@ public class SeriesWriterImpl implements ISeriesWriter {
 
     public SeriesWriterImpl(String deltaObjectId, MeasurementDescriptor desc,
             IPageWriter pageWriter, int pageSizeThreshold) {
-        TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
         this.deltaObjectId = deltaObjectId;
         this.desc = desc;
         this.dataType = desc.getType();
@@ -65,7 +65,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         this.psThres = pageSizeThreshold;
         // initial check of memory usage. So that we have enough data to make an
         // initial prediction
-        this.valueCountForNextSizeCheck = conf.pageCheckSizeThreshold;
+        this.valueCountForNextSizeCheck = MINIMUM_RECORD_COUNT_FOR_CHECK;
         this.seriesStatistics = Statistics.getStatsByType(desc.getType());
         resetPageStatistics();
         this.dataValueWriter = new ValueWriter();
