@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 import cn.edu.thu.tsfile.file.metadata.TSFileMetaData;
 import cn.edu.thu.tsfile.file.metadata.TimeSeriesChunkMetaData;
@@ -233,7 +234,20 @@ public class Utils {
           fileMetaDataInThrift.getTimeseries_list());
       Utils.isListEqual(fileMetaDataInTSF.getJsonMetaData(),
           fileMetaDataInThrift.getJson_metadata(), "json metadata");
-
+      
+      if(Utils.isTwoObjectsNotNULL(fileMetaDataInTSF.getProperties(), fileMetaDataInThrift.getProperties(), "user specificed properties")){
+	  Map<String, String> proTSF = fileMetaDataInTSF.getProperties();
+	  Map<String, String> proThrift = fileMetaDataInThrift.getProperties();
+	  if(proThrift.size() != proTSF.size()){
+	      fail("File metadata user specificed properties size not equal");
+	  }
+	  for(Map.Entry<String, String> entry : proTSF.entrySet()){
+	      if(!proThrift.containsKey(entry.getKey())){
+		  fail("File metadata user specificed properties content not same for key"+entry.getKey());
+	      }
+	      Utils.isStringSame(entry.getValue(), proThrift.get(entry.getKey()), "File metadata user specificed properties content not same for value"+entry.getValue());
+	  }
+      }
 
       if (Utils.isTwoObjectsNotNULL(fileMetaDataInTSF.getRowGroups(), fileMetaDataInThrift.getRow_groups(),
           "Row Group List")) {

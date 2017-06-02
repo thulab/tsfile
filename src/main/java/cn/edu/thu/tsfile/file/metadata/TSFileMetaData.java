@@ -3,6 +3,7 @@ package cn.edu.thu.tsfile.file.metadata;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -47,6 +48,11 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
    * <App Version> (build <App Build Hash>). e.g. impala version 1.0 (build SHA-1_hash_code)
    */
   private String createdBy;
+
+  /**
+   * User specified properties *
+   */  
+  private Map<String, String> properties;
 
   public TSFileMetaData() {}
 
@@ -145,6 +151,7 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
           rowGroupMetaDataListInThrift);
       metaDataInThrift.setCreated_by(createdBy);
       metaDataInThrift.setJson_metadata(jsonMetaData);
+      metaDataInThrift.setProperties(properties);
       return metaDataInThrift;
     } catch (Exception e) {
       LOGGER.error(
@@ -188,6 +195,7 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
       currentVersion = metadataInThrift.getVersion();
       createdBy = metadataInThrift.getCreated_by();
       jsonMetaData = metadataInThrift.getJson_metadata();
+      properties = metadataInThrift.getProperties();
     } catch (Exception e) {
       LOGGER.error(
           "tsfile-file TSFileMetaData: failed to convert file metadata from thrift to TSFile, content is {}",
@@ -228,4 +236,12 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
   public void setCreatedBy(String createdBy) {
     this.createdBy = createdBy;
   }
+
+public Map<String, String> getProperties() {
+    return properties;
+}
+
+public void setProperties(Map<String, String> properties) {
+    this.properties = properties;
+}
 }
