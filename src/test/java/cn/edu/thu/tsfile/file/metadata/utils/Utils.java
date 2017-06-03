@@ -235,17 +235,17 @@ public class Utils {
       Utils.isListEqual(fileMetaDataInTSF.getJsonMetaData(),
           fileMetaDataInThrift.getJson_metadata(), "json metadata");
       
-      if(Utils.isTwoObjectsNotNULL(fileMetaDataInTSF.getProps(), fileMetaDataInThrift.getProperties(), "user specificed properties")){
+      if(Utils.isTwoObjectsNotNULL(fileMetaDataInTSF.getProps(), fileMetaDataInThrift.getProperties(), "user specified properties")){
 	  Map<String, String> proTSF = fileMetaDataInTSF.getProps();
 	  Map<String, String> proThrift = fileMetaDataInThrift.getProperties();
 	  if(proThrift.size() != proTSF.size()){
-	      fail("File metadata user specificed properties size not equal");
+	      fail("File metadata user specified properties size not equal");
 	  }
 	  for(Map.Entry<String, String> entry : proTSF.entrySet()){
 	      if(!proThrift.containsKey(entry.getKey())){
-		  fail("File metadata user specificed properties content not same for key"+entry.getKey());
+		  fail("File metadata user specified properties content not same for key"+entry.getKey());
 	      }
-	      Utils.isStringSame(entry.getValue(), proThrift.get(entry.getKey()), "File metadata user specificed properties content not same for value"+entry.getValue());
+	      Utils.isStringSame(entry.getValue(), proThrift.get(entry.getKey()), "File metadata user specified properties content not same for value"+entry.getValue());
 	  }
       }
 
