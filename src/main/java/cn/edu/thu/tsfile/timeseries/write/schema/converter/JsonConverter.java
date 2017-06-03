@@ -14,6 +14,8 @@ import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 
+import java.util.HashMap;
+
 /**
  * <p>
  * JsonConverter is used to convert JsonObject to TSFile Schema what a java
@@ -69,6 +71,12 @@ public class JsonConverter {
 		}
 		LOG.debug("set one row max size of a file schema to be:{}", currentRowMaxSize);
 		fileSchema.setCurrentRowMaxSize(currentRowMaxSize);
+		//add properties
+		if (jsonSchema.has(JsonFormatConstant.PROPERTIES)) {
+			JSONObject jsonProps = jsonSchema.getJSONObject(JsonFormatConstant.PROPERTIES);
+			for(Object key: jsonProps.keySet())
+				fileSchema.addProp(key.toString(), jsonProps.get(key.toString()).toString());
+		}
 	}
 
 	/**

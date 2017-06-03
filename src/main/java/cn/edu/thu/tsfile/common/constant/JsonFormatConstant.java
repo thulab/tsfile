@@ -25,4 +25,5 @@ public class JsonFormatConstant {
     public static final String PAGE_SIZE = "page_size";
 
     public static final String defaultDeltaType = "default_delta_type";
+    public static final String PROPERTIES = "properties";
 }

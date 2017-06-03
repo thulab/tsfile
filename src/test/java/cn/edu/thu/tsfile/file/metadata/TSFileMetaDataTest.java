@@ -57,7 +57,8 @@ public class TSFileMetaDataTest {
     jsonMetaData.add("424fd");
     tsfMetaData.setJsonMetaData(jsonMetaData);    
     
-    tsfMetaData.setProperties(properties);
+    tsfMetaData.setProps(properties);
+    tsfMetaData.addProp("key1", "value1");
 
     File file = new File(PATH);
     if (file.exists())
@@ -92,7 +93,7 @@ public class TSFileMetaDataTest {
     jsonMetaData.add("424fd");
     Utils.isFileMetaDataEqual(tsfMetaData, converter.toThriftFileMetadata(tsfMetaData));
 
-    tsfMetaData.setProperties(properties);
+    tsfMetaData.setProps(properties);
     Utils.isFileMetaDataEqual(tsfMetaData, converter.toThriftFileMetadata(tsfMetaData));
     
     tsfMetaData.setRowGroups(new ArrayList<RowGroupMetaData>());

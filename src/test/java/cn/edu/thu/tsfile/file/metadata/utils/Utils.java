@@ -235,8 +235,8 @@ public class Utils {
       Utils.isListEqual(fileMetaDataInTSF.getJsonMetaData(),
           fileMetaDataInThrift.getJson_metadata(), "json metadata");
       
-      if(Utils.isTwoObjectsNotNULL(fileMetaDataInTSF.getProperties(), fileMetaDataInThrift.getProperties(), "user specificed properties")){
-	  Map<String, String> proTSF = fileMetaDataInTSF.getProperties();
+      if(Utils.isTwoObjectsNotNULL(fileMetaDataInTSF.getProps(), fileMetaDataInThrift.getProperties(), "user specificed properties")){
+	  Map<String, String> proTSF = fileMetaDataInTSF.getProps();
 	  Map<String, String> proThrift = fileMetaDataInThrift.getProperties();
 	  if(proThrift.size() != proTSF.size()){
 	      fail("File metadata user specificed properties size not equal");

@@ -50,6 +50,28 @@ public class FileSchema {
     private List<TimeSeriesMetadata> tsMetadata = new ArrayList<TimeSeriesMetadata>();
     private int currentRowMaxSize;
 
+    private Map<String, String> props = new HashMap<>();
+
+    public void addProp(String key, String value) {
+        props.put(key, value);
+    }
+
+    public void setProps(Map<String, String> props) {
+        this.props.clear();
+        this.props.putAll(props);
+    }
+
+    public Map<String, String> getProps() {
+        return props;
+    }
+
+    public String getProp(String key) {
+        if(props.containsKey(key))
+            return props.get(key);
+        else
+            return null;
+    }
+
     public int getCurrentRowMaxSize() {
         return currentRowMaxSize;
     }

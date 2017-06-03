@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
@@ -150,10 +151,6 @@ public class RecordReader {
 	/**
 	 * Read funtion 2#1: read one column with filter
 	 * 
-	 * @param deltaObjectUID
-	 * @param measurementId
-	 * @param filter
-	 * @return
 	 * @throws IOException
 	 */
 	public DynamicOneColumnData getValuesUseFilter(DynamicOneColumnData res, int fetchSize, String deltaObjectUID,
@@ -528,6 +525,14 @@ public class RecordReader {
 
 	public List<RowGroupReader> getAllRowGroupReaders() {
 		return readerManager.getAllRowGroupReaders();
+	}
+
+	public Map<String, String> getProps() {
+		return readerManager.getProps();
+	}
+
+	public String getProp(String key) {
+		return readerManager.getProp(key);
 	}
 	
 	public ReaderManager getReaderManager() {

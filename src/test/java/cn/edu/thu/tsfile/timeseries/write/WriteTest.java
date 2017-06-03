@@ -5,6 +5,8 @@ import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.thu.tsfile.common.utils.RandomAccessOutputStream;
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
+import cn.edu.thu.tsfile.timeseries.FileFormat.TsFile;
+import cn.edu.thu.tsfile.timeseries.read.LocalFileInput;
 import cn.edu.thu.tsfile.timeseries.utils.RecordUtils;
 import cn.edu.thu.tsfile.timeseries.utils.StringContainer;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
@@ -16,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -161,6 +164,13 @@ public class WriteTest {
             e.printStackTrace();
         }
         LOG.info("write processing has finished");
+
+        LocalFileInput input = new LocalFileInput(outputDataFile);
+        TsFile readTsFile = new TsFile(input);
+        String value1 = readTsFile.getProp("key1");
+        Assert.assertEquals("value1", value1);
+        String value2 = readTsFile.getProp("key2");
+        Assert.assertEquals("value2", value2);
     }
 
     public void write() throws IOException, WriteProcessException {

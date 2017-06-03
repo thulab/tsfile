@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.thu.tsfile.file.metadata.RowGroupMetaData;
@@ -22,7 +23,7 @@ public class ReaderManager {
 
     private FileReader fileReader;
     private TSRandomAccessFileReader raf;
-    
+
     private List<FileReader> fileReaderList;
     private List<TSRandomAccessFileReader> rafList;
     private HashMap<String, List<RowGroupReader>> rowGroupReaderMap;
@@ -40,8 +41,7 @@ public class ReaderManager {
     
     /**
      * @param rafList fileInputStreamList
-     * @param rowGroupMetadataList RowGroupMetadatas for unenvelopedFile
-     * @throws IOException 
+     * @throws IOException
      */
     public ReaderManager(List<TSRandomAccessFileReader> rafList) throws IOException{
     	this.rafList = rafList;
@@ -119,6 +119,14 @@ public class ReaderManager {
     public HashMap<String, List<RowGroupReader>> getRowGroupReaderMap(){
     	return rowGroupReaderMap;
     }
+
+    public Map<String, String> getProps() {
+    	return fileReader.getProps();
+	}
+
+	public String getProp(String key) {
+    	return fileReader.getProp(key);
+	}
     
     /**
      * {NEWFUNC}

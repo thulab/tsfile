@@ -18,7 +18,7 @@ public class TSFileMetaDataConverter {
    * @Description convert tsfile format file matadata to thrift format file matadata. For more
    *              information about thrift format file matadata, see
    *              FileMetaData in tsfile-format project
-   * @param tsfMetadata - file metadata in tsfile format
+   * @param fileMetadataInTSFile - file metadata in tsfile format
    * @return FileMetaData - file metadata in thrift format
    */
   public FileMetaData toThriftFileMetadata(TSFileMetaData fileMetadataInTSFile) {
@@ -36,7 +36,7 @@ public class TSFileMetaDataConverter {
    * @Description convert thrift format file matadata to tsfile format file matadata. For more
    *              information about thrift format file matadata, see
    *              FileMetaData in tsfile-format
-   * @param fileMetaData - file metadata in thrift format
+   * @param fileMetaDataInThrift - file metadata in thrift format
    * @return TSFMetaData - file metadata in tsfile format
    */
   public TSFileMetaData toTSFileMetadata(FileMetaData fileMetaDataInThrift) {
