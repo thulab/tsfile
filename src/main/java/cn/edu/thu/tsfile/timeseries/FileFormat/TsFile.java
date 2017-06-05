@@ -7,8 +7,6 @@ import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
-import cn.edu.thu.tsfile.timeseries.read.RecordReader;
 import cn.edu.thu.tsfile.timeseries.read.metadata.SeriesSchema;
 import cn.edu.thu.tsfile.timeseries.read.qp.Path;
 import cn.edu.thu.tsfile.timeseries.read.query.QueryEngine;
@@ -39,7 +37,6 @@ public class TsFile {
     private static final int WRITE = 0;
     private static final int READ = 1;
     private QueryEngine queryEngine;
-    private RecordReader recordReader;
     private int status;
 
     //add by Kangrong start
@@ -81,6 +78,25 @@ public class TsFile {
     }
 
     /**
+     * clear and set new properties
+     *
+     * @param props
+     */
+    public void setProps(Map<String, String> props) {
+        fileSchema.setProps(props);
+    }
+
+    /**
+     * add a new property, replace old value if already exist
+     *
+     * @param key
+     * @param value
+     */
+    public void addProp(String key, String value) {
+        fileSchema.addProp(key, value);
+    }
+
+    /**
      * write a TSRecord into TsFile
      *
      * @param tsRecord a line of data in form of {@linkplain TSRecord}
@@ -111,7 +127,7 @@ public class TsFile {
     public TsFile(TSRandomAccessFileReader raf) throws IOException {
         this.status = READ;
         queryEngine = new QueryEngine(raf);
-        recordReader = queryEngine.recordReader;
+//        recordReader = queryEngine.recordReader;
     }
 
     /**
@@ -151,7 +167,7 @@ public class TsFile {
      */
     public HashMap<String, ArrayList<SeriesSchema>> getAllColumns() throws IOException {
         checkStatus(READ);
-        return recordReader.getAllSeriesSchemasGroupByDeltaObject();
+        return queryEngine.getAllSeriesSchemasGroupByDeltaObject();
     }
 
     /**
@@ -162,7 +178,7 @@ public class TsFile {
      */
     public HashMap<String, Integer> getDeltaObjectRowGroupCount() throws IOException {
         checkStatus(READ);
-        return recordReader.getDeltaObjectRowGroupCounts();
+        return queryEngine.getDeltaObjectRowGroupCount();
     }
 
     /**
@@ -170,7 +186,7 @@ public class TsFile {
      */
     public HashMap<String, String> getDeltaObjectTypes() throws IOException {
         checkStatus(READ);
-        return recordReader.getDeltaObjectTypes();
+        return queryEngine.getDeltaObjectTypes();
     }
 
     /**
@@ -180,8 +196,7 @@ public class TsFile {
      */
     public boolean pathExist(Path path) throws IOException {
         checkStatus(READ);
-        FilterSeries<?> col = recordReader.getColumnByMeasurementName(path.getDeltaObjectToString(), path.getMeasurementToString());
-        return col != null;
+        return queryEngine.pathExist(path);
     }
 
     /**
@@ -189,7 +204,7 @@ public class TsFile {
      */
     public ArrayList<String> getAllDeltaObject() throws IOException {
         checkStatus(READ);
-        return recordReader.getAllDeltaObjects();
+        return queryEngine.getAllDeltaObject();
     }
 
     /**
@@ -197,7 +212,7 @@ public class TsFile {
      */
     public ArrayList<SeriesSchema> getAllSeries() throws IOException {
         checkStatus(READ);
-        return recordReader.getAllSeriesSchema();
+        return queryEngine.getAllSeriesSchema();
     }
 
     /**
@@ -207,7 +222,7 @@ public class TsFile {
      */
     public ArrayList<Long> getRowGroupPosList() throws IOException {
         checkStatus(READ);
-        return recordReader.getRowGroupPosList();
+        return queryEngine.getRowGroupPosList();
     }
 
     public ArrayList<Integer> calSpecificRowGroupByPartition(long start, long end) throws IOException {
@@ -218,6 +233,14 @@ public class TsFile {
     public ArrayList<String> getAllDeltaObjectUIDByPartition(long start, long end) throws IOException {
         checkStatus(READ);
         return queryEngine.getAllDeltaObjectUIDByPartition(start, end);
+    }
+
+    public Map<String, String> getProps() {
+        return queryEngine.getProps();
+    }
+
+    public String getProp(String key) {
+        return queryEngine.getProp(key);
     }
 
     private void checkStatus(int status) throws IOException {

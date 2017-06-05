@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * TSFileIOWriter is used to construct metadata and write data stored in memory to output stream.
@@ -163,6 +163,8 @@ public class TSFileIOWriter {
         LOG.debug("get time series list:{}", timeSeriesList);
         TSFileMetaData tsfileMetadata =
                 new TSFileMetaData(rowGroups, timeSeriesList, TSFileDescriptor.getInstance().getConfig().currentVersion);
+        Map<String, String> props = schema.getProps();
+        tsfileMetadata.setProps(props);
         serializeTsFileMetadata(tsfileMetadata);
         out.close();
         LOG.info("output stream is closed");

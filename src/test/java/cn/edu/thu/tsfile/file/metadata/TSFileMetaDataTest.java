@@ -6,7 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.edu.thu.tsfile.file.metadata.converter.TSFileMetaDataConverter;
 import cn.edu.thu.tsfile.file.metadata.utils.Utils;
@@ -24,6 +26,13 @@ public class TSFileMetaDataTest {
   private TSFileMetaDataConverter converter = new TSFileMetaDataConverter();
   final String PATH = "target/output1.ksn";
 
+  public static Map<String, String> properties = new HashMap<>();
+  static {
+      properties.put("s1", "sensor1");
+      properties.put("s2", "sensor2");
+      properties.put("s3", "sensor3");
+  }
+  
   @Before
   public void setUp() throws Exception {
     converter = new TSFileMetaDataConverter();
@@ -46,7 +55,10 @@ public class TSFileMetaDataTest {
     List<String> jsonMetaData = new ArrayList<String>();
     jsonMetaData.add("fsdfsfsd");
     jsonMetaData.add("424fd");
-    tsfMetaData.setJsonMetaData(jsonMetaData);
+    tsfMetaData.setJsonMetaData(jsonMetaData);    
+    
+    tsfMetaData.setProps(properties);
+    tsfMetaData.addProp("key1", "value1");
 
     File file = new File(PATH);
     if (file.exists())
@@ -81,6 +93,9 @@ public class TSFileMetaDataTest {
     jsonMetaData.add("424fd");
     Utils.isFileMetaDataEqual(tsfMetaData, converter.toThriftFileMetadata(tsfMetaData));
 
+    tsfMetaData.setProps(properties);
+    Utils.isFileMetaDataEqual(tsfMetaData, converter.toThriftFileMetadata(tsfMetaData));
+    
     tsfMetaData.setRowGroups(new ArrayList<RowGroupMetaData>());
     Utils.isFileMetaDataEqual(tsfMetaData, converter.toThriftFileMetadata(tsfMetaData));
     tsfMetaData.addRowGroupMetaData(TestHelper.createSimpleRowGroupMetaDataInTSF());
@@ -114,6 +129,9 @@ public class TSFileMetaDataTest {
     fileMetaData.setTimeseries_list(new ArrayList<TimeSeries>());
     Utils.isFileMetaDataEqual(converter.toTSFileMetadata(fileMetaData), fileMetaData);
 
+    fileMetaData.setProperties(properties);
+    Utils.isFileMetaDataEqual(converter.toTSFileMetadata(fileMetaData), fileMetaData);
+    
     fileMetaData.getTimeseries_list().add(TestHelper.createSimpleTimeSeriesInThrift());
     Utils.isFileMetaDataEqual(converter.toTSFileMetadata(fileMetaData), fileMetaData);
     fileMetaData.getTimeseries_list().add(TestHelper.createSimpleTimeSeriesInThrift());

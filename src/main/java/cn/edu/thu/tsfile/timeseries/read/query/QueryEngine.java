@@ -29,7 +29,7 @@ public class QueryEngine {
 	private static final Logger logger = LoggerFactory.getLogger(QueryEngine.class);
 
 	public TSRandomAccessFileReader raf;
-	public RecordReader recordReader;
+	private RecordReader recordReader;
 	public static int FETCH_SIZE = 10000;
 	
 	public QueryEngine(TSRandomAccessFileReader raf) throws IOException {
@@ -372,6 +372,10 @@ public class QueryEngine {
 		return recordReader.getAllSeriesSchemasGroupByDeltaObject();
 	}
 
+	public HashMap<String, ArrayList<SeriesSchema>> getAllSeriesSchemasGroupByDeltaObject() throws IOException {
+		return recordReader.getAllSeriesSchemasGroupByDeltaObject();
+	}
+
 	/**
 	 * Get RowGroupSize for every deltaObject
 	 * 
@@ -384,8 +388,16 @@ public class QueryEngine {
 		return recordReader.getDeltaObjectRowGroupCounts();
 	}
 
+	public HashMap<String, Integer> getDeltaObjectRowGroupCount() throws IOException {
+		return recordReader.getDeltaObjectRowGroupCounts();
+	}
+
 	public static HashMap<String, String> getDeltaObjectTypes(TSRandomAccessFileReader raf) throws IOException {
 		RecordReader recordReader = new RecordReader(raf);
+		return recordReader.getDeltaObjectTypes();
+	}
+
+	public HashMap<String, String> getDeltaObjectTypes() throws IOException {
 		return recordReader.getDeltaObjectTypes();
 	}
 
@@ -407,7 +419,7 @@ public class QueryEngine {
 		return recordReader.getAllDeltaObjects();
 	}
 
-	public ArrayList<SeriesSchema> getAllSeries() {
+	public ArrayList<SeriesSchema> getAllSeriesSchema() {
 		return recordReader.getAllSeriesSchema();
 	}
 
@@ -445,5 +457,13 @@ public class QueryEngine {
 			curStartPos = curEndPos;
 		}
 		return res;
+	}
+
+	public Map<String, String> getProps() {
+		return recordReader.getProps();
+	}
+
+	public String getProp(String key) {
+		return recordReader.getProp(key);
 	}
 }

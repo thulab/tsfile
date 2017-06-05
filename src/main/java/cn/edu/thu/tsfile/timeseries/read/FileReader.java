@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.thu.tsfile.file.metadata.RowGroupMetaData;
@@ -101,6 +102,14 @@ public class FileReader {
 	 */
 	public RowGroupReader getRowGroupReader(String deltaObjectUID, int index) {
 		return this.rowGroupReadersMap.get(deltaObjectUID).get(index);
+	}
+
+	public Map<String, String> getProps() {
+		return fileMetaData.getProps();
+	}
+
+	public String getProp(String key) {
+		return fileMetaData.getProp(key);
 	}
 
 	/**

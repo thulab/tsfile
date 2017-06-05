@@ -8,7 +8,7 @@
         {
             "measurement_id": "s1",
             "data_type": "INT64",
-            "encoding": "TS_2DIFF",
+            "encoding": "TS_2DIFF"
         },
         {
             "measurement_id": "s2",
@@ -34,5 +34,9 @@
             "enum_values":["MAN","WOMAN"]
         }
     ],
+    "properties": {
+        "key1": "value1",
+        "key2": "value2"
+    },
     "delta_type": "test_type"
 }

@@ -36,6 +36,11 @@ public class TsFileWriteTest {
                 "            \"encoding\": \"TS_2DIFF\"\n" +
                 "        }\n" +
                 "    ],\n" +
+                "    \"properties\": \n" +
+                "        {\n" +
+                "            \"key1\": \"value1\",\n"+
+                "            \"key2\": \"value2\"\n"+
+                "        },\n" +
                 "    \"row_group_size\": 134217728\n" +
                 "}";
         JSONObject schemaObject = new JSONObject(s);

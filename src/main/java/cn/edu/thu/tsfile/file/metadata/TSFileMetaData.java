@@ -1,9 +1,6 @@
 package cn.edu.thu.tsfile.file.metadata;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,15 +45,21 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
    */
   private String createdBy;
 
+  /**
+   * User specified props *
+   */  
+  private Map<String, String> props;
+
   public TSFileMetaData() {}
 
   /**
-   * @param rowGroups - rowGroup level metadata
+   * @param rowGroupMetadataList - rowGroup level metadata
    * @param timeSeriesList - time series info list
    * @param currentVersion - current version
    */
   public TSFileMetaData(List<RowGroupMetaData> rowGroupMetadataList, List<TimeSeriesMetadata> timeSeriesList,
       int currentVersion) {
+    props = new HashMap<>();
     this.rowGroupMetadataList = rowGroupMetadataList;
     this.timeSeriesList = timeSeriesList;
     this.currentVersion = currentVersion;
@@ -145,6 +148,7 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
           rowGroupMetaDataListInThrift);
       metaDataInThrift.setCreated_by(createdBy);
       metaDataInThrift.setJson_metadata(jsonMetaData);
+      metaDataInThrift.setProperties(props);
       return metaDataInThrift;
     } catch (Exception e) {
       LOGGER.error(
@@ -156,7 +160,7 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
 
   /**
    * @Description receive file metadata in thrift format and convert it to tsfile format
-   * @param metadata - file metadata in thrift format
+   * @param metadataInThrift - file metadata in thrift format
    */
   @Override
   public void convertToTSF(FileMetaData metadataInThrift) {
@@ -188,6 +192,7 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
       currentVersion = metadataInThrift.getVersion();
       createdBy = metadataInThrift.getCreated_by();
       jsonMetaData = metadataInThrift.getJson_metadata();
+      props = metadataInThrift.getProperties();
     } catch (Exception e) {
       LOGGER.error(
           "tsfile-file TSFileMetaData: failed to convert file metadata from thrift to TSFile, content is {}",
@@ -228,4 +233,25 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
   public void setCreatedBy(String createdBy) {
     this.createdBy = createdBy;
   }
+
+  public void addProp(String key, String value) {
+    props.put(key, value);
+  }
+
+  public void setProps(Map<String, String> properties) {
+    this.props.clear();
+    this.props.putAll(properties);
+}
+
+  public Map<String, String> getProps() {
+    return props;
+  }
+
+  public String getProp(String key) {
+    if(props.containsKey(key))
+      return props.get(key);
+    else
+      return null;
+  }
+
 }

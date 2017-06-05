@@ -84,7 +84,7 @@ public class RowGroupReader {
 	 * Read time-value pairs whose time is be included in timeRet. WARNING: this
 	 * function is only for "time" Series
 	 * 
-	 * @param sid measurement's id
+	 * @param measurementId measurement's id
 	 * @param timeRet Array of the time.
 	 * @throws IOException
 	 */
