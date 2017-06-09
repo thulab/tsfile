@@ -8,6 +8,9 @@ ___________    ___________.__.__
              \/     \/                 \/  
 </pre>
 
+## Status
+[![Build Status](https://travis-ci.org/thulab/tsfile.svg?branch=master)](https://travis-ci.org/thulab/tsfile)
+
 ## Abstract
 
 TsFile is a columnar storage file format designed for time series data, which supports efficient compression and query. It is easy to integrate TsFile into your IoT big data processing frameworks.
