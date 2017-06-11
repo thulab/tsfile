@@ -30,7 +30,7 @@ public class QueryEngine {
 
 	public TSRandomAccessFileReader raf;
 	private RecordReader recordReader;
-	public static int FETCH_SIZE = 10000;
+	private static int FETCH_SIZE = 10000;
 	
 	public QueryEngine(TSRandomAccessFileReader raf) throws IOException {
 		this.raf = raf;
@@ -49,7 +49,6 @@ public class QueryEngine {
 		QueryDataSet queryDataSet = queryEngine.query(config);
 		raf.close();
 		return queryDataSet;
-
 	}
 
 	public QueryDataSet query(QueryConfig config) throws IOException {
