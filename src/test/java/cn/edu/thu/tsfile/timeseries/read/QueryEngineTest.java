@@ -11,10 +11,7 @@ import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.thu.tsfile.timeseries.read.query.QueryEngine;
 import cn.edu.thu.tsfile.timeseries.read.qp.Path;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.BeforeClass;
+import org.junit.*;
 
 import cn.edu.thu.tsfile.timeseries.read.query.QueryConfig;
 import cn.edu.thu.tsfile.timeseries.read.query.QueryDataSet;
@@ -26,7 +23,7 @@ public class QueryEngineTest {
 	TSRandomAccessFileReader raf;
 
 	@BeforeClass
-	public static void setUp() throws InterruptedException, WriteProcessException, IOException {
+	public static void setUpBeforeClass() throws InterruptedException, WriteProcessException, IOException {
 		QueryEnginePerf.generateFile();
 	}
 
@@ -44,8 +41,12 @@ public class QueryEngineTest {
 
 	@After
 	public void after() throws IOException {
-		QueryEnginePerf.after();
 		raf.close();
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() throws InterruptedException, WriteProcessException, IOException {
+		QueryEnginePerf.after();
 	}
 
 	@Test
