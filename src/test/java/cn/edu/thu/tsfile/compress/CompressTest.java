@@ -1,19 +1,18 @@
 package cn.edu.thu.tsfile.compress;
 
-import static org.junit.Assert.*;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
+import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
+import cn.edu.thu.tsfile.compress.UnCompressor.NoUnCompressor;
+import cn.edu.thu.tsfile.compress.UnCompressor.SnappyUnCompressor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.xerial.snappy.Snappy;
 
-import cn.edu.thu.tsfile.common.utils.bytesinput.BytesInput;
-import cn.edu.thu.tsfile.compress.UnCompressor.NoUnCompressor;
-import cn.edu.thu.tsfile.compress.UnCompressor.SnappyUnCompressor;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * 
@@ -37,7 +36,7 @@ public class CompressTest {
       out.write(inputString.getBytes("UTF-8"));
       Compressor.NoCompressor compressor = new Compressor.NoCompressor();
       NoUnCompressor unCompressor = new NoUnCompressor();
-      BytesInput compressed = compressor.compress(BytesInput.from(out));
+      ListByteArrayOutputStream compressed = compressor.compress(ListByteArrayOutputStream.from(out));
       byte[] uncompressed = unCompressor.uncompress(compressed.toByteArray());
       String result = new String(uncompressed, "UTF-8");
       assertEquals(inputString, result);
@@ -49,7 +48,7 @@ public class CompressTest {
       out.write(inputString.getBytes("UTF-8"));
       Compressor.SnappyCompressor compressor = new Compressor.SnappyCompressor();
       SnappyUnCompressor unCompressor = new SnappyUnCompressor();
-      BytesInput compressed = compressor.compress(BytesInput.from(out));
+      ListByteArrayOutputStream compressed = compressor.compress(ListByteArrayOutputStream.from(out));
       byte[] uncompressed = unCompressor.uncompress(compressed.toByteArray());
       String result = new String(uncompressed, "UTF-8");
       assertEquals(inputString, result);

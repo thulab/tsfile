@@ -1,12 +1,12 @@
 package cn.edu.thu.tsfile.timeseries.write.page;
 
-import java.io.IOException;
-
-import cn.edu.thu.tsfile.common.utils.bytesinput.BytesInput;
+import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
 import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.thu.tsfile.timeseries.write.exception.PageException;
-import cn.edu.thu.tsfile.timeseries.write.series.ISeriesWriter;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.thu.tsfile.timeseries.write.series.ISeriesWriter;
+
+import java.io.IOException;
 
 /**
  * Each SeriesWriter has a page writer. While memory space occupied by series writer exceeds
@@ -28,7 +28,7 @@ public interface IPageWriter {
      * @throws IOException
      * @throws PageException
      */
-    void writePage(BytesInput bytesInput, int valueCount, Statistics<?> statistics,
+    void writePage(ListByteArrayOutputStream bytesInput, int valueCount, Statistics<?> statistics,
                    long maxTimestamp, long minTimestamp) throws PageException;
 
     /**

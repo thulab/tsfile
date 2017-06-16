@@ -123,7 +123,7 @@ public abstract class InternalRecordWriter<T> {
 				flushRowGroup(true);
 				recordCountForNextMemCheck = rowGroupSizeThreshold / oneRowMaxSize;
 			} else {
-				recordCountForNextMemCheck = (rowGroupSizeThreshold - memSize) / oneRowMaxSize;
+				recordCountForNextMemCheck = recordCount + (rowGroupSizeThreshold - memSize) / oneRowMaxSize;
 			}
 		}
 	}

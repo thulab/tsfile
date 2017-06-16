@@ -165,18 +165,15 @@ public class SeriesWriterImpl implements ISeriesWriter {
             // not checking the memory used for every value
             long currentColumnSize = dataValueWriter.estimateMaxMemSize();
             if (currentColumnSize > psThres) {
-                // we will write the current page and check again the size at the predicted middle
-                // of next page
-                valueCountForNextSizeCheck = valueCount / 2;
+                // we will write the current page
                 LOG.debug("enough size, write page {}", desc);
                 writePage();
             } else {
-                // not reached the threshold, will check again midway
-                valueCountForNextSizeCheck =
-                        (int) (valueCount + ((float) valueCount * psThres / currentColumnSize)) / 2 + 1;
                 LOG.debug("{}:{} not enough size, now: {}, change to {}", deltaObjectId, desc,
                         valueCount, valueCountForNextSizeCheck);
             }
+//            reset the valueCountForNextSizeCheck for the next page
+            valueCountForNextSizeCheck = (int) (((float)psThres/currentColumnSize)*valueCount);
         }
     }
 

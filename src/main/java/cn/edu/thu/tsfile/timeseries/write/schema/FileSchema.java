@@ -164,7 +164,7 @@ public class FileSchema {
      */
     public void resetUnusedDeltaObjectId(Map<String, IRowGroupWriter> groupWriters) {
         int size = groupWriters.size();
-        if (size < tempKeyArray.length)
+        if (size >= tempKeyArray.length)
             tempKeyArray = new String[size];
         int i = 0;
         for (String id : groupWriters.keySet()) {
