@@ -16,7 +16,7 @@ import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
  * @date Apr 29, 2016 9:49:01 PM
  */
 public abstract class UnCompressor {
-    public abstract byte[] uncompress(byte[] bytesInput);
+    public abstract byte[] uncompress(byte[] byteArray);
 
     public abstract CompressionTypeName getCodecName();
 
@@ -37,8 +37,8 @@ public abstract class UnCompressor {
     static public class NoUnCompressor extends UnCompressor {
 
 	@Override
-	public byte[] uncompress(byte[] bytesInput) {
-	    return bytesInput;
+	public byte[] uncompress(byte[] byteArray) {
+	    return byteArray;
 	}
 
 	@Override

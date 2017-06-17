@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 
 public abstract class Compressor {
-    public abstract ListByteArrayOutputStream compress(ListByteArrayOutputStream bytesInput);
+    public abstract ListByteArrayOutputStream compress(ListByteArrayOutputStream ListByteArray);
 
     public abstract CompressionTypeName getCodecName();
 
@@ -48,8 +48,8 @@ public abstract class Compressor {
     static public class NoCompressor extends Compressor {
 
         @Override
-        public ListByteArrayOutputStream compress(ListByteArrayOutputStream bytesInput) {
-            return bytesInput;
+        public ListByteArrayOutputStream compress(ListByteArrayOutputStream ListByteArray) {
+            return ListByteArray;
         }
 
         @Override
@@ -62,17 +62,17 @@ public abstract class Compressor {
         private static final Logger LOGGER = LoggerFactory.getLogger(SnappyCompressor.class);
 
         @Override
-        public ListByteArrayOutputStream compress(ListByteArrayOutputStream bytesInput) {
-            if (bytesInput == null) {
+        public ListByteArrayOutputStream compress(ListByteArrayOutputStream listByteArray) {
+            if (listByteArray == null) {
                 return null;
             }
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             try {
-                out.write(Snappy.compress(bytesInput.toByteArray()));
+                out.write(Snappy.compress(listByteArray.toByteArray()));
             } catch (IOException e) {
                 LOGGER.error(
-                        "tsfile-compression SnappyCompressor: errors occurs when compress input byte, BytesInput is {}, ByteArrayOutputStream is {}",
-                        bytesInput, out, e);
+                        "tsfile-compression SnappyCompressor: errors occurs when compress input byte, ListByteArray is {}, ByteArrayOutputStream is {}",
+                        listByteArray, out, e);
             }
             return ListByteArrayOutputStream.from(out);
         }

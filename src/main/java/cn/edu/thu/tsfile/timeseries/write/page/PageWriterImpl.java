@@ -38,14 +38,14 @@ public class PageWriterImpl implements IPageWriter {
     }
 
     @Override
-    public void writePage(ListByteArrayOutputStream bytesInput, int valueCount, Statistics<?> statistics,
+    public void writePage(ListByteArrayOutputStream listByteArray, int valueCount, Statistics<?> statistics,
                           long maxTimestamp, long minTimestamp) throws PageException {
         // compress the input data
         if (this.minTimestamp == -1)
             this.minTimestamp = minTimestamp;
         this.maxTimestamp = maxTimestamp;
-        int uncompressedSize = bytesInput.size();
-        ListByteArrayOutputStream compressedBytes = compressor.compress(bytesInput);
+        int uncompressedSize = listByteArray.size();
+        ListByteArrayOutputStream compressedBytes = compressor.compress(listByteArray);
         int compressedSize = compressedBytes.size();
         ByteArrayOutputStream tempOutputStream = new ByteArrayOutputStream(
                 estimateMaxPageHeaderSize() + compressedSize);
@@ -64,7 +64,7 @@ public class PageWriterImpl implements IPageWriter {
             compressedBytes.writeAllTo(tempOutputStream);
         } catch (IOException e) {
             /*
-            In our method, this line is to flush bytesInput to buf, both of them are in class of
+            In our method, this line is to flush listByteArray to buf, both of them are in class of
             ListByteArrayOutputStream which contain several ByteArrayOutputStream.
             In general, they won't throw exception. The IOException is just for interface requirement of OutputStream.
              */

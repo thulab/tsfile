@@ -7,13 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /***
- * BytesInput is a abstract class encapsulating several operations related to OutputStream with
- * decorator pattern. BytesInput can concat multiple BytesInput and convert OutputStream to bytes.
- * BytesInput supports multiple constructor like Integer array with IntegerBytesInput. BytesInput
- * stores data temporarily in form of OutputStream or object array for outputting into OutputStream.
- * Its subclass should override writeAllTo and size.
- *
- * This class is inspired by org.apache.parquet.bytes.BytesInput
+ * This class is designed for maintaining several <code>ByteArrayOutputStream</code> and provides
+ * functions including writeAllTo, size and reset.
  *
  * @author kangrong
  *
@@ -31,25 +26,31 @@ public class ListByteArrayOutputStream {
     }
 
     /**
-     * input an OutputStream as parameter. BytesInput output its data to this OutputStream
+     * Inputs an OutputStream as parameter. Writes the complete contents in <code>list</code> to
+     * the specified output stream argument.
      *
-     * @param out
-     * @throws IOException
+     * @param out the output stream to write the data.
+     * @throws IOException if an I/O error occurs.
      */
     public void writeAllTo(OutputStream out) throws IOException{
         for (ByteArrayOutputStream baos : list)
             baos.writeTo(out);
     }
 
+    /**
+     * get the total size of this class
+     * @return total size
+     */
     public int size(){
         return totalSize;
     }
 
     /**
-     * using BAOS to convert data itself to byte array
+     * Creates a new <code>PublicBAOS</code> which specified size is the current
+     * total size and write the current contents in <code>list</code> into it.
      *
-     * @return converting result
-     * @throws IOException
+     * @return  the current contents of this class, as a byte array.
+     * @throws IOException if an I/O error occurs.
      */
     public byte[] toByteArray() throws IOException {
         PublicBAOS baos = new PublicBAOS(totalSize);
@@ -58,25 +59,37 @@ public class ListByteArrayOutputStream {
     }
 
     /**
-     * construct BytesInput with ByteArrayOutputStream
+     * Constructs ListByteArrayOutputStream using ByteArrayOutputStream.
      *
-     * @param out
-     * @return
+     * @param out the data source for constructing a <code>ListByteArrayOutputStream</code>
+     * @return a new <code>ListByteArrayOutputStream</code> containing data in <code>out</code>.
      */
     public static ListByteArrayOutputStream from(ByteArrayOutputStream out) {
         return new ListByteArrayOutputStream(out);
     }
 
+    /**
+     * Appends a <code>ByteArrayOutputStream</code> into this class.
+     * @param out a output stream to be appended.
+     */
     public void append(ByteArrayOutputStream out) {
         list.add(out);
         totalSize += out.size();
     }
 
+    /**
+     * Resets the <code>list</code> and <code>totalSize</code> fields.
+     */
     public void reset() {
         list.clear();
         totalSize = 0;
     }
 
+    /**
+     * A subclass extending <code>ByteArrayOutputStream</code>. It's used to return the byte array directly.
+     * Note that the size of byte array is large than actual size of valid contents, thus it's used cooperating
+     * with <code>size()</code> or <code>capacity = size</code>
+     */
     private static final class PublicBAOS extends ByteArrayOutputStream {
         private PublicBAOS(int size) {
             super(size);

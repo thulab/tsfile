@@ -18,17 +18,16 @@ import java.io.IOException;
  */
 public interface IPageWriter {
     /**
-     * store a page to this pageWriter with given bytesInput.
+     * store a page to this pageWriter.
      * 
-     * @param bytesInput - the data to be stored to pageWriter
+     * @param listByteArray - the data to be stored to pageWriter
      * @param valueCount - the amount of values in that page
      * @param statistics - the statistics for that page
      * @param maxTimestamp - timestamp maximum in given data
      * @param minTimestamp - timestamp minimum in given data
-     * @throws IOException
-     * @throws PageException
+     * @throws PageException - if an PageException occurs.
      */
-    void writePage(ListByteArrayOutputStream bytesInput, int valueCount, Statistics<?> statistics,
+    void writePage(ListByteArrayOutputStream listByteArray, int valueCount, Statistics<?> statistics,
                    long maxTimestamp, long minTimestamp) throws PageException;
 
     /**

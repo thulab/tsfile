@@ -84,9 +84,9 @@ public class ValueWriter {
     }
 
     /**
-     * getBytes return data what it has been written in form of BytesInput.
+     * getBytes return data what it has been written in form of <code>ListByteArrayOutputStream</code>.
      * 
-     * @return - byte array output stream packaged in BytesInput
+     * @return - list byte array output stream containing time size, time stream and value stream.
      */
     public ListByteArrayOutputStream getBytes() throws IOException {
         prepareEndWriteOnePage();

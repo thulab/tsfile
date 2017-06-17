@@ -65,11 +65,11 @@ public class TSFileIOWriter {
     }
 
     /**
-     * write given BytesInput to output stream. This method is called when total memory size exceeds
-     * the row group size threshold.
+     * Writes given <code>ListByteArrayOutputStream</code> to output stream.
+     * This method is called when total memory size exceeds the row group size threshold.
      * 
      * @param bytes - data in page writer
-     * @throws IOException
+     * @throws IOException if an I/O error occurs.
      */
     public void writeBytesToStream(ListByteArrayOutputStream bytes) throws IOException {
         bytes.writeAllTo(out.getOutputStream());
