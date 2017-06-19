@@ -29,7 +29,7 @@ public class FilterUtils {
 	private static final char PATH_SPLITER = '.';
 	//exp-format:deltaObject,measurement,type,exp
 	public static SingleSeriesFilterExpression construct(String exp, RecordReader recordReader) {
-		if(exp.equals("null")){
+		if(exp == null || exp.equals("null")){
 			return null;
 		}
 		String args[] = exp.split(",");
