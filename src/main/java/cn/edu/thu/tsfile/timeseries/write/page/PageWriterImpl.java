@@ -112,6 +112,6 @@ public class PageWriterImpl implements IPageWriter {
 
     private int estimateMaxPageHeaderSize() {
         int digestSize = (totalValueCount == 0) ? 0 : desc.getTypeLength() * 2;
-        return TSFileIOWriter.metadataConverter.caculatePageHeaderSize(digestSize);
+        return TSFileIOWriter.metadataConverter.calculatePageHeaderSize(digestSize);
     }
 }

@@ -1,8 +1,8 @@
 package cn.edu.thu.tsfile.timeseries.write.series;
 
 import cn.edu.thu.tsfile.common.utils.Binary;
-import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
 import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
+import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
 import cn.edu.thu.tsfile.encoding.common.EndianType;
 import cn.edu.thu.tsfile.encoding.decoder.PlainDecoder;
 import cn.edu.thu.tsfile.encoding.encoder.PlainEncoder;
@@ -35,7 +35,6 @@ public class ValueWriterTest {
         long l1 = 123142120391L;
         float f1 = 2.2f;
         double d1 = 1294283.4323d;
-        // BigDecimal big1 = new BigDecimal("123.43");
         String str1 = "I have a dream";
         int timeCount = 0;
         try {
@@ -45,7 +44,6 @@ public class ValueWriterTest {
             writer.write(timeCount++, l1);
             writer.write(timeCount++, f1);
             writer.write(timeCount++, d1);
-            // writer.write(timeCount++, big1);
             writer.write(timeCount++, new Binary(str1));
             assertEquals(101, writer.estimateMaxMemSize());
             ListByteArrayOutputStream input = writer.getBytes();
@@ -54,7 +52,9 @@ public class ValueWriterTest {
             assertEquals(0, writer.estimateMaxMemSize());
             int timeSize = ReadWriteStreamUtils.readUnsignedVarInt(in);
             byte[] timeBytes = new byte[timeSize];
-            in.read(timeBytes);
+            int ret = in.read(timeBytes);
+            if(ret != timeBytes.length)
+                fail();
             ByteArrayInputStream timeInputStream = new ByteArrayInputStream(timeBytes);
             PlainDecoder decoder = new PlainDecoder(EndianType.LITTLE_ENDIAN);
             for (int i = 0; i < timeCount; i++) {

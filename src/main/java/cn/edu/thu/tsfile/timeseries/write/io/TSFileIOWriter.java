@@ -43,6 +43,13 @@ public class TSFileIOWriter {
         magicStringBytes = BytesUtils.StringToBytes(MAGIC_STRING);
     }
 
+    /**
+     * This is just used to restore one TSFile from List of RowGroupMetaData and the offset
+     *
+     * @param schema schema containing measurement information
+     * @param output be used to output written data
+     * @throws IOException if I/O error occurs
+     */
     public TSFileIOWriter(FileSchema schema, TSRandomAccessFileWriter output) throws IOException {
         this.schema = schema;
         this.out = output;
@@ -52,12 +59,13 @@ public class TSFileIOWriter {
     /**
      * This is just used to restore one TSFile from List of RowGroupMetaData and the offset
      * 
-     * @param schema
-     * @param output
-     * @param rowGroups
-     * @throws IOException 
+     * @param schema schema containing measurement information
+     * @param output be used to output written data
+     * @param rowGroups given a constructed row group list for fault recovery
+     * @throws IOException if I/O error occurs
      */
-    public TSFileIOWriter(FileSchema schema,TSRandomAccessFileWriter output, long offset, List<RowGroupMetaData> rowGroups) throws IOException{
+    public TSFileIOWriter(FileSchema schema,TSRandomAccessFileWriter output, long offset,
+                          List<RowGroupMetaData> rowGroups) throws IOException{
     	this.schema = schema;
     	this.out = output;
     	out.seek(offset);
@@ -68,7 +76,7 @@ public class TSFileIOWriter {
      * Writes given <code>ListByteArrayOutputStream</code> to output stream.
      * This method is called when total memory size exceeds the row group size threshold.
      * 
-     * @param bytes - data in page writer
+     * @param bytes - data of several pages which has been packed
      * @throws IOException if an I/O error occurs.
      */
     public void writeBytesToStream(ListByteArrayOutputStream bytes) throws IOException {
@@ -80,13 +88,12 @@ public class TSFileIOWriter {
     }
 
     /**
-     * start a {@linkplaincom.corp.delta.tsfile.file.metadata.RowGroupMetaData.RowGroupMetaData
-     * RowGroupMetaData}
+     * start a {@linkplain RowGroupMetaData RowGroupMetaData}
      * 
-     * @param recordCount - the record count of this time series inputed in this stage
+     * @param recordCount - the record count of this time series input in this stage
      * @param deltaObjectId - delta object id
      * @param deltaObjectType - delta type of this row group
-     * @throws IOException
+     * @throws IOException if I/O error occurs
      */
     public void startRowGroup(long recordCount, String deltaObjectId, String deltaObjectType)
             throws IOException {
@@ -107,7 +114,7 @@ public class TSFileIOWriter {
      * @param statistics - statistic of the whole series
      * @param maxTime - maximum timestamp of the whole series in this stage
      * @param minTime - minimum timestamp of the whole series in this stage
-     * @throws IOException
+     * @throws IOException if I/O error occurs
      */
     public void startSeries(MeasurementDescriptor descriptor,
             CompressionTypeName compressionCodecName, TSDataType tsDataType,
@@ -149,7 +156,7 @@ public class TSFileIOWriter {
      * write {@linkplain cn.edu.thu.tsfile.file.metadata.TSFileMetaData TSFileMetaData} to
      * output stream and close it.
      * 
-     * @throws IOException
+     * @throws IOException if I/O error occurs
      */
     public void endFile() throws IOException {
         List<TimeSeriesMetadata> timeSeriesList = schema.getTimeSeriesMetadatas();
@@ -167,7 +174,7 @@ public class TSFileIOWriter {
      * get the length of normal OutputStream
      * 
      * @return - length of normal OutputStream
-     * @throws IOException
+     * @throws IOException if I/O error occurs
      */
     public long getPos() throws IOException {
         return out.getPos();

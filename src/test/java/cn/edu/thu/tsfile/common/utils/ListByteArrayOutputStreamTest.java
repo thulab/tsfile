@@ -1,6 +1,5 @@
 package cn.edu.thu.tsfile.common.utils;
 
-import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,7 +13,7 @@ import static org.junit.Assert.fail;
  * This class is used for testing functions of <code>ListByteOutputStream</code>.
  * @author kangrong
  */
-public class ListByteOutputStreamTest {
+public class ListByteArrayOutputStreamTest {
     private byte[] b1 = new byte[]{0, 1, 2};
     private byte[] b2 = new byte[]{3};
     private byte[] b3 = new byte[]{4, 5, 6, 7};
