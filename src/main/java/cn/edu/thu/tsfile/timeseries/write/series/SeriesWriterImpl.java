@@ -34,6 +34,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
      * page size threshold
      */
     private final long psThres;
+    private final int pageCountUpperBound;
     /**
      * value writer to encode data
      */
@@ -69,6 +70,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         this.seriesStatistics = Statistics.getStatsByType(desc.getType());
         resetPageStatistics();
         this.dataValueWriter = new ValueWriter();
+        this.pageCountUpperBound = TSFileDescriptor.getInstance().getConfig().pageCountUpperBound;
 
         this.dataValueWriter.setTimeEncoder(desc.getTimeEncoder());
         this.dataValueWriter.setValueEncoder(desc.getValueEncoder());
@@ -161,7 +163,11 @@ public class SeriesWriterImpl implements ISeriesWriter {
      *
      */
     private void checkPageSize() {
-        if (valueCount > valueCountForNextSizeCheck) {
+        if (valueCount == pageCountUpperBound) {
+            LOG.debug("current line count reaches the upper bound, write page {}", desc);
+            writePage();
+        }
+        else if (valueCount == valueCountForNextSizeCheck) {
             // not checking the memory used for every value
             long currentColumnSize = dataValueWriter.estimateMaxMemSize();
             if (currentColumnSize > psThres) {
@@ -172,7 +178,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
                 LOG.debug("{}:{} not enough size, now: {}, change to {}", deltaObjectId, desc,
                         valueCount, valueCountForNextSizeCheck);
             }
-//            reset the valueCountForNextSizeCheck for the next page
+            //reset the valueCountForNextSizeCheck for the next page
             valueCountForNextSizeCheck = (int) (((float)psThres/currentColumnSize)*valueCount);
         }
     }
