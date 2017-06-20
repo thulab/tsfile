@@ -67,6 +67,7 @@ public class TSFileDescriptor {
 		    
 		    conf.rowGroupSize = Integer.parseInt(properties.getProperty("rowGroupSize", conf.rowGroupSize+""));
 		    conf.pageSize = Integer.parseInt(properties.getProperty("pageSize",conf.pageSize+""));
+		    conf.cachePageData = Boolean.parseBoolean(properties.getProperty("cachePageData",conf.cachePageData+""));
 		    conf.timeSeriesEncoder = properties.getProperty("timeSeriesEncoder", conf.timeSeriesEncoder);
 		    conf.defaultSeriesEncoder = properties.getProperty("defaultSeriesEncoder", conf.defaultSeriesEncoder);
 		    conf.compressName = properties.getProperty("compressName", conf.compressName);
@@ -96,6 +97,7 @@ public class TSFileDescriptor {
 	    
 	    System.out.println(config.rowGroupSize);
 	    System.out.println(config.pageSize);
+	    System.out.println(config.cachePageData);
 	    System.out.println(config.timeSeriesEncoder);
 	    System.out.println(config.defaultSeriesEncoder);
 	    System.out.println(config.compressName);

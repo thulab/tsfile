@@ -40,6 +40,7 @@ public class ReadPageInMemTest {
 		conf.rowGroupSize = 100000;
 		conf.pageCheckSizeThreshold = 1;
 		conf.defaultMaxStringLength = 2;
+		conf.cachePageData = true;
 		TSRandomAccessFileWriter output = new RandomAccessOutputStream(new File(filePath));
 		fileSchema = new FileSchema(getJsonSchema());
 		TSFileIOWriter tsfileWriter = new TSFileIOWriter(fileSchema, output);

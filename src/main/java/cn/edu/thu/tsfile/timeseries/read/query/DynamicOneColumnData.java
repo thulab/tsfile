@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.common.utils.Binary;
-import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 
 /**
  * DynamicOneColumnData is a self-defined data structure which is optimized for different type
