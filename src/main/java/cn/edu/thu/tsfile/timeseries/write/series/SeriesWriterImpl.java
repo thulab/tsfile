@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.common.utils.Pair;
+import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
@@ -83,7 +84,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         this.dataValueWriter.setTimeEncoder(desc.getTimeEncoder());
         this.dataValueWriter.setValueEncoder(desc.getValueEncoder());
         // cache page data
-        this.cacheCurrentPageData = new DynamicOneColumnData(desc.getType());
+        this.cacheCurrentPageData = new DynamicOneColumnData(desc.getType(),true);
     }
 
     private void resetPageStatistics() {
@@ -96,6 +97,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
+        cacheCurrentPageData.putTime(time);
         cacheCurrentPageData.putLong(value);
         if (minTimestamp == -1)
             minTimestamp = time;
@@ -108,6 +110,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
+        cacheCurrentPageData.putTime(time);
         cacheCurrentPageData.putInt(value);
         if (minTimestamp == -1)
             minTimestamp = time;
@@ -120,6 +123,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
+        cacheCurrentPageData.putTime(time);
         cacheCurrentPageData.putBoolean(value);
         if (minTimestamp == -1)
             minTimestamp = time;
@@ -132,6 +136,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
+        cacheCurrentPageData.putTime(time);
         cacheCurrentPageData.putFloat(value);
         if (minTimestamp == -1)
             minTimestamp = time;
@@ -144,6 +149,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
+        cacheCurrentPageData.putTime(time);
         cacheCurrentPageData.putDouble(value);
         if (minTimestamp == -1)
             minTimestamp = time;
@@ -167,6 +173,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
+        cacheCurrentPageData.putTime(time);
         cacheCurrentPageData.putBinary(value);
         if (minTimestamp == -1)
             minTimestamp = time;
@@ -174,19 +181,14 @@ public class SeriesWriterImpl implements ISeriesWriter {
     }
     
     @Override
-    public Pair<DynamicOneColumnData, List<ByteArrayInputStream>> query(){
+    public Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>, CompressionTypeName>> query(){
 
-    	List<ByteArrayInputStream> pageList = pageWriter.query();
+    	Pair<List<ByteArrayInputStream>, CompressionTypeName> pagePairData = pageWriter.query();
     	DynamicOneColumnData ret = null;
-    	
-    	if(cacheCurrentPageData.length==0){
-    		ret = new DynamicOneColumnData();
-    	}else{
-    		ret = new DynamicOneColumnData(cacheCurrentPageData.dataType, true);
-    	}
+    	ret = new DynamicOneColumnData(cacheCurrentPageData.dataType, true);
     	
     	ret.mergeRecord(cacheCurrentPageData);
-    	return new Pair<DynamicOneColumnData, List<ByteArrayInputStream>>(ret, pageList);
+    	return new Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>, CompressionTypeName>>(ret, pagePairData);
     }
 
     /**
@@ -199,12 +201,12 @@ public class SeriesWriterImpl implements ISeriesWriter {
             LOG.debug("current line count reaches the upper bound, write page {}", desc);
             writePage();
         }
-        else if (valueCount == valueCountForNextSizeCheck) {
+        else if (valueCount >= valueCountForNextSizeCheck) {
             // not checking the memory used for every value
             long currentColumnSize = dataValueWriter.estimateMaxMemSize();
             if (currentColumnSize > psThres) {
                 // we will write the current page
-                LOG.debug("enough size, write page {}", desc);
+                LOG.info("enough size, write page {}", desc);
                 writePage();
             } else {
                 LOG.debug("{}:{} not enough size, now: {}, change to {}", deltaObjectId, desc,
