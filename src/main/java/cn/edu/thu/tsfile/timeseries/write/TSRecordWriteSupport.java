@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.edu.thu.tsfile.common.utils.Pair;
+import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
@@ -36,9 +37,11 @@ public class TSRecordWriteSupport extends WriteSupport<TSRecord> {
 	}
 
 	@Override
-	public Pair<DynamicOneColumnData, List<ByteArrayInputStream>> query(String deltaObjectId, String measurementId) {
+	public Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>, CompressionTypeName>> query(String deltaObjectId, String measurementId) {
 		if (groupWriters.get(deltaObjectId) == null) {
-			return new Pair<DynamicOneColumnData, List<ByteArrayInputStream>>(null, null);
+			DynamicOneColumnData left = null;
+			Pair<List<ByteArrayInputStream>, CompressionTypeName> right = null;
+			return new Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>,CompressionTypeName>>(left, right);
 		}
 		return groupWriters.get(deltaObjectId).query(measurementId);
 	}

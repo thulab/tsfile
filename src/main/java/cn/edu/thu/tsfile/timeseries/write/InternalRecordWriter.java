@@ -6,6 +6,7 @@ import cn.edu.thu.tsfile.timeseries.write.series.RowGroupWriterImpl;
 import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
 import cn.edu.thu.tsfile.common.conf.TSFileConfig;
 import cn.edu.thu.tsfile.common.utils.Pair;
+import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 import org.slf4j.Logger;
@@ -84,7 +85,7 @@ public abstract class InternalRecordWriter<T> {
 
 	}
 
-	public Pair<DynamicOneColumnData, List<ByteArrayInputStream>> query(String deltaObjectId, String measurementId) {
+	public Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>, CompressionTypeName>> query(String deltaObjectId, String measurementId) {
 
 		return writeSupport.query(deltaObjectId, measurementId);
 	}

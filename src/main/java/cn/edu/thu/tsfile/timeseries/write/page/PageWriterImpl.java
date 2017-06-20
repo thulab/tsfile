@@ -9,8 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
+import cn.edu.thu.tsfile.common.utils.Pair;
 import cn.edu.thu.tsfile.common.utils.PublicBAOS;
 import cn.edu.thu.tsfile.compress.Compressor;
+import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.thu.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
@@ -28,7 +30,7 @@ public class PageWriterImpl implements IPageWriter {
 	private static Logger LOG = LoggerFactory.getLogger(PageWriterImpl.class);
 
 	private ListByteArrayOutputStream buf;
-	private List<ByteArrayInputStream>  pageList;
+	private List<ByteArrayInputStream> pageList;
 	private final Compressor compressor;
 	private final MeasurementDescriptor desc;
 
@@ -81,11 +83,13 @@ public class PageWriterImpl implements IPageWriter {
 		LOG.debug("page {}:write page from seriesWriter, valueCount:{}, stats:{},size:{}", desc, valueCount, statistics,
 				estimateMaxPageMemSize());
 	}
-	
-	public List<ByteArrayInputStream> query(){
-		
-		List<ByteArrayInputStream> result  =  new ArrayList<>(pageList);
-		return result;
+
+	public Pair<List<ByteArrayInputStream>, CompressionTypeName> query() {
+
+		List<ByteArrayInputStream> backupPageList = new ArrayList<>(pageList);
+		Pair<List<ByteArrayInputStream>, CompressionTypeName> ret = new Pair<List<ByteArrayInputStream>, CompressionTypeName>(
+				backupPageList, compressor.getCodecName());
+		return ret;
 	}
 
 	private void resetTimeStamp() {

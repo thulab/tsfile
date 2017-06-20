@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.thu.tsfile.common.utils.Pair;
+import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.thu.tsfile.timeseries.write.exception.NoMeasurementException;
@@ -56,10 +57,13 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
 	}
 
 	@Override
-	public Pair<DynamicOneColumnData, List<ByteArrayInputStream>> query(String measurementId) {
+	public Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>, CompressionTypeName>> query(String measurementId) {
 		if (dataSeriesWriters.get(measurementId) == null) {
 			LOG.warn("The measurementId {} is not exist", measurementId);
-			return new Pair<DynamicOneColumnData, List<ByteArrayInputStream>>(null, null);
+			DynamicOneColumnData left = null;
+			Pair<List<ByteArrayInputStream>, CompressionTypeName> right = null;
+			
+			return new Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>,CompressionTypeName>>(left, right);
 		}
 		return dataSeriesWriters.get(measurementId).query();
 	}

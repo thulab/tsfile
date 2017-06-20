@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.edu.thu.tsfile.common.utils.Pair;
+import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
@@ -42,9 +43,8 @@ abstract public class WriteSupport<T> {
 	 * 
 	 * @param deltaObjectId
 	 * @param measurementId
-	 * @return {@link DynamicOneColumnData} current page data which is not
-	 *         packaged, {@link List} page list which are packaged
+	 * @return
 	 */
-	public abstract Pair<DynamicOneColumnData, List<ByteArrayInputStream>> query(String deltaObjectId,
-			String measurementId);
+	public abstract Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>, CompressionTypeName>> query(
+			String deltaObjectId, String measurementId);
 }

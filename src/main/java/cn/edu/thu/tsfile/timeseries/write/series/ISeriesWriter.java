@@ -7,6 +7,7 @@ import java.util.List;
 
 import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.common.utils.Pair;
+import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 
@@ -32,7 +33,7 @@ public interface ISeriesWriter {
 
     void write(long time, Binary value) throws IOException;
     
-    Pair<DynamicOneColumnData, List<ByteArrayInputStream>> query();
+    Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>, CompressionTypeName>> query();
 
     void writeToFileWriter(TSFileIOWriter tsfileWriter) throws IOException;
 

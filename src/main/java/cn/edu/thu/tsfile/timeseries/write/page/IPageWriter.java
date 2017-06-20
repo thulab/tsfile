@@ -1,6 +1,8 @@
 package cn.edu.thu.tsfile.timeseries.write.page;
 
 import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
+import cn.edu.thu.tsfile.common.utils.Pair;
+import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.thu.tsfile.timeseries.write.exception.PageException;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
@@ -35,9 +37,9 @@ public interface IPageWriter {
     /**
      * query all pages which are packaged
      * 
-     * @return {@link List} all data of pages
+     * @return left is all page data, right is the name of compression
      */
-    List<ByteArrayInputStream> query();
+    Pair<List<ByteArrayInputStream>, CompressionTypeName> query();
 
     /**
      * write the page to specified IOWriter
