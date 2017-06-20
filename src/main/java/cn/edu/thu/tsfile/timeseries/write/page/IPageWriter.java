@@ -6,7 +6,9 @@ import cn.edu.thu.tsfile.timeseries.write.exception.PageException;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 import cn.edu.thu.tsfile.timeseries.write.series.ISeriesWriter;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Each SeriesWriter has a page writer. While memory space occupied by series writer exceeds
@@ -29,6 +31,13 @@ public interface IPageWriter {
      */
     void writePage(ListByteArrayOutputStream listByteArray, int valueCount, Statistics<?> statistics,
                    long maxTimestamp, long minTimestamp) throws PageException;
+    
+    /**
+     * query all pages which are packaged
+     * 
+     * @return {@link List} all data of pages
+     */
+    List<ByteArrayInputStream> query();
 
     /**
      * write the page to specified IOWriter

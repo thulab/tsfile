@@ -1,5 +1,13 @@
 package cn.edu.thu.tsfile.timeseries.write.page;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
 import cn.edu.thu.tsfile.common.utils.PublicBAOS;
 import cn.edu.thu.tsfile.compress.Compressor;
@@ -8,11 +16,6 @@ import cn.edu.thu.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.thu.tsfile.timeseries.write.exception.PageException;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 /**
  * a implementation of {@linkplain IPageWriter IPageWriter}
@@ -25,6 +28,7 @@ public class PageWriterImpl implements IPageWriter {
 	private static Logger LOG = LoggerFactory.getLogger(PageWriterImpl.class);
 
 	private ListByteArrayOutputStream buf;
+	private List<ByteArrayInputStream>  pageList;
 	private final Compressor compressor;
 	private final MeasurementDescriptor desc;
 
@@ -36,6 +40,7 @@ public class PageWriterImpl implements IPageWriter {
 		this.desc = desc;
 		this.compressor = desc.getCompressor();
 		this.buf = new ListByteArrayOutputStream();
+		this.pageList = new ArrayList<>();
 	}
 
 	@Override
@@ -72,8 +77,15 @@ public class PageWriterImpl implements IPageWriter {
 			throw new PageException("meet IO Exception in buffer append,but we cannot understand it:" + e.getMessage());
 		}
 		buf.append(tempOutputStream);
+		pageList.add(tempOutputStream.transformToInputStream());
 		LOG.debug("page {}:write page from seriesWriter, valueCount:{}, stats:{},size:{}", desc, valueCount, statistics,
 				estimateMaxPageMemSize());
+	}
+	
+	public List<ByteArrayInputStream> query(){
+		
+		List<ByteArrayInputStream> result  =  new ArrayList<>(pageList);
+		return result;
 	}
 
 	private void resetTimeStamp() {

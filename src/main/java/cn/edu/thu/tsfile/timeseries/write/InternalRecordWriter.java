@@ -1,16 +1,20 @@
 package cn.edu.thu.tsfile.timeseries.write;
 
+import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.series.RowGroupWriterImpl;
 import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
 import cn.edu.thu.tsfile.common.conf.TSFileConfig;
+import cn.edu.thu.tsfile.common.utils.Pair;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -78,6 +82,11 @@ public abstract class InternalRecordWriter<T> {
 			checkMemorySize();
 		}
 
+	}
+
+	public Pair<DynamicOneColumnData, List<ByteArrayInputStream>> query(String deltaObjectId, String measurementId) {
+
+		return writeSupport.query(deltaObjectId, measurementId);
 	}
 
 	/**
@@ -151,8 +160,7 @@ public abstract class InternalRecordWriter<T> {
 				fillInRowGroupSize(actualTotalRowGroupSize);
 				LOG.info("total row group size:{}, actual:{}, filled:{}", primaryRowGroupSize, actualTotalRowGroupSize,
 						primaryRowGroupSize - actualTotalRowGroupSize);
-			}
-			else
+			} else
 				LOG.info("total row group size:{}, row group is not filled", actualTotalRowGroupSize);
 			LOG.info("write row group end");
 			recordCount = 0;

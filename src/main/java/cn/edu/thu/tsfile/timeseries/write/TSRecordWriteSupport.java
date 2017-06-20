@@ -1,15 +1,20 @@
 package cn.edu.thu.tsfile.timeseries.write;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
+import cn.edu.thu.tsfile.common.utils.Pair;
+import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
 
 /**
- * TSRecordWriteSupport extends the super class {@coderiteSupport} with {@code TSRecord}. It's used
- * to receive a TSRecord with several data points and send it to responding row group.
+ * TSRecordWriteSupport extends the super class {@coderiteSupport} with
+ * {@code TSRecord}. It's used to receive a TSRecord with several data points
+ * and send it to responding row group.
  * 
  * @see TSRecord TSRecord
  * @author kangrong
@@ -17,16 +22,24 @@ import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
  */
 public class TSRecordWriteSupport extends WriteSupport<TSRecord> {
 
-    private Map<String, IRowGroupWriter> groupWriters;
+	private Map<String, IRowGroupWriter> groupWriters;
 
-    @Override
-    public void init(Map<String, IRowGroupWriter> groupWriters) {
-        this.groupWriters = groupWriters;
-    }
+	@Override
+	public void init(Map<String, IRowGroupWriter> groupWriters) {
+		this.groupWriters = groupWriters;
+	}
 
-    @Override
-    public void write(TSRecord record) throws IOException, WriteProcessException {
-        String deltaObjectId = record.deltaObjectId;
-        groupWriters.get(deltaObjectId).write(record.time, record.dataPointList);
-    }
+	@Override
+	public void write(TSRecord record) throws IOException, WriteProcessException {
+		String deltaObjectId = record.deltaObjectId;
+		groupWriters.get(deltaObjectId).write(record.time, record.dataPointList);
+	}
+
+	@Override
+	public Pair<DynamicOneColumnData, List<ByteArrayInputStream>> query(String deltaObjectId, String measurementId) {
+		if (groupWriters.get(deltaObjectId) == null) {
+			return new Pair<DynamicOneColumnData, List<ByteArrayInputStream>>(null, null);
+		}
+		return groupWriters.get(deltaObjectId).query(measurementId);
+	}
 }

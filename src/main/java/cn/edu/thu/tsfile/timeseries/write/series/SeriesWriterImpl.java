@@ -1,15 +1,19 @@
 package cn.edu.thu.tsfile.timeseries.write.series;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.utils.Binary;
+import cn.edu.thu.tsfile.common.utils.Pair;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
+import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.thu.tsfile.timeseries.write.exception.PageException;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
@@ -38,6 +42,11 @@ public class SeriesWriterImpl implements ISeriesWriter {
      * value writer to encode data
      */
     private ValueWriter dataValueWriter;
+    
+    /**
+     * cache current page data 
+     */
+    private DynamicOneColumnData cacheCurrentPageData;
     /**
      * value count on of a page. It will be reset after calling {@code writePage()}
      */
@@ -70,9 +79,11 @@ public class SeriesWriterImpl implements ISeriesWriter {
         resetPageStatistics();
         this.dataValueWriter = new ValueWriter();
         this.pageCountUpperBound = TSFileDescriptor.getInstance().getConfig().pageCountUpperBound;
-
+        
         this.dataValueWriter.setTimeEncoder(desc.getTimeEncoder());
         this.dataValueWriter.setValueEncoder(desc.getValueEncoder());
+        // cache page data
+        this.cacheCurrentPageData = new DynamicOneColumnData(desc.getType());
     }
 
     private void resetPageStatistics() {
@@ -85,6 +96,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
+        cacheCurrentPageData.putLong(value);
         if (minTimestamp == -1)
             minTimestamp = time;
         checkPageSize();
@@ -96,6 +108,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
+        cacheCurrentPageData.putInt(value);
         if (minTimestamp == -1)
             minTimestamp = time;
         checkPageSize();
@@ -107,6 +120,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
+        cacheCurrentPageData.putBoolean(value);
         if (minTimestamp == -1)
             minTimestamp = time;
         checkPageSize();
@@ -118,6 +132,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
+        cacheCurrentPageData.putFloat(value);
         if (minTimestamp == -1)
             minTimestamp = time;
         checkPageSize();
@@ -129,6 +144,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
+        cacheCurrentPageData.putDouble(value);
         if (minTimestamp == -1)
             minTimestamp = time;
         checkPageSize();
@@ -151,9 +167,26 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
+        cacheCurrentPageData.putBinary(value);
         if (minTimestamp == -1)
             minTimestamp = time;
         checkPageSize();
+    }
+    
+    @Override
+    public Pair<DynamicOneColumnData, List<ByteArrayInputStream>> query(){
+
+    	List<ByteArrayInputStream> pageList = pageWriter.query();
+    	DynamicOneColumnData ret = null;
+    	
+    	if(cacheCurrentPageData.length==0){
+    		ret = new DynamicOneColumnData();
+    	}else{
+    		ret = new DynamicOneColumnData(cacheCurrentPageData.dataType, true);
+    	}
+    	
+    	ret.mergeRecord(cacheCurrentPageData);
+    	return new Pair<DynamicOneColumnData, List<ByteArrayInputStream>>(ret, pageList);
     }
 
     /**
@@ -190,6 +223,8 @@ public class SeriesWriterImpl implements ISeriesWriter {
             pageWriter.writePage(dataValueWriter.getBytes(), valueCount, pageStatistics, time,
                     minTimestamp);
             this.seriesStatistics.mergeStatistics(this.pageStatistics);
+            // clear current page data
+            this.cacheCurrentPageData.clearData();
         } catch (IOException e) {
             LOG.error("meet error in dataValueWriter.getBytes(),ignore this page, {}",
                     e.getMessage());
