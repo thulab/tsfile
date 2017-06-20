@@ -51,7 +51,7 @@ public class TSFileMetaDataConverter {
     return fileMetaDataInTSFile;
   }
 
-  public int caculatePageHeaderSize(int digestSize){
+  public int calculatePageHeaderSize(int digestSize){
     //PageHeader: PageType--4, uncompressedSize--4,compressedSize--4
     //DatapageHeader: numValues--4, numNulls--4, numRows--4, Encoding--4, isCompressed--1, maxTimestamp--8, minTimestamp--8
     //Digest: max ByteBuffer, min ByteBuffer

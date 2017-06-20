@@ -41,6 +41,10 @@ public class TSFileConfig {
      */
     public int pageSize = 1024 * 1024;
     /**
+     * the upper bound of line count maintained in a page
+     */
+    public int pageCountUpperBound = 1024 * 1024;
+    /**
      * compress type, default value is UNCOMPRESSED
      */
     public String compressName = "UNCOMPRESSED";

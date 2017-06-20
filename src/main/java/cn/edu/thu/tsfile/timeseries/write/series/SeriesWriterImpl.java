@@ -34,6 +34,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
      * page size threshold
      */
     private final long psThres;
+    private final int pageCountUpperBound;
     /**
      * value writer to encode data
      */
@@ -69,6 +70,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         this.seriesStatistics = Statistics.getStatsByType(desc.getType());
         resetPageStatistics();
         this.dataValueWriter = new ValueWriter();
+        this.pageCountUpperBound = TSFileDescriptor.getInstance().getConfig().pageCountUpperBound;
 
         this.dataValueWriter.setTimeEncoder(desc.getTimeEncoder());
         this.dataValueWriter.setValueEncoder(desc.getValueEncoder());
@@ -161,22 +163,23 @@ public class SeriesWriterImpl implements ISeriesWriter {
      *
      */
     private void checkPageSize() {
-        if (valueCount > valueCountForNextSizeCheck) {
+        if (valueCount == pageCountUpperBound) {
+            LOG.debug("current line count reaches the upper bound, write page {}", desc);
+            writePage();
+        }
+        else if (valueCount == valueCountForNextSizeCheck) {
             // not checking the memory used for every value
             long currentColumnSize = dataValueWriter.estimateMaxMemSize();
             if (currentColumnSize > psThres) {
-                // we will write the current page and check again the size at the predicted middle
-                // of next page
-                valueCountForNextSizeCheck = valueCount / 2;
+                // we will write the current page
                 LOG.debug("enough size, write page {}", desc);
                 writePage();
             } else {
-                // not reached the threshold, will check again midway
-                valueCountForNextSizeCheck =
-                        (int) (valueCount + ((float) valueCount * psThres / currentColumnSize)) / 2 + 1;
                 LOG.debug("{}:{} not enough size, now: {}, change to {}", deltaObjectId, desc,
                         valueCount, valueCountForNextSizeCheck);
             }
+            //reset the valueCountForNextSizeCheck for the next page
+            valueCountForNextSizeCheck = (int) (((float)psThres/currentColumnSize)*valueCount);
         }
     }
 

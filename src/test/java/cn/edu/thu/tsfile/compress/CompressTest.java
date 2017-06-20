@@ -1,19 +1,17 @@
 package cn.edu.thu.tsfile.compress;
 
-import static org.junit.Assert.*;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
+import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
+import cn.edu.thu.tsfile.compress.UnCompressor.NoUnCompressor;
+import cn.edu.thu.tsfile.compress.UnCompressor.SnappyUnCompressor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.xerial.snappy.Snappy;
 
-import cn.edu.thu.tsfile.common.utils.bytesinput.BytesInput;
-import cn.edu.thu.tsfile.compress.UnCompressor.NoUnCompressor;
-import cn.edu.thu.tsfile.compress.UnCompressor.SnappyUnCompressor;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * 
@@ -22,7 +20,7 @@ import cn.edu.thu.tsfile.compress.UnCompressor.SnappyUnCompressor;
  */
 public class CompressTest {
     private final String inputString = "Hello snappy-java! Snappy-java is a JNI-based wrapper of "
-        + "Snappy, a fast compresser/decompresser.";
+        + "Snappy, a fast compressor/decompressor.";
 	@Before
 	public void setUp() throws Exception {
 	}
@@ -32,31 +30,31 @@ public class CompressTest {
 	}
 
     @Test
-    public void noCompressorTest() throws UnsupportedEncodingException, IOException {
+    public void noCompressorTest() throws IOException {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       out.write(inputString.getBytes("UTF-8"));
       Compressor.NoCompressor compressor = new Compressor.NoCompressor();
       NoUnCompressor unCompressor = new NoUnCompressor();
-      BytesInput compressed = compressor.compress(BytesInput.from(out));
+      ListByteArrayOutputStream compressed = compressor.compress(ListByteArrayOutputStream.from(out));
       byte[] uncompressed = unCompressor.uncompress(compressed.toByteArray());
       String result = new String(uncompressed, "UTF-8");
       assertEquals(inputString, result);
     }
 
     @Test
-    public void snappyCompressorTest() throws UnsupportedEncodingException, IOException {
+    public void snappyCompressorTest() throws IOException {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       out.write(inputString.getBytes("UTF-8"));
       Compressor.SnappyCompressor compressor = new Compressor.SnappyCompressor();
       SnappyUnCompressor unCompressor = new SnappyUnCompressor();
-      BytesInput compressed = compressor.compress(BytesInput.from(out));
+      ListByteArrayOutputStream compressed = compressor.compress(ListByteArrayOutputStream.from(out));
       byte[] uncompressed = unCompressor.uncompress(compressed.toByteArray());
       String result = new String(uncompressed, "UTF-8");
       assertEquals(inputString, result);
     }
     
 	@Test
-	public void snappyTest() throws UnsupportedEncodingException, IOException {
+	public void snappyTest() throws IOException {
 		byte[] compressed = Snappy.compress(inputString.getBytes("UTF-8"));
 		byte[] uncompressed = Snappy.uncompress(compressed);
 
