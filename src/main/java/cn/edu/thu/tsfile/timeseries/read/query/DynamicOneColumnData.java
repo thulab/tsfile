@@ -112,8 +112,8 @@ public class DynamicOneColumnData {
 			binaryRet.add(new Binary[CAPACITY]);
 			break;
         case ENUMS:
-            binaryRet = new ArrayList<>();
-            binaryRet.add(new Binary[CAPACITY]);
+        	intRet = new ArrayList<>();
+        	intRet.add(new int[CAPACITY]);
             break;
 		default:
 			break;
