@@ -19,23 +19,23 @@ public class ListByteArrayOutputStreamTest {
     private byte[] b3 = new byte[]{4, 5, 6, 7};
     private byte[] b4 = new byte[]{8, 9, 10};
 
-    private ByteArrayOutputStream s1;
-    private ByteArrayOutputStream s2;
-    private ByteArrayOutputStream s3;
-    private ByteArrayOutputStream s4;
-    private ByteArrayOutputStream total;
+    private PublicBAOS s1;
+    private PublicBAOS s2;
+    private PublicBAOS s3;
+    private PublicBAOS s4;
+    private PublicBAOS total;
 
     @Before
     public void before() throws IOException {
-        s1 = new ByteArrayOutputStream();
+        s1 = new PublicBAOS();
         s1.write(b1);
-        s2 = new ByteArrayOutputStream();
+        s2 = new PublicBAOS();
         s2.write(b2);
-        s3 = new ByteArrayOutputStream();
+        s3 = new PublicBAOS();
         s3.write(b3);
-        s4 = new ByteArrayOutputStream();
+        s4 = new PublicBAOS();
         s4.write(b4);
-        total = new ByteArrayOutputStream();
+        total = new PublicBAOS();
         total.write(b1);
         total.write(b2);
         total.write(b3);

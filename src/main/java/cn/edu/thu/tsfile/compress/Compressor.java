@@ -2,6 +2,7 @@ package cn.edu.thu.tsfile.compress;
 
 import cn.edu.thu.tsfile.common.exception.CompressionTypeNotSupportedException;
 import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
+import cn.edu.thu.tsfile.common.utils.PublicBAOS;
 import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ public abstract class Compressor {
             if (listByteArray == null) {
                 return null;
             }
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            PublicBAOS out = new PublicBAOS();
             try {
                 out.write(Snappy.compress(listByteArray.toByteArray()));
             } catch (IOException e) {

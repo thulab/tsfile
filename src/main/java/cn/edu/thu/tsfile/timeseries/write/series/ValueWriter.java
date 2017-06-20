@@ -1,13 +1,13 @@
 package cn.edu.thu.tsfile.timeseries.write.series;
 
-import cn.edu.thu.tsfile.common.utils.Binary;
-import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
-import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
-import cn.edu.thu.tsfile.encoding.encoder.Encoder;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+
+import cn.edu.thu.tsfile.common.utils.Binary;
+import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
+import cn.edu.thu.tsfile.common.utils.PublicBAOS;
+import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.thu.tsfile.encoding.encoder.Encoder;
 
 /**
  * This function is used to write time-value into a time series. It consists of a time encoder, a
@@ -18,17 +18,17 @@ import java.math.BigDecimal;
 public class ValueWriter {
     // time
     private Encoder timeEncoder;
-    private ByteArrayOutputStream timeOut;
+    private PublicBAOS timeOut;
     // value
     private Encoder valueEncoder;
-    private ByteArrayOutputStream valueOut;
+    private PublicBAOS valueOut;
 
-    private ByteArrayOutputStream timeSizeOut;
+    private PublicBAOS timeSizeOut;
 
     public ValueWriter() {
-        this.timeOut = new ByteArrayOutputStream();
-        this.valueOut = new ByteArrayOutputStream();
-        this.timeSizeOut = new ByteArrayOutputStream();
+        this.timeOut = new PublicBAOS();
+        this.valueOut = new PublicBAOS();
+        this.timeSizeOut = new PublicBAOS();
     }
 
     public void write(long time, boolean value) throws IOException {
