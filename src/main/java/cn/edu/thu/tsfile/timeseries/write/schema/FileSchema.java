@@ -51,6 +51,12 @@ public class FileSchema {
 
     private Map<String, String> props = new HashMap<>();
 
+    /**
+     * Add a property to {@code props}. <br>
+     * If the key exists, this method will update the value of the key.
+     * @param key
+     * @param value
+     */
     public void addProp(String key, String value) {
         props.put(key, value);
     }

@@ -3,8 +3,6 @@ package cn.edu.thu.tsfile.timeseries.read.readSupport;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.activation.UnsupportedDataTypeException;
-
 import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.BooleanDataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.FloatDataPoint;

@@ -36,7 +36,7 @@ public class SchemaBuilderTest {
         builder.addSeries("s5", TSDataType.INT32, TSEncoding.TS_2DIFF, props);
         builder.setProps(props);
         builder.addProp("key", "value");
-        FileSchema fileSchema = builder.getFileSchema();
+        FileSchema fileSchema = builder.build();
 
         assertEquals("value", fileSchema.getProp("key"));
         assertEquals("{maxPointNumber=2, key=value}", fileSchema.getProps().toString());
