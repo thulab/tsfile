@@ -8,6 +8,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.edu.thu.tsfile.common.conf.TSFileConfig;
+import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
 import cn.edu.thu.tsfile.common.utils.Pair;
 import cn.edu.thu.tsfile.common.utils.PublicBAOS;
@@ -42,7 +44,11 @@ public class PageWriterImpl implements IPageWriter {
 		this.desc = desc;
 		this.compressor = desc.getCompressor();
 		this.buf = new ListByteArrayOutputStream();
-		this.pageList = new ArrayList<>();
+		// cache page data
+		TSFileConfig config = TSFileDescriptor.getInstance().getConfig();
+		if(config.cachePageData){
+			this.pageList = new ArrayList<>();
+		}
 	}
 
 	@Override
@@ -79,7 +85,9 @@ public class PageWriterImpl implements IPageWriter {
 			throw new PageException("meet IO Exception in buffer append,but we cannot understand it:" + e.getMessage());
 		}
 		buf.append(tempOutputStream);
-		pageList.add(tempOutputStream.transformToInputStream());
+		if(pageList!=null){
+			pageList.add(tempOutputStream.transformToInputStream());
+		}
 		LOG.debug("page {}:write page from seriesWriter, valueCount:{}, stats:{},size:{}", desc, valueCount, statistics,
 				estimateMaxPageMemSize());
 	}
@@ -113,6 +121,9 @@ public class PageWriterImpl implements IPageWriter {
 	public void reset() {
 		minTimestamp = -1;
 		buf.reset();
+		if(pageList!=null){
+			pageList.clear();
+		}
 		totalValueCount = 0;
 	}
 
