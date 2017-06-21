@@ -48,7 +48,6 @@ public class JsonConverterTest {
                 };
         int i = 0;
         for (MeasurementDescriptor desc : measurements) {
-//            System.out.println(desc.toString());
             assertEquals(measureDescsStrings[i++], desc.toString());
         }
 
@@ -62,7 +61,6 @@ public class JsonConverterTest {
                         "TimeSeriesMetadata: measurementUID s5, type ength 0, DataType INT32, FreqType null,frequencies null",
                 };
         for (int j = 0; j < tsMetadatas.size(); j++) {
-//            System.out.println(tsMetadatas.get(j).toString());
             assertEquals(tsMetadatasList[j], tsMetadatas.get(j).toString());
         }
 

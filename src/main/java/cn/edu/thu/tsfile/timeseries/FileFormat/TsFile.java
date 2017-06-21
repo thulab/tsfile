@@ -38,11 +38,8 @@ public class TsFile {
     private static final int READ = 1;
     private QueryEngine queryEngine;
     private int status;
-
-    //add by Kangrong start
     private InternalRecordWriter<TSRecord> innerWriter;
     private FileSchema fileSchema;
-    //add by Kangrong end
 
     /**
      * For Write

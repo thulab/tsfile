@@ -5,7 +5,6 @@ import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.write.InternalRecordWriter;
 import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.thu.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
-import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.schema.converter.JsonConverter;
 import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
 import org.json.JSONObject;
@@ -32,22 +31,22 @@ public class FileSchema {
      * {@code appearDeltaObjectIdSet} responds to delta object that appeared in this stage. Stage
      * means the time period after the last <b>flushing to file</b> up to now.
      */
-    private Set<String> appearDeltaObjectIdSet = new HashSet<String>();
+    private Set<String> appearDeltaObjectIdSet = new HashSet<>();
     /**
      * {@code Map<measurementId, TSDataType>}
      */
-    private Map<String, TSDataType> dataTypeMap = new HashMap<String, TSDataType>();
+    private Map<String, TSDataType> dataTypeMap = new HashMap<>();
     /**
      * {@code Map<measurementId, MeasurementDescriptor>}
      */
     private Map<String, MeasurementDescriptor> descriptorMap =
-            new HashMap<String, MeasurementDescriptor>();
+            new HashMap<>();
     private String[] tempKeyArray = new String[10];
     /**
      * deltaType of this TSFile
      */
     private String deltaType;
-    private List<TimeSeriesMetadata> tsMetadata = new ArrayList<TimeSeriesMetadata>();
+    private List<TimeSeriesMetadata> tsMetadata = new ArrayList<>();
     private int currentRowMaxSize;
 
     private Map<String, String> props = new HashMap<>();
@@ -78,6 +77,14 @@ public class FileSchema {
 
     public void setCurrentRowMaxSize(int currentRowMaxSize) {
         this.currentRowMaxSize = currentRowMaxSize;
+    }
+
+    public void addCurrentRowMaxSize(int currentSeries) {
+        this.currentRowMaxSize += currentSeries;
+    }
+
+    public FileSchema() {
+
     }
 
     public FileSchema(JSONObject jsonSchema) throws InvalidJsonSchemaException {
@@ -115,7 +122,7 @@ public class FileSchema {
         return deltaType;
     }
 
-    public void setSeriesType(String measurementUID, TSDataType type) {
+    public void addSeries(String measurementUID, TSDataType type) {
         dataTypeMap.put(measurementUID, type);
     }
 
@@ -140,10 +147,8 @@ public class FileSchema {
      * 
      * @param measurementId - the measurement id of this TimeSeriesMetadata
      * @param type - the data type of this TimeSeriesMetadata
-     * @param measurementObj - the json object of this measurement
      */
-    public void addTimeSeriesMetadata(String measurementId, TSDataType type,
-            JSONObject measurementObj) {
+    public void addTimeSeriesMetadata(String measurementId, TSDataType type) {
         TimeSeriesMetadata ts = new TimeSeriesMetadata(measurementId, type, deltaType);
         LOG.debug("add Time Series:{}", ts);
         this.tsMetadata.add(ts);

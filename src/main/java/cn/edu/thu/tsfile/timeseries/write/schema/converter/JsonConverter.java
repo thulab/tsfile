@@ -10,11 +10,11 @@ import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.thu.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
-import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -62,10 +62,12 @@ public class JsonConverter {
 			throws InvalidJsonSchemaException {
 		if (!jsonSchema.has(JsonFormatConstant.JSON_SCHEMA))
 			throw new InvalidJsonSchemaException("missing fields:" + JsonFormatConstant.JSON_SCHEMA);
-		JSONArray schemaArray = jsonSchema.getJSONArray(JsonFormatConstant.JSON_SCHEMA);
+		//set deltaType
 		fileSchema.setDeltaType(jsonSchema.has(JsonFormatConstant.DELTA_TYPE)
 				? jsonSchema.getString(JsonFormatConstant.DELTA_TYPE) : JsonFormatConstant.defaultDeltaType);
+		//get series and set currentRowMaxSize
 		int currentRowMaxSize = 0;
+		JSONArray schemaArray = jsonSchema.getJSONArray(JsonFormatConstant.JSON_SCHEMA);
 		for (int i = 0; i < schemaArray.length(); i++) {
 			currentRowMaxSize += registerMeasurement(fileSchema, schemaArray.getJSONObject(i));
 		}
@@ -108,11 +110,18 @@ public class JsonConverter {
 		// register series info to fileSchema
 		String measurementId = measurementObj.getString(JsonFormatConstant.MEASUREMENT_UID);
 		TSDataType type = TSDataType.valueOf(measurementObj.getString(JsonFormatConstant.DATA_TYPE));
-		fileSchema.setSeriesType(measurementId, type);
-		// add TimeSeries for meta data
-		fileSchema.addTimeSeriesMetadata(measurementId, type, measurementObj);
+		fileSchema.addSeries(measurementId, type);
+		// add TimeSeries into metadata
+		fileSchema.addTimeSeriesMetadata(measurementId, type);
+		// encoding information
 		TSEncoding encoding = TSEncoding.valueOf(measurementObj.getString(JsonFormatConstant.MEASUREMENT_ENCODING));
-		MeasurementDescriptor md = new MeasurementDescriptor(type, measurementId, encoding, measurementObj);
+		// all information of one series
+		Map<String, String> props = new HashMap<>();
+		for(Object key: measurementObj.keySet()) {
+			String value = measurementObj.get(key.toString()).toString();
+			props.put(key.toString(), value);
+		}
+		MeasurementDescriptor md = new MeasurementDescriptor(type, measurementId, encoding, props);
 		fileSchema.setDescriptor(measurementId, md);
 		return md.getTimeEncoder().getOneItemMaxSize() + md.getValueEncoder().getOneItemMaxSize();
 	}
