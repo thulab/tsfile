@@ -57,7 +57,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
         // initialize TSEncoding. e.g. set max error for PLA and SDT
         encodingConverter = TSEncodingConverter.getConverter(encoding);
         encodingConverter.initFromProps(measurementId, props);
-        if (props.containsKey(JsonFormatConstant.COMPRESS_TYPE)) {
+        if (props != null && props.containsKey(JsonFormatConstant.COMPRESS_TYPE)) {
             this.compressor =
                     Compressor.getCompressor(props
                             .get(JsonFormatConstant.COMPRESS_TYPE));

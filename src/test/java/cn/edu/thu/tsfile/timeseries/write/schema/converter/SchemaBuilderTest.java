@@ -1,5 +1,6 @@
 package cn.edu.thu.tsfile.timeseries.write.schema.converter;
 
+import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.thu.tsfile.file.metadata.TimeSeriesMetadata;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
@@ -29,24 +30,24 @@ public class SchemaBuilderTest {
         props.put("compressor", "SNAPPY");
         builder.addSeries("s3", TSDataType.ENUMS, TSEncoding.BITMAP, props);
         props.clear();
-        props.put("maxPointNumber", "2");
+        props.put(JsonFormatConstant.MAX_POINT_NUMBER, "3");
         builder.addSeries("s4", TSDataType.DOUBLE, "RLE", props);
+        builder.addSeries("s5", TSDataType.INT32, TSEncoding.TS_2DIFF, null);
         props.clear();
-        props.put("maxPointNumber", "2");
-        builder.addSeries("s5", TSDataType.INT32, TSEncoding.TS_2DIFF, props);
+        props.put(JsonFormatConstant.MAX_POINT_NUMBER, "2");
         builder.setProps(props);
         builder.addProp("key", "value");
         FileSchema fileSchema = builder.build();
 
         assertEquals("value", fileSchema.getProp("key"));
-        assertEquals("{maxPointNumber=2, key=value}", fileSchema.getProps().toString());
+        assertEquals("{max_point_number=2, key=value}", fileSchema.getProps().toString());
 
         Collection<MeasurementDescriptor> measurements = fileSchema.getDescriptor();
         String[] measureDesStrings =
                 {
                         "[,s3,ENUMS,BITMAP,,SNAPPY,[MAN, WOMAN],]",
-                        "[,s4,DOUBLE,RLE,maxPointNumber:2,UNCOMPRESSED,]",
-                        "[,s5,INT32,TS_2DIFF,maxPointNumber:2,UNCOMPRESSED,]"
+                        "[,s4,DOUBLE,RLE,max_point_number:3,UNCOMPRESSED,]",
+                        "[,s5,INT32,TS_2DIFF,max_point_number:2,UNCOMPRESSED,]"
                 };
         int i = 0;
         for (MeasurementDescriptor desc : measurements) {
@@ -54,14 +55,14 @@ public class SchemaBuilderTest {
         }
 
         List<TimeSeriesMetadata> tsMetadatas = fileSchema.getTimeSeriesMetadatas();
-        String[] tsMetadatasList =
+        String[] tsMetadataList =
                 {
                         "TimeSeriesMetadata: measurementUID s3, type ength 0, DataType ENUMS, FreqType null,frequencies null",
                         "TimeSeriesMetadata: measurementUID s4, type ength 0, DataType DOUBLE, FreqType null,frequencies null",
                         "TimeSeriesMetadata: measurementUID s5, type ength 0, DataType INT32, FreqType null,frequencies null",
                 };
         for (int j = 0; j < tsMetadatas.size(); j++) {
-            assertEquals(tsMetadatasList[j], tsMetadatas.get(j).toString());
+            assertEquals(tsMetadataList[j], tsMetadatas.get(j).toString());
         }
 
     }

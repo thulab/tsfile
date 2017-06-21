@@ -117,7 +117,7 @@ public abstract class TSEncodingConverter {
 
         @Override
         public String toString() {
-            return "maxPointNumber:" + maxPointNumber;
+            return JsonFormatConstant.MAX_POINT_NUMBER + ":" + maxPointNumber;
         }
     }
 
@@ -180,7 +180,7 @@ public abstract class TSEncodingConverter {
 
         @Override
         public String toString() {
-            return "maxPointNumber:" + maxPointNumber;
+            return JsonFormatConstant.MAX_POINT_NUMBER + ":" + maxPointNumber;
         }
 
     }

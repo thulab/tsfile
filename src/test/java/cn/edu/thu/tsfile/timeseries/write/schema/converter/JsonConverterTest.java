@@ -37,22 +37,22 @@ public class JsonConverterTest {
         FileSchema fileSchema = new FileSchema(obj);
         assertEquals("test_type", fileSchema.getDeltaType());
         Collection<MeasurementDescriptor> measurements = fileSchema.getDescriptor();
-        String[] measureDescsStrings =
+        String[] measureDesStrings =
                 {
                         "[,s3,ENUMS,BITMAP,,SNAPPY,[MAN, WOMAN],]",
-                        "[,s4,DOUBLE,RLE,maxPointNumber:2,UNCOMPRESSED,]",
-                        "[,s5,INT32,TS_2DIFF,maxPointNumber:2,UNCOMPRESSED,]",
-                        "[,s1,INT32,RLE,maxPointNumber:2,UNCOMPRESSED,]",
-                        "[,s2,INT64,TS_2DIFF,maxPointNumber:2,UNCOMPRESSED,]",
+                        "[,s4,DOUBLE,RLE,max_point_number:2,UNCOMPRESSED,]",
+                        "[,s5,INT32,TS_2DIFF,max_point_number:2,UNCOMPRESSED,]",
+                        "[,s1,INT32,RLE,max_point_number:2,UNCOMPRESSED,]",
+                        "[,s2,INT64,TS_2DIFF,max_point_number:2,UNCOMPRESSED,]",
 
                 };
         int i = 0;
         for (MeasurementDescriptor desc : measurements) {
-            assertEquals(measureDescsStrings[i++], desc.toString());
+            assertEquals(measureDesStrings[i++], desc.toString());
         }
 
         List<TimeSeriesMetadata> tsMetadatas = fileSchema.getTimeSeriesMetadatas();
-        String[] tsMetadatasList =
+        String[] tsMetadataList =
                 {
                         "TimeSeriesMetadata: measurementUID s1, type ength 0, DataType INT32, FreqType null,frequencies null",
                         "TimeSeriesMetadata: measurementUID s2, type ength 0, DataType INT64, FreqType null,frequencies null",
@@ -61,7 +61,7 @@ public class JsonConverterTest {
                         "TimeSeriesMetadata: measurementUID s5, type ength 0, DataType INT32, FreqType null,frequencies null",
                 };
         for (int j = 0; j < tsMetadatas.size(); j++) {
-            assertEquals(tsMetadatasList[j], tsMetadatas.get(j).toString());
+            assertEquals(tsMetadataList[j], tsMetadatas.get(j).toString());
         }
 
     }
