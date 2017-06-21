@@ -18,11 +18,21 @@ public class PublicBAOS extends ByteArrayOutputStream {
     	super();
     }
     
+    /**
+     * get current all bytes data
+     * 
+     * @return all bytes data
+     */
     public byte[] getBuf() {
     	
         return this.buf;
     }
     
+    /**
+     * Construct one {@link ByteArrayInputStream} from the buff data
+     * 
+     * @return one {@link ByteArrayInputStream} have all buff data
+     */
     public ByteArrayInputStream transformToInputStream(){
     	
     	return new ByteArrayInputStream(this.buf,0,size());

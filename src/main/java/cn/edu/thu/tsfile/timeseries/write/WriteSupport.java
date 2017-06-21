@@ -1,9 +1,11 @@
 package cn.edu.thu.tsfile.timeseries.write;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.series.IRowGroupWriter;
 
@@ -35,11 +37,13 @@ abstract public class WriteSupport<T> {
 	public abstract void write(T record) throws IOException, WriteProcessException;
 
 	/**
-	 * query the data in memory
+	 * query one column data which is in memory.
 	 * 
 	 * @param deltaObjectId
 	 * @param measurementId
-	 * @return
+	 * @return first object is {@link DynamicOneColumnData} which is current
+	 *         page data, second object is a list of
+	 *         {@link ByteArrayInputStream} which is all page data packaged
 	 */
 	public abstract List<Object> query(String deltaObjectId, String measurementId);
 }

@@ -38,13 +38,23 @@ public class ReadPageInMemTest {
 	private InternalRecordWriter<TSRecord> innerWriter;
 	private FileSchema fileSchema = null;
 
+	private int pageSize;
+	private int RowGroupSize;
+	private int pageCheckSizeThreshold;
+	private int defaultMaxStringLength;
+	private boolean cachePageData;
 	@Before
 	public void setUp() throws Exception {
 		file.delete();
+		pageSize = conf.pageSize;
 		conf.pageSize = 200;
+		RowGroupSize = conf.rowGroupSize;
 		conf.rowGroupSize = 100000;
+		pageCheckSizeThreshold = conf.pageCheckSizeThreshold;
 		conf.pageCheckSizeThreshold = 1;
+		defaultMaxStringLength = conf.defaultMaxStringLength;
 		conf.defaultMaxStringLength = 2;
+		cachePageData = conf.cachePageData;
 		conf.cachePageData = true;
 		TSRandomAccessFileWriter output = new RandomAccessOutputStream(new File(filePath));
 		fileSchema = new FileSchema(getJsonSchema());
@@ -55,6 +65,11 @@ public class ReadPageInMemTest {
 	@After
 	public void tearDown() throws Exception {
 		file.delete();
+		conf.pageSize = pageSize;
+		conf.rowGroupSize = RowGroupSize;
+		conf.pageCheckSizeThreshold = pageCheckSizeThreshold;
+		conf.defaultMaxStringLength = defaultMaxStringLength;
+		conf.cachePageData = cachePageData;
 	}
 
 	@Test

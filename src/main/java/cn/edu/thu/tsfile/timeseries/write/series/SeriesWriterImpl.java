@@ -203,7 +203,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
 	public List<Object> query() {
 
 		Pair<List<ByteArrayInputStream>, CompressionTypeName> pagePairData = pageWriter.query();
-		DynamicOneColumnData ret = null;
+		DynamicOneColumnData ret;
 		ret = new DynamicOneColumnData(cacheCurrentPageData.dataType, true);
 
 		ret.mergeRecord(cacheCurrentPageData);
