@@ -2,6 +2,7 @@ package cn.edu.thu.tsfile.timeseries.write;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,11 +38,14 @@ public class TSRecordWriteSupport extends WriteSupport<TSRecord> {
 	}
 
 	@Override
-	public Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>, CompressionTypeName>> query(String deltaObjectId, String measurementId) {
+	public List<Object> query(String deltaObjectId, String measurementId) {
 		if (groupWriters.get(deltaObjectId) == null) {
 			DynamicOneColumnData left = null;
 			Pair<List<ByteArrayInputStream>, CompressionTypeName> right = null;
-			return new Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>,CompressionTypeName>>(left, right);
+			List<Object> result = new ArrayList<>();
+			result.add(left);
+			result.add(right);
+			return result;
 		}
 		return groupWriters.get(deltaObjectId).query(measurementId);
 	}

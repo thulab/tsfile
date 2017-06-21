@@ -1,12 +1,8 @@
 package cn.edu.thu.tsfile.timeseries.write.series;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
-import cn.edu.thu.tsfile.common.utils.Pair;
-import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
-import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 import cn.edu.thu.tsfile.timeseries.write.record.DataPoint;
@@ -47,9 +43,9 @@ public interface IRowGroupWriter {
 	 * query this measurementId data in memory
 	 * 
 	 * @param measurementId
-	 * @return left is the current page data, right is the all pages which is packaged
+	 * @return fist object is the current page data, second object is the all pages which is packaged
 	 */
-	Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>, CompressionTypeName>> query(String measurementId);
+	List<Object> query(String measurementId);
 
 	/**
 	 * Note that, this method should be called after running

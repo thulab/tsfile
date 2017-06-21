@@ -1,14 +1,10 @@
 package cn.edu.thu.tsfile.timeseries.write.series;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
 import cn.edu.thu.tsfile.common.utils.Binary;
-import cn.edu.thu.tsfile.common.utils.Pair;
-import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
-import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 
 /**
@@ -33,7 +29,7 @@ public interface ISeriesWriter {
 
     void write(long time, Binary value) throws IOException;
     
-    Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>, CompressionTypeName>> query();
+    List<Object> query();
 
     void writeToFileWriter(TSFileIOWriter tsfileWriter) throws IOException;
 

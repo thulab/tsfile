@@ -1,9 +1,12 @@
 package cn.edu.thu.tsfile.timeseries.write;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -14,8 +17,10 @@ import org.junit.Test;
 import cn.edu.thu.tsfile.common.conf.TSFileConfig;
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
+import cn.edu.thu.tsfile.common.utils.Pair;
 import cn.edu.thu.tsfile.common.utils.RandomAccessOutputStream;
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
+import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.thu.tsfile.timeseries.utils.RecordUtils;
@@ -65,10 +70,14 @@ public class ReadPageInMemTest {
 				fail(e.getMessage());
 			}
 		}
-		assertEquals(0, innerWriter.query("root.car.d1", "s1").right.left.size());
-		assertEquals(3, innerWriter.query("root.car.d1", "s1").left.length);
+		List<Object> result = innerWriter.query("root.car.d1", "s1");
+		DynamicOneColumnData left = (DynamicOneColumnData) result.get(0);
+		Pair<List<ByteArrayInputStream>, CompressionTypeName> right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) result
+				.get(1);
+		assertEquals(0, right.left.size());
+		assertEquals(3, left.length);
 		for (int i = 1; i <= 3; i++) {
-			DynamicOneColumnData columnData = innerWriter.query("root.car.d1", "s1").left;
+			DynamicOneColumnData columnData = (DynamicOneColumnData) innerWriter.query("root.car.d1", "s1").get(0);
 			assertEquals(i, columnData.getTime(i - 1));
 			assertEquals(1, columnData.getInt(i - 1));
 		}
@@ -82,14 +91,24 @@ public class ReadPageInMemTest {
 				fail(e.getMessage());
 			}
 		}
-		assertEquals(innerWriter.query("root.car.d1", "s1").right.left.size(),
-				innerWriter.query("root.car.d1", "s3").right.left.size());
-		assertEquals(innerWriter.query("root.car.d1", "s2").right.left.size(),
-				innerWriter.query("root.car.d1", "s4").right.left.size());
-		assertEquals(null, innerWriter.query("root.car.d1", "s5").left);
-		assertEquals(null, innerWriter.query("root.car.d1", "s5").right);
-		assertEquals(null, innerWriter.query("root.car.d2", "s5").left);
-		assertEquals(null, innerWriter.query("root.car.d2", "s5").right);
+
+		result = innerWriter.query("root.car.d1", "s1");
+		left = (DynamicOneColumnData) result.get(0);
+		right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) result.get(1);
+
+		DynamicOneColumnData left2 = (DynamicOneColumnData) innerWriter.query("root.car.d1", "s3").get(0);
+		Pair<List<ByteArrayInputStream>, CompressionTypeName> right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter
+				.query("root.car.d1", "s3").get(1);
+		assertEquals(right.left.size(), right2.left.size());
+
+		right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.query("root.car.d1", "s2").get(1);
+		right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.query("root.car.d1", "s4").get(1);
+		assertEquals(right.left.size(), right2.left.size());
+
+		assertEquals(null, innerWriter.query("root.car.d1", "s5").get(0));
+		assertEquals(null, innerWriter.query("root.car.d1", "s5").get(1));
+		assertEquals(null, innerWriter.query("root.car.d2", "s5").get(0));
+		assertEquals(null, innerWriter.query("root.car.d2", "s5").get(1));
 		try {
 			innerWriter.close();
 		} catch (IOException e) {
@@ -100,7 +119,7 @@ public class ReadPageInMemTest {
 
 	@Test
 	public void MultiDeltaObjectTest() {
-		
+
 		String line = "";
 		for (int i = 1; i <= 3; i++) {
 			line = "root.car.d1," + i + ",s1,1,s2,1,s3,0.1,s4,0.1";
@@ -123,16 +142,16 @@ public class ReadPageInMemTest {
 			}
 		}
 		for (int i = 1; i <= 3; i++) {
-			DynamicOneColumnData columnData = innerWriter.query("root.car.d1", "s1").left;
+			DynamicOneColumnData columnData = (DynamicOneColumnData) innerWriter.query("root.car.d1", "s1").get(0);
 			assertEquals(i, columnData.getTime(i - 1));
 			assertEquals(1, columnData.getInt(i - 1));
 		}
 		for (int i = 1; i <= 3; i++) {
-			DynamicOneColumnData columnData = innerWriter.query("root.car.d2", "s1").left;
+			DynamicOneColumnData columnData = (DynamicOneColumnData) innerWriter.query("root.car.d2", "s1").get(0);
 			assertEquals(i, columnData.getTime(i - 1));
 			assertEquals(1, columnData.getInt(i - 1));
 		}
-		
+
 		for (int i = 4; i < 100; i++) {
 			line = "root.car.d1," + i + ",s1,1,s2,1,s3,0.1,s4,0.1";
 			TSRecord record = RecordUtils.parseSimpleTupleRecord(line, fileSchema);
@@ -143,7 +162,7 @@ public class ReadPageInMemTest {
 				fail(e.getMessage());
 			}
 		}
-		
+
 		for (int i = 4; i < 100; i++) {
 			line = "root.car.d2," + i + ",s1,1,s2,1,s3,0.1,s4,0.1";
 			TSRecord record = RecordUtils.parseSimpleTupleRecord(line, fileSchema);
@@ -154,23 +173,45 @@ public class ReadPageInMemTest {
 				fail(e.getMessage());
 			}
 		}
-		
-		assertEquals(innerWriter.query("root.car.d1", "s1").right.left.size(), innerWriter.query("root.car.d2", "s1").right.left.size());
-		assertEquals(innerWriter.query("root.car.d1", "s1").left.length, innerWriter.query("root.car.d2", "s1").left.length);
-		
-		assertEquals(innerWriter.query("root.car.d1", "s2").right.left.size(), innerWriter.query("root.car.d2", "s2").right.left.size());
-		assertEquals(innerWriter.query("root.car.d1", "s2").left.length, innerWriter.query("root.car.d2", "s2").left.length);
-		
-		assertEquals(innerWriter.query("root.car.d1", "s3").right.left.size(), innerWriter.query("root.car.d2", "s3").right.left.size());
-		assertEquals(innerWriter.query("root.car.d1", "s3").left.length, innerWriter.query("root.car.d2", "s3").left.length);
-		
-		assertEquals(innerWriter.query("root.car.d1", "s4").right.left.size(), innerWriter.query("root.car.d2", "s4").right.left.size());
-		assertEquals(innerWriter.query("root.car.d1", "s4").left.length, innerWriter.query("root.car.d2", "s4").left.length);
-		
-		assertEquals(null, innerWriter.query("root.car.d1", "s5").left);
-		assertEquals(null, innerWriter.query("root.car.d1", "s5").right);
-		assertEquals(null, innerWriter.query("root.car.d2", "s5").left);
-		assertEquals(null, innerWriter.query("root.car.d2", "s5").right);
+		DynamicOneColumnData left = (DynamicOneColumnData) innerWriter.query("root.car.d1", "s1").get(0);
+		DynamicOneColumnData left2 = (DynamicOneColumnData) innerWriter.query("root.car.d2", "s1").get(0);
+		Pair<List<ByteArrayInputStream>, CompressionTypeName> right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter
+				.query("root.car.d1", "s1").get(1);
+		Pair<List<ByteArrayInputStream>, CompressionTypeName> right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter
+				.query("root.car.d2", "s1").get(1);
+		assertEquals(right.left.size(), right2.left.size());
+		assertEquals(left.length, left2.length);
+
+		right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.query("root.car.d1", "s2").get(1);
+		right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.query("root.car.d2", "s2").get(1);
+		assertEquals(right.left.size(), right2.left.size());
+
+		left = (DynamicOneColumnData) innerWriter.query("root.car.d1", "s2").get(0);
+		left2 = (DynamicOneColumnData) innerWriter.query("root.car.d2", "s2").get(0);
+		assertEquals(left.length, left2.length);
+
+		right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.query("root.car.d1", "s3").get(1);
+		right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.query("root.car.d2", "s3").get(1);
+		assertEquals(right.left.size(), right2.left.size());
+
+		left = (DynamicOneColumnData) innerWriter.query("root.car.d1", "s3").get(0);
+		left2 = (DynamicOneColumnData) innerWriter.query("root.car.d2", "s3").get(0);
+		assertEquals(left.length, left2.length);
+
+		right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.query("root.car.d1", "s4").get(1);
+		right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.query("root.car.d2", "s4").get(1);
+
+		assertEquals(right.left.size(), right2.left.size());
+
+		left = (DynamicOneColumnData) innerWriter.query("root.car.d1", "s4").get(0);
+		left2 = (DynamicOneColumnData) innerWriter.query("root.car.d2", "s4").get(0);
+
+		assertEquals(left.length, left2.length);
+
+		assertEquals(null, innerWriter.query("root.car.d1", "s5").get(0));
+		assertEquals(null, innerWriter.query("root.car.d1", "s5").get(1));
+		assertEquals(null, innerWriter.query("root.car.d2", "s5").get(0));
+		assertEquals(null, innerWriter.query("root.car.d2", "s5").get(1));
 	}
 
 	private static JSONObject getJsonSchema() {

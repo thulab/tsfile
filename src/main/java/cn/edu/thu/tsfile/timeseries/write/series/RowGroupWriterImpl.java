@@ -2,6 +2,7 @@ package cn.edu.thu.tsfile.timeseries.write.series;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,13 +58,15 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
 	}
 
 	@Override
-	public Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>, CompressionTypeName>> query(String measurementId) {
+	public List<Object> query(String measurementId) {
 		if (dataSeriesWriters.get(measurementId) == null) {
 			LOG.warn("The measurementId {} is not exist", measurementId);
 			DynamicOneColumnData left = null;
 			Pair<List<ByteArrayInputStream>, CompressionTypeName> right = null;
-			
-			return new Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>,CompressionTypeName>>(left, right);
+			List<Object>  result = new ArrayList<>();
+			result.add(left);
+			result.add(right);
+			return result;
 		}
 		return dataSeriesWriters.get(measurementId).query();
 	}

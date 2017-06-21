@@ -3,6 +3,7 @@ package cn.edu.thu.tsfile.timeseries.write.series;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -199,14 +200,18 @@ public class SeriesWriterImpl implements ISeriesWriter {
 	}
 
 	@Override
-	public Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>, CompressionTypeName>> query() {
+	public List<Object> query() {
 
 		Pair<List<ByteArrayInputStream>, CompressionTypeName> pagePairData = pageWriter.query();
 		DynamicOneColumnData ret = null;
 		ret = new DynamicOneColumnData(cacheCurrentPageData.dataType, true);
 
 		ret.mergeRecord(cacheCurrentPageData);
-		return new Pair<DynamicOneColumnData, Pair<List<ByteArrayInputStream>, CompressionTypeName>>(ret, pagePairData);
+		List<Object> result = new ArrayList<>();
+		result.add(ret);
+		result.add(pagePairData);
+		
+		return result;
 	}
 
 	/**
