@@ -2,14 +2,11 @@ package cn.edu.thu.tsfile.timeseries.write.page;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.thu.tsfile.common.conf.TSFileConfig;
-import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
 import cn.edu.thu.tsfile.common.utils.Pair;
 import cn.edu.thu.tsfile.common.utils.PublicBAOS;
@@ -32,7 +29,6 @@ public class PageWriterImpl implements IPageWriter {
 	private static Logger LOG = LoggerFactory.getLogger(PageWriterImpl.class);
 
 	private ListByteArrayOutputStream buf;
-	private List<ByteArrayInputStream> pageList;
 	private final Compressor compressor;
 	private final MeasurementDescriptor desc;
 
@@ -44,11 +40,6 @@ public class PageWriterImpl implements IPageWriter {
 		this.desc = desc;
 		this.compressor = desc.getCompressor();
 		this.buf = new ListByteArrayOutputStream();
-		// cache page data
-		TSFileConfig config = TSFileDescriptor.getInstance().getConfig();
-		if(config.cachePageData){
-			this.pageList = new ArrayList<>();
-		}
 	}
 
 	@Override
@@ -85,16 +76,14 @@ public class PageWriterImpl implements IPageWriter {
 			throw new PageException("meet IO Exception in buffer append,but we cannot understand it:" + e.getMessage());
 		}
 		buf.append(tempOutputStream);
-		if(pageList!=null){
-			pageList.add(tempOutputStream.transformToInputStream());
-		}
 		LOG.debug("page {}:write page from seriesWriter, valueCount:{}, stats:{},size:{}", desc, valueCount, statistics,
 				estimateMaxPageMemSize());
 	}
 
 	public Pair<List<ByteArrayInputStream>, CompressionTypeName> query() {
 
-		List<ByteArrayInputStream> backupPageList = new ArrayList<>(pageList);
+		
+		List<ByteArrayInputStream> backupPageList = buf.transform();
 		Pair<List<ByteArrayInputStream>, CompressionTypeName> ret = new Pair<List<ByteArrayInputStream>, CompressionTypeName>(
 				backupPageList, compressor.getCodecName());
 		return ret;
@@ -121,9 +110,6 @@ public class PageWriterImpl implements IPageWriter {
 	public void reset() {
 		minTimestamp = -1;
 		buf.reset();
-		if(pageList!=null){
-			pageList.clear();
-		}
 		totalValueCount = 0;
 	}
 
