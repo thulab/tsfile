@@ -28,7 +28,8 @@ public class SchemaBuilderTest {
         Map<String, String> props = new HashMap<>();
         props.put("enum_values", "[\"MAN\",\"WOMAN\"]");
         props.put("compressor", "SNAPPY");
-        builder.addSeries("s3", TSDataType.ENUMS, TSEncoding.BITMAP, props);
+        MeasurementDescriptor descriptor = new MeasurementDescriptor("s3", TSDataType.ENUMS, TSEncoding.BITMAP, props);
+        builder.addSeries(descriptor);
         props.clear();
         props.put(JsonFormatConstant.MAX_POINT_NUMBER, "3");
         builder.addSeries("s4", TSDataType.DOUBLE, "RLE", props);

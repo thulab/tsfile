@@ -121,7 +121,7 @@ public class JsonConverter {
 			String value = measurementObj.get(key.toString()).toString();
 			props.put(key.toString(), value);
 		}
-		MeasurementDescriptor md = new MeasurementDescriptor(type, measurementId, encoding, props);
+		MeasurementDescriptor md = new MeasurementDescriptor(measurementId, type, encoding, props);
 		fileSchema.setDescriptor(measurementId, md);
 		return md.getTimeEncoder().getOneItemMaxSize() + md.getValueEncoder().getOneItemMaxSize();
 	}

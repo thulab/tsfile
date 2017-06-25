@@ -40,15 +40,15 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     private Compressor compressor;
     private TSFileConfig conf;
 
-    public MeasurementDescriptor(TSDataType type, String measurementId, TSEncoding encoding) {
+    public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding) {
         this.type = type;
         this.measurementId = measurementId;
         this.encoding = encoding;
         this.conf = TSFileDescriptor.getInstance().getConfig();
     }
 
-    public MeasurementDescriptor(TSDataType type, String measurementId, TSEncoding encoding, Map<String, String> props){
-        this(type, measurementId, encoding);
+    public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding, Map<String, String> props){
+        this(measurementId, type, encoding);
         // initialize TSDataType. e.g. set data values for enum type
         if (type == TSDataType.ENUMS) {
             typeConverter = TSDataTypeConverter.getConverter(type);

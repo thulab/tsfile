@@ -34,12 +34,28 @@ public class SchemaBuilder {
 			Map<String, String> props) {
 		fileSchema.addSeries(measurementId, dataType);
 		fileSchema.addTimeSeriesMetadata(measurementId, dataType);
-		MeasurementDescriptor md = new MeasurementDescriptor(dataType, measurementId, tsEncoding, props);
+		MeasurementDescriptor md = new MeasurementDescriptor(measurementId, dataType, tsEncoding, props);
 		fileSchema.setDescriptor(measurementId, md);
 		int maxSize = md.getTimeEncoder().getOneItemMaxSize() + md.getValueEncoder().getOneItemMaxSize();
 		fileSchema.addCurrentRowMaxSize(maxSize);
 		return this;
 	}
+
+
+	/**
+	 * MeasurementDescriptor is the schema of one series
+	 * @param descriptor series schema
+	 * @return schema builder
+	 */
+	public SchemaBuilder addSeries(MeasurementDescriptor descriptor) {
+		fileSchema.addSeries(descriptor.getMeasurementId(), descriptor.getType());
+		fileSchema.addTimeSeriesMetadata(descriptor.getMeasurementId(), descriptor.getType());
+		fileSchema.setDescriptor(descriptor.getMeasurementId(), descriptor);
+		int maxSize = descriptor.getTimeEncoder().getOneItemMaxSize() + descriptor.getValueEncoder().getOneItemMaxSize();
+		fileSchema.addCurrentRowMaxSize(maxSize);
+		return this;
+	}
+
 
 	/**
 	 * add one series to tsfile schema
