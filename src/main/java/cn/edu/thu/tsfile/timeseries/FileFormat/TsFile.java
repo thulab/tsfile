@@ -62,6 +62,26 @@ public class TsFile {
     }
 
     /**
+     * For Write
+     *
+     * @param tsFileOutputStream an output stream of TsFile
+     * @param schema the fileSchema of TsFile
+     */
+    public TsFile(TSRandomAccessFileWriter tsFileOutputStream, FileSchema schema)
+            throws IOException, WriteProcessException {
+        this.status = WRITE;
+        fileSchema = schema;
+        WriteSupport<TSRecord> writeSupport = new TSRecordWriteSupport();
+        TSFileIOWriter tsfileWriter = new TSFileIOWriter(fileSchema, tsFileOutputStream);
+        TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
+        if (fileSchema.hasProp(JsonFormatConstant.ROW_GROUP_SIZE))
+            conf.rowGroupSize = Integer.valueOf(fileSchema.getProp(JsonFormatConstant.ROW_GROUP_SIZE));
+        if (fileSchema.hasProp(JsonFormatConstant.PAGE_SIZE))
+            conf.pageSize = Integer.valueOf(fileSchema.getProp(JsonFormatConstant.PAGE_SIZE));
+        innerWriter = new TSRecordWriter(conf, tsfileWriter, writeSupport, fileSchema);
+    }
+
+    /**
      * write a line into TsFile
      *
      * @param line a line of data

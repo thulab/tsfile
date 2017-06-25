@@ -66,6 +66,10 @@ public class FileSchema {
         this.props.putAll(props);
     }
 
+    public boolean hasProp(String key) {
+        return props.containsKey(key);
+    }
+
     public Map<String, String> getProps() {
         return props;
     }
