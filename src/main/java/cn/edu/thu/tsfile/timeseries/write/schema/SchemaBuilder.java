@@ -1,5 +1,6 @@
 package cn.edu.thu.tsfile.timeseries.write.schema;
 
+import cn.edu.thu.tsfile.common.constant.SystemConstant;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.thu.tsfile.timeseries.write.desc.MeasurementDescriptor;
@@ -16,6 +17,7 @@ public class SchemaBuilder {
 
 	public SchemaBuilder() {
 		fileSchema = new FileSchema();
+		fileSchema.setDeltaType(SystemConstant.DEFAULT_DELTA_TYPE);
 	}
 
 	/**
