@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.common.utils.Binary;
-import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 
 /**
  * DynamicOneColumnData is a self-defined data structure which is optimized for different type
@@ -112,8 +112,8 @@ public class DynamicOneColumnData {
 			binaryRet.add(new Binary[CAPACITY]);
 			break;
         case ENUMS:
-            binaryRet = new ArrayList<>();
-            binaryRet.add(new Binary[CAPACITY]);
+        	intRet = new ArrayList<>();
+        	intRet.add(new int[CAPACITY]);
             break;
 		default:
 			break;

@@ -1,6 +1,6 @@
 package cn.edu.thu.tsfile.common.utils;
 
-import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -14,12 +14,12 @@ import java.util.List;
  *
  */
 public class ListByteArrayOutputStream {
-    private List<ByteArrayOutputStream> list;
+    private List<PublicBAOS> list;
     private int totalSize = 0;
 
-    public ListByteArrayOutputStream(ByteArrayOutputStream ... param) {
+    public ListByteArrayOutputStream(PublicBAOS ... param) {
         list = new ArrayList<>();
-        for (ByteArrayOutputStream out : param){
+        for (PublicBAOS out : param){
             list.add(out);
             totalSize += out.size();
         }
@@ -33,7 +33,7 @@ public class ListByteArrayOutputStream {
      * @throws IOException if an I/O error occurs.
      */
     public void writeAllTo(OutputStream out) throws IOException{
-        for (ByteArrayOutputStream baos : list)
+        for (PublicBAOS baos : list)
             baos.writeTo(out);
     }
 
@@ -64,7 +64,7 @@ public class ListByteArrayOutputStream {
      * @param out the data source for constructing a <code>ListByteArrayOutputStream</code>
      * @return a new <code>ListByteArrayOutputStream</code> containing data in <code>out</code>.
      */
-    public static ListByteArrayOutputStream from(ByteArrayOutputStream out) {
+    public static ListByteArrayOutputStream from(PublicBAOS out) {
         return new ListByteArrayOutputStream(out);
     }
 
@@ -72,7 +72,7 @@ public class ListByteArrayOutputStream {
      * Appends a <code>ByteArrayOutputStream</code> into this class.
      * @param out a output stream to be appended.
      */
-    public void append(ByteArrayOutputStream out) {
+    public void append(PublicBAOS out) {
         list.add(out);
         totalSize += out.size();
     }
@@ -84,19 +84,18 @@ public class ListByteArrayOutputStream {
         list.clear();
         totalSize = 0;
     }
-
+    
     /**
-     * A subclass extending <code>ByteArrayOutputStream</code>. It's used to return the byte array directly.
-     * Note that the size of byte array is large than actual size of valid contents, thus it's used cooperating
-     * with <code>size()</code> or <code>capacity = size</code>
+     * transform all {@link PublicBAOS} to list of {@link ByteArrayInputStream}
+     * @return a list of {@link ByteArrayInputStream} contain all page data
      */
-    private static final class PublicBAOS extends ByteArrayOutputStream {
-        private PublicBAOS(int size) {
-            super(size);
-        }
-        public byte[] getBuf() {
-            return this.buf;
-        }
+    public List<ByteArrayInputStream> transform(){
+    	
+    	List<ByteArrayInputStream> ret = new ArrayList<>();
+    	for(PublicBAOS baos: list){
+    		ret.add(baos.transformToInputStream());
+    	}
+    	return ret;
     }
 
 }

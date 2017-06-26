@@ -1,7 +1,5 @@
 package cn.edu.thu.tsfile.common.conf;
 
-import cn.edu.thu.tsfile.common.constant.SystemConstant;
-
 /**
  * TSFileConfig is a configure class. Every variables is public and has default
  * value.
@@ -40,6 +38,10 @@ public class TSFileConfig {
      * 8*1024
      */
     public int pageSize = 1024 * 1024;
+    /**
+     * query page data while writing tsfile
+     */
+    public boolean cachePageData = false;
     /**
      * the upper bound of line count maintained in a page
      */
@@ -89,7 +91,8 @@ public class TSFileConfig {
      * the default point number is 2
      */
     public int defaultMaxPointNumber = 2;
-
+    
+    
     public double dftSatisfyRate = 0.1;
 
     public final int RLE_MIN_REPEATED_NUM = 8;

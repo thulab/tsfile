@@ -1,12 +1,16 @@
 package cn.edu.thu.tsfile.timeseries.write.page;
 
 import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
+import cn.edu.thu.tsfile.common.utils.Pair;
+import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.thu.tsfile.timeseries.write.exception.PageException;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 import cn.edu.thu.tsfile.timeseries.write.series.ISeriesWriter;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Each SeriesWriter has a page writer. While memory space occupied by series writer exceeds
@@ -29,6 +33,13 @@ public interface IPageWriter {
      */
     void writePage(ListByteArrayOutputStream listByteArray, int valueCount, Statistics<?> statistics,
                    long maxTimestamp, long minTimestamp) throws PageException;
+    
+    /**
+     * query all pages which have been packaged
+     * 
+     * @return left is all pages data, right is the name of compression
+     */
+    Pair<List<ByteArrayInputStream>, CompressionTypeName> query();
 
     /**
      * write the page to specified IOWriter
