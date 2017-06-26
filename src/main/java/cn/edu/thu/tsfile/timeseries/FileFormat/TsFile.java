@@ -38,11 +38,8 @@ public class TsFile {
     private static final int READ = 1;
     private QueryEngine queryEngine;
     private int status;
-
-    //add by Kangrong start
     private InternalRecordWriter<TSRecord> innerWriter;
     private FileSchema fileSchema;
-    //add by Kangrong end
 
     /**
      * For Write
@@ -61,6 +58,26 @@ public class TsFile {
             conf.rowGroupSize = schemaJson.getInt(JsonFormatConstant.ROW_GROUP_SIZE);
         if (schemaJson.has(JsonFormatConstant.PAGE_SIZE))
             conf.pageSize = schemaJson.getInt(JsonFormatConstant.PAGE_SIZE);
+        innerWriter = new TSRecordWriter(conf, tsfileWriter, writeSupport, fileSchema);
+    }
+
+    /**
+     * For Write
+     *
+     * @param tsFileOutputStream an output stream of TsFile
+     * @param schema the fileSchema of TsFile
+     */
+    public TsFile(TSRandomAccessFileWriter tsFileOutputStream, FileSchema schema)
+            throws IOException, WriteProcessException {
+        this.status = WRITE;
+        fileSchema = schema;
+        WriteSupport<TSRecord> writeSupport = new TSRecordWriteSupport();
+        TSFileIOWriter tsfileWriter = new TSFileIOWriter(fileSchema, tsFileOutputStream);
+        TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
+        if (fileSchema.hasProp(JsonFormatConstant.ROW_GROUP_SIZE))
+            conf.rowGroupSize = Integer.valueOf(fileSchema.getProp(JsonFormatConstant.ROW_GROUP_SIZE));
+        if (fileSchema.hasProp(JsonFormatConstant.PAGE_SIZE))
+            conf.pageSize = Integer.valueOf(fileSchema.getProp(JsonFormatConstant.PAGE_SIZE));
         innerWriter = new TSRecordWriter(conf, tsfileWriter, writeSupport, fileSchema);
     }
 

@@ -1,13 +1,12 @@
 package cn.edu.thu.tsfile.timeseries.write.schema.converter;
 
 import java.util.List;
+import java.util.Map;
 
 import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.thu.tsfile.common.exception.metadata.MetadataArgsErrorException;
 import cn.edu.thu.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
 import cn.edu.thu.tsfile.timeseries.utils.TSFileEnum;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,16 +48,17 @@ public abstract class TSDataTypeConverter {
         }
 
         @Override
-        public void initFromJsonObject(JSONObject seriesObject) {
-            if (!seriesObject.has(JsonFormatConstant.ENUM_VALUES)) {
+        public void initFromProps(Map<String, String> props) {
+            if (props == null || !props.containsKey(JsonFormatConstant.ENUM_VALUES)) {
                 LOG.warn("ENUMS has no data values.");
                 return;
             }
-            JSONArray array = seriesObject.getJSONArray(JsonFormatConstant.ENUM_VALUES);
-            int len = array.length();
+            String valueStr = props.get(JsonFormatConstant.ENUM_VALUES).replaceAll("\"", "");
+            valueStr = valueStr.substring(1, valueStr.length()-1);
+            String[] values = valueStr.split(",");
             tsfileEnum = new TSFileEnum();
-            for (int i = 0; i < len; i++) {
-                tsfileEnum.addTSFileEnum(array.getString(i));
+            for (String value: values) {
+                tsfileEnum.addTSFileEnum(value);
             }
         }
 
@@ -88,12 +88,12 @@ public abstract class TSDataTypeConverter {
     /**
      * 
      * for ENUMS, JSON is a method of the initialization. Each ENUMS in json-format schema should
-     * have data value parameters. initFromJsonObject gets values from JSON object which would be
+     * have data value parameters. initFromProps gets values from JSON object which would be
      * used latter. If this type has extra parameter to construct, override it.
      * 
-     * @param seriesObject - JSON object which contains information DataTypeConverter needs
+     * @param props - properties which contains information DataTypeConverter needs
      */
-    public void initFromJsonObject(JSONObject seriesObject) {}
+    public void initFromProps(Map<String, String> props) {}
 
     /**
      * based on visit pattern to provide unified parameter type in interface. write data values to

@@ -1,6 +1,5 @@
 package cn.edu.thu.tsfile.timeseries.write.desc;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +13,11 @@ import cn.edu.thu.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.thu.tsfile.timeseries.utils.StringContainer;
-import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 import cn.edu.thu.tsfile.timeseries.write.schema.converter.TSDataTypeConverter;
 import cn.edu.thu.tsfile.timeseries.write.schema.converter.TSEncodingConverter;
+
+import java.util.Map;
 
 /**
  * 
@@ -40,28 +40,27 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     private Compressor compressor;
     private TSFileConfig conf;
 
-    public MeasurementDescriptor(TSDataType type, String measurementId, TSEncoding encoding) {
+    public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding) {
         this.type = type;
         this.measurementId = measurementId;
         this.encoding = encoding;
         this.conf = TSFileDescriptor.getInstance().getConfig();
     }
 
-    public MeasurementDescriptor(TSDataType type, String measurementId, TSEncoding encoding,
-            JSONObject seriesObject){
-        this(type, measurementId, encoding);
+    public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding, Map<String, String> props){
+        this(measurementId, type, encoding);
         // initialize TSDataType. e.g. set data values for enum type
         if (type == TSDataType.ENUMS) {
             typeConverter = TSDataTypeConverter.getConverter(type);
-            typeConverter.initFromJsonObject(seriesObject);
+            typeConverter.initFromProps(props);
         }
         // initialize TSEncoding. e.g. set max error for PLA and SDT
         encodingConverter = TSEncodingConverter.getConverter(encoding);
-        encodingConverter.initFromJsonObject(measurementId, seriesObject);
-        if (seriesObject.has(JsonFormatConstant.COMPRESS_TYPE)) {
+        encodingConverter.initFromProps(measurementId, props);
+        if (props != null && props.containsKey(JsonFormatConstant.COMPRESS_TYPE)) {
             this.compressor =
-                    Compressor.getCompressor(seriesObject
-                            .getString(JsonFormatConstant.COMPRESS_TYPE));
+                    Compressor.getCompressor(props
+                            .get(JsonFormatConstant.COMPRESS_TYPE));
         } else {
             this.compressor = Compressor.getCompressor(TSFileDescriptor.getInstance().getConfig().compressName);
         }

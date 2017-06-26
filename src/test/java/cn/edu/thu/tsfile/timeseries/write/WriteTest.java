@@ -95,7 +95,7 @@ public class WriteTest {
         }
         TSFileIOWriter tsfileWriter = new TSFileIOWriter(schema, outputStream);
         innerWriter =
-                new TestInnnerWriter(conf, tsfileWriter, writeSupport, schema);
+                new TestInnerWriter(conf, tsfileWriter, writeSupport, schema);
     }
 
     @After
@@ -224,16 +224,16 @@ public class WriteTest {
     }
 
     /**
-     * TestInnnerWriter modify {@code checkMemorySize()} to flush RowGroup to outputStream forcely.
+     * TestInnerWriter modify {@code checkMemorySize()} to flush RowGroup to outputStream forcely.
      * 
      * @author kangrong
      *
      */
-    private class TestInnnerWriter extends TSRecordWriter {
+    private class TestInnerWriter extends TSRecordWriter {
 
-        public TestInnnerWriter(TSFileConfig conf, TSFileIOWriter kshanaFileWriter,
-                WriteSupport<TSRecord> writeSupport, FileSchema schema) {
-            super(conf, kshanaFileWriter, writeSupport, schema);
+        public TestInnerWriter(TSFileConfig conf, TSFileIOWriter tsFileIOWriter,
+                               WriteSupport<TSRecord> writeSupport, FileSchema schema) {
+            super(conf, tsFileIOWriter, writeSupport, schema);
         }
 
         @Override
