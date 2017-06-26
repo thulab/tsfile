@@ -231,9 +231,9 @@ public class WriteTest {
      */
     private class TestInnerWriter extends TSRecordWriter {
 
-        public TestInnerWriter(TSFileConfig conf, TSFileIOWriter kshanaFileWriter,
+        public TestInnerWriter(TSFileConfig conf, TSFileIOWriter tsFileIOWriter,
                                WriteSupport<TSRecord> writeSupport, FileSchema schema) {
-            super(conf, kshanaFileWriter, writeSupport, schema);
+            super(conf, tsFileIOWriter, writeSupport, schema);
         }
 
         @Override
