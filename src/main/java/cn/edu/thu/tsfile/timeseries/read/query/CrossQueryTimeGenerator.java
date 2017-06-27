@@ -54,7 +54,6 @@ public abstract class CrossQueryTimeGenerator {
         if (valueFilter instanceof SingleSeriesFilterExpression) {
             idxCount.set(tmpIdx, 1);
             return 1;
-
         } else if (valueFilter instanceof CSAnd) {
             FilterExpression left = ((CSAnd) valueFilter).getLeft();
             FilterExpression right = ((CSAnd) valueFilter).getRight();
@@ -62,8 +61,6 @@ public abstract class CrossQueryTimeGenerator {
             int r = initRetMapAndFilterMap(right);
             idxCount.set(tmpIdx, l + r + 1);
             return l + r + 1;
-
-            // else if(valueFilter instanceof CSOr)
         } else {
             FilterExpression left = ((CSOr) valueFilter).getLeft();
             FilterExpression right = ((CSOr) valueFilter).getRight();
@@ -91,11 +88,14 @@ public abstract class CrossQueryTimeGenerator {
     public abstract DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize
             , SingleSeriesFilterExpression valueFilter) throws ProcessorException, IOException;
 
+    /**
+     * Calculate common time using FilterExpression.
+     */
     public long[] generateTimes() throws ProcessorException, IOException {
         long[] res = new long[fetchSize];
 
         int cnt = 0;
-        SingleValueVisitor<Long> timeFilterVisitor = new SingleValueVisitor<Long>();
+        SingleValueVisitor<Long> timeFilterVisitor = new SingleValueVisitor<>();
         while (cnt < fetchSize) {
             //must before calculateOneTime
             dfsCnt = -1;
@@ -185,4 +185,3 @@ public abstract class CrossQueryTimeGenerator {
         return -1;
     }
 }
-

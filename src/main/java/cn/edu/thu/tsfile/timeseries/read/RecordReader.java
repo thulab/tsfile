@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @description This class implements several read methods which can read data in different ways.<br>
  * This class provides some APIs for reading.
+ *
  * @author Jinrui Zhang
  *
  */
@@ -67,8 +69,7 @@ public class RecordReader {
 	}
 
 	/**
-	 * Read function 1#2: read one column without filter from one specific
-	 * RowGroupReader
+	 * Read function 1#2: read one column without filter from one specific RowGroupReader
 	 * 
 	 * @param rowGroupReader
 	 * @param measurementId
@@ -149,7 +150,7 @@ public class RecordReader {
 	}
 	
 	/**
-	 * Read funtion 2#1: read one column with filter
+	 * Read function 2#1: read one column with filter
 	 * 
 	 * @throws IOException
 	 */
@@ -191,7 +192,7 @@ public class RecordReader {
 	}
 	
 	/**
-	 * Read funtion 2#2: read one column with filter from specific
+	 * Read function 2#2: read one column with filter from specific
 	 * RowGroupReader
 	 * 
 	 * @param rowGroupReader,
@@ -213,7 +214,7 @@ public class RecordReader {
 	}
 
 	/**
-	 * Read funtion 2#3: read one column with filter from specific
+	 * Read function 2#3: read one column with filter from specific
 	 * RowGroupReader according to the index
 	 * 
 	 * @param deltaObjectUID
@@ -243,7 +244,7 @@ public class RecordReader {
 	}
 
 	/**
-	 * Read funtion 2#4: read one column with filter from specific
+	 * Read function 2#4: read one column with filter from specific
 	 * RowGroupReader(s) according to the indexList
 	 * 
 	 * @param deltaObjectUID
@@ -499,8 +500,9 @@ public class RecordReader {
 			return FilterFactory.booleanFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER);
 		} else if (type == TSDataType.ENUMS) {
 			return FilterFactory.stringFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER);
+		} else {
+			throw new UnSupportedDataTypeException(String.valueOf(type));
 		}
-		return null;
 	}
 
 	private void checkSeries(String deltaObject, String measurement) throws IOException {
