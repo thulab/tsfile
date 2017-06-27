@@ -19,6 +19,7 @@ import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
  * @description This class is used to read {@code TSFileMetaData} and construct
  *              file level reader which contains the information of
  *              rowgroupreader.
+ *
  * @author Jinrui Zhang
  *
  */

@@ -313,8 +313,7 @@ public class QueryEngine {
     }
 
     /**
-     * CrossQuery #3: Function for Cross Columns Query from specific
-     * RowGroup(s)
+     * CrossQuery #3: Function for Cross Columns Query from specific RowGroup(s)
      *
      * @param paths
      * @param timeFilter

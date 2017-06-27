@@ -499,7 +499,7 @@ public class DynamicOneColumnData {
         return sb.toString();
     }
 
-    private void putAValueFromDynamicOneColumnData(DynamicOneColumnData B, int idx) {
+    public void putAValueFromDynamicOneColumnData(DynamicOneColumnData B, int idx) {
         switch (dataType) {
             case BOOLEAN:
                 putBoolean(B.getBoolean(idx));
