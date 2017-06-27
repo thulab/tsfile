@@ -3,48 +3,48 @@ package cn.edu.thu.tsfile.timeseries.read.readSupport;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 
 public class ColumnInfo {
-	private String name;
-	private TSDataType dataType;
-	
-	public ColumnInfo(String name, TSDataType dataType){
-		this.setName(name);
-		this.setDataType(dataType);
-	}
-	
-	public TSDataType getDataType() {
-		return dataType;
-	}
+    private String name;
+    private TSDataType dataType;
 
-	public void setDataType(TSDataType dataType) {
-		this.dataType = dataType;
-	}
-	
-	public String getName() {
-		return name;
-	}
+    public ColumnInfo(String name, TSDataType dataType) {
+        this.setName(name);
+        this.setDataType(dataType);
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public TSDataType getDataType() {
+        return dataType;
+    }
 
-	
-	public String toString(){ 
-		return getName() + ":" + getDataType();
-	}
+    public void setDataType(TSDataType dataType) {
+        this.dataType = dataType;
+    }
 
-	public int hashCode() {
-		return getName().hashCode();
-	}
+    public String getName() {
+        return name;
+    }
 
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		} else {
-			if (o instanceof ColumnInfo) {
-				return this.getName().equals(((ColumnInfo) o).getName());
-			} else {
-				return false;
-			}
-		}
-	} 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+    public String toString() {
+        return getName() + ":" + getDataType();
+    }
+
+    public int hashCode() {
+        return getName().hashCode();
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else {
+            if (o instanceof ColumnInfo) {
+                return this.getName().equals(((ColumnInfo) o).getName());
+            } else {
+                return false;
+            }
+        }
+    }
 }

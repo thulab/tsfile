@@ -6,9 +6,8 @@ import cn.edu.thu.tsfile.timeseries.utils.StringContainer;
 /**
  * This class define an Object named Path to represent a series in delta system.
  * And in batch read, this definition is also used in query processing.
- * 
- * @author Kangrong
  *
+ * @author Kangrong
  */
 public class Path {
     private String measurement = null;
@@ -70,11 +69,12 @@ public class Path {
         ret.fullPath.addTail(suffix.fullPath);
         return ret;
     }
+
     @Override
-    public int hashCode(){
-    	return fullPath.toString().hashCode();
+    public int hashCode() {
+        return fullPath.toString().hashCode();
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null)
@@ -115,7 +115,7 @@ public class Path {
 
     /**
      * if prefix is null, return false
-     * 
+     *
      * @param prefix
      * @return
      */
