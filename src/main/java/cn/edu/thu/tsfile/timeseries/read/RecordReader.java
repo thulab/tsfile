@@ -498,7 +498,7 @@ public class RecordReader {
 			return FilterFactory.doubleFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER);
 		} else if (type == TSDataType.BOOLEAN) {
 			return FilterFactory.booleanFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER);
-		} else if (type == TSDataType.ENUMS) {
+		} else if (type == TSDataType.ENUMS || type == TSDataType.BYTE_ARRAY) {
 			return FilterFactory.stringFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER);
 		} else {
 			throw new UnSupportedDataTypeException(String.valueOf(type));
