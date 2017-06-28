@@ -428,16 +428,22 @@ public class DynamicOneColumnData {
         switch (dataType) {
             case BOOLEAN:
                 setBoolean(idx, (Boolean) v);
+                break;
             case DOUBLE:
                 setDouble(idx, (Double) v);
+                break;
             case FIXED_LEN_BYTE_ARRAY:
                 setBinary(idx, (Binary) v);
+                break;
             case FLOAT:
                 setFloat(idx, (Float) v);
+                break;
             case INT32:
                 setInt(idx, (Integer) v);
+                break;
             case INT64:
                 setLong(idx, (Long) v);
+                break;
             default:
                 throw new UnSupportedDataTypeException(String.valueOf(dataType));
         }
