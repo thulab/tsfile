@@ -131,7 +131,7 @@ public class QueryDataSet {
         return currentRecord;
     }
 
-    void putValueToField(DynamicOneColumnData col, int idx, Field f) {
+    public void putValueToField(DynamicOneColumnData col, int idx, Field f) {
         switch (col.dataType) {
             case BOOLEAN:
                 f.setBoolV(col.getBoolean(idx));
