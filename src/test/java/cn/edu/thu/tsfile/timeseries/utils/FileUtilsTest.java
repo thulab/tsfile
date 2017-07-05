@@ -40,10 +40,10 @@ public class FileUtilsTest {
 
     @Test
     public void testGetLocalFileByte() {
-        String fileName = "src/test/resources/testFileBlock.yaml";
-        assertEquals(523.0, FileUtils.getLocalFileByte(fileName, Unit.B),
+        String fileName = "src/test/resources/test_schema.json";
+        assertEquals(843.0, FileUtils.getLocalFileByte(fileName, Unit.B),
                 TimeseriesTestConstant.double_min_delta);
-        assertEquals(0.51, FileUtils.getLocalFileByte(fileName, Unit.KB),
+        assertEquals(0.82, FileUtils.getLocalFileByte(fileName, Unit.KB),
                 TimeseriesTestConstant.double_min_delta);
     }
 }

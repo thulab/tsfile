@@ -1,4 +1,4 @@
-package cn.edu.thu.tsfile.timeseries.FileFormat;
+package cn.edu.thu.tsfile.timeseries.basis;
 
 import cn.edu.thu.tsfile.common.conf.TSFileConfig;
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
@@ -145,16 +145,6 @@ public class TsFile {
         this.status = READ;
         queryEngine = new QueryEngine(raf);
 //        recordReader = queryEngine.recordReader;
-    }
-
-    /**
-     * Check whether thf file given is a TsFile
-     *
-     * @param raf
-     * @return
-     */
-    private boolean isTsFile(TSRandomAccessFileReader raf) {
-        return true;
     }
 
     public QueryDataSet query(List<Path> paths, FilterExpression timeFilter,

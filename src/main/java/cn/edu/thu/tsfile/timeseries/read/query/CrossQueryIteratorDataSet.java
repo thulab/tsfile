@@ -3,11 +3,11 @@ package cn.edu.thu.tsfile.timeseries.read.query;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 
-import cn.edu.thu.tsfile.timeseries.read.readSupport.RowRecord;
+import cn.edu.thu.tsfile.timeseries.read.support.RowRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.thu.tsfile.timeseries.read.readSupport.Field;
+import cn.edu.thu.tsfile.timeseries.read.support.Field;
 
 /**
  * This class is the subClass of {@code QueryDataSet}. It is used to store

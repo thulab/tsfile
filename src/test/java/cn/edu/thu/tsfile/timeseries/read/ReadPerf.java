@@ -146,17 +146,17 @@ public class ReadPerf {
         s1.put(JsonFormatConstant.MEASUREMENT_UID, "s1");
         s1.put(JsonFormatConstant.DATA_TYPE, TSDataType.INT32.toString());
         s1.put(JsonFormatConstant.MEASUREMENT_ENCODING,
-                conf.defaultSeriesEncoder);
+                conf.valueSeriesEncoder);
         JSONObject s2 = new JSONObject();
         s2.put(JsonFormatConstant.MEASUREMENT_UID, "s2");
         s2.put(JsonFormatConstant.DATA_TYPE, TSDataType.INT64.toString());
         s2.put(JsonFormatConstant.MEASUREMENT_ENCODING,
-                conf.defaultSeriesEncoder);
+                conf.valueSeriesEncoder);
         JSONObject s3 = new JSONObject();
         s3.put(JsonFormatConstant.MEASUREMENT_UID, "s3");
         s3.put(JsonFormatConstant.DATA_TYPE, TSDataType.INT64.toString());
         s3.put(JsonFormatConstant.MEASUREMENT_ENCODING,
-                conf.defaultSeriesEncoder);
+                conf.valueSeriesEncoder);
         JSONObject s4 = new JSONObject();
         s4.put(JsonFormatConstant.MEASUREMENT_UID, "s4");
         s4.put(JsonFormatConstant.DATA_TYPE, TSDataType.BYTE_ARRAY.toString());

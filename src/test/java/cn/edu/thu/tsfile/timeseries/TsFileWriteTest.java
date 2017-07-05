@@ -1,6 +1,6 @@
 package cn.edu.thu.tsfile.timeseries;
 
-import cn.edu.thu.tsfile.timeseries.FileFormat.TsFile;
+import cn.edu.thu.tsfile.timeseries.basis.TsFile;
 import cn.edu.thu.tsfile.common.utils.RandomAccessOutputStream;
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class TsFileWriteTest {
 
     public static void main(String args[]) throws IOException, WriteProcessException {
-        String path = "tsfile-impl-parent/tsfile-timeseries/src/test/resources/test.ts";
+        String path = "src/test/resources/test.ts";
         String s = "{\n" +
                 "    \"schema\": [\n" +
                 "        {\n" +

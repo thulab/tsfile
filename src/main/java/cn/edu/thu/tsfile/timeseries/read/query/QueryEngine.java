@@ -30,7 +30,7 @@ public class QueryEngine {
 
     public TSRandomAccessFileReader raf;
     private RecordReader recordReader;
-    private static int FETCH_SIZE = 10000;
+    private static int FETCH_SIZE = 20000;
 
     public QueryEngine(TSRandomAccessFileReader raf) throws IOException {
         this.raf = raf;
@@ -158,9 +158,9 @@ public class QueryEngine {
     }
 
     /**
-     * QueryWithourFilter #1 : Query without filter according to paths
+     * QueryWithoutFilter #1 : Query without filter according to paths
      *
-     * @param paths Path List which need to be selected
+     * @param paths path list which need to be selected
      * @return QueryDataSet
      * @throws IOException
      */
@@ -174,9 +174,9 @@ public class QueryEngine {
     }
 
     /**
-     * QueryWithourFilter #2 : Query without filter according to paths and specific RowGroup(s)
+     * QueryWithoutFilter #2 : Query without filter according to paths and specific RowGroup(s)
      *
-     * @param paths
+     * @param paths path list which need to be selected
      * @param RowGroupIdxList RowGroup index list.
      * @throws IOException
      */
@@ -205,7 +205,7 @@ public class QueryEngine {
     }
 
     /**
-     * QueryWithSingleSeriesFilterExpression #2: aimed to getIndex with filter, BUT only one column allowed
+     * QueryWithSingleSeriesFilterExpression #2: aimed to getIndex with filter, but only one column allowed
      * only one column allowed
      *
      * @param paths
@@ -281,7 +281,8 @@ public class QueryEngine {
      */
     private QueryDataSet crossColumnQuery(List<Path> paths, SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
                                          CrossSeriesFilterExpression valueFilter) throws IOException {
-        CrossQueryTimeGenerator timeQueryDataSet = new CrossQueryTimeGenerator(timeFilter, freqFilter, valueFilter, FETCH_SIZE) {
+
+        CrossQueryTimeGenerator timeGenerator = new CrossQueryTimeGenerator(timeFilter, freqFilter, valueFilter, FETCH_SIZE) {
             @Override
             public DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize,
                                                            SingleSeriesFilterExpression valueFilter) throws ProcessorException, IOException {
@@ -289,7 +290,7 @@ public class QueryEngine {
             }
         };
 
-        return new CrossQueryIteratorDataSet(timeQueryDataSet) {
+        return new CrossQueryIteratorDataSet(timeGenerator) {
             @Override
             public boolean getMoreRecords() throws IOException {
                 try {

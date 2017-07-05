@@ -1,9 +1,0 @@
-# 128M = 321321
-rowGroupSize: 321321
-# 8KB = 321321
-pageSize: 123123
-timeSeriesEncoder: PLA
-defaultDFTWriteMain: false
-defaultDFTOverlapRate: 1.22f
-deltaDataDir: test
-defaultSDTMaxError: 100.12334

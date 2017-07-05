@@ -14,8 +14,7 @@ import cn.edu.thu.tsfile.common.constant.SystemConstant;
 
 
 /**
- * TSFileDescriptor is used to load TSFileConfig and provide configure
- * information
+ * TSFileDescriptor is used to load TSFileConfig and provide configure information
  *
  * @author kangrong
  */
@@ -24,10 +23,8 @@ public class TSFileDescriptor {
 
 	private static TSFileDescriptor descriptor = new TSFileDescriptor();
 
-	private final String CONFIG_DEFAULT_PATH = "/tsfile.properties";
-
 	private TSFileDescriptor() {
-		loadYaml();
+		loadProps();
 	}
 
 	public static TSFileDescriptor getInstance() {
@@ -41,15 +38,19 @@ public class TSFileDescriptor {
 	private TSFileConfig conf = new TSFileConfig();
 
 	/**
-	 * load an yaml file and set TSFileConfig variables
+	 * load an .properties file and set TSFileConfig variables
 	 *
 	 */
-	private void loadYaml() {
-		String url = System.getProperty(SystemConstant.TSFILE_HOME, CONFIG_DEFAULT_PATH);
+	private void loadProps() {
+		String url = System.getProperty(SystemConstant.TSFILE_HOME, TSFileConfig.CONFIG_DEFAULT_PATH);
 		InputStream inputStream = null;
-		if (url.equals(CONFIG_DEFAULT_PATH)) {
-			inputStream = this.getClass().getResourceAsStream(url);
-			return;
+		if (url.equals(TSFileConfig.CONFIG_DEFAULT_PATH)) {
+			try {
+			    inputStream = new FileInputStream(new File(url));
+			} catch (FileNotFoundException e) {
+			    LOGGER.error("Fail to find config file {}", url, e);
+			    return;
+			}
 		} else {
 			url = url + "/conf/tsfile.properties";
 			try {
@@ -63,20 +64,16 @@ public class TSFileDescriptor {
 		LOGGER.info("Start to read config file {}", url);
 		Properties properties = new Properties();
 		try {
-		    properties.load(inputStream);
-		    
+		    properties.load(inputStream);		    
 		    conf.rowGroupSize = Integer.parseInt(properties.getProperty("rowGroupSize", conf.rowGroupSize+""));
 		    conf.pageSize = Integer.parseInt(properties.getProperty("pageSize",conf.pageSize+""));
-		    conf.cachePageData = Boolean.parseBoolean(properties.getProperty("cachePageData",conf.cachePageData+""));
+		    conf.maxPointNumberInPage = Integer.parseInt(properties.getProperty("maxPointNumberInPage", conf.maxPointNumberInPage+""));
+		    conf.timeDataType = properties.getProperty("timeDataType",conf.timeDataType);
+		    conf.maxStringLength = Integer.parseInt(properties.getProperty("maxStringLength",conf.maxStringLength+""));
+		    conf.floatPrecision = Integer.parseInt(properties.getProperty("floatPrecision", conf.floatPrecision+""));		    
 		    conf.timeSeriesEncoder = properties.getProperty("timeSeriesEncoder", conf.timeSeriesEncoder);
-		    conf.defaultSeriesEncoder = properties.getProperty("defaultSeriesEncoder", conf.defaultSeriesEncoder);
-		    conf.compressName = properties.getProperty("compressName", conf.compressName);
-		    conf.defaultRleBitWidth = Integer.parseInt(properties.getProperty("defaultRleBitWidth", conf.defaultRleBitWidth+""));
-		    conf.defaultEndian = properties.getProperty("defaultEndian", conf.defaultEndian);
-		    conf.defaultDeltaBlockSize = Integer.parseInt(properties.getProperty("defaultDeltaBlockSize", conf.defaultDeltaBlockSize+""));
-		    conf.defaultPLAMaxError = Double.parseDouble(properties.getProperty("defaultPLAMaxError", conf.defaultPLAMaxError+""));
-		    conf.defaultSDTMaxError = Double.parseDouble(properties.getProperty("defaultSDTMaxError", conf.defaultSDTMaxError+""));
-		    
+		    conf.valueSeriesEncoder = properties.getProperty("valueSeriesEncoder", conf.valueSeriesEncoder);
+		    conf.compressor = properties.getProperty("compressor", conf.compressor);		    
 		} catch (IOException e) {
 		    LOGGER.warn("Cannot load config file, use default configuration", e);
 		} catch (Exception e) {
@@ -89,22 +86,5 @@ public class TSFileDescriptor {
 			LOGGER.error("Fail to close config file input stream", e);
 		    }
 		}
-	}
-
-	public static void main(String[] args) {
-	    TSFileDescriptor descriptor = TSFileDescriptor.getInstance();
-	    TSFileConfig config = descriptor.getConfig();
-	    
-	    System.out.println(config.rowGroupSize);
-	    System.out.println(config.pageSize);
-	    System.out.println(config.cachePageData);
-	    System.out.println(config.timeSeriesEncoder);
-	    System.out.println(config.defaultSeriesEncoder);
-	    System.out.println(config.compressName);
-	    System.out.println(config.defaultRleBitWidth);
-	    System.out.println(config.defaultEndian);
-	    System.out.println(config.defaultDeltaBlockSize);
-	    System.out.println(config.defaultPLAMaxError);
-	    System.out.println(config.defaultSDTMaxError);
 	}
 }

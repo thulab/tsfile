@@ -45,11 +45,11 @@ public abstract class TSEncodingConverter {
         public void initFromProps(String measurementId, Map<String, String> props) {
             // set max error from initialized map or default value if not set
             if (props == null || !props.containsKey(JsonFormatConstant.MAX_STRING_LENGTH)) {
-                maxStringLength = conf.defaultMaxStringLength;
+                maxStringLength = conf.maxStringLength;
             } else {
                 maxStringLength = Integer.valueOf(props.get(JsonFormatConstant.MAX_STRING_LENGTH));
                 if (maxStringLength < 0) {
-                    maxStringLength = conf.defaultMaxStringLength;
+                    maxStringLength = conf.maxStringLength;
                     LOG.warn(
                             "cannot set max string length to negative value, replaced with default value:{}",
                             maxStringLength);
@@ -86,11 +86,11 @@ public abstract class TSEncodingConverter {
         public void initFromProps(String measurementId, Map<String, String> props) {
             // set max error from initialized map or default value if not set
             if (props == null || !props.containsKey(JsonFormatConstant.MAX_POINT_NUMBER)) {
-                maxPointNumber = conf.defaultMaxPointNumber;
+                maxPointNumber = conf.floatPrecision;
             } else {
                 maxPointNumber = Integer.valueOf(props.get(JsonFormatConstant.MAX_POINT_NUMBER));
                 if (maxPointNumber < 0) {
-                    maxPointNumber = conf.defaultMaxPointNumber;
+                    maxPointNumber = conf.floatPrecision;
                     LOG.warn(
                             "cannot set max point number to negative value, replaced with default value:{}",
                             maxPointNumber);
@@ -149,11 +149,11 @@ public abstract class TSEncodingConverter {
             // set max error from initialized map or default value if not set
             TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
             if (props == null || !props.containsKey(JsonFormatConstant.MAX_POINT_NUMBER)) {
-                maxPointNumber = conf.defaultMaxPointNumber;
+                maxPointNumber = conf.floatPrecision;
             } else {
                 maxPointNumber = Integer.valueOf(props.get(JsonFormatConstant.MAX_POINT_NUMBER));
                 if (maxPointNumber < 0) {
-                    maxPointNumber = conf.defaultMaxPointNumber;
+                    maxPointNumber = conf.floatPrecision;
                     LOG.warn(
                             "cannot set max point number to negative value, replaced with default value:{}",
                             maxPointNumber);

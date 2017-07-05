@@ -15,7 +15,7 @@ import org.junit.*;
 
 import cn.edu.thu.tsfile.timeseries.read.query.QueryConfig;
 import cn.edu.thu.tsfile.timeseries.read.query.QueryDataSet;
-import cn.edu.thu.tsfile.timeseries.read.readSupport.RowRecord;
+import cn.edu.thu.tsfile.timeseries.read.support.RowRecord;
 
 
 public class QueryEngineTest {

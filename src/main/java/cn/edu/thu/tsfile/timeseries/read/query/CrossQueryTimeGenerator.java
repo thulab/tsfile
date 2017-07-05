@@ -70,24 +70,6 @@ public abstract class CrossQueryTimeGenerator {
             return l + r + 1;
         }
     }
-
-    public DynamicOneColumnData getMoreRecordForOneCol(int idx, SingleSeriesFilterExpression valueFilter)
-            throws ProcessorException, IOException {
-        DynamicOneColumnData res = retMap.get(idx);
-        if (res != null) {
-            res.clearData();
-        }
-        res = getDataInNextBatch(res, fetchSize, valueFilter);
-        retMap.set(idx, res);
-        if (res == null || res.length == 0) {
-            hasReadAllMap.set(idx, true);
-        }
-        return res;
-    }
-
-    public abstract DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize
-            , SingleSeriesFilterExpression valueFilter) throws ProcessorException, IOException;
-
     /**
      * Calculate common time using FilterExpression.
      */
@@ -184,4 +166,22 @@ public abstract class CrossQueryTimeGenerator {
         }
         return -1;
     }
+
+    public DynamicOneColumnData getMoreRecordForOneCol(int idx, SingleSeriesFilterExpression valueFilter)
+            throws ProcessorException, IOException {
+        DynamicOneColumnData res = retMap.get(idx);
+        if (res != null) {
+            res.clearData();
+        }
+        res = getDataInNextBatch(res, fetchSize, valueFilter);
+        retMap.set(idx, res);
+        if (res == null || res.length == 0) {
+            hasReadAllMap.set(idx, true);
+        }
+        return res;
+    }
+
+    public abstract DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize
+            , SingleSeriesFilterExpression valueFilter) throws ProcessorException, IOException;
+
 }

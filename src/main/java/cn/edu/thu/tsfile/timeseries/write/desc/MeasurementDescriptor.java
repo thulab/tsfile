@@ -62,7 +62,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
                     Compressor.getCompressor(props
                             .get(JsonFormatConstant.COMPRESS_TYPE));
         } else {
-            this.compressor = Compressor.getCompressor(TSFileDescriptor.getInstance().getConfig().compressName);
+            this.compressor = Compressor.getCompressor(TSFileDescriptor.getInstance().getConfig().compressor);
         }
     }
 
@@ -102,7 +102,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
             case BYTE_ARRAY:
                 // 4 is the length of string in type of Integer.
                 // Note that one char corresponding to 3 byte is valid only in 16-bit BMP
-                return conf.defaultMaxStringLength * TSFileConfig.byteSizePerChar + 4;
+                return conf.maxStringLength * TSFileConfig.byteSizePerChar + 4;
             case ENUMS:
                 //every enum value is converted to integer
                 return 4;
@@ -121,7 +121,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     public Encoder getTimeEncoder(){
         TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
         TSEncoding timeSeriesEncoder = TSEncoding.valueOf(conf.timeSeriesEncoder);
-        TSDataType timeType = TSDataType.valueOf(conf.defaultTimeType);
+        TSDataType timeType = TSDataType.valueOf(conf.timeDataType);
         Encoder timeEncoder =
                 TSEncodingConverter.getConverter(timeSeriesEncoder)
                     .getEncoder(measurementId, timeType);
