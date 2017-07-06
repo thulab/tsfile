@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 import cn.edu.thu.tsfile.timeseries.read.qp.Path;
-import cn.edu.thu.tsfile.timeseries.read.readSupport.Field;
-import cn.edu.thu.tsfile.timeseries.read.readSupport.RowRecord;
+import cn.edu.thu.tsfile.timeseries.read.support.Field;
+import cn.edu.thu.tsfile.timeseries.read.support.RowRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

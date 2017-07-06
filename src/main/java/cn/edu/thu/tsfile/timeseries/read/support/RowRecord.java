@@ -1,4 +1,4 @@
-package cn.edu.thu.tsfile.timeseries.read.readSupport;
+package cn.edu.thu.tsfile.timeseries.read.support;
 
 import java.util.ArrayList;
 import java.util.List;

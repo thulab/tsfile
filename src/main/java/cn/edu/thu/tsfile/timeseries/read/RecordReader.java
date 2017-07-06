@@ -192,11 +192,9 @@ public class RecordReader {
 	}
 	
 	/**
-	 * Read function 2#2: read one column with filter from specific
-	 * RowGroupReader
+	 * Read function 2#2: read one column with filter from specific RowGroupReader
 	 * 
-	 * @param rowGroupReader,
-	 *            specific RowGroupReader
+	 * @param rowGroupReader specific RowGroupReader
 	 * @param measurementId
 	 * @param timeFilter
 	 * @param freqFilter
@@ -290,8 +288,7 @@ public class RecordReader {
 
 
 	/**
-	 * function 4#1: for cross getIndex. To get values in one column according
-	 * to a time list
+	 * function 4#1: for cross getIndex. To get values in one column according to common timestamps.
 	 * 
 	 * @param deltaObjectUID
 	 * @param measurementId
@@ -389,9 +386,9 @@ public class RecordReader {
 		ArrayList<SeriesSchema> res = new ArrayList<>();
 		List<RowGroupReader> rowGroupReaders = readerManager.getAllRowGroupReaders();
 		for (RowGroupReader rgr : rowGroupReaders) {
-			for (String measurement : rgr.seriesTypeMap.keySet()) {
+			for (String measurement : rgr.seriesDataTypeMap.keySet()) {
 				if (!seriesMap.containsKey(measurement)) {
-					res.add(new SeriesSchema(measurement, rgr.seriesTypeMap.get(measurement), null));
+					res.add(new SeriesSchema(measurement, rgr.seriesDataTypeMap.get(measurement), null));
 					seriesMap.put(measurement, 1);
 				}
 			}
@@ -426,9 +423,9 @@ public class RecordReader {
 			HashMap<String, Integer> measurementMap = new HashMap<>();
 			ArrayList<SeriesSchema> cols = new ArrayList<>();
 			for (RowGroupReader rgr : rowGroupReaders.get(deltaObjectUID)) {
-				for (String measurement : rgr.seriesTypeMap.keySet()) {
+				for (String measurement : rgr.seriesDataTypeMap.keySet()) {
 					if (!measurementMap.containsKey(measurement)) {
-						cols.add(new SeriesSchema(measurement, rgr.seriesTypeMap.get(measurement), null));
+						cols.add(new SeriesSchema(measurement, rgr.seriesDataTypeMap.get(measurement), null));
 						measurementMap.put(measurement, 1);
 					}
 				}

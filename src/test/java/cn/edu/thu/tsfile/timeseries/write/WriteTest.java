@@ -5,7 +5,7 @@ import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.thu.tsfile.common.utils.RandomAccessOutputStream;
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
-import cn.edu.thu.tsfile.timeseries.FileFormat.TsFile;
+import cn.edu.thu.tsfile.timeseries.basis.TsFile;
 import cn.edu.thu.tsfile.timeseries.read.LocalFileInput;
 import cn.edu.thu.tsfile.timeseries.utils.RecordUtils;
 import cn.edu.thu.tsfile.timeseries.utils.StringContainer;

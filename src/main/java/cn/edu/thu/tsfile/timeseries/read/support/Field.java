@@ -1,4 +1,4 @@
-package cn.edu.thu.tsfile.timeseries.read.readSupport;
+package cn.edu.thu.tsfile.timeseries.read.support;
 
 import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.common.utils.Binary;
