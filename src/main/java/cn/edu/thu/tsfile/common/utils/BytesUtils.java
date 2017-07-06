@@ -8,6 +8,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.edu.thu.tsfile.common.conf.TSFileConfig;
+
 /**
  * BytesUtils is a utility class. It provide conversion among byte array and
  * other type including integer, long, float, boolean, double and string. <br>
@@ -459,18 +461,18 @@ public class BytesUtils {
 	 */
 	public static byte[] StringToBytes(String str) {
 		try {
-			return str.getBytes("UTF8");
+			return str.getBytes(TSFileConfig.STRING_ENCODING);
 		} catch (UnsupportedEncodingException e) {
-			LOG.error("catch UnsupportedEncodingException {}", str);
+			LOG.error("catch UnsupportedEncodingException {}", str, e);
 			return null;
 		}
 	}
 
 	public static String bytesToString(byte[] byteStr) {
 		try {
-			return new String(byteStr, "UTF-8");
+			return new String(byteStr, TSFileConfig.STRING_ENCODING);
 		} catch (UnsupportedEncodingException e) {
-			LOG.error("catch UnsupportedEncodingException {}", byteStr);
+			LOG.error("catch UnsupportedEncodingException {}", byteStr,e);
 			return null;
 		}
 	}
@@ -685,9 +687,7 @@ public class BytesUtils {
 			try {
 				result[temp] = setByteN(result[temp], pos + width - 1 - i, getIntN(srcNum, i));
 			} catch (Exception e) {
-				if (LOG.isErrorEnabled())
-					LOG.error(
-							"tsfile-common BytesUtils: cannot convert an integer {} to a byte array, pos {}, width {}",
+				LOG.error("tsfile-common BytesUtils: cannot convert an integer {} to a byte array, pos {}, width {}",
 							srcNum, pos, width, e);
 			}
 
@@ -711,8 +711,7 @@ public class BytesUtils {
 			try {
 				result[temp] = setByteN(result[temp], pos + width - 1 - i, getLongN(srcNum, i));
 			} catch (Exception e) {
-				if (LOG.isErrorEnabled())
-					LOG.error("tsfile-common BytesUtils: cannot convert a long {} to a byte array, pos {}, width {}",
+				LOG.error("tsfile-common BytesUtils: cannot convert a long {} to a byte array, pos {}, width {}",
 							srcNum, pos, width, e);
 			}
 

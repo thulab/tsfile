@@ -83,7 +83,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
 		this.seriesStatistics = Statistics.getStatsByType(desc.getType());
 		resetPageStatistics();
 		this.dataValueWriter = new ValueWriter();
-		this.pageCountUpperBound = TSFileDescriptor.getInstance().getConfig().maxPointNumberInPage;
+		this.pageCountUpperBound = TSFileDescriptor.getInstance().getConfig().maxNumberOfPointsInPage;
 
 		this.dataValueWriter.setTimeEncoder(desc.getTimeEncoder());
 		this.dataValueWriter.setValueEncoder(desc.getValueEncoder());

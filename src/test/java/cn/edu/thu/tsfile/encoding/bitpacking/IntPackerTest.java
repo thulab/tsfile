@@ -1,4 +1,4 @@
-package cn.edu.thu.tsfile.encoding.bitPacking;
+package cn.edu.thu.tsfile.encoding.bitpacking;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import org.junit.Test;
+
+import cn.edu.thu.tsfile.encoding.bitpacking.IntPacker;
 
 /**
  * 

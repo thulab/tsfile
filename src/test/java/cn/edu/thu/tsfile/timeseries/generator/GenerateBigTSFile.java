@@ -36,7 +36,7 @@ public class GenerateBigTSFile {
     private static String outputDataFile;
     private static TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
 
-    private static int setRowGroupSize = conf.rowGroupSize;
+    private static int setRowGroupSize = conf.groupSizeInByte;
     // To be configure
     private static int deviceCount = 3;
     // s0:broken line
@@ -141,22 +141,22 @@ public class GenerateBigTSFile {
         s0.put(JsonFormatConstant.MEASUREMENT_UID, "s0");
         s0.put(JsonFormatConstant.DATA_TYPE, TSDataType.INT32.toString());
         s0.put(JsonFormatConstant.MEASUREMENT_ENCODING,
-                conf.valueSeriesEncoder);
+                conf.valueEncoder);
         JSONObject s1 = new JSONObject();
         s1.put(JsonFormatConstant.MEASUREMENT_UID, "s1");
         s1.put(JsonFormatConstant.DATA_TYPE, TSDataType.INT64.toString());
         s1.put(JsonFormatConstant.MEASUREMENT_ENCODING,
-                conf.valueSeriesEncoder);
+                conf.valueEncoder);
         JSONObject s2 = new JSONObject();
         s2.put(JsonFormatConstant.MEASUREMENT_UID, "s2");
         s2.put(JsonFormatConstant.DATA_TYPE, TSDataType.FLOAT.toString());
         s2.put(JsonFormatConstant.MEASUREMENT_ENCODING,
-                conf.valueSeriesEncoder);
+                conf.valueEncoder);
         JSONObject s3 = new JSONObject();
         s3.put(JsonFormatConstant.MEASUREMENT_UID, "s3");
         s3.put(JsonFormatConstant.DATA_TYPE, TSDataType.DOUBLE.toString());
         s3.put(JsonFormatConstant.MEASUREMENT_ENCODING,
-                conf.valueSeriesEncoder);
+                conf.valueEncoder);
         JSONObject s4 = new JSONObject();
         s4.put(JsonFormatConstant.MEASUREMENT_UID, "s4");
         s4.put(JsonFormatConstant.DATA_TYPE, TSDataType.BYTE_ARRAY.toString());
@@ -192,7 +192,7 @@ public class GenerateBigTSFile {
         if (args.length >= 4)
             setRowGroupSize =
                     (int) FileUtils.transformUnitToByte(Integer.valueOf(args[3]), Unit.MB);
-        conf.rowGroupSize = setRowGroupSize;
+        conf.groupSizeInByte = setRowGroupSize;
         deviceCount = 1;
         strLines = new String[deviceCount];
         sensorSet.add("s0");

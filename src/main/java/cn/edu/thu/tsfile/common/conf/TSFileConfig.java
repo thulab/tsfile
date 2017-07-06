@@ -9,25 +9,23 @@ package cn.edu.thu.tsfile.common.conf;
 public class TSFileConfig {
     // Memory configuration
     /**
-     * The memory size threshold for flushing to disk or HDFS, default value is
-     * 128 * 1024 * 1024
+     * Memory size threshold for flushing to disk or HDFS, default value is 128MB
      */
-    public int rowGroupSize = 128 * 1024 * 1024;
+    public int groupSizeInByte = 128 * 1024 * 1024;
     /**
-     * The memory size for each series writer to pack page, default value is
-     * 1024 * 1024
+     * The memory size for each series writer to pack page, default value is 1MB
      */
-    public int pageSize = 1024 * 1024;
+    public int pageSizeInByte = 1024 * 1024;
     /**
-     * The maximum number of data points in a page, defalut 1024*1024
+     * The maximum number of data points in a page, defalut value is 1024 * 1024
      */
-    public int maxPointNumberInPage = 1024 * 1024;
+    public int maxNumberOfPointsInPage = 1024 * 1024;
     
     // Data type configuration
     /**
-     * Default data type of time is LONG
+     * Data type for input timestamp, TsFile supports INT32 or INT64
      */
-    public String timeDataType = "INT64";
+    public String timeSeriesDataType = "INT64";
     /**
      * Max length limitation of input string
      */
@@ -39,13 +37,15 @@ public class TSFileConfig {
     
     // Encoder configuration
     /**
-     * the default time series value is TS_2DIFF
+     * Encoder of time series, TsFile supports TS_2DIFF, PLAIN and RLE(run-length encoding)
+     * Default value is TS_2DIFF
      */
     public String timeSeriesEncoder = "TS_2DIFF";
     /**
-     * the default value series value is RLE
+     * Encoder of value series. default value is RLE. 
+     * For int, long, float, double data type, TsFile also supports TS_2DIFF and RLE(run-length encoding)
      */
-    public String valueSeriesEncoder = "RLE";
+    public String valueEncoder = "PLAIN";
     
     // RLE configuration
     /**
@@ -67,8 +67,7 @@ public class TSFileConfig {
     
     // Freq encoder configuration
     /**
-     * default frequency type if series writer hasn't set it, the value is
-     * SINGLE_FREQ
+     * Default frequency type is SINGLE_FREQ
      */
     public String freqType = "SINGLE_FREQ";
     /**
@@ -79,7 +78,9 @@ public class TSFileConfig {
      * Default SDT max error is 100
      */
     public double sdtMaxError = 100;
-    
+    /**
+     * Default DFT satisfy rate is 0.1
+     */   
     public double dftSatisfyRate = 0.1;
 
     // Compression configuration
@@ -92,31 +93,35 @@ public class TSFileConfig {
     // Don't change the following configuration
     
     /**
-     * line count threshold for checking page memory occupied size
+     * Line count threshold for checking page memory occupied size
      */
     public int pageCheckSizeThreshold = 100;
 
     /**
-     * current version is 0
+     * Current version is 0
      */
     public int currentVersion = 0;
 
     /**
-     * query page data while writing tsfile
+     * Query page data while writing tsfile
      */
     public boolean duplicateIncompletedPage = false;
 
     /**
-     * the default Endian value is LITTLE_ENDIAN
+     * Default endian value is LITTLE_ENDIAN
      */
     public String endian = "LITTLE_ENDIAN";
 
     /**
      * String encoder with UTF-8 encodes a character to at most 4 bytes.
      */
-    public static final int byteSizePerChar = 4;
+    public static final int BYTE_SIZE_PER_CHAR = 4;
     
-    public static String CONFIG_DEFAULT_PATH = "src/test/resources/tsfile.properties";
+    public static final String STRING_ENCODING = "UTF-8";
+    
+    public static final String CONFIG_NAME = "tsfile-format.properties";
+    
+    public static String CONFIG_DEFAULT_PATH = "src/test/resources/" + CONFIG_NAME;
     
     public TSFileConfig() {
 

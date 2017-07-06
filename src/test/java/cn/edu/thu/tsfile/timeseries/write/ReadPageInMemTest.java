@@ -46,10 +46,10 @@ public class ReadPageInMemTest {
 	@Before
 	public void setUp() throws Exception {
 		file.delete();
-		pageSize = conf.pageSize;
-		conf.pageSize = 200;
-		RowGroupSize = conf.rowGroupSize;
-		conf.rowGroupSize = 100000;
+		pageSize = conf.pageSizeInByte;
+		conf.pageSizeInByte = 200;
+		RowGroupSize = conf.groupSizeInByte;
+		conf.groupSizeInByte = 100000;
 		pageCheckSizeThreshold = conf.pageCheckSizeThreshold;
 		conf.pageCheckSizeThreshold = 1;
 		defaultMaxStringLength = conf.maxStringLength;
@@ -65,8 +65,8 @@ public class ReadPageInMemTest {
 	@After
 	public void tearDown() throws Exception {
 		file.delete();
-		conf.pageSize = pageSize;
-		conf.rowGroupSize = RowGroupSize;
+		conf.pageSizeInByte = pageSize;
+		conf.groupSizeInByte = RowGroupSize;
 		conf.pageCheckSizeThreshold = pageCheckSizeThreshold;
 		conf.maxStringLength = defaultMaxStringLength;
 		conf.duplicateIncompletedPage = cachePageData;
@@ -235,22 +235,22 @@ public class ReadPageInMemTest {
 		JSONObject s1 = new JSONObject();
 		s1.put(JsonFormatConstant.MEASUREMENT_UID, "s1");
 		s1.put(JsonFormatConstant.DATA_TYPE, TSDataType.INT32.toString());
-		s1.put(JsonFormatConstant.MEASUREMENT_ENCODING, conf.valueSeriesEncoder);
+		s1.put(JsonFormatConstant.MEASUREMENT_ENCODING, conf.valueEncoder);
 
 		JSONObject s2 = new JSONObject();
 		s2.put(JsonFormatConstant.MEASUREMENT_UID, "s2");
 		s2.put(JsonFormatConstant.DATA_TYPE, TSDataType.INT64.toString());
-		s2.put(JsonFormatConstant.MEASUREMENT_ENCODING, conf.valueSeriesEncoder);
+		s2.put(JsonFormatConstant.MEASUREMENT_ENCODING, conf.valueEncoder);
 
 		JSONObject s3 = new JSONObject();
 		s3.put(JsonFormatConstant.MEASUREMENT_UID, "s3");
 		s3.put(JsonFormatConstant.DATA_TYPE, TSDataType.FLOAT.toString());
-		s3.put(JsonFormatConstant.MEASUREMENT_ENCODING, conf.valueSeriesEncoder);
+		s3.put(JsonFormatConstant.MEASUREMENT_ENCODING, conf.valueEncoder);
 
 		JSONObject s4 = new JSONObject();
 		s4.put(JsonFormatConstant.MEASUREMENT_UID, "s4");
 		s4.put(JsonFormatConstant.DATA_TYPE, TSDataType.DOUBLE.toString());
-		s4.put(JsonFormatConstant.MEASUREMENT_ENCODING, conf.valueSeriesEncoder);
+		s4.put(JsonFormatConstant.MEASUREMENT_ENCODING, conf.valueEncoder);
 
 		JSONArray measureGroup = new JSONArray();
 		measureGroup.put(s1);

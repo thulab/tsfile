@@ -12,46 +12,46 @@ import static org.junit.Assert.assertEquals;
  * @author XuYi
  */
 public class TSFileDescriptorTest {
-//    public int rowGroupSizePre = 128 * 1024 * 1024;
-//    public int pageSizePre = 1024 * 1024;
-//    public int maxPointNumberInPagePre = 1024 * 1024;
-//    public String timeDataTypePre = "INT64";
-//    public int maxStringLengthPre = 128;
-//    public int floatPrecisionPre = 2;
-//    public String timeSeriesEncoderPre = "TS_2DIFF";
-//    public String valueSeriesEncoderPre = "RLE";
-//    public String compressorPre = "UNCOMPRESSED";
-//    public TSFileConfig config;
+    public int groupSizeInBytePre = 128 * 1024 * 1024;
+    public int pageSizeInBytePre = 1024 * 1024;
+    public int maxNumberOfPointsInPagePre = 1024 * 1024;
+    public String timeSeriesDataTypePre = "INT64";
+    public int maxStringLengthPre = 128;
+    public int floatPrecisionPre = 2;
+    public String timeSeriesEncoderPre = "TS_2DIFF";
+    public String valueEncoderPre = "PALIN";
+    public String compressorPre = "UNCOMPRESSED";
+    public TSFileConfig config;
     
-    @Before
-    public void before() {
+//    @Before
+//    public void before() {
 //	config = TSFileDescriptor.getInstance().getConfig();
-    }
-
-    @After
-    public void after() {
-//	config.rowGroupSize = rowGroupSizePre;
-//	config.pageSize = pageSizePre;
-//	config.maxPointNumberInPage = maxPointNumberInPagePre;
-//	config.timeDataType = timeDataTypePre;
+//    }
+//
+//    @After
+//    public void after() {
+//	config.groupSizeInByte = groupSizeInBytePre;
+//	config.pageSizeInByte = pageSizeInBytePre;
+//	config.maxNumberOfPointsInPage = maxNumberOfPointsInPagePre;
+//	config.timeSeriesDataType = timeSeriesDataTypePre;
 //	config.maxStringLength = maxStringLengthPre;
 //	config.floatPrecision = floatPrecisionPre;
 //	config.timeSeriesEncoder = timeSeriesEncoderPre;
-//	config.valueSeriesEncoder = valueSeriesEncoderPre;
+//	config.valueEncoder = valueEncoderPre;
 //	config.compressor = compressorPre;
-    }
-
-    @Test
-    public void testLoadProp() {
-//	assertEquals(config.rowGroupSize, 123456789);
-//	assertEquals(config.pageSize, 123456);
-//	assertEquals(config.maxPointNumberInPage, 12345);
-//	assertEquals(config.timeDataType, "INT32");
+//    }
+//
+//    @Test
+//    public void testLoadProp() {
+//	assertEquals(config.groupSizeInByte, 123456789);
+//	assertEquals(config.pageSizeInByte, 123456);
+//	assertEquals(config.maxNumberOfPointsInPage, 12345);
+//	assertEquals(config.timeSeriesDataType, "INT32");
 //	assertEquals(config.maxStringLength, 64);
 //	assertEquals(config.floatPrecision, 5);
 //	assertEquals(config.timeSeriesEncoder, "RLE");
-//	assertEquals(config.valueSeriesEncoder, "PLAIN");
+//	assertEquals(config.valueEncoder, "RLE");
 //	assertEquals(config.compressor, "SNAPPY");
-    }
+//    }
 
 }

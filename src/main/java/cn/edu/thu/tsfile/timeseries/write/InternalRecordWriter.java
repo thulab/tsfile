@@ -49,10 +49,10 @@ public abstract class InternalRecordWriter<T> {
 		this.deltaFileWriter = tsfileWriter;
 		this.writeSupport = writeSupport;
 		this.schema = schema;
-		this.primaryRowGroupSize = conf.rowGroupSize;
+		this.primaryRowGroupSize = conf.groupSizeInByte;
 		this.oneRowMaxSize = schema.getCurrentRowMaxSize();
 		this.rowGroupSizeThreshold = primaryRowGroupSize - oneRowMaxSize;
-		this.pageSize = conf.pageSize;
+		this.pageSize = conf.pageSizeInByte;
 		writeSupport.init(groupWriters);
 	}
 

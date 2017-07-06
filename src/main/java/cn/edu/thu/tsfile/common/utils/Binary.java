@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
+import cn.edu.thu.tsfile.common.conf.TSFileConfig;
+
 /**
  * Override compareTo() and equals() function to Binary class. This class is
  * used to accept Java String type
@@ -14,7 +16,7 @@ import java.util.Arrays;
 public class Binary implements Comparable<Binary>, Serializable {
 	private static final long serialVersionUID = 6394197743397020735L;
 
-	private String textEncodingType = "UTF-8";
+	private String textEncodingType = TSFileConfig.STRING_ENCODING;
 
 	public byte[] values;
 

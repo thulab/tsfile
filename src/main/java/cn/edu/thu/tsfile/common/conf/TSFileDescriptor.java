@@ -52,7 +52,7 @@ public class TSFileDescriptor {
 			    return;
 			}
 		} else {
-			url = url + "/conf/tsfile.properties";
+			url = url + "/conf/" + TSFileConfig.CONFIG_NAME;
 			try {
 				File file = new File(url);
 				inputStream = new FileInputStream(file);
@@ -65,14 +65,14 @@ public class TSFileDescriptor {
 		Properties properties = new Properties();
 		try {
 		    properties.load(inputStream);		    
-		    conf.rowGroupSize = Integer.parseInt(properties.getProperty("rowGroupSize", conf.rowGroupSize+""));
-		    conf.pageSize = Integer.parseInt(properties.getProperty("pageSize",conf.pageSize+""));
-		    conf.maxPointNumberInPage = Integer.parseInt(properties.getProperty("maxPointNumberInPage", conf.maxPointNumberInPage+""));
-		    conf.timeDataType = properties.getProperty("timeDataType",conf.timeDataType);
-		    conf.maxStringLength = Integer.parseInt(properties.getProperty("maxStringLength",conf.maxStringLength+""));
-		    conf.floatPrecision = Integer.parseInt(properties.getProperty("floatPrecision", conf.floatPrecision+""));		    
-		    conf.timeSeriesEncoder = properties.getProperty("timeSeriesEncoder", conf.timeSeriesEncoder);
-		    conf.valueSeriesEncoder = properties.getProperty("valueSeriesEncoder", conf.valueSeriesEncoder);
+		    conf.groupSizeInByte = Integer.parseInt(properties.getProperty("group_size_in_byte", conf.groupSizeInByte+""));
+		    conf.pageSizeInByte = Integer.parseInt(properties.getProperty("page_size_in_byte",conf.pageSizeInByte+""));
+		    conf.maxNumberOfPointsInPage = Integer.parseInt(properties.getProperty("max_number_of_points_in_page", conf.maxNumberOfPointsInPage+""));
+		    conf.timeSeriesDataType = properties.getProperty("time_series_data_type",conf.timeSeriesDataType);
+		    conf.maxStringLength = Integer.parseInt(properties.getProperty("max_string_length",conf.maxStringLength+""));
+		    conf.floatPrecision = Integer.parseInt(properties.getProperty("float_precision", conf.floatPrecision+""));		    
+		    conf.timeSeriesEncoder = properties.getProperty("time_series_encoder", conf.timeSeriesEncoder);
+		    conf.valueEncoder = properties.getProperty("value_encoder", conf.valueEncoder);
 		    conf.compressor = properties.getProperty("compressor", conf.compressor);		    
 		} catch (IOException e) {
 		    LOGGER.warn("Cannot load config file, use default configuration", e);
