@@ -306,7 +306,6 @@ public class ValueReader {
 				// construct timeFilter
 				long mint = pageHeader.data_page_header.min_timestamp;
 				long maxt = pageHeader.data_page_header.max_timestamp;
-				System.out.println(">>>>>>>" + mint + " " + maxt);
 				DigestForFilter timeDigestFF = new DigestForFilter(mint, maxt);
 
 				if (pageSatisfied(timeDigestFF, valueDigestFF, timeFilter, valueFilter, freqFilter)) {

@@ -30,7 +30,7 @@ public class QueryEngine {
 
     public TSRandomAccessFileReader raf;
     private RecordReader recordReader;
-    private static int FETCH_SIZE = 50000;
+    private static int FETCH_SIZE = 20000;
 
     public QueryEngine(TSRandomAccessFileReader raf) throws IOException {
         this.raf = raf;
