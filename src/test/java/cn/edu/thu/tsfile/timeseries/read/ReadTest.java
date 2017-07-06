@@ -6,8 +6,8 @@ import java.io.IOException;
 
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.thu.tsfile.timeseries.read.query.QueryEngine;
-import cn.edu.thu.tsfile.timeseries.read.readSupport.Field;
-import cn.edu.thu.tsfile.timeseries.read.readSupport.RowRecord;
+import cn.edu.thu.tsfile.timeseries.read.support.Field;
+import cn.edu.thu.tsfile.timeseries.read.support.RowRecord;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import org.junit.After;
 import org.junit.Before;

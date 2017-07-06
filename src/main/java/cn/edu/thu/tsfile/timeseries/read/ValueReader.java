@@ -130,6 +130,12 @@ public class ValueReader {
 		return res;
 	}
 
+	/**
+	 * Init current ValueReader use totalSize.
+	 *
+	 * @return
+	 * @throws IOException
+	 */
 	private ByteArrayInputStream initBAIS() throws IOException {
 		int length = (int) this.totalSize;
 		byte[] buf = new byte[length];
@@ -160,6 +166,8 @@ public class ValueReader {
 	}
 
 	/**
+	 * //TODO what about timeFilters?
+	 *
 	 * Judge whether current column is satisfied for given filters
 	 */
 	private boolean columnSatisfied(SingleSeriesFilterExpression valueFilter, SingleSeriesFilterExpression timeFilter,
@@ -231,12 +239,9 @@ public class ValueReader {
 	/**
 	 * Read one column values with specific filters.
 	 * 
-	 * @param timeFilter
-	 *            Filter for time.
-	 * @param freqFilter
-	 *            Filter for frequency.
-	 * @param valueFilter
-	 *            Filter for value.
+	 * @param timeFilter filter for time.
+	 * @param freqFilter filter for frequency.
+	 * @param valueFilter filter for value.
 	 * @return
 	 * @throws IOException
 	 */
@@ -301,6 +306,7 @@ public class ValueReader {
 				// construct timeFilter
 				long mint = pageHeader.data_page_header.min_timestamp;
 				long maxt = pageHeader.data_page_header.max_timestamp;
+				System.out.println(">>>>>>>" + mint + " " + maxt);
 				DigestForFilter timeDigestFF = new DigestForFilter(mint, maxt);
 
 				if (pageSatisfied(timeDigestFF, valueDigestFF, timeFilter, valueFilter, freqFilter)) {
@@ -463,25 +469,25 @@ public class ValueReader {
 	 * Read time-value pairs whose time is be included in timeRet. WARNING: this
 	 * function is only for "time" Series
 	 * 
-	 * @param timeRet
-	 *            Array of the time.
+	 * @param timestamps array of the time.
 	 * @return
 	 * @throws IOException
 	 */
-	public DynamicOneColumnData getValuesForGivenValues(long[] timeRet) throws IOException {
+	public DynamicOneColumnData getValuesForGivenValues(long[] timestamps) throws IOException {
 		DynamicOneColumnData res = new DynamicOneColumnData(dataType, true);
 
-		if (timeRet.length == 0) {
+		if (timestamps.length == 0) {
 			return res;
 		}
 
+		// time index of timeValues
 		int timeIdx = 0;
 
 		ByteArrayInputStream bis = initBAIS();
 		PageReader pageReader = new PageReader(bis, compressionTypeName);
 		int pageCount = 0;
 
-		while (timeIdx < timeRet.length && pageReader.hasNextPage()) {
+		while (timeIdx < timestamps.length && pageReader.hasNextPage()) {
 			pageCount++;
 			log.debug("read page " + pageCount);
 			PageHeader pageHeader = pageReader.getNextPageHeader();
@@ -489,7 +495,7 @@ public class ValueReader {
 			long timeMaxv = pageHeader.data_page_header.getMax_timestamp();
 
 			// If there may be some values acceptable in this page
-			if (timeIdx < timeRet.length && timeMaxv >= timeRet[timeIdx]) {
+			if (timeIdx < timestamps.length && timeMaxv >= timestamps[timeIdx]) {
 
 				InputStream page = pageReader.getNextPage();
 
@@ -500,120 +506,120 @@ public class ValueReader {
 				int i = 0;
 				switch (dataType) {
 					case BOOLEAN:
-						while (i < timeValues.length && timeIdx < timeRet.length) {
-							while (i < timeValues.length && timeValues[i] < timeRet[timeIdx]) {
+						while (i < timeValues.length && timeIdx < timestamps.length) {
+							while (i < timeValues.length && timeValues[i] < timestamps[timeIdx]) {
 								i++;
 								decoder.readBoolean(page);
 							}
-							if (i < timeValues.length && timeValues[i] == timeRet[timeIdx]) {
+							if (i < timeValues.length && timeValues[i] == timestamps[timeIdx]) {
 								res.putBoolean(decoder.readBoolean(page));
 								res.putTime(timeValues[i]);
 								i++;
 								timeIdx++;
 							}
-							while (timeIdx < timeRet.length && i < timeValues.length && timeRet[timeIdx] < timeValues[i]) {
+							while (timeIdx < timestamps.length && i < timeValues.length && timestamps[timeIdx] < timeValues[i]) {
 								timeIdx++;
 							}
 						}
 						break;
 					case INT32:
-						while (i < timeValues.length && timeIdx < timeRet.length) {
-							while (i < timeValues.length && timeValues[i] < timeRet[timeIdx]) {
+						while (i < timeValues.length && timeIdx < timestamps.length) {
+							while (i < timeValues.length && timeValues[i] < timestamps[timeIdx]) {
 								i++;
 								decoder.readInt(page);
 							}
-							if (i < timeValues.length && timeValues[i] == timeRet[timeIdx]) {
+							if (i < timeValues.length && timeValues[i] == timestamps[timeIdx]) {
 								res.putInt(decoder.readInt(page));
 								res.putTime(timeValues[i]);
 								i++;
 								timeIdx++;
 							}
-							while (timeIdx < timeRet.length && i < timeValues.length && timeRet[timeIdx] < timeValues[i]) {
+							while (timeIdx < timestamps.length && i < timeValues.length && timestamps[timeIdx] < timeValues[i]) {
 								timeIdx++;
 							}
 						}
 						break;
 					case INT64:
-						while (i < timeValues.length && timeIdx < timeRet.length) {
-							while (i < timeValues.length && timeValues[i] < timeRet[timeIdx]) {
+						while (i < timeValues.length && timeIdx < timestamps.length) {
+							while (i < timeValues.length && timeValues[i] < timestamps[timeIdx]) {
 								i++;
 								decoder.readLong(page);
 							}
-							if (i < timeValues.length && timeValues[i] == timeRet[timeIdx]) {
+							if (i < timeValues.length && timeValues[i] == timestamps[timeIdx]) {
 								res.putLong(decoder.readLong(page));
 								res.putTime(timeValues[i]);
 								i++;
 								timeIdx++;
 							}
-							while (timeIdx < timeRet.length && i < timeValues.length && timeRet[timeIdx] < timeValues[i]) {
+							while (timeIdx < timestamps.length && i < timeValues.length && timestamps[timeIdx] < timeValues[i]) {
 								timeIdx++;
 							}
 						}
 						break;
 					case FLOAT:
-						while (i < timeValues.length && timeIdx < timeRet.length) {
-							while (i < timeValues.length && timeValues[i] < timeRet[timeIdx]) {
+						while (i < timeValues.length && timeIdx < timestamps.length) {
+							while (i < timeValues.length && timeValues[i] < timestamps[timeIdx]) {
 								i++;
 								decoder.readFloat(page);
 							}
-							if (i < timeValues.length && timeValues[i] == timeRet[timeIdx]) {
+							if (i < timeValues.length && timeValues[i] == timestamps[timeIdx]) {
 								res.putFloat(decoder.readFloat(page));
 								res.putTime(timeValues[i]);
 								i++;
 								timeIdx++;
 							}
-							while (timeIdx < timeRet.length && i < timeValues.length && timeRet[timeIdx] < timeValues[i]) {
+							while (timeIdx < timestamps.length && i < timeValues.length && timestamps[timeIdx] < timeValues[i]) {
 								timeIdx++;
 							}
 						}
 						break;
 					case DOUBLE:
-						while (i < timeValues.length && timeIdx < timeRet.length) {
-							while (i < timeValues.length && timeValues[i] < timeRet[timeIdx]) {
+						while (i < timeValues.length && timeIdx < timestamps.length) {
+							while (i < timeValues.length && timeValues[i] < timestamps[timeIdx]) {
 								i++;
 								decoder.readDouble(page);
 							}
-							if (i < timeValues.length && timeValues[i] == timeRet[timeIdx]) {
+							if (i < timeValues.length && timeValues[i] == timestamps[timeIdx]) {
 								res.putDouble(decoder.readDouble(page));
 								res.putTime(timeValues[i]);
 								i++;
 								timeIdx++;
 							}
-							while (timeIdx < timeRet.length && i < timeValues.length && timeRet[timeIdx] < timeValues[i]) {
+							while (timeIdx < timestamps.length && i < timeValues.length && timestamps[timeIdx] < timeValues[i]) {
 								timeIdx++;
 							}
 						}
 						break;
 					case BYTE_ARRAY:
-						while (i < timeValues.length && timeIdx < timeRet.length) {
-							while (i < timeValues.length && timeValues[i] < timeRet[timeIdx]) {
+						while (i < timeValues.length && timeIdx < timestamps.length) {
+							while (i < timeValues.length && timeValues[i] < timestamps[timeIdx]) {
 								i++;
 								decoder.readBinary(page);
 							}
-							if (i < timeValues.length && timeValues[i] == timeRet[timeIdx]) {
+							if (i < timeValues.length && timeValues[i] == timestamps[timeIdx]) {
 								res.putBinary(decoder.readBinary(page));
 								res.putTime(timeValues[i]);
 								i++;
 								timeIdx++;
 							}
-							while (timeIdx < timeRet.length && i < timeValues.length && timeRet[timeIdx] < timeValues[i]) {
+							while (timeIdx < timestamps.length && i < timeValues.length && timestamps[timeIdx] < timeValues[i]) {
 								timeIdx++;
 							}
 						}
 						break;
 					case ENUMS:
-						while (i < timeValues.length && timeIdx < timeRet.length) {
-							while (i < timeValues.length && timeValues[i] < timeRet[timeIdx]) {
+						while (i < timeValues.length && timeIdx < timestamps.length) {
+							while (i < timeValues.length && timeValues[i] < timestamps[timeIdx]) {
 								i++;
 								decoder.readInt(page);
 							}
-							if (i < timeValues.length && timeValues[i] == timeRet[timeIdx]) {
+							if (i < timeValues.length && timeValues[i] == timestamps[timeIdx]) {
 								res.putBinary(Binary.valueOf(enumValues.get(decoder.readInt(page) - 1)));
 								res.putTime(timeValues[i]);
 								i++;
 								timeIdx++;
 							}
-							while (timeIdx < timeRet.length && i < timeValues.length && timeRet[timeIdx] < timeValues[i]) {
+							while (timeIdx < timestamps.length && i < timeValues.length && timestamps[timeIdx] < timeValues[i]) {
 								timeIdx++;
 							}
 						}

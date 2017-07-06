@@ -6,8 +6,8 @@ import java.util.PriorityQueue;
 
 import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.timeseries.read.qp.Path;
-import cn.edu.thu.tsfile.timeseries.read.readSupport.Field;
-import cn.edu.thu.tsfile.timeseries.read.readSupport.RowRecord;
+import cn.edu.thu.tsfile.timeseries.read.support.Field;
+import cn.edu.thu.tsfile.timeseries.read.support.RowRecord;
 
 
 public class QueryDataSet {
