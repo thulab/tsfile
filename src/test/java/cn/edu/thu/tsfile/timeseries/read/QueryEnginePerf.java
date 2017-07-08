@@ -153,15 +153,15 @@ public class QueryEnginePerf {
 		JSONObject s1 = new JSONObject();
 		s1.put(JsonFormatConstant.MEASUREMENT_UID, "s1");
 		s1.put(JsonFormatConstant.DATA_TYPE, TSDataType.INT32.toString());
-		s1.put(JsonFormatConstant.MEASUREMENT_ENCODING, conf.defaultSeriesEncoder);
+		s1.put(JsonFormatConstant.MEASUREMENT_ENCODING, conf.valueEncoder);
 		JSONObject s2 = new JSONObject();
 		s2.put(JsonFormatConstant.MEASUREMENT_UID, "s2");
 		s2.put(JsonFormatConstant.DATA_TYPE, TSDataType.FLOAT.toString());
-		s2.put(JsonFormatConstant.MEASUREMENT_ENCODING, conf.defaultSeriesEncoder);
+		s2.put(JsonFormatConstant.MEASUREMENT_ENCODING, conf.valueEncoder);
 		JSONObject s3 = new JSONObject();
 		s3.put(JsonFormatConstant.MEASUREMENT_UID, "s3");
 		s3.put(JsonFormatConstant.DATA_TYPE, TSDataType.INT64.toString());
-		s3.put(JsonFormatConstant.MEASUREMENT_ENCODING, conf.defaultSeriesEncoder);
+		s3.put(JsonFormatConstant.MEASUREMENT_ENCODING, conf.valueEncoder);
 
 		JSONArray measureGroup1 = new JSONArray();
 		measureGroup1.put(s1);

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class TsFileWriteTest {
 
     public static void main(String args[]) throws IOException, WriteProcessException {
-        String path = "tsfile-impl-parent/tsfile-timeseries/src/test/resources/test.ts";
+        String path = "src/test/resources/test.ts";
         String s = "{\n" +
                 "    \"schema\": [\n" +
                 "        {\n" +

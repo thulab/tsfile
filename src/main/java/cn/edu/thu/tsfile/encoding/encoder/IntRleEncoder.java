@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
-import cn.edu.thu.tsfile.encoding.bitPacking.IntPacker;
+import cn.edu.thu.tsfile.encoding.bitpacking.IntPacker;
 import cn.edu.thu.tsfile.encoding.common.EndianType;
 
 

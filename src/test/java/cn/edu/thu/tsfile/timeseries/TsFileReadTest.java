@@ -15,7 +15,7 @@ import java.util.ArrayList;
 public class TsFileReadTest {
 
     public static void main(String args[]) throws IOException, WriteProcessException {
-        String path = "tsfile-impl-parent/tsfile-timeseries/src/test/resources/test.ts";
+        String path = "src/test/resources/test.ts";
 
         // read example : no filter
         LocalFileInput input = new LocalFileInput(path);

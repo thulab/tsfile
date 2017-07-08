@@ -3,12 +3,12 @@ package cn.edu.thu.tsfile.encoding.decoder;
 import java.io.IOException;
 import java.io.InputStream;
 
-import cn.edu.thu.tsfile.encoding.bitPacking.IntPacker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.thu.tsfile.common.exception.TSFileDecodingException;
 import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.thu.tsfile.encoding.bitpacking.IntPacker;
 import cn.edu.thu.tsfile.encoding.common.EndianType;
 
 

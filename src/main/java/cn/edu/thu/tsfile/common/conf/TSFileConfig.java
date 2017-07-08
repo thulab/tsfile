@@ -7,100 +7,122 @@ package cn.edu.thu.tsfile.common.conf;
  * @author kangrong
  */
 public class TSFileConfig {
+    // Memory configuration
     /**
-     * String encoder with UTF-8 encodes a character to at most 4 bytes.
+     * Memory size threshold for flushing to disk or HDFS, default value is 128MB
      */
-    public static final int byteSizePerChar = 4;
+    public int groupSizeInByte = 128 * 1024 * 1024;
     /**
-     * line count threshold for checking page memory occupied size
+     * The memory size for each series writer to pack page, default value is 1MB
+     */
+    public int pageSizeInByte = 1024 * 1024;
+    /**
+     * The maximum number of data points in a page, defalut value is 1024 * 1024
+     */
+    public int maxNumberOfPointsInPage = 1024 * 1024;
+    
+    // Data type configuration
+    /**
+     * Data type for input timestamp, TsFile supports INT32 or INT64
+     */
+    public String timeSeriesDataType = "INT64";
+    /**
+     * Max length limitation of input string
+     */
+    public int maxStringLength = 128;    
+    /**
+     * Floating-point precision
+     */
+    public int floatPrecision = 2;
+    
+    // Encoder configuration
+    /**
+     * Encoder of time series, TsFile supports TS_2DIFF, PLAIN and RLE(run-length encoding)
+     * Default value is TS_2DIFF
+     */
+    public String timeSeriesEncoder = "TS_2DIFF";
+    /**
+     * Encoder of value series. default value is RLE. 
+     * For int, long, float, double data type, TsFile also supports TS_2DIFF and RLE(run-length encoding)
+     */
+    public String valueEncoder = "PLAIN";
+    
+    // RLE configuration
+    /**
+     * Default bit width of RLE encoding is 8
+     */
+    public int rleBitWidth = 8;
+    public final int RLE_MIN_REPEATED_NUM = 8;
+    public final int RLE_MAX_REPEATED_NUM = 0x7FFFFF;
+    public final int RLE_MAX_BIT_PACKED_NUM = 63;    
+    
+    // TS_2DIFF configuration
+    /**
+     * Default block size of two-diff. delta encoding is 128
+     */
+    public int deltaBlockSize = 128;    
+    
+    // Bitmap configuration
+    public final int BITMAP_BITWIDTH = 1;
+    
+    // Freq encoder configuration
+    /**
+     * Default frequency type is SINGLE_FREQ
+     */
+    public String freqType = "SINGLE_FREQ";
+    /**
+     * Default PLA max error is 100
+     */
+    public double plaMaxError = 100;
+    /**
+     * Default SDT max error is 100
+     */
+    public double sdtMaxError = 100;
+    /**
+     * Default DFT satisfy rate is 0.1
+     */   
+    public double dftSatisfyRate = 0.1;
+
+    // Compression configuration
+    /**
+     * Data compression method, TsFile supports UNCOMPRESSED or SNAPPY. 
+     * Default value is UNCOMPRESSED which means no compression
+     */
+    public String compressor = "UNCOMPRESSED";
+    
+    // Don't change the following configuration
+    
+    /**
+     * Line count threshold for checking page memory occupied size
      */
     public int pageCheckSizeThreshold = 100;
+
     /**
-     * default data type of time is LONG
-     */
-    public String defaultTimeType = "INT64";
-    /**
-     * current version is 0
+     * Current version is 0
      */
     public int currentVersion = 0;
 
     /**
-     * max length limitation of input string
+     * Query page data while writing tsfile
      */
-    public int defaultMaxStringLength = 128;
-    /**
-     * the memory size threshold for flushing to disk or HDFS, default value is
-     * 128 * 1024 * 1024
-     */
-    public int rowGroupSize = 128 * 1024 * 1024;
-    /**
-     * the memory size for each series writer to pack page, default value is
-     * 8*1024
-     */
-    public int pageSize = 1024 * 1024;
-    /**
-     * query page data while writing tsfile
-     */
-    public boolean cachePageData = false;
-    /**
-     * the upper bound of line count maintained in a page
-     */
-    public int pageCountUpperBound = 1024 * 1024;
-    /**
-     * compress type, default value is UNCOMPRESSED
-     */
-    public String compressName = "UNCOMPRESSED";
-    // public CompressionTypeName compressName = CompressionTypeName.SNAPPY;
-    /**
-     * default frequency type if series writer hasn't set it, the value is
-     * SINGLE_FREQ
-     */
-    public String defaultFreqType = "SINGLE_FREQ";
-    /**
-     * the default Endian value is LITTLE_ENDIAN
-     */
-    public String defaultEndian = "LITTLE_ENDIAN";
+    public boolean duplicateIncompletedPage = false;
 
-    // encoder configuration
     /**
-     * the default time series value is TS_2DIFF
+     * Default endian value is LITTLE_ENDIAN
      */
-    public String timeSeriesEncoder = "TS_2DIFF";
-    // public TSEncoding timeSeriesEncoder = TSEncoding.RLE;
+    public String endian = "LITTLE_ENDIAN";
+
     /**
-     * the default value series value is RLE
+     * String encoder with UTF-8 encodes a character to at most 4 bytes.
      */
-    public String defaultSeriesEncoder = "RLE";
-    /**
-     * the default width of RLE encoding is 8
-     */
-    public int defaultRleBitWidth = 8;
-    /**
-     * the default block size of two-diff. delta encoding is 128
-     */
-    public int defaultDeltaBlockSize = 128;
-    /**
-     * the default PLA max error is 100
-     */
-    public double defaultPLAMaxError = 100;
-    /**
-     * the default SDT max error is 100
-     */
-    public double defaultSDTMaxError = 100;
-    /**
-     * the default point number is 2
-     */
-    public int defaultMaxPointNumber = 2;
+    public static final int BYTE_SIZE_PER_CHAR = 4;
     
+    public static final String STRING_ENCODING = "UTF-8";
     
-    public double dftSatisfyRate = 0.1;
-
-    public final int RLE_MIN_REPEATED_NUM = 8;
-    public final int RLE_MAX_REPEATED_NUM = 0x7FFFFF;
-    public final int RLE_MAX_BIT_PACKED_NUM = 63;
-
-    public final int BITMAP_BITWIDTH = 1;
-
+    public static final String CONFIG_NAME = "tsfile-format.properties";
+    
+    public static String CONFIG_DEFAULT_PATH = "src/test/resources/" + CONFIG_NAME;
+    
     public TSFileConfig() {
 
     }

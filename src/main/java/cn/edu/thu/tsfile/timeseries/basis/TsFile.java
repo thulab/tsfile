@@ -55,9 +55,9 @@ public class TsFile {
         TSFileIOWriter tsfileWriter = new TSFileIOWriter(fileSchema, tsFileOutputStream);
         TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
         if (schemaJson.has(JsonFormatConstant.ROW_GROUP_SIZE))
-            conf.rowGroupSize = schemaJson.getInt(JsonFormatConstant.ROW_GROUP_SIZE);
+            conf.groupSizeInByte = schemaJson.getInt(JsonFormatConstant.ROW_GROUP_SIZE);
         if (schemaJson.has(JsonFormatConstant.PAGE_SIZE))
-            conf.pageSize = schemaJson.getInt(JsonFormatConstant.PAGE_SIZE);
+            conf.pageSizeInByte = schemaJson.getInt(JsonFormatConstant.PAGE_SIZE);
         innerWriter = new TSRecordWriter(conf, tsfileWriter, writeSupport, fileSchema);
     }
 
@@ -75,9 +75,9 @@ public class TsFile {
         TSFileIOWriter tsfileWriter = new TSFileIOWriter(fileSchema, tsFileOutputStream);
         TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
         if (fileSchema.hasProp(JsonFormatConstant.ROW_GROUP_SIZE))
-            conf.rowGroupSize = Integer.valueOf(fileSchema.getProp(JsonFormatConstant.ROW_GROUP_SIZE));
+            conf.groupSizeInByte = Integer.valueOf(fileSchema.getProp(JsonFormatConstant.ROW_GROUP_SIZE));
         if (fileSchema.hasProp(JsonFormatConstant.PAGE_SIZE))
-            conf.pageSize = Integer.valueOf(fileSchema.getProp(JsonFormatConstant.PAGE_SIZE));
+            conf.pageSizeInByte = Integer.valueOf(fileSchema.getProp(JsonFormatConstant.PAGE_SIZE));
         innerWriter = new TSRecordWriter(conf, tsfileWriter, writeSupport, fileSchema);
     }
 
@@ -145,16 +145,6 @@ public class TsFile {
         this.status = READ;
         queryEngine = new QueryEngine(raf);
 //        recordReader = queryEngine.recordReader;
-    }
-
-    /**
-     * Check whether thf file given is a TsFile
-     *
-     * @param raf
-     * @return
-     */
-    private boolean isTsFile(TSRandomAccessFileReader raf) {
-        return true;
     }
 
     public QueryDataSet query(List<Path> paths, FilterExpression timeFilter,

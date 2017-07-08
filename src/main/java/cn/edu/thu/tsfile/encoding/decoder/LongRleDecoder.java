@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import cn.edu.thu.tsfile.common.exception.TSFileDecodingException;
 import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
-import cn.edu.thu.tsfile.encoding.bitPacking.LongPacker;
+import cn.edu.thu.tsfile.encoding.bitpacking.LongPacker;
 import cn.edu.thu.tsfile.encoding.common.EndianType;
 
 

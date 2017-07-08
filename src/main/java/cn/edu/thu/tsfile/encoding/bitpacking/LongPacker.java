@@ -1,4 +1,4 @@
-package cn.edu.thu.tsfile.encoding.bitPacking;
+package cn.edu.thu.tsfile.encoding.bitpacking;
 
 /**
  * This class is used to encode(decode) Long in Java with specified bit-width.

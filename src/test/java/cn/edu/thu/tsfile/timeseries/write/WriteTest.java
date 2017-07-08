@@ -61,8 +61,8 @@ public class WriteTest {
         errorOutputDataFile = "src/test/resources/writeTestErrorOutputData.ksn";
         schemaFile = "src/test/resources/test_write_schema.json";
         // for each row, flush page forcely
-        prePageSize = conf.pageSize;
-        conf.pageSize = 0;
+        prePageSize = conf.pageSizeInByte;
+        conf.pageSizeInByte = 0;
         prePageCheckThres = conf.pageCheckSizeThreshold;
         conf.pageCheckSizeThreshold = 0;
 
@@ -113,7 +113,7 @@ public class WriteTest {
 
     @After
     public void end() {
-        conf.pageSize = prePageSize;
+        conf.pageSizeInByte = prePageSize;
         conf.pageCheckSizeThreshold = prePageCheckThres;
     }
 
