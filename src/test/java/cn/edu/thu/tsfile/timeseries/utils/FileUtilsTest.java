@@ -38,7 +38,7 @@ public class FileUtilsTest {
         assertEquals(3l * 1024 * 1024 * 1024, (long) FileUtils.transformUnitToByte(3, Unit.GB));
     }
 
-    @Test
+    @Deprecated
     public void testGetLocalFileByte() {
         String fileName = "src/test/resources/test_schema.json";
         assertEquals(843.0, FileUtils.getLocalFileByte(fileName, Unit.B),
