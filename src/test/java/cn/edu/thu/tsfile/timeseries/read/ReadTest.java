@@ -10,6 +10,7 @@ import cn.edu.thu.tsfile.timeseries.read.support.Field;
 import cn.edu.thu.tsfile.timeseries.read.support.RowRecord;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,8 +48,11 @@ public class ReadTest {
 	private static QueryConfig booleanConfig = new QueryConfig("d1.s5",
 			"0,(>=1480562618970)&(<=1480562618981)", "null", "2,d1.s5,(=false)");
 
-	private static QueryConfig stringConfig = new QueryConfig("d1.s4",
-			"0,(>=1480562618970)&(<=1480562618981)", "null", "2,d1.s4,(=dog976)");
+	private static QueryConfig greatStringConfig = new QueryConfig("d1.s4",
+			"0,(>=1480562618970)&(<=1480562618981)", "null", "2,d1.s4,(>dog97)");
+
+	private static QueryConfig lessStringConfig = new QueryConfig("d1.s4",
+			"0,(>=1480562618970)&(<=1480562618981)", "null", "2,d1.s4,(<dog97)");
 
 	private static QueryConfig floatConfig = new QueryConfig("d1.s6",
 			"0,(>=1480562618970)&(<=1480562618981)", "null", "2,d1.s6,(>103.0)");
@@ -230,8 +234,8 @@ public class ReadTest {
 
 	@Test
 	public void queryStringTest() throws IOException {
-		QueryDataSet queryDataSet = QueryEngine.query(stringConfig, fileName);
-		int cnt = 1;
+		QueryDataSet queryDataSet = QueryEngine.query(lessStringConfig, fileName);
+		int cnt = 0;
 		while (queryDataSet.hasNextRecord()) {
 			RowRecord r = queryDataSet.getNextRecord();
 			if (cnt == 1) {
@@ -239,9 +243,24 @@ public class ReadTest {
 				Field f1 = r.getFields().get(0);
 				assertEquals(f1.getStringValue(), "dog976");
 			}
-			//System.out.println(r);
+			// System.out.println(r);
 			cnt++;
 		}
+		Assert.assertEquals(cnt, 0);
+
+		queryDataSet = QueryEngine.query(greatStringConfig, fileName);
+		cnt = 0;
+		while (queryDataSet.hasNextRecord()) {
+			RowRecord r = queryDataSet.getNextRecord();
+			if (cnt == 0) {
+				assertEquals(r.getTime(), 1480562618976L);
+				Field f1 = r.getFields().get(0);
+				assertEquals(f1.getStringValue(), "dog976");
+			}
+			// System.out.println(r);
+			cnt++;
+		}
+		Assert.assertEquals(cnt, 1);
 	}
 
 	@Test

@@ -1,5 +1,6 @@
 package cn.edu.thu.tsfile.timeseries.filter.definition.filterseries;
 
+import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 
 /**
@@ -8,7 +9,7 @@ import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
  * @author CGF
  *
  */
-public class StringFilterSeries extends FilterSeries<Boolean> {
+public class StringFilterSeries extends FilterSeries<Binary> {
 
 	private static final long serialVersionUID = 454794989741185890L;
 

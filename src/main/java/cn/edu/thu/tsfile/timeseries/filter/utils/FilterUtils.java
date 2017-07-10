@@ -3,21 +3,18 @@ package cn.edu.thu.tsfile.timeseries.filter.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
+import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.IntFilterSeries;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.LongFilterSeries;
+import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.*;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSAnd;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSOr;
 import cn.edu.thu.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.DoubleFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeriesType;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FloatFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.IntFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.LongFilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSAnd;
@@ -26,26 +23,27 @@ import cn.edu.thu.tsfile.timeseries.read.RecordReader;
 
 public class FilterUtils {
 
-	private static final char PATH_SPLITER = '.';
-	//exp-format:deltaObject,measurement,type,exp
-	public static SingleSeriesFilterExpression construct(String exp, RecordReader recordReader) {
-		if(exp == null || exp.equals("null")){
-			return null;
-		}
-		String args[] = exp.split(",");
-		if(args[0].equals("0") || args[0].equals("1")){
-			return construct("null","null",args[0],args[1],recordReader);
-		}
-		String s = args[1];
-		String deltaObject = s.substring(0, s.lastIndexOf(PATH_SPLITER));
-		String measurement = s.substring(s.lastIndexOf(PATH_SPLITER) + 1);
-		return construct(deltaObject,measurement,args[0],args[2],recordReader);
+    private static final char PATH_SPLITER = '.';
 
-	}
-	
+    //exp-format:deltaObject,measurement,type,exp
+    public static SingleSeriesFilterExpression construct(String exp, RecordReader recordReader) {
+        if (exp == null || exp.equals("null")) {
+            return null;
+        }
+        String args[] = exp.split(",");
+        if (args[0].equals("0") || args[0].equals("1")) {
+            return construct("null", "null", args[0], args[1], recordReader);
+        }
+        String s = args[1];
+        String deltaObject = s.substring(0, s.lastIndexOf(PATH_SPLITER));
+        String measurement = s.substring(s.lastIndexOf(PATH_SPLITER) + 1);
+        return construct(deltaObject, measurement, args[0], args[2], recordReader);
+
+    }
+
     public static SingleSeriesFilterExpression construct(String deltaObject, String measurement, String filterType,
-            String exp, RecordReader recordReader) {
-    	
+                                                         String exp, RecordReader recordReader) {
+
         if (exp.equals("null")) {
             return null;
         }
@@ -53,95 +51,103 @@ public class FilterUtils {
             boolean ifEq = exp.charAt(1) == '=' ? true : false;
             int type = Integer.valueOf(filterType);
             int offset = ifEq ? 2 : 1;
-            if(exp.charAt(0) == '=') {
-            	if (type == 0) {
+            if (exp.charAt(0) == '=') {
+                if (type == 0) {
                     long v = Long.valueOf(exp.substring(offset, exp.length()).trim());
                     return FilterFactory.eq(FilterFactory.longFilterSeries(deltaObject, measurement, FilterSeriesType.TIME_FILTER), v);
-                } else if(type == 1){
-                	float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
-                	return FilterFactory.eq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.FREQUENCY_FILTER), v);
-                }else{
-                    if(recordReader == null){
-                    	int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.eq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);
+                } else if (type == 1) {
+                    float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
+                    return FilterFactory.eq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.FREQUENCY_FILTER), v);
+                } else {
+                    if (recordReader == null) {
+                        int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.eq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);
                     }
-                    FilterSeries<?> col = recordReader.getColumnByMeasurementName(deltaObject , measurement);
-                    if(col instanceof IntFilterSeries){
-                    	int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.eq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);
-                    }else if(col instanceof LongFilterSeries){
-                    	long v = Long.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.eq(FilterFactory.longFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);
-                    }else if(col instanceof FloatFilterSeries){
-                    	float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.eq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);
-                    }else if(col instanceof DoubleFilterSeries){
-                    	double v = Double.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.eq(FilterFactory.doubleFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);
-                    }else{
-                    	return null;
+                    FilterSeries<?> col = recordReader.getColumnByMeasurementName(deltaObject, measurement);
+                    if (col instanceof IntFilterSeries) {
+                        int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.eq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);
+                    } else if (col instanceof LongFilterSeries) {
+                        long v = Long.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.eq(FilterFactory.longFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);
+                    } else if (col instanceof FloatFilterSeries) {
+                        float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.eq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);
+                    } else if (col instanceof DoubleFilterSeries) {
+                        double v = Double.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.eq(FilterFactory.doubleFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);
+                    } else if (col instanceof StringFilterSeries) {
+                        String v = String.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.eq(FilterFactory.stringFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), new Binary(v));
+                    } else {
+                        throw new UnSupportedDataTypeException("Construct FilterSeries: " + col);
                     }
-                    
+
                 }
-            }
-            else if (exp.charAt(0) == '>') {
+            } else if (exp.charAt(0) == '>') {
                 if (type == 0) {
                     long v = Long.valueOf(exp.substring(offset, exp.length()).trim());
                     return FilterFactory.gtEq(FilterFactory.longFilterSeries(deltaObject, measurement, FilterSeriesType.TIME_FILTER), v, ifEq);
-                } else if(type == 1){
-                	float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
-                	return FilterFactory.gtEq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.FREQUENCY_FILTER), v, ifEq);
-                }else{
-                    if(recordReader == null){
-                    	int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.gtEq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
+                } else if (type == 1) {
+                    float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
+                    return FilterFactory.gtEq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.FREQUENCY_FILTER), v, ifEq);
+                } else {
+                    if (recordReader == null) {
+                        int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.gtEq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
                     }
-                    FilterSeries<?> col = recordReader.getColumnByMeasurementName(deltaObject , measurement);
-                    if(col instanceof IntFilterSeries){
-                    	int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.gtEq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
-                    }else if(col instanceof LongFilterSeries){
-                    	long v = Long.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.gtEq(FilterFactory.longFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
-                    }else if(col instanceof FloatFilterSeries){
-                    	float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.gtEq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
-                    }else if(col instanceof DoubleFilterSeries){
-                    	double v = Double.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.gtEq(FilterFactory.doubleFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
-                    }else{
-                    	return null;
+                    FilterSeries<?> col = recordReader.getColumnByMeasurementName(deltaObject, measurement);
+                    if (col instanceof IntFilterSeries) {
+                        int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.gtEq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
+                    } else if (col instanceof LongFilterSeries) {
+                        long v = Long.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.gtEq(FilterFactory.longFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
+                    } else if (col instanceof FloatFilterSeries) {
+                        float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.gtEq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
+                    } else if (col instanceof DoubleFilterSeries) {
+                        double v = Double.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.gtEq(FilterFactory.doubleFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
+                    } else if (col instanceof StringFilterSeries) {
+                        String v = String.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.gtEq(FilterFactory.stringFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), new Binary(v), ifEq);
+                    } else {
+                        throw new UnSupportedDataTypeException("Construct FilterSeries: " + col);
                     }
-                    
+
                 }
             } else if (exp.charAt(0) == '<') {
                 if (type == 0) {
                     long v = Long.valueOf(exp.substring(offset, exp.length()).trim());
                     return FilterFactory.ltEq(FilterFactory.longFilterSeries(deltaObject, measurement, FilterSeriesType.TIME_FILTER), v, ifEq);
-                } else if(type == 1){
-                	float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
-                	return FilterFactory.ltEq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.FREQUENCY_FILTER), v, ifEq);
+                } else if (type == 1) {
+                    float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
+                    return FilterFactory.ltEq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.FREQUENCY_FILTER), v, ifEq);
                 } else {
-                	//default filter
-                	if(recordReader == null){
-                		int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.ltEq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
-                	}
-                	FilterSeries<?> col = recordReader.getColumnByMeasurementName(deltaObject , measurement);
-                    if(col instanceof IntFilterSeries){
-                    	int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.ltEq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
-                    }else if(col instanceof LongFilterSeries){
-                    	long v = Long.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.ltEq(FilterFactory.longFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
-                    }else if(col instanceof FloatFilterSeries){
-                    	float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.ltEq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
-                    }else if(col instanceof DoubleFilterSeries){
-                    	double v = Double.valueOf(exp.substring(offset, exp.length()).trim());
-                    	return FilterFactory.ltEq(FilterFactory.doubleFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
-                    }else{
-                    	return null;
+                    //default filter
+                    if (recordReader == null) {
+                        int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.ltEq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
+                    }
+                    FilterSeries<?> col = recordReader.getColumnByMeasurementName(deltaObject, measurement);
+                    if (col instanceof IntFilterSeries) {
+                        int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.ltEq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
+                    } else if (col instanceof LongFilterSeries) {
+                        long v = Long.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.ltEq(FilterFactory.longFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
+                    } else if (col instanceof FloatFilterSeries) {
+                        float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.ltEq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
+                    } else if (col instanceof DoubleFilterSeries) {
+                        double v = Double.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.ltEq(FilterFactory.doubleFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
+                    } else if (col instanceof StringFilterSeries) {
+                        String v = String.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.ltEq(FilterFactory.stringFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), new Binary(v), ifEq);
+                    } else {
+                        throw new UnSupportedDataTypeException("Construct FilterSeries: " + col);
                     }
                 }
                 // long v = Long.valueOf(exp.substring(offset,exp.length()).trim());
@@ -211,79 +217,79 @@ public class FilterUtils {
 
         return filter;
     }
-    
-    public static FilterExpression constructCrossFilter(String exp, RecordReader recordReader){
-    	exp = exp.trim();
-    	
-    	if(exp.equals("null")){
-    		return null;
-    	}
-    	
-    	if(exp.charAt(0) != '['){
-    		return construct(exp, recordReader);
-    	}
-    	
-    	int numbraket = 0;
-    	boolean operator = false;
-    	ArrayList<FilterExpression> filters = new ArrayList<>();
-    	ArrayList<Character> operators = new ArrayList<>(); 
-    	String texp = "";
-    	
-    	for(int i = 0 ; i < exp.length() ; i++){
-    		char c = exp.charAt(i);
-    		
-    		if (Character.isWhitespace(c) || c == '\0') {
+
+    public static FilterExpression constructCrossFilter(String exp, RecordReader recordReader) {
+        exp = exp.trim();
+
+        if (exp.equals("null")) {
+            return null;
+        }
+
+        if (exp.charAt(0) != '[') {
+            return construct(exp, recordReader);
+        }
+
+        int numbraket = 0;
+        boolean operator = false;
+        ArrayList<FilterExpression> filters = new ArrayList<>();
+        ArrayList<Character> operators = new ArrayList<>();
+        String texp = "";
+
+        for (int i = 0; i < exp.length(); i++) {
+            char c = exp.charAt(i);
+
+            if (Character.isWhitespace(c) || c == '\0') {
                 continue;
             }
-    		
-    		if(c == '['){
-    			numbraket ++;
-    		}
-    		if(c == ']'){
-    			numbraket --;
-    		}
-    		if(numbraket == 0 && (c == '|' || c == '&')){
-    			operator = true;
-    		}
-    		
-    		if(numbraket == 0 && operator){
+
+            if (c == '[') {
+                numbraket++;
+            }
+            if (c == ']') {
+                numbraket--;
+            }
+            if (numbraket == 0 && (c == '|' || c == '&')) {
+                operator = true;
+            }
+
+            if (numbraket == 0 && operator) {
 //    			System.out.println(texp);
 //    			System.out.println(texp.length());
-    			FilterExpression filter = constructCrossFilter(texp.substring(1,texp.length() - 1), recordReader);
-    			filters.add(filter);
-    			operators.add(c);
-    			
-    			numbraket = 0;
-    			operator = false;
-    			texp = "";
-    		}else{
-    			texp += c;
-    		}
-    	}
-    	if(!texp.equals("")){
-    		filters.add(constructCrossFilter(texp.substring(1,texp.length() - 1), recordReader));
-    	}
-    	
-    	if(operators.size() == 0){
-    		//Warning TODO
-    		return new CSAnd(filters.get(0),filters.get(0));
-    	}
-    	
-    	CrossSeriesFilterExpression csf;
-    	if(operators.get(0) == '|'){
-    		csf = new CSOr(filters.get(0),filters.get(1));
-    	}else{
-    		csf = new CSAnd(filters.get(0),filters.get(1));
-    	}
-    	
-    	for(int i = 2; i < filters.size() ; i++){
-    		if(operators.get(i-1) == '|'){
-    			csf = new CSOr(csf,filters.get(i));
-    		}else{
-    			csf = new CSAnd(csf,filters.get(i));
-    		}
-    	}
-    	return csf;
+                FilterExpression filter = constructCrossFilter(texp.substring(1, texp.length() - 1), recordReader);
+                filters.add(filter);
+                operators.add(c);
+
+                numbraket = 0;
+                operator = false;
+                texp = "";
+            } else {
+                texp += c;
+            }
+        }
+        if (!texp.equals("")) {
+            filters.add(constructCrossFilter(texp.substring(1, texp.length() - 1), recordReader));
+        }
+
+        if (operators.size() == 0) {
+            //Warning TODO
+            return new CSAnd(filters.get(0), filters.get(0));
+        }
+
+        CrossSeriesFilterExpression csf;
+        if (operators.get(0) == '|') {
+            csf = new CSOr(filters.get(0), filters.get(1));
+        } else {
+            csf = new CSAnd(filters.get(0), filters.get(1));
+        }
+
+        for (int i = 2; i < filters.size(); i++) {
+            if (operators.get(i - 1) == '|') {
+                csf = new CSOr(csf, filters.get(i));
+            } else {
+                csf = new CSAnd(csf, filters.get(i));
+            }
+        }
+        return csf;
     }
 }
 

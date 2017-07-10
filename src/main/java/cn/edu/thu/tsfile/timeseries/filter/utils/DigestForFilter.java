@@ -2,6 +2,8 @@ package cn.edu.thu.tsfile.timeseries.filter.utils;
 
 import java.nio.ByteBuffer;
 
+import cn.edu.thu.tsfile.common.exception.filter.UnSupportFilterDataTypeException;
+import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.common.utils.BytesUtils;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 
@@ -39,8 +41,10 @@ public class DigestForFilter {
                 return (T) ((Float) BytesUtils.bytesToFloat(min.array()));
             case DOUBLE:
                 return (T) ((Double) BytesUtils.bytesToDouble(min.array()));
+            case BYTE_ARRAY:
+                return (T) new Binary(BytesUtils.bytesToString(min.array()));
             default:
-                return null;
+                throw new UnSupportFilterDataTypeException("DigestForFilter unsupported datatype : " + type.toString());
         }
     }
 
@@ -55,13 +59,14 @@ public class DigestForFilter {
                 return (T) ((Float) BytesUtils.bytesToFloat(max.array()));
             case DOUBLE:
                 return (T) ((Double) BytesUtils.bytesToDouble(max.array()));
+            case BYTE_ARRAY:
+                return (T) new Binary(BytesUtils.bytesToString(max.array()));
             default:
-                return null;
+                throw new UnSupportFilterDataTypeException("DigestForFilter unsupported datatype : " + type.toString());
         }
     }
 
     public Class<?> getTypeClass() {
-
         switch (type) {
             case INT32:
                 return Integer.class;
@@ -71,8 +76,10 @@ public class DigestForFilter {
                 return Float.class;
             case DOUBLE:
                 return Double.class;
+            case BYTE_ARRAY:
+                return String.class;
             default:
-                return null;
+                throw new UnSupportFilterDataTypeException("DigestForFilter unsupported datatype : " + type.toString());
         }
     }
     
