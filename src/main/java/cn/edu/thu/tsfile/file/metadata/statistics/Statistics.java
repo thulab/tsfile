@@ -46,9 +46,10 @@ public abstract class Statistics<T> {
                 return new IntegerStatistics();
             case INT64:
                 return new LongStatistics();
+            case BYTE_ARRAY:
+                return new BinaryStatistics();
             case ENUMS:
             case BOOLEAN:
-            case BYTE_ARRAY:
                 return new NoStatistics();
             case DOUBLE:
                 return new DoubleStatistics();
