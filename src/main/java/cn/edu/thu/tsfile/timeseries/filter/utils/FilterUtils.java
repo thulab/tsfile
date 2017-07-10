@@ -67,6 +67,9 @@ public class FilterUtils {
                     if (col instanceof IntFilterSeries) {
                         int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
                         return FilterFactory.eq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);
+                    } else if (col instanceof BooleanFilterSeries) {
+                        boolean v = Boolean.valueOf(exp.substring(offset, exp.length()).trim());
+                        return FilterFactory.eq(FilterFactory.booleanFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);
                     } else if (col instanceof LongFilterSeries) {
                         long v = Long.valueOf(exp.substring(offset, exp.length()).trim());
                         return FilterFactory.eq(FilterFactory.longFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);

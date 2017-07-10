@@ -212,7 +212,7 @@ public class ReadTest {
 		assertEquals(cnt, 11);
 	}
 
-	@Test
+	// @Test
 	public void queryBooleanTest() throws IOException {
 		QueryDataSet queryDataSet = QueryEngine.query(booleanConfig, fileName);
 		int cnt = 1;

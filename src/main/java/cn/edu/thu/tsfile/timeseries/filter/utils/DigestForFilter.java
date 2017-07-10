@@ -43,6 +43,8 @@ public class DigestForFilter {
                 return (T) ((Double) BytesUtils.bytesToDouble(min.array()));
             case BYTE_ARRAY:
                 return (T) new Binary(BytesUtils.bytesToString(min.array()));
+            case BOOLEAN:
+                return (T) (Boolean) BytesUtils.bytesToBool(min.array());
             default:
                 throw new UnSupportFilterDataTypeException("DigestForFilter unsupported datatype : " + type.toString());
         }
@@ -61,6 +63,8 @@ public class DigestForFilter {
                 return (T) ((Double) BytesUtils.bytesToDouble(max.array()));
             case BYTE_ARRAY:
                 return (T) new Binary(BytesUtils.bytesToString(max.array()));
+            case BOOLEAN:
+                return (T) (Boolean) BytesUtils.bytesToBool(max.array());
             default:
                 throw new UnSupportFilterDataTypeException("DigestForFilter unsupported datatype : " + type.toString());
         }
