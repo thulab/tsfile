@@ -8,8 +8,8 @@ import cn.edu.thu.tsfile.common.utils.BytesUtils;
  * @author CGF
  */
 public class BinaryStatistics extends Statistics<Binary>{
-    private Binary max;
-    private Binary min;
+    private Binary max = new Binary("");
+    private Binary min = new Binary("");
 
     @Override
     public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
