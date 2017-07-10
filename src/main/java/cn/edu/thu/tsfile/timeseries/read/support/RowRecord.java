@@ -7,9 +7,11 @@ import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.BooleanDataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.FloatDataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.LongDataPoint;
+import cn.edu.thu.tsfile.timeseries.write.record.datapoint.StringDataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.DoubleDataPoint;
 import cn.edu.thu.tsfile.timeseries.write.record.datapoint.IntDataPoint;
 import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
+import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.write.record.DataPoint;
 
@@ -95,6 +97,8 @@ public class RowRecord {
                 return new IntDataPoint(measurementId, f.getIntV());
             case INT64:
                 return new LongDataPoint(measurementId, f.getLongV());
+            case BYTE_ARRAY:
+            		return new StringDataPoint(measurementId,Binary.valueOf(f.getStringValue()));
             default:
                 throw new UnSupportedDataTypeException(String.valueOf(dataType));
         }
