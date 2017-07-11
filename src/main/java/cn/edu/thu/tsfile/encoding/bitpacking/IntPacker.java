@@ -1,4 +1,4 @@
-package cn.edu.thu.tsfile.encoding.bitPacking;
+package cn.edu.thu.tsfile.encoding.bitpacking;
 
 /**
  * @author Zhang Jinrui

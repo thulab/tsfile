@@ -140,7 +140,7 @@ public class PlainEncoder extends Encoder {
         return 8;
       case BYTE_ARRAY:
         // refer to encode(Binary,ByteArrayOutputStream)
-        return 4 + TSFileConfig.byteSizePerChar * maxStringLength;
+        return 4 + TSFileConfig.BYTE_SIZE_PER_CHAR * maxStringLength;
       case ENUMS:
         return 4;
       case BIGDECIMAL:

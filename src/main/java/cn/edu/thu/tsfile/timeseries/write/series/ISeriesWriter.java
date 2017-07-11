@@ -2,6 +2,7 @@ package cn.edu.thu.tsfile.timeseries.write.series;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
 
 import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
@@ -27,6 +28,8 @@ public interface ISeriesWriter {
     void write(long time, BigDecimal value) throws IOException;
 
     void write(long time, Binary value) throws IOException;
+    
+    List<Object> query();
 
     void writeToFileWriter(TSFileIOWriter tsfileWriter) throws IOException;
 

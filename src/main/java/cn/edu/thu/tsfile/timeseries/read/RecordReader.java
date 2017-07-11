@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @description This class implements several read methods which can read data in different ways.<br>
  * This class provides some APIs for reading.
+ *
  * @author Jinrui Zhang
  *
  */
@@ -67,8 +69,7 @@ public class RecordReader {
 	}
 
 	/**
-	 * Read function 1#2: read one column without filter from one specific
-	 * RowGroupReader
+	 * Read function 1#2: read one column without filter from one specific RowGroupReader
 	 * 
 	 * @param rowGroupReader
 	 * @param measurementId
@@ -149,7 +150,7 @@ public class RecordReader {
 	}
 	
 	/**
-	 * Read funtion 2#1: read one column with filter
+	 * Read function 2#1: read one column with filter
 	 * 
 	 * @throws IOException
 	 */
@@ -191,11 +192,9 @@ public class RecordReader {
 	}
 	
 	/**
-	 * Read funtion 2#2: read one column with filter from specific
-	 * RowGroupReader
+	 * Read function 2#2: read one column with filter from specific RowGroupReader
 	 * 
-	 * @param rowGroupReader,
-	 *            specific RowGroupReader
+	 * @param rowGroupReader specific RowGroupReader
 	 * @param measurementId
 	 * @param timeFilter
 	 * @param freqFilter
@@ -213,7 +212,7 @@ public class RecordReader {
 	}
 
 	/**
-	 * Read funtion 2#3: read one column with filter from specific
+	 * Read function 2#3: read one column with filter from specific
 	 * RowGroupReader according to the index
 	 * 
 	 * @param deltaObjectUID
@@ -243,7 +242,7 @@ public class RecordReader {
 	}
 
 	/**
-	 * Read funtion 2#4: read one column with filter from specific
+	 * Read function 2#4: read one column with filter from specific
 	 * RowGroupReader(s) according to the indexList
 	 * 
 	 * @param deltaObjectUID
@@ -289,8 +288,7 @@ public class RecordReader {
 
 
 	/**
-	 * function 4#1: for cross getIndex. To get values in one column according
-	 * to a time list
+	 * function 4#1: for cross getIndex. To get values in one column according to common timestamps.
 	 * 
 	 * @param deltaObjectUID
 	 * @param measurementId
@@ -388,9 +386,9 @@ public class RecordReader {
 		ArrayList<SeriesSchema> res = new ArrayList<>();
 		List<RowGroupReader> rowGroupReaders = readerManager.getAllRowGroupReaders();
 		for (RowGroupReader rgr : rowGroupReaders) {
-			for (String measurement : rgr.seriesTypeMap.keySet()) {
+			for (String measurement : rgr.seriesDataTypeMap.keySet()) {
 				if (!seriesMap.containsKey(measurement)) {
-					res.add(new SeriesSchema(measurement, rgr.seriesTypeMap.get(measurement), null));
+					res.add(new SeriesSchema(measurement, rgr.seriesDataTypeMap.get(measurement), null));
 					seriesMap.put(measurement, 1);
 				}
 			}
@@ -425,9 +423,9 @@ public class RecordReader {
 			HashMap<String, Integer> measurementMap = new HashMap<>();
 			ArrayList<SeriesSchema> cols = new ArrayList<>();
 			for (RowGroupReader rgr : rowGroupReaders.get(deltaObjectUID)) {
-				for (String measurement : rgr.seriesTypeMap.keySet()) {
+				for (String measurement : rgr.seriesDataTypeMap.keySet()) {
 					if (!measurementMap.containsKey(measurement)) {
-						cols.add(new SeriesSchema(measurement, rgr.seriesTypeMap.get(measurement), null));
+						cols.add(new SeriesSchema(measurement, rgr.seriesDataTypeMap.get(measurement), null));
 						measurementMap.put(measurement, 1);
 					}
 				}
@@ -497,10 +495,11 @@ public class RecordReader {
 			return FilterFactory.doubleFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER);
 		} else if (type == TSDataType.BOOLEAN) {
 			return FilterFactory.booleanFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER);
-		} else if (type == TSDataType.ENUMS) {
+		} else if (type == TSDataType.ENUMS || type == TSDataType.BYTE_ARRAY) {
 			return FilterFactory.stringFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER);
+		} else {
+			throw new UnSupportedDataTypeException(String.valueOf(type));
 		}
-		return null;
 	}
 
 	private void checkSeries(String deltaObject, String measurement) throws IOException {

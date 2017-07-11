@@ -4,30 +4,31 @@ import java.io.IOException;
 import java.math.BigDecimal;
 
 import cn.edu.thu.tsfile.common.utils.Binary;
+import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
+import cn.edu.thu.tsfile.common.utils.PublicBAOS;
 import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
-import cn.edu.thu.tsfile.common.utils.bytesinput.BytesInput;
 import cn.edu.thu.tsfile.encoding.encoder.Encoder;
-import cn.edu.thu.tsfile.common.utils.bytesinput.ListBytesInput;
 
 /**
  * This function is used to write time-value into a time series. It consists of a time encoder, a
  * value encoder and respective OutputStream.
- * 
- * @author kangrong
  *
+ * @author kangrong
  */
 public class ValueWriter {
     // time
     private Encoder timeEncoder;
-    private BytesInput.PublicBAOS timeOut;
+    private PublicBAOS timeOut;
     // value
     private Encoder valueEncoder;
-    private BytesInput.PublicBAOS valueOut;
+    private PublicBAOS valueOut;
 
+    private PublicBAOS timeSizeOut;
 
     public ValueWriter() {
-        this.timeOut = new BytesInput.PublicBAOS();
-        this.valueOut = new BytesInput.PublicBAOS();
+        this.timeOut = new PublicBAOS();
+        this.valueOut = new PublicBAOS();
+        this.timeSizeOut = new PublicBAOS();
     }
 
     public void write(long time, boolean value) throws IOException {
@@ -83,18 +84,14 @@ public class ValueWriter {
     }
 
     /**
-     * getBytes return data what it has been written in form of BytesInput.
+     * getBytes return data what it has been written in form of <code>ListByteArrayOutputStream</code>.
      * 
-     * @return - byte array output stream packaged in BytesInput
+     * @return - list byte array output stream containing time size, time stream and value stream.
      */
-    public ListBytesInput getBytes() throws IOException {
-        ListBytesInput resBytesInput;
+    public ListByteArrayOutputStream getBytes() throws IOException {
         prepareEndWriteOnePage();
-        resBytesInput = new ListBytesInput(new BytesInput.PublicBAOS());
-        BytesInput.PublicBAOS timeMetadata = new BytesInput.PublicBAOS();
-        ReadWriteStreamUtils.writeUnsignedVarInt(timeOut.size(), timeMetadata);
-        resBytesInput.appendPublicBAOS(timeMetadata, timeOut, valueOut);
-        return resBytesInput;
+        ReadWriteStreamUtils.writeUnsignedVarInt(timeOut.size(), timeSizeOut);
+        return new ListByteArrayOutputStream(timeSizeOut, timeOut, valueOut);
     }
 
     /**
@@ -103,15 +100,16 @@ public class ValueWriter {
      * @return allocated size in time, value and outputStream
      */
     public long estimateMaxMemSize() {
-        return timeOut.size() + valueOut.size()+timeEncoder.getMaxByteSize()+valueEncoder.getMaxByteSize();
+        return timeOut.size() + valueOut.size() + timeEncoder.getMaxByteSize() + valueEncoder.getMaxByteSize();
     }
 
     /**
      * reset data in ByteArrayOutputStream
      */
     public void reset() {
-        timeOut = new BytesInput.PublicBAOS();
-        valueOut = new BytesInput.PublicBAOS();
+        timeOut.reset();
+        valueOut.reset();
+        timeSizeOut.reset();
     }
 
     public void setTimeEncoder(Encoder encoder) {

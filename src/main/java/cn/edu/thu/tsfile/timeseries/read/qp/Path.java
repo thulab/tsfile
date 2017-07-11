@@ -1,13 +1,13 @@
 package cn.edu.thu.tsfile.timeseries.read.qp;
 
+import cn.edu.thu.tsfile.common.constant.SystemConstant;
 import cn.edu.thu.tsfile.timeseries.utils.StringContainer;
 
 /**
  * This class define an Object named Path to represent a series in delta system.
  * And in batch read, this definition is also used in query processing.
- * 
- * @author Kangrong
  *
+ * @author Kangrong
  */
 public class Path {
     private String measurement = null;
@@ -15,21 +15,21 @@ public class Path {
     private StringContainer fullPath;
 
     public Path(StringContainer pathSc) {
-        String[] splits = pathSc.toString().split(SQLConstant.PATH_SEPARATER_NO_REGEX);
-        fullPath = new StringContainer(splits, SQLConstant.PATH_SEPARATOR);
+        String[] splits = pathSc.toString().split(SystemConstant.PATH_SEPARATER_NO_REGEX);
+        fullPath = new StringContainer(splits, SystemConstant.PATH_SEPARATOR);
     }
 
     public Path(String pathSc) {
-        String[] splits = pathSc.split(SQLConstant.PATH_SEPARATER_NO_REGEX);
-        fullPath = new StringContainer(splits, SQLConstant.PATH_SEPARATOR);
+        String[] splits = pathSc.split(SystemConstant.PATH_SEPARATER_NO_REGEX);
+        fullPath = new StringContainer(splits, SystemConstant.PATH_SEPARATOR);
 
     }
 
     public Path(String[] pathSc) {
         String[] splits =
-                new StringContainer(pathSc, SQLConstant.PATH_SEPARATOR).toString().split(
-                        SQLConstant.PATH_SEPARATER_NO_REGEX);
-        fullPath = new StringContainer(splits, SQLConstant.PATH_SEPARATOR);
+                new StringContainer(pathSc, SystemConstant.PATH_SEPARATOR).toString().split(
+                        SystemConstant.PATH_SEPARATER_NO_REGEX);
+        fullPath = new StringContainer(splits, SystemConstant.PATH_SEPARATOR);
 
     }
 
@@ -41,7 +41,7 @@ public class Path {
         if (deltaObject == null || measurement == null) {
             separateDeltaObjectMeasurement();
         }
-        return deltaObject.join(SQLConstant.PATH_SEPARATOR);
+        return deltaObject.join(SystemConstant.PATH_SEPARATOR);
     }
 
     public String getMeasurementToString() {
@@ -69,11 +69,12 @@ public class Path {
         ret.fullPath.addTail(suffix.fullPath);
         return ret;
     }
+
     @Override
-    public int hashCode(){
-    	return fullPath.toString().hashCode();
+    public int hashCode() {
+        return fullPath.toString().hashCode();
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null)
@@ -95,7 +96,7 @@ public class Path {
     }
 
     public void addHeadPath(String deltaObject) {
-        String[] splits = deltaObject.split(SQLConstant.PATH_SEPARATER_NO_REGEX);
+        String[] splits = deltaObject.split(SystemConstant.PATH_SEPARATER_NO_REGEX);
         fullPath.addHead(splits);
         deltaObject = null;
     }
@@ -114,7 +115,7 @@ public class Path {
 
     /**
      * if prefix is null, return false
-     * 
+     *
      * @param prefix
      * @return
      */
@@ -133,7 +134,7 @@ public class Path {
     public void replace(String srcPrefix, Path descPrefix) {
         if (!startWith(srcPrefix))
             return;
-        int prefixSize = srcPrefix.split(SQLConstant.PATH_SEPARATER_NO_REGEX).length;
+        int prefixSize = srcPrefix.split(SystemConstant.PATH_SEPARATER_NO_REGEX).length;
         StringContainer newPath = fullPath.getSubStringContainer(prefixSize, -1);
         newPath.addHead(descPrefix.fullPath);
         this.fullPath = newPath;

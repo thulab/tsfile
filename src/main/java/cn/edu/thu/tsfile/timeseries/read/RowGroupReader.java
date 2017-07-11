@@ -23,11 +23,10 @@ import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
 public class RowGroupReader {
 
 	protected static final Logger logger = LoggerFactory.getLogger(RowGroupReader.class);
-	public HashMap<String, TSDataType> seriesTypeMap;
+	public HashMap<String, TSDataType> seriesDataTypeMap;
 	protected HashMap<String, ValueReader> valueReaders = new HashMap<>();
 	protected String deltaObjectUID;
 
-	int lastRetIndex = -1;
 	protected ArrayList<String> sids;
 	protected String deltaObjectType;
 	protected long totalByteSize;
@@ -36,9 +35,9 @@ public class RowGroupReader {
 	
 	public RowGroupReader(RowGroupMetaData rowGroupMetaData, TSRandomAccessFileReader raf) {
 		logger.debug("init a new RowGroupReader..");
-		seriesTypeMap = new HashMap<>();
+		seriesDataTypeMap = new HashMap<>();
 		deltaObjectUID = rowGroupMetaData.getDeltaObjectUID();
-		sids = new ArrayList<String>();
+		sids = new ArrayList<>();
 		deltaObjectType = rowGroupMetaData.getDeltaObjectType();
 		this.totalByteSize = rowGroupMetaData.getTotalByteSize();
 		this.raf = raf;
@@ -46,7 +45,7 @@ public class RowGroupReader {
 		for (TimeSeriesChunkMetaData tscMetaData : rowGroupMetaData.getTimeSeriesChunkMetaDataList()) {
 			if (tscMetaData.getVInTimeSeriesChunkMetaData() != null) {
 				sids.add(tscMetaData.getProperties().getMeasurementUID());
-				seriesTypeMap.put(tscMetaData.getProperties().getMeasurementUID(),
+				seriesDataTypeMap.put(tscMetaData.getProperties().getMeasurementUID(),
 						tscMetaData.getVInTimeSeriesChunkMetaData().getDataType());
 				
 				ValueReader si = new ValueReader(tscMetaData.getProperties().getFileOffset(),
@@ -73,7 +72,7 @@ public class RowGroupReader {
 	}
 
 	public TSDataType getDataTypeBySeriesName(String name) {
-		return this.seriesTypeMap.get(name);
+		return this.seriesDataTypeMap.get(name);
 	}
 
 	public String getDeltaObjectUID() {
@@ -89,8 +88,7 @@ public class RowGroupReader {
 	 * @throws IOException
 	 */
     public DynamicOneColumnData readValueUseTimeValue(String measurementId, long[] timeRet) throws IOException{
-    	DynamicOneColumnData v = valueReaders.get(measurementId).getValuesForGivenValues(timeRet);
-    	return v;
+    	return valueReaders.get(measurementId).getValuesForGivenValues(timeRet);
     }
 
     public DynamicOneColumnData readOneColumnUseFilter(String sid, DynamicOneColumnData res, int fetchSize 

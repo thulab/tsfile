@@ -1,6 +1,5 @@
 package cn.edu.thu.tsfile.timeseries.write.schema.converter;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +18,8 @@ import cn.edu.thu.tsfile.encoding.encoder.LongRleEncoder;
 import cn.edu.thu.tsfile.encoding.encoder.PlainEncoder;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
+
+import java.util.Map;
 
 /**
  * Each subclass of TSEncodingConverter responds a enumerate value in
@@ -41,14 +42,14 @@ public abstract class TSEncodingConverter {
         }
 
         @Override
-        public void initFromJsonObject(String measurementId, JSONObject seriesObject) {
+        public void initFromProps(String measurementId, Map<String, String> props) {
             // set max error from initialized map or default value if not set
-            if (!seriesObject.has(JsonFormatConstant.MAX_STRING_LENGTH)) {
-                maxStringLength = conf.defaultMaxStringLength;
+            if (props == null || !props.containsKey(JsonFormatConstant.MAX_STRING_LENGTH)) {
+                maxStringLength = conf.maxStringLength;
             } else {
-                maxStringLength = seriesObject.getInt(JsonFormatConstant.MAX_STRING_LENGTH);
+                maxStringLength = Integer.valueOf(props.get(JsonFormatConstant.MAX_STRING_LENGTH));
                 if (maxStringLength < 0) {
-                    maxStringLength = conf.defaultMaxStringLength;
+                    maxStringLength = conf.maxStringLength;
                     LOG.warn(
                             "cannot set max string length to negative value, replaced with default value:{}",
                             maxStringLength);
@@ -82,14 +83,14 @@ public abstract class TSEncodingConverter {
          * decimal digits for float or double data.
          */
         @Override
-        public void initFromJsonObject(String measurementId, JSONObject seriesObject) {
+        public void initFromProps(String measurementId, Map<String, String> props) {
             // set max error from initialized map or default value if not set
-            if (!seriesObject.has(JsonFormatConstant.MAX_POINT_NUMBER)) {
-                maxPointNumber = conf.defaultMaxPointNumber;
+            if (props == null || !props.containsKey(JsonFormatConstant.MAX_POINT_NUMBER)) {
+                maxPointNumber = conf.floatPrecision;
             } else {
-                maxPointNumber = seriesObject.getInt(JsonFormatConstant.MAX_POINT_NUMBER);
+                maxPointNumber = Integer.valueOf(props.get(JsonFormatConstant.MAX_POINT_NUMBER));
                 if (maxPointNumber < 0) {
-                    maxPointNumber = conf.defaultMaxPointNumber;
+                    maxPointNumber = conf.floatPrecision;
                     LOG.warn(
                             "cannot set max point number to negative value, replaced with default value:{}",
                             maxPointNumber);
@@ -116,7 +117,7 @@ public abstract class TSEncodingConverter {
 
         @Override
         public String toString() {
-            return "maxPointNumber:" + maxPointNumber;
+            return JsonFormatConstant.MAX_POINT_NUMBER + ":" + maxPointNumber;
         }
     }
 
@@ -144,15 +145,15 @@ public abstract class TSEncodingConverter {
          * TS_2DIFF could specify <b>max_point_number</b> in given JSON Object, which means the maximum
          * decimal digits for float or double data.
          */
-        public void initFromJsonObject(String measurementId, JSONObject seriesObject) {
+        public void initFromProps(String measurementId, Map<String, String> props) {
             // set max error from initialized map or default value if not set
             TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
-            if (!seriesObject.has(JsonFormatConstant.MAX_POINT_NUMBER)) {
-                maxPointNumber = conf.defaultMaxPointNumber;
+            if (props == null || !props.containsKey(JsonFormatConstant.MAX_POINT_NUMBER)) {
+                maxPointNumber = conf.floatPrecision;
             } else {
-                maxPointNumber = seriesObject.getInt(JsonFormatConstant.MAX_POINT_NUMBER);
+                maxPointNumber = Integer.valueOf(props.get(JsonFormatConstant.MAX_POINT_NUMBER));
                 if (maxPointNumber < 0) {
-                    maxPointNumber = conf.defaultMaxPointNumber;
+                    maxPointNumber = conf.floatPrecision;
                     LOG.warn(
                             "cannot set max point number to negative value, replaced with default value:{}",
                             maxPointNumber);
@@ -179,7 +180,7 @@ public abstract class TSEncodingConverter {
 
         @Override
         public String toString() {
-            return "maxPointNumber:" + maxPointNumber;
+            return JsonFormatConstant.MAX_POINT_NUMBER + ":" + maxPointNumber;
         }
 
     }
@@ -240,9 +241,9 @@ public abstract class TSEncodingConverter {
      * if this type has extra parameters to construct, override it.
      * 
      * @param measurementId - measurement id to be added.
-     * @param seriesObject - JSON object in FileSchema's file
+     * @param props - properties of encoding
      */
-    public void initFromJsonObject(String measurementId, JSONObject seriesObject) {}
+    public void initFromProps(String measurementId, Map<String, String> props) {}
 
     /**
      * For a TSEncodingConverter, check the input parameter. If it's valid, return this parameter in

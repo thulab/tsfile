@@ -1,6 +1,6 @@
 package cn.edu.thu.tsfile.timeseries;
 
-import cn.edu.thu.tsfile.timeseries.FileFormat.TsFile;
+import cn.edu.thu.tsfile.timeseries.basis.TsFile;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeriesType;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 public class TsFileReadTest {
 
     public static void main(String args[]) throws IOException, WriteProcessException {
-        String path = "tsfile-impl-parent/tsfile-timeseries/src/test/resources/test.ts";
+        String path = "src/test/resources/test.ts";
 
         // read example : no filter
         LocalFileInput input = new LocalFileInput(path);
