@@ -82,6 +82,8 @@ public class DigestForFilter {
                 return Double.class;
             case BYTE_ARRAY:
                 return String.class;
+            case BOOLEAN:
+                return Boolean.class;
             default:
                 throw new UnSupportFilterDataTypeException("DigestForFilter unsupported datatype : " + type.toString());
         }
