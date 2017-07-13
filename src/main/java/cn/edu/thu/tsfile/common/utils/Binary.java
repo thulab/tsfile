@@ -26,7 +26,6 @@ public class Binary implements Comparable<Binary>, Serializable {
 
 	public Binary(String s) {
 		this.values = (s == null) ? null : s.getBytes(Charset.forName(this.textEncodingType));
-		;
 	}
 
 	@Override

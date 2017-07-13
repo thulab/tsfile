@@ -77,14 +77,16 @@ public class TSFileDescriptor {
 		} catch (IOException e) {
 		    LOGGER.warn("Cannot load config file, use default configuration", e);
 		} catch (Exception e) {
-		    LOGGER.warn("Error format in config file, use default configuration", e);
-		}
-		if(inputStream != null){
-		    try {
-			inputStream.close();
-		    } catch (IOException e) {
-			LOGGER.error("Fail to close config file input stream", e);
-		    }
+			LOGGER.error("Loading settings {} failed.", url, e);
+			//System.exit(1);
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+					inputStream = null;
+				} catch (IOException e) {
+				}
+			}
 		}
 	}
 }
