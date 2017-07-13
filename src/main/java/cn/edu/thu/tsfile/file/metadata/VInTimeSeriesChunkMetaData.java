@@ -11,10 +11,8 @@ import cn.edu.thu.tsfile.format.DataType;
 import cn.edu.thu.tsfile.format.ValueInTimeSeriesChunkMetaData;
 
 /**
- * @Description For more information, see
- *              ValueInTimeSeriesChunkMetaData in tsfile-format
- * @author XuYi xuyi556677@163.com
- * @date Apr 29, 2016 10:22:07 PM
+ * For more information, see ValueInTimeSeriesChunkMetaData 
+ * in cn.edu.thu.tsfile.format package
  */
 public class VInTimeSeriesChunkMetaData implements IConverter<ValueInTimeSeriesChunkMetaData> {
   private static final Logger LOGGER = LoggerFactory.getLogger(VInTimeSeriesChunkMetaData.class);
@@ -36,11 +34,6 @@ public class VInTimeSeriesChunkMetaData implements IConverter<ValueInTimeSeriesC
     this.dataType = dataType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.corp.delta.tsfile.file.metadata.converter.IConverter#convertToThrift()
-   */
   @Override
   public ValueInTimeSeriesChunkMetaData convertToThrift() {
     try {
@@ -59,11 +52,6 @@ public class VInTimeSeriesChunkMetaData implements IConverter<ValueInTimeSeriesC
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.corp.delta.tsfile.file.metadata.converter.IConverter#convertToTSF(java.lang.Object)
-   */
   @Override
   public void convertToTSF(ValueInTimeSeriesChunkMetaData vTimeSeriesChunkMetaDataInThrift) {
     try {

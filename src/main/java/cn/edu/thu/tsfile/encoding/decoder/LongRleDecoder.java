@@ -11,11 +11,8 @@ import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
 import cn.edu.thu.tsfile.encoding.bitpacking.LongPacker;
 import cn.edu.thu.tsfile.encoding.common.EndianType;
 
-
 /**
- * @Description Decoder for long value using rle or bit-packing
- * @author XuYi xuyi556677@163.com
- * @date Mar 25, 2016
+ * Decoder for long value using rle or bit-packing
  */
 public class LongRleDecoder extends RleDecoder{
 	private static final Logger LOGGER = LoggerFactory.getLogger(LongRleDecoder.class);

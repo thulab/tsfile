@@ -6,10 +6,7 @@ import cn.edu.thu.tsfile.file.metadata.converter.IConverter;
 import cn.edu.thu.tsfile.format.Digest;
 
 /**
- * @Description For more information, see Digest in tsfile-format
- *              project
- * @author XuYi xuyi556677@163.com
- * @date Apr 29, 2016 9:54:41 PM
+ * @Description For more information, see Digest in cn.edu.thu.tsfile.format package
  */
 public class TSDigest implements IConverter<Digest> {
   /**
@@ -31,11 +28,6 @@ public class TSDigest implements IConverter<Digest> {
     return String.format("max:%s, min:%s", max, min);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.corp.delta.tsfile.file.metadata.converter.IConverter#convertToTSF(java.lang.Object)
-   */
   @Override
   public Digest convertToThrift() {
     Digest digest = new Digest();
@@ -44,11 +36,6 @@ public class TSDigest implements IConverter<Digest> {
     return digest;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.corp.delta.tsfile.file.metadata.converter.IConverter#convertToTSF(java.lang.Object)
-   */
   @Override
   public void convertToTSF(Digest digestInThrift) {
     if(digestInThrift != null){

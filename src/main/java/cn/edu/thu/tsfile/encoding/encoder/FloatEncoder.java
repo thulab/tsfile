@@ -13,20 +13,16 @@ import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
 
 /**
- * @Description Encoder for float or double value using rle or two diff
- *              according to following grammar:
+ * Encoder for float or double value using rle or two diff
+ * according to following grammar:
  *
- *              <pre>
+ * <pre>
  * {@code
  * float encoder: <maxPointvalue> <encoded-data>
  * maxPointvalue := number for accuracy of decimal places, store as unsigned var int
  * encoded-data := same as encoder's pattern
  * }
- *              </pre>
- * 
- * @author XuYi xuyi556677@163.com
- * @date May 11, 2016 11:45:03 PM
- *
+ * </pre>
  */
 public class FloatEncoder extends Encoder {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FloatEncoder.class);
