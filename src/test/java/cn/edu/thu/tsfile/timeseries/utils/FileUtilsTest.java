@@ -38,12 +38,12 @@ public class FileUtilsTest {
         assertEquals(3l * 1024 * 1024 * 1024, (long) FileUtils.transformUnitToByte(3, Unit.GB));
     }
 
-    @Deprecated
-    public void testGetLocalFileByte() {
-        String fileName = "src/test/resources/test_schema.json";
-        assertEquals(843.0, FileUtils.getLocalFileByte(fileName, Unit.B),
-                TimeseriesTestConstant.double_min_delta);
-        assertEquals(0.82, FileUtils.getLocalFileByte(fileName, Unit.KB),
-                TimeseriesTestConstant.double_min_delta);
-    }
+//    @Deprecated
+//    public void testGetLocalFileByte() {
+//        String fileName = "src/test/resources/test_schema.json";
+//        assertEquals(843.0, FileUtils.getLocalFileByte(fileName, Unit.B),
+//                TimeseriesTestConstant.double_min_delta);
+//        assertEquals(0.82, FileUtils.getLocalFileByte(fileName, Unit.KB),
+//                TimeseriesTestConstant.double_min_delta);
+//    }
 }
