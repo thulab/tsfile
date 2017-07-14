@@ -25,7 +25,7 @@ public class TsFileReadTest {
         paths.add(new Path("device_1.sensor_2"));
         paths.add(new Path("device_1.sensor_3"));
         QueryDataSet queryDataSet = readTsFile.query(paths, null, null);
-        while(queryDataSet.hasNextRecord()){
+        while (queryDataSet.hasNextRecord()) {
             System.out.println(queryDataSet.getNextRecord());
         }
         System.out.println("------------");
@@ -40,13 +40,13 @@ public class TsFileReadTest {
         paths.add(new Path("device_1.sensor_2"));
         paths.add(new Path("device_1.sensor_3"));
         queryDataSet = readTsFile.query(paths, timeFilter, null);
-        while(queryDataSet.hasNextRecord()){
+        while (queryDataSet.hasNextRecord()) {
             System.out.println(queryDataSet.getNextRecord());
         }
         System.out.println("------------");
 
         // value filter : device_1.sensor_2 < 20
-        FilterExpression valueFilter = FilterFactory.ltEq(FilterFactory.intFilterSeries("device_1","sensor_2", FilterSeriesType.VALUE_FILTER), 20, false);
+        FilterExpression valueFilter = FilterFactory.ltEq(FilterFactory.intFilterSeries("device_1", "sensor_2", FilterSeriesType.VALUE_FILTER), 20, false);
         input = new LocalFileInput(path);
         readTsFile = new TsFile(input);
         paths = new ArrayList<>();
@@ -54,14 +54,14 @@ public class TsFileReadTest {
         paths.add(new Path("device_1.sensor_2"));
         paths.add(new Path("device_1.sensor_3"));
         queryDataSet = readTsFile.query(paths, null, valueFilter);
-        while(queryDataSet.hasNextRecord()){
+        while (queryDataSet.hasNextRecord()) {
             System.out.println(queryDataSet.getNextRecord());
         }
         System.out.println("------------");
 
         // time filter : 4 <= time < 10, value filter : device_1.sensor_2 > 20
         timeFilter = FilterFactory.and(FilterFactory.gtEq(FilterFactory.timeFilterSeries(), 4L, true), FilterFactory.ltEq(FilterFactory.timeFilterSeries(), 10L, false));
-        valueFilter = FilterFactory.gtEq(FilterFactory.intFilterSeries("device_1","sensor_3", FilterSeriesType.VALUE_FILTER), 21, true);
+        valueFilter = FilterFactory.gtEq(FilterFactory.intFilterSeries("device_1", "sensor_3", FilterSeriesType.VALUE_FILTER), 21, true);
         input = new LocalFileInput(path);
         readTsFile = new TsFile(input);
         paths = new ArrayList<>();
@@ -69,7 +69,7 @@ public class TsFileReadTest {
         paths.add(new Path("device_1.sensor_2"));
         paths.add(new Path("device_1.sensor_3"));
         queryDataSet = readTsFile.query(paths, timeFilter, valueFilter);
-        while(queryDataSet.hasNextRecord()){
+        while (queryDataSet.hasNextRecord()) {
             System.out.println(queryDataSet.getNextRecord());
         }
     }

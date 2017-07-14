@@ -31,7 +31,7 @@ public class DynamicOneColumnData {
 
     public int arrayIdx;
     public int valueIdx;
-    public int length;
+    public int length; // value length
     public int curIdx;
 
     //Some variables that record overflow information

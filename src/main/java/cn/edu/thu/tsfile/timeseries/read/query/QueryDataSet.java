@@ -8,9 +8,12 @@ import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.timeseries.read.qp.Path;
 import cn.edu.thu.tsfile.timeseries.read.support.Field;
 import cn.edu.thu.tsfile.timeseries.read.support.RowRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class QueryDataSet {
+    private static final Logger LOG = LoggerFactory.getLogger(QueryDataSet.class);
     private static final char PATH_SPLITTER = '.';
 
     //Time Generator for Cross Query when using batching read
@@ -23,6 +26,7 @@ public class QueryDataSet {
     protected String[] deltaObjectIds;
     protected String[] measurementIds;
     protected int[] idxs;
+    // timestamp occurs time
     protected HashMap<Long, Integer> timeMap;
     protected int size;
     protected boolean ifInit = false;
@@ -37,12 +41,17 @@ public class QueryDataSet {
     public void initForRecord() {
         size = mapRet.keySet().size();
 
-        heap = new PriorityQueue<>(size);
-        cols = new DynamicOneColumnData[size];
-        deltaObjectIds = new String[size];
-        measurementIds = new String[size];
-        idxs = new int[size];
-        timeMap = new HashMap<>();
+        if (size > 0) {
+            heap = new PriorityQueue<>(size);
+            cols = new DynamicOneColumnData[size];
+            deltaObjectIds = new String[size];
+            measurementIds = new String[size];
+            idxs = new int[size];
+            timeMap = new HashMap<>();
+        } else {
+            LOG.error("QueryDataSet init row record occurs error! the size of ret is 0.");
+            heap = new PriorityQueue<>();
+        }
 
         int i = 0;
         for (String key : mapRet.keySet()) {
@@ -166,6 +175,11 @@ public class QueryDataSet {
         }
     }
 
+    /**
+     * Only used for TsFileDB MergeQuerySetIterator.
+     *
+     * @param record
+     */
     public void putARowRecord(RowRecord record) {
         for (Field f : record.fields) {
             StringBuilder sb = new StringBuilder();
@@ -173,6 +187,13 @@ public class QueryDataSet {
             sb.append(".");
             sb.append(f.measurementId);
             String key = sb.toString();
+
+            // TODO
+            // remove this, the null value of result will be 0
+//            if (f.isNull()) {
+//                return;
+//            }
+
             if (!mapRet.containsKey(key)) {
                 DynamicOneColumnData oneCol = new DynamicOneColumnData(f.dataType, true);
                 oneCol.setDeltaObjectType(record.deltaObjectType);
@@ -180,25 +201,39 @@ public class QueryDataSet {
             }
             switch (f.dataType) {
                 case BOOLEAN:
-                    mapRet.get(key).putBoolean(f.getBoolV());
+                    if (!f.isNull()) {
+                        mapRet.get(key).putBoolean(f.getBoolV());
+                    }
                     break;
                 case INT32:
-                    mapRet.get(key).putInt(f.getIntV());
+                    if (!f.isNull()) {
+                        mapRet.get(key).putInt(f.getIntV());
+                    }
                     break;
                 case INT64:
-                    mapRet.get(key).putLong(f.getLongV());
+                    if (!f.isNull()) {
+                        mapRet.get(key).putLong(f.getLongV());
+                    }
                     break;
                 case FLOAT:
-                    mapRet.get(key).putFloat(f.getFloatV());
+                    if (!f.isNull()) {
+                        mapRet.get(key).putFloat(f.getFloatV());
+                    }
                     break;
                 case DOUBLE:
-                    mapRet.get(key).putDouble(f.getFloatV());
+                    if (!f.isNull()) {
+                        mapRet.get(key).putDouble(f.getFloatV());
+                    }
                     break;
                 case BYTE_ARRAY:
-                    mapRet.get(key).putBinary(f.getBinaryV());
+                    if (!f.isNull()) {
+                        mapRet.get(key).putBinary(f.getBinaryV());
+                    }
                     break;
                 case ENUMS:
-                    mapRet.get(key).putBinary(f.getBinaryV());
+                    if (!f.isNull()) {
+                        mapRet.get(key).putBinary(f.getBinaryV());
+                    }
                     break;
                 default:
                     throw new UnSupportedDataTypeException("UnSupported" + String.valueOf(f.dataType));
@@ -228,12 +263,3 @@ public class QueryDataSet {
         this.batchReaderRetGenerator = batchReaderRetGenerator;
     }
 }
-
-
-
-
-
-
-
-
-
