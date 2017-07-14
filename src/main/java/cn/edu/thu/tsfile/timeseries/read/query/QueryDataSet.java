@@ -188,12 +188,6 @@ public class QueryDataSet {
             sb.append(f.measurementId);
             String key = sb.toString();
 
-            // TODO
-            // remove this, the null value of result will be 0
-//            if (f.isNull()) {
-//                return;
-//            }
-
             if (!mapRet.containsKey(key)) {
                 DynamicOneColumnData oneCol = new DynamicOneColumnData(f.dataType, true);
                 oneCol.setDeltaObjectType(record.deltaObjectType);
