@@ -175,67 +175,6 @@ public class QueryDataSet {
         }
     }
 
-    /**
-     * Only used for TsFileDB MergeQuerySetIterator.
-     *
-     * @param record
-     */
-    public void putARowRecord(RowRecord record) {
-        for (Field f : record.fields) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(f.deltaObjectId);
-            sb.append(".");
-            sb.append(f.measurementId);
-            String key = sb.toString();
-
-            if (!mapRet.containsKey(key)) {
-                DynamicOneColumnData oneCol = new DynamicOneColumnData(f.dataType, true);
-                oneCol.setDeltaObjectType(record.deltaObjectType);
-                mapRet.put(key, oneCol);
-            }
-            switch (f.dataType) {
-                case BOOLEAN:
-                    if (!f.isNull()) {
-                        mapRet.get(key).putBoolean(f.getBoolV());
-                    }
-                    break;
-                case INT32:
-                    if (!f.isNull()) {
-                        mapRet.get(key).putInt(f.getIntV());
-                    }
-                    break;
-                case INT64:
-                    if (!f.isNull()) {
-                        mapRet.get(key).putLong(f.getLongV());
-                    }
-                    break;
-                case FLOAT:
-                    if (!f.isNull()) {
-                        mapRet.get(key).putFloat(f.getFloatV());
-                    }
-                    break;
-                case DOUBLE:
-                    if (!f.isNull()) {
-                        mapRet.get(key).putDouble(f.getFloatV());
-                    }
-                    break;
-                case BYTE_ARRAY:
-                    if (!f.isNull()) {
-                        mapRet.get(key).putBinary(f.getBinaryV());
-                    }
-                    break;
-                case ENUMS:
-                    if (!f.isNull()) {
-                        mapRet.get(key).putBinary(f.getBinaryV());
-                    }
-                    break;
-                default:
-                    throw new UnSupportedDataTypeException("UnSupported" + String.valueOf(f.dataType));
-            }
-            mapRet.get(key).putTime(record.timestamp);
-        }
-    }
-
     public void putRecordFromBatchReadRetGenerator() {
         for (Path p : getBatchReaderRetGenerator().retMap.keySet()) {
             DynamicOneColumnData oneColRet = getBatchReaderRetGenerator().retMap.get(p);
