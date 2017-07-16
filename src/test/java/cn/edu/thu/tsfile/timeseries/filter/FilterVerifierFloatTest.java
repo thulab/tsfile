@@ -9,7 +9,9 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeriesT
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.And;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.LtEq;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
+import cn.edu.thu.tsfile.timeseries.filter.utils.DoubleInterval;
 import cn.edu.thu.tsfile.timeseries.filter.utils.FloatInterval;
+import cn.edu.thu.tsfile.timeseries.filter.verifier.DoubleFilterVerifier;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.SingleValueVisitor;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -208,7 +210,83 @@ public class FilterVerifierFloatTest {
         FloatInterval ans9 = (FloatInterval) new FloatFilterVerifier().getInterval(or9);  
         assertEquals(ans9.v[0], 800.0f, float_min_delta);
         assertEquals(ans9.v[1], 3000.0f, float_min_delta);
-        
+    }
+
+    @Test
+    public void andOrBorderTest() {
+        double theta = 0.0001;
+
+        // And Operator
+        GtEq<Float> gtEq1 = FilterFactory.gtEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2.0f, false);
+        LtEq<Float> ltEq1 = FilterFactory.ltEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2.0f, false);
+        And and1 = (And) FilterFactory.and(gtEq1, ltEq1);
+        FloatInterval ans = (FloatInterval) new FloatFilterVerifier().getInterval(and1);
+        assertEquals(ans.count, 0);
+        and1 = (And) FilterFactory.and(ltEq1, gtEq1);
+        ans = (FloatInterval) new FloatFilterVerifier().getInterval(and1);
+        assertEquals(ans.count, 0);
+
+        gtEq1 = FilterFactory.gtEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2.0f, true);
+        ltEq1 = FilterFactory.ltEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2.0f, false);
+        and1 = (And) FilterFactory.and(gtEq1, ltEq1);
+        ans = (FloatInterval) new FloatFilterVerifier().getInterval(and1);
+        assertEquals(ans.count, 0);
+        and1 = (And) FilterFactory.and(ltEq1, gtEq1);
+        ans = (FloatInterval) new FloatFilterVerifier().getInterval(and1);
+        assertEquals(ans.count, 0);
+
+        gtEq1 = FilterFactory.gtEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2.0f, false);
+        ltEq1 = FilterFactory.ltEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2.0f, true);
+        and1 = (And) FilterFactory.and(gtEq1, ltEq1);
+        ans = (FloatInterval) new FloatFilterVerifier().getInterval(and1);
+        assertEquals(ans.count, 0);
+        and1 = (And) FilterFactory.and(ltEq1, gtEq1);
+        ans = (FloatInterval) new FloatFilterVerifier().getInterval(and1);
+        assertEquals(ans.count, 0);
+
+        // Or Operator
+        gtEq1 = FilterFactory.gtEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2.0f, false);
+        ltEq1 = FilterFactory.ltEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2.0f, false);
+        Or or1 = (Or) FilterFactory.or(gtEq1, ltEq1);
+        ans = (FloatInterval) new FloatFilterVerifier().getInterval(or1);
+        assertEquals(ans.count, 4);
+        assertEquals(ans.v[0], Float.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[1], 2L, theta); assertEquals(ans.flag[1], false);
+        assertEquals(ans.v[2], 2L, theta); assertEquals(ans.flag[2], false);
+        assertEquals(ans.v[3], Float.MAX_VALUE, theta); assertEquals(ans.flag[3], true);
+        or1 = (Or) FilterFactory.or(ltEq1, gtEq1);
+        ans = (FloatInterval) new FloatFilterVerifier().getInterval(or1);
+        assertEquals(ans.count, 4);
+        assertEquals(ans.v[0], Float.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[1], 2L, theta); assertEquals(ans.flag[1], false);
+        assertEquals(ans.v[2], 2L, theta); assertEquals(ans.flag[2], false);
+        assertEquals(ans.v[3], Float.MAX_VALUE, theta); assertEquals(ans.flag[3], true);
+
+        gtEq1 = FilterFactory.gtEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2.0f, true);
+        ltEq1 = FilterFactory.ltEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2.0f, false);
+        or1 = (Or) FilterFactory.or(gtEq1, ltEq1);
+        ans = (FloatInterval) new FloatFilterVerifier().getInterval(or1);
+        assertEquals(ans.count, 2);
+        assertEquals(ans.v[0], Float.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[1], Float.MAX_VALUE, theta); assertEquals(ans.flag[1], true);
+        or1 = (Or) FilterFactory.or(ltEq1, gtEq1);
+        ans = (FloatInterval) new FloatFilterVerifier().getInterval(or1);
+        assertEquals(ans.count, 2);
+        assertEquals(ans.v[0], Float.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[1], Float.MAX_VALUE, theta); assertEquals(ans.flag[1], true);
+
+        gtEq1 = FilterFactory.gtEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2.0f, false);
+        ltEq1 = FilterFactory.ltEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2.0f, true);
+        or1 = (Or) FilterFactory.or(gtEq1, ltEq1);
+        ans = (FloatInterval) new FloatFilterVerifier().getInterval(or1);
+        assertEquals(ans.count, 2);
+        assertEquals(ans.v[0], Float.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[1], Float.MAX_VALUE, theta); assertEquals(ans.flag[1], true);
+        or1 = (Or) FilterFactory.or(ltEq1, gtEq1);
+        ans = (FloatInterval) new FloatFilterVerifier().getInterval(or1);
+        assertEquals(ans.count, 2);
+        assertEquals(ans.v[0], Float.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[1], Float.MAX_VALUE, theta); assertEquals(ans.flag[1], true);
     }
     
 }
