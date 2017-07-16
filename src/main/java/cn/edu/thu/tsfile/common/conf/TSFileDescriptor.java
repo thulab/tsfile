@@ -52,7 +52,7 @@ public class TSFileDescriptor {
 			    return;
 			}
 		} else {
-			url = url + File.pathSeparator+"conf"+ File.pathSeparator + TSFileConfig.CONFIG_NAME;
+			url = url + File.separator+"conf"+ File.separator + TSFileConfig.CONFIG_NAME;
 			try {
 				File file = new File(url);
 				inputStream = new FileInputStream(file);
