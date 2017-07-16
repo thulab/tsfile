@@ -98,7 +98,7 @@ public class RowRecord {
             case INT64:
                 return new LongDataPoint(measurementId, f.getLongV());
             case BYTE_ARRAY:
-            		return new StringDataPoint(measurementId,Binary.valueOf(f.getStringValue()));
+                return new StringDataPoint(measurementId,Binary.valueOf(f.getStringValue()));
             default:
                 throw new UnSupportedDataTypeException(String.valueOf(dataType));
         }
