@@ -11,9 +11,7 @@ import cn.edu.thu.tsfile.format.FileMetaData;
 import cn.edu.thu.tsfile.format.TimeSeries;
 
 /**
- * @Description TSFileMetaData collects all metadata info and saves in its data structure
- * @author XuYi xuyi556677@163.com
- * @date Apr 29, 2016 10:26:39 PM
+ * TSFileMetaData collects all metadata info and saves in its data structure
  */
 public class TSFileMetaData implements IConverter<FileMetaData> {
   private static final Logger LOGGER = LoggerFactory.getLogger(TSFileMetaData.class);
@@ -30,7 +28,7 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
   private List<TimeSeriesMetadata> timeSeriesList;
 
   /**
-   * Version of this file *
+   * Version of this file 
    */
   private int currentVersion;
 
@@ -46,7 +44,7 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
   private String createdBy;
 
   /**
-   * User specified props *
+   * User specified props
    */  
   private Map<String, String> props;
 
@@ -77,8 +75,8 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
   }
 
   /**
-   * @Description add time series metadata to list. THREAD NOT SAFE
-   * @param timeSeries - time series metadata to add
+   * add time series metadata to list. THREAD NOT SAFE
+   * @param time series metadata to add
    */
   public void addTimeSeriesMetaData(TimeSeriesMetadata timeSeries) {
     if (timeSeriesList == null) {
@@ -88,8 +86,8 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
   }
 
   /**
-   * @Description get all delta object uid and their types
-   * @return - set of Pair<delta-object-uid, delta-object-type>
+   * get all delta object uid and their types
+   * @return set of Pair<delta-object-uid, delta-object-type>
    */
   public Set<Pair<String, String>> getAllDeltaObjects() {
     // Pair<delta-object-uid, delta-object-type>
@@ -119,9 +117,9 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
   }
 
   /**
-   * @Description create file metadata in thrift format. For more information about file metadata in
-   *              thrift format, see FileMetaData in tsfile-format
-   * @return FileMetaData - file metdata in thrift format
+   * create file metadata in thrift format. For more information about file metadata 
+   * in cn.edu.thu.tsfile.format package, see FileMetaData in tsfile-format
+   * @return  file metadata in thrift format
    */
   @Override
   public FileMetaData convertToThrift() {

@@ -11,9 +11,6 @@ import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 
 /**
  * uncompress data according to type in metadata
- * 
- * @author XuYi xuyi556677@163.com
- * @date Apr 29, 2016 9:49:01 PM
  */
 public abstract class UnCompressor {
     public abstract byte[] uncompress(byte[] byteArray);

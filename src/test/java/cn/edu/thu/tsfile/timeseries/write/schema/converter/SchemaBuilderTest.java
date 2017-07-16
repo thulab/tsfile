@@ -58,9 +58,9 @@ public class SchemaBuilderTest {
         List<TimeSeriesMetadata> tsMetadatas = fileSchema.getTimeSeriesMetadatas();
         String[] tsMetadataList =
                 {
-                        "TimeSeriesMetadata: measurementUID s3, type ength 0, DataType ENUMS, FreqType null,frequencies null",
-                        "TimeSeriesMetadata: measurementUID s4, type ength 0, DataType DOUBLE, FreqType null,frequencies null",
-                        "TimeSeriesMetadata: measurementUID s5, type ength 0, DataType INT32, FreqType null,frequencies null",
+                        "TimeSeriesMetadata: measurementUID s3, type length 0, DataType ENUMS, FreqType null,frequencies null",
+                        "TimeSeriesMetadata: measurementUID s4, type length 0, DataType DOUBLE, FreqType null,frequencies null",
+                        "TimeSeriesMetadata: measurementUID s5, type length 0, DataType INT32, FreqType null,frequencies null",
                 };
         for (int j = 0; j < tsMetadatas.size(); j++) {
             assertEquals(tsMetadataList[j], tsMetadatas.get(j).toString());

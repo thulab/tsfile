@@ -15,10 +15,8 @@ import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
 
 /**
- * @Description Decoder for float or double value using rle or two diff. For
- *              more info about encoding pattern, see {@link FloatEncoder}
- * @author XuYi xuyi556677@163.com
- * @date May 11, 2016 11:45:27 PM
+ * Decoder for float or double value using rle or two diff. For
+ * more info about encoding pattern, see {@link FloatEncoder}
  *
  */
 public class FloatDecoder extends Decoder {

@@ -11,9 +11,7 @@ import cn.edu.thu.tsfile.encoding.common.EndianType;
 
 
 /**
- * @Description Encoder for int value using rle or bit-packing
- * @author XuYi xuyi556677@163.com
- * @date Mar 25, 2016
+ * Encoder for int value using rle or bit-packing
  */
 public class IntRleEncoder extends RleEncoder<Integer>{
 

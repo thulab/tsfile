@@ -9,10 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @Description For more information, see RowGroupMetaData in
- *              tsfile-format
- * @author XuYi xuyi556677@163.com
- * @date Apr 29, 2016 9:57:59 PM
+ * For more information, see RowGroupMetaData in cn.edu.thu.tsfile.format package
  */
 public class RowGroupMetaData implements IConverter<cn.edu.thu.tsfile.format.RowGroupMetaData> {
   private static final Logger LOGGER = LoggerFactory.getLogger(RowGroupMetaData.class);
@@ -55,9 +52,8 @@ public class RowGroupMetaData implements IConverter<cn.edu.thu.tsfile.format.Row
   }
 
   /**
-   * @Description Add time series chunk metadata to list. THREAD NOT SAFE
-   * @param series - time series group to add
-   * @return void
+   * add time series chunk metadata to list. THREAD NOT SAFE
+   * @param metadata time series metadata to add
    */
   public void addTimeSeriesChunkMetaData(TimeSeriesChunkMetaData metadata) {
     if (timeSeriesChunkMetaDataList == null) {
@@ -71,11 +67,6 @@ public class RowGroupMetaData implements IConverter<cn.edu.thu.tsfile.format.Row
         : Collections.unmodifiableList(timeSeriesChunkMetaDataList);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.corp.delta.tsfile.file.metadata.converter.IConverter#convertToThrift()
-   */
   @Override
   public cn.edu.thu.tsfile.format.RowGroupMetaData convertToThrift() {
     try {
@@ -100,11 +91,6 @@ public class RowGroupMetaData implements IConverter<cn.edu.thu.tsfile.format.Row
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.corp.delta.tsfile.file.metadata.converter.IConverter#convertToTSF(java.lang.Object)
-   */
   @Override
   public void convertToTSF(cn.edu.thu.tsfile.format.RowGroupMetaData metaDataInThrift) {
     try {

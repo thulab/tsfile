@@ -92,7 +92,6 @@ public class LongPacker{
      * decode values from byte array.
      * @param buf - array where bytes are in.
      * @param offset - offset of first byte to be decoded in buf
-     * @param length - length of bytes to be decoded
      * @param values - decoded result , the size of values should be 8
      */
 	public void unpack8Values(byte[] buf, int offset, long[] values) {

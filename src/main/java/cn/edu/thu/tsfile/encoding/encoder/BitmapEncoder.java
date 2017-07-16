@@ -16,9 +16,9 @@ import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
 
 
 /**
- * @Description Encodes values using bitmap, according to the following grammar:
+ * Encodes values using bitmap, according to the following grammar:
  * 
- *              <pre>
+ * <pre>
  * {@code
  * bitmap-encoding: <length> <num> <encoded-data>
  * length := length of the <encoded-data> in bytes stored as unsigned var int
@@ -28,10 +28,7 @@ import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
  * value := value in the data after deduplication. Use varint-encode and store as unsigned var int
  * bit-index := a list of 01 sequence to record the position of the value above
  * }
- *              </pre>
- * 
- * @author XuYi xuyi556677@163.com
- * @date Apri 19, 2016 5:35:09 PM
+ * </pre>
  */
 public class BitmapEncoder extends Encoder {
   private static final Logger LOGGER = LoggerFactory.getLogger(BitmapEncoder.class);
@@ -58,7 +55,7 @@ public class BitmapEncoder extends Encoder {
    * 
    * @param value value to encode
    * @param out OutputStream to write encoded stream
-   * @throws Exception
+   * @throws IOException
    * @see Encoder#encode(int, java.io.ByteArrayOutputStream)
    */
   @Override

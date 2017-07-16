@@ -13,10 +13,8 @@ import cn.edu.thu.tsfile.format.FreqType;
 import cn.edu.thu.tsfile.format.TimeInTimeSeriesChunkMetaData;
 
 /**
- * @Description For more information, see TimeInTimeSeriesChunkMetaData
- *              in tsfile-format
- * @author XuYi xuyi556677@163.com
- * @date Apr 29, 2016 10:37:20 PM
+ * For more information, see TimeInTimeSeriesChunkMetaData
+ * in cn.edu.thu.tsfile.format package
  */
 public class TInTimeSeriesChunkMetaData implements IConverter<TimeInTimeSeriesChunkMetaData> {
   private static final Logger LOGGER = LoggerFactory.getLogger(TInTimeSeriesChunkMetaData.class);
@@ -42,11 +40,6 @@ public class TInTimeSeriesChunkMetaData implements IConverter<TimeInTimeSeriesCh
     this.endTime = endTime;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.corp.delta.tsfile.file.metadata.converter.IConverter#convertToThrift()
-   */
   @Override
   public TimeInTimeSeriesChunkMetaData convertToThrift() {
     try {
@@ -66,11 +59,6 @@ public class TInTimeSeriesChunkMetaData implements IConverter<TimeInTimeSeriesCh
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.corp.delta.tsfile.file.metadata.converter.IConverter#convertToTSF(java.lang.Object)
-   */
   @Override
   public void convertToTSF(TimeInTimeSeriesChunkMetaData tTimeSeriesChunkMetaDataInThrift) {
     try {
