@@ -7,19 +7,15 @@ import org.slf4j.LoggerFactory;
 import cn.edu.thu.tsfile.format.FileMetaData;
 
 /**
- * @Description converter for file metadata
- * @author XuYi xuyi556677@163.com
- * @date Apr 29, 2016 10:06:10 PM
+ * converter for file metadata
  */
 public class TSFileMetaDataConverter {
   private static final Logger LOGGER = LoggerFactory.getLogger(TSFileMetaDataConverter.class);
 
   /**
-   * @Description convert tsfile format file matadata to thrift format file matadata. For more
-   *              information about thrift format file matadata, see
-   *              FileMetaData in tsfile-format project
-   * @param fileMetadataInTSFile - file metadata in tsfile format
-   * @return FileMetaData - file metadata in thrift format
+   * convert tsfile format file matadata to thrift format file matadata
+   * @param fileMetadataInTSFile file metadata in tsfile format
+   * @return file metadata in thrift format
    */
   public FileMetaData toThriftFileMetadata(TSFileMetaData fileMetadataInTSFile) {
     try {
@@ -33,11 +29,9 @@ public class TSFileMetaDataConverter {
   }
 
   /**
-   * @Description convert thrift format file matadata to tsfile format file matadata. For more
-   *              information about thrift format file matadata, see
-   *              FileMetaData in tsfile-format
-   * @param fileMetaDataInThrift - file metadata in thrift format
-   * @return TSFMetaData - file metadata in tsfile format
+   * convert thrift format file matadata to tsfile format file matadata
+   * @param fileMetaDataInThrift file metadata in thrift format
+   * @return file metadata in tsfile format
    */
   public TSFileMetaData toTSFileMetadata(FileMetaData fileMetaDataInThrift) {
     TSFileMetaData fileMetaDataInTSFile = new TSFileMetaData();

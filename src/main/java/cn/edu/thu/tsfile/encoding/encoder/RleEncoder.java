@@ -19,7 +19,7 @@ import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
 
 
 /**
- * @Description Encodes values using a combination of run length encoding and bit packing,
+ * Encodes values using a combination of run length encoding and bit packing,
  *               according to the following grammar:
  * 
  * <pre>
@@ -38,8 +38,6 @@ import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
  * repeated-value := value that is repeated, using a fixed-width of round-up-to-next-byte(bit-width)
  * }
  * </pre>
- * @author XuYi xuyi556677@163.com
- * @date Mar 31, 2016 5:35:09 PM
  * 
  * @param <T>
  */
@@ -96,7 +94,7 @@ public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
     protected boolean isBitWidthSaved;
 
     /**
-     * output stream to buffer <bitwidth> <encoded-data>
+     * output stream to buffer {@code <bitwidth> <encoded-data>}
      */
     protected ByteArrayOutputStream byteCache;
     
@@ -156,8 +154,9 @@ public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
 
     /**
      * Write bytes to OutputStream using rle.
-     * rle format: [header][value]
-     * header: (repeated value) << 1
+     * rle format: {@code 
+     * [header][value]
+     * header: (repeated value) << 1}
      */
     protected abstract void writeRleRun() throws IOException;
 
@@ -266,7 +265,7 @@ public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
     }
 
     /**
-    * @Description: clean all useless value in bufferedValues and set 0
+    * clean all useless value in bufferedValues and set 0
     */
     protected abstract void clearBuffer();
 

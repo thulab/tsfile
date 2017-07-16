@@ -4,9 +4,7 @@ import cn.edu.thu.tsfile.file.metadata.enums.TSChunkType;
 import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 
 /**
- * @Description store required members in TimeSeriesChunkMetaData
- * @author XuYi xuyi556677@163.com
- * @date Apr 29, 2016 10:41:56 PM
+ * store required members in TimeSeriesChunkMetaData
  */
 public class TimeSeriesChunkProperties {
   private String measurementUID;

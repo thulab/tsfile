@@ -17,7 +17,6 @@ import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
  * @see DeltaBinaryEncoder
  * @author kangrong
  *
- * @param <T>
  */
 public abstract class DeltaBinaryDecoder extends Decoder {
   private static final Logger LOG = LoggerFactory.getLogger(DeltaBinaryDecoder.class);

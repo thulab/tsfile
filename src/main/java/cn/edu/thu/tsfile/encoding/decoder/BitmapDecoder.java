@@ -21,10 +21,8 @@ import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
 
 
 /**
- * @Description Decoder switch or enums value using bitmap, bitmap-encoding: <length> <num>
- *              <encoded-data>
- * @author XuYi xuyi556677@163.com
- * @date Apr 28, 2016 4:17:14 PM
+ * Decoder switch or enums value using bitmap, bitmap-encoding:
+ * {@code <length> <num> <encoded-data>}
  * 
  */
 public class BitmapDecoder extends Decoder {
@@ -135,9 +133,9 @@ public class BitmapDecoder extends Decoder {
   /**
    * For special value in page list, get its bitmap index
    * 
-   * @param target : value to get its bitmap index
-   * @param pageList : input page list
-   * @return List<Pair<Integer, byte[]> : List<Pair(length, bitmap index)>
+   * @param target value to get its bitmap index
+   * @param pageList input page list
+   * @return List<Pair(length, bitmap index)>
    */
   public List<Pair<Integer, byte[]>> decodeAll(int target, List<InputStream> pageList) {
     List<Pair<Integer, byte[]>> resultList = new ArrayList<>();

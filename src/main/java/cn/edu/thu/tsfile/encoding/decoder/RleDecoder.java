@@ -13,11 +13,9 @@ import cn.edu.thu.tsfile.encoding.common.EndianType;
 import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
 
 /**
- * @Description Abstract class for all rle decoder. Decoding values according to
- *              following grammar: <length> <bitwidth> <encoded-data>. For more
- *              information about rle format, see RleEncoder
- * @author XuYi xuyi556677@163.com
- * @date Apr 28, 2016 6:31:37 PM
+ * Abstract class for all rle decoder. Decoding values according to
+ * following grammar: {@code <length> <bitwidth> <encoded-data>}. For more
+ * information about rle format, see RleEncoder
  * 
  */
 public abstract class RleDecoder extends Decoder {
@@ -48,7 +46,7 @@ public abstract class RleDecoder extends Decoder {
     protected int currentCount;
 
     /**
-     * how many bytes for all encoded data like [<bitwidth> <encoded-data>] in
+     * how many bytes for all encoded data like [{@code <bitwidth> <encoded-data>}] in
      * inputstream
      */
     protected int length;
@@ -60,7 +58,7 @@ public abstract class RleDecoder extends Decoder {
     protected boolean isLengthAndBitWidthReaded;
 
     /**
-     * buffer to save data format like [<bitwidth> <encoded-data>] for decoder
+     * buffer to save data format like [{@code <bitwidth> <encoded-data>}] for decoder
      */
     protected ByteArrayInputStream byteCache;
 

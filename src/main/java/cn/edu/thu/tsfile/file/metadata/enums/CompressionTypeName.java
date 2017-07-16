@@ -3,12 +3,6 @@ package cn.edu.thu.tsfile.file.metadata.enums;
 import cn.edu.thu.tsfile.common.exception.CompressionTypeNotSupportedException;
 import cn.edu.thu.tsfile.format.CompressionType;
 
-/**
- * @ClassName CompressionTypeName
- * @Description
- * @author XuYi xuyi556677@163.com
- * @date Apr 29, 2016 9:46:18 PM
- */
 public enum CompressionTypeName {
   UNCOMPRESSED(CompressionType.UNCOMPRESSED, ""),
   SNAPPY(CompressionType.SNAPPY, ".snappy"),

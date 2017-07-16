@@ -14,9 +14,7 @@ import cn.edu.thu.tsfile.format.TimeSeries;
 
 
 /**
- * @Description For more information, see TimeSeries in tsfile-format
- * @author XuYi xuyi556677@163.com
- * @date Apr 29, 2016 9:43:02 PM
+ * For more information, see TimeSeries in cn.edu.thu.tsfile.format package
  */
 public class TimeSeriesMetadata implements IConverter<TimeSeries> {
   private static final Logger LOGGER = LoggerFactory.getLogger(TimeSeriesMetadata.class);
@@ -55,11 +53,6 @@ public class TimeSeriesMetadata implements IConverter<TimeSeries> {
     this.deltaObjectType = deltaObjectType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.corp.delta.tsfile.file.metadata.converter.IConverter#convertToThrift()
-   */
   @Override
   public TimeSeries convertToThrift() {
     try {
@@ -79,11 +72,6 @@ public class TimeSeriesMetadata implements IConverter<TimeSeries> {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.corp.delta.tsfile.file.metadata.converter.IConverter#convertToTSF(java.lang.Object)
-   */
   @Override
   public void convertToTSF(TimeSeries timeSeriesInThrift) {
     try {
@@ -135,7 +123,7 @@ public class TimeSeriesMetadata implements IConverter<TimeSeries> {
   @Override
   public String toString() {
     return String.format(
-        "TimeSeriesMetadata: measurementUID %s, type ength %d, DataType %s, FreqType %s,frequencies %s",
+        "TimeSeriesMetadata: measurementUID %s, type length %d, DataType %s, FreqType %s,frequencies %s",
         measurementUID, typeLength, type, freqType, frequencies);
   }
 

@@ -13,10 +13,7 @@ import cn.edu.thu.tsfile.format.CompressionType;
 import cn.edu.thu.tsfile.format.TimeSeriesChunkType;
 
 /**
- * @Description For more information, see TimeSeriesChunkMetaData in
- *              tsfile-format
- * @author XuYi xuyi556677@163.com
- * @date Apr 29, 2016 11:16:40 PM
+ * For more information, see TimeSeriesChunkMetaData in cn.edu.thu.tsfile.format package
  */
 public class TimeSeriesChunkMetaData
     implements IConverter<cn.edu.thu.tsfile.format.TimeSeriesChunkMetaData> {
@@ -72,11 +69,6 @@ public class TimeSeriesChunkMetaData
     return properties;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.corp.delta.tsfile.file.metadata.converter.IConverter#convertToThrift()
-   */
   @Override
   public cn.edu.thu.tsfile.format.TimeSeriesChunkMetaData convertToThrift() {
     try {
@@ -97,11 +89,6 @@ public class TimeSeriesChunkMetaData
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.corp.delta.tsfile.file.metadata.converter.IConverter#convertToTSF(java.lang.Object)
-   */
   @Override
   public void convertToTSF(cn.edu.thu.tsfile.format.TimeSeriesChunkMetaData metadataInThrift) {
     try {

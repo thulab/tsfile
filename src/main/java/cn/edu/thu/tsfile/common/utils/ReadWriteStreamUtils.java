@@ -7,20 +7,15 @@ import java.util.List;
 
 /***
  * Utils to read/write stream
- * 
- * @author XuYi xuyi556677@163.com
- *
  */
 public class ReadWriteStreamUtils {
 
 	/**
 	 * check all number in a int list and find max bit width
 	 * 
-	 * @param list
-	 *            - input list
+	 * @param list input list
 	 * @return max bit width
-	 * @author XuYi xuyi556677@163.com
-	 */
+ 	 */
 	public static int getIntMaxBitWidth(List<Integer> list) {
 		int max = 1;
 		for (int num : list) {
@@ -33,10 +28,8 @@ public class ReadWriteStreamUtils {
 	/**
 	 * check all number in a long list and find max bit width
 	 * 
-	 * @param list
-	 *            - input list
+	 * @param list input list
 	 * @return max bit width
-	 * @author XuYi xuyi556677@163.com
 	 */
 	public static int getLongMaxBitWidth(List<Long> list) {
 		int max = 1;
@@ -71,11 +64,9 @@ public class ReadWriteStreamUtils {
 	/**
 	 * read an unsigned var int in stream and transform it to int format
 	 * 
-	 * @param in
-	 *            - stream to read an unsigned var int
-	 * @return int value
+	 * @param in stream to read an unsigned var int
+	 * @return integer value
 	 * @throws IOException
-	 * @author XuYi xuyi556677@163.com
 	 */
 	public static int readUnsignedVarInt(InputStream in) throws IOException {
 		int value = 0;
@@ -95,11 +86,9 @@ public class ReadWriteStreamUtils {
 	 * from low bit to high bit like: 1-0010101 1-0011010 1-1101111 0-0111010 1
 	 * represents has next byte to write, 0 represents number end
 	 * 
-	 * @param value
-	 *            - value to write into stream
-	 * @param out
+	 * @param value value to write into stream
+	 * @param out output stream
 	 * @throws IOException
-	 * @author XuYi xuyi556677@163.com
 	 */
 	public static void writeUnsignedVarInt(int value, OutputStream out) throws IOException {
 		while ((value & 0xFFFFFF80) != 0L) {
@@ -110,15 +99,11 @@ public class ReadWriteStreamUtils {
 	}
 
 	/**
-	 * @Description write int value using special bit to output stream
-	 * @param value
-	 *            - value to write to stream
-	 * @param out
-	 *            - output stream
-	 * @param bitWidth
-	 *            - bit length
+	 * write integer value using special bit to output stream
+	 * @param value value to write to stream
+	 * @param out output stream
+	 * @param bitWidth bit length
 	 * @throws IOException
-	 * @author XuYi xuyi556677@163.com
 	 */
 	public static void writeIntLittleEndianPaddedOnBitWidth(int value, OutputStream out, int bitWidth)
 			throws IOException {
@@ -136,15 +121,11 @@ public class ReadWriteStreamUtils {
 	}
 
 	/**
-	 * @Description write long value using special bit to output stream
-	 * @param value
-	 *            - value to write to stream
-	 * @param out
-	 *            - output stream
-	 * @param bitWidth
-	 *            - bit length
+	 * write long value using special bit to output stream
+	 * @param value value to write to stream
+	 * @param out output stream
+	 * @param bitWidth bit length
 	 * @throws IOException
-	 * @author XuYi xuyi556677@163.com
 	 */
 	public static void writeLongLittleEndianPaddedOnBitWidth(long value, OutputStream out, int bitWidth)
 			throws IOException {
@@ -157,15 +138,12 @@ public class ReadWriteStreamUtils {
 	}
 
 	/**
-	 * @Description read int value using special bit from input stream
-	 * @param in
-	 *            - input stream
-	 * @param bitWidth
-	 *            - bit length
-	 * @return int - int value
+	 * read integer value using special bit from input stream
+	 * @param in input stream
+	 * @param bitWidth bit length
+	 * @return integer value
 	 * @throws IOException
-	 * @author XuYi xuyi556677@163.com
-	 */
+ 	 */
 	public static int readIntLittleEndianPaddedOnBitWidth(InputStream in, int bitWidth) throws IOException {
 		int paddedByteNum = (bitWidth + 7) / 8;
 		if (paddedByteNum > 4) {
@@ -184,14 +162,11 @@ public class ReadWriteStreamUtils {
 	}
 
 	/**
-	 * @Description read long value using special bit from input stream
-	 * @param in
-	 *            - input stream
-	 * @param bitWidth
-	 *            - bit length
-	 * @return long - long value
+	 * read long value using special bit from input stream
+	 * @param in input stream
+	 * @param bitWidth bit length
+	 * @return long  long value
 	 * @throws IOException
-	 * @author XuYi xuyi556677@163.com
 	 */
 	public static long readLongLittleEndianPaddedOnBitWidth(InputStream in, int bitWidth) throws IOException {
 		int paddedByteNum = (bitWidth + 7) / 8;

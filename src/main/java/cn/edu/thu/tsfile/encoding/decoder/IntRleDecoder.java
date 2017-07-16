@@ -12,11 +12,8 @@ import cn.edu.thu.tsfile.encoding.bitpacking.IntPacker;
 import cn.edu.thu.tsfile.encoding.common.EndianType;
 
 
-
 /**
- * @Description Decoder for int value using rle or bit-packing
- * @author XuYi xuyi556677@163.com
- * @date Mar 25, 2016
+ * Decoder for int value using rle or bit-packing
  */
 public class IntRleDecoder extends RleDecoder {
 	private static final Logger LOGGER = LoggerFactory.getLogger(IntRleDecoder.class);

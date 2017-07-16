@@ -12,9 +12,6 @@ import java.io.IOException;
 
 /**
  * compress data according to type in schema
- *
- * @author XuYi xuyi556677@163.com
- * @date Apr 29, 2016 9:47:19 PM
  */
 
 public abstract class Compressor {
