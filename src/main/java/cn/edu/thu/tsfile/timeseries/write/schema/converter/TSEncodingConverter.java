@@ -71,7 +71,7 @@ public abstract class TSEncodingConverter {
                     return new LongRleEncoder(EndianType.LITTLE_ENDIAN);
                 case FLOAT:
                 case DOUBLE:
-                case BIGDECIMAL:
+//                case BIGDECIMAL:
                     return new FloatEncoder(TSEncoding.RLE, type, maxPointNumber);
                 default:
                     throw new UnSupportedDataTypeException("RLE doesn't support data type: "+ type);
@@ -133,7 +133,7 @@ public abstract class TSEncodingConverter {
                     return new DeltaBinaryEncoder.LongDeltaEncoder();
                 case FLOAT:
                 case DOUBLE:
-                case BIGDECIMAL:
+//                case BIGDECIMAL:
                     return new FloatEncoder(TSEncoding.TS_2DIFF, type, maxPointNumber);
                 default:
                     throw new UnSupportedDataTypeException("TS_2DIFF doesn't support data type: "+ type);
