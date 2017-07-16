@@ -156,7 +156,7 @@ public class IntFilterVerifier extends FilterVerifier implements FilterVisitor<I
                         break;
                     }
                 } else if (left.v[i] >= right.v[j + 1]) {
-                    if (left.v[i] == right.v[j + 1]) {
+                    if (left.v[i] == right.v[j + 1] && (left.flag[i] && right.flag[j+1])) {
                         partResult.addValueFlag(left.v[i], true);
                         partResult.addValueFlag(left.v[i], true);
                     }
@@ -242,9 +242,15 @@ public class IntFilterVerifier extends FilterVerifier implements FilterVisitor<I
 				}
 				// left covers right contains (left.v[l+1]==right.v[r+1])
 				res.addValueFlag(left.v[l+1], left.flag[l+1]);
-				right.v[r] = left.v[l+1];
-				right.flag[r] = !left.flag[l+1];
-				l += 2;
+				if (left.v[l+1] == right.v[r]) {
+					right.v[r] = left.v[l+1];
+					right.flag[r] = left.flag[l+1] | right.flag[r];
+					l += 2;
+				} else {
+					right.v[r] = left.v[l+1];
+					right.flag[r] = !left.flag[l+1];
+					l += 2;
+				}
 			} else if (left.v[l+1]<=right.v[r]) { // left first
 				res.addValueFlag(left.v[l], left.flag[l]);
 				res.addValueFlag(left.v[l+1], left.flag[l+1]);
