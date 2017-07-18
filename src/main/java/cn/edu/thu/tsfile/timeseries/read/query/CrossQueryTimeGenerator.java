@@ -23,8 +23,8 @@ public abstract class CrossQueryTimeGenerator {
     protected FilterExpression valueFilter;
     public ArrayList<DynamicOneColumnData> retMap;
     //	HashMap<String, SingleSeriesFilterExpression> filterMap;
-    public ArrayList<Boolean> hasReadAllMap;
-    protected ArrayList<Long> lastValueMap;
+    public ArrayList<Boolean> hasReadAllList;
+    protected ArrayList<Long> lastValueList;
     protected ArrayList<Integer> idxCount;
     protected int fetchSize;
     //to record which valueFilter is used
@@ -33,8 +33,8 @@ public abstract class CrossQueryTimeGenerator {
     public CrossQueryTimeGenerator(SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
                                    FilterExpression valueFilter, int fetchSize) {
         retMap = new ArrayList<>();
-        hasReadAllMap = new ArrayList<>();
-        lastValueMap = new ArrayList<>();
+        hasReadAllList = new ArrayList<>();
+        lastValueList = new ArrayList<>();
         idxCount = new ArrayList<>();
         this.valueFilter = valueFilter;
         this.timeFilter = timeFilter;
@@ -47,8 +47,8 @@ public abstract class CrossQueryTimeGenerator {
         dfsCnt++;
         int tmpIdx = dfsCnt;
         retMap.add(null);
-        hasReadAllMap.add(false);
-        lastValueMap.add(-1L);
+        hasReadAllList.add(false);
+        lastValueList.add(-1L);
         idxCount.add(-1);
 
         if (valueFilter instanceof SingleSeriesFilterExpression) {
@@ -99,16 +99,16 @@ public abstract class CrossQueryTimeGenerator {
     private long calculateOneTime(FilterExpression valueFilter) throws ProcessorException, IOException {
         //first check whether has a value not used in CSOr
         dfsCnt++;
-        if (lastValueMap.get(dfsCnt) != -1L) {
-            long v = lastValueMap.get(dfsCnt);
-            lastValueMap.set(dfsCnt, -1L);
+        if (lastValueList.get(dfsCnt) != -1L) {
+            long v = lastValueList.get(dfsCnt);
+            lastValueList.set(dfsCnt, -1L);
             dfsCnt += (idxCount.get(dfsCnt) - 1);
             return v;
         }
         if (valueFilter instanceof SingleSeriesFilterExpression) {
             DynamicOneColumnData res = retMap.get(dfsCnt);
 
-            if ((res == null) || (res.curIdx == res.length && !hasReadAllMap.get(dfsCnt))) {
+            if ((res == null) || (res.curIdx == res.length && !hasReadAllList.get(dfsCnt))) {
                 res = getMoreRecordForOneCol(dfsCnt, (SingleSeriesFilterExpression) valueFilter);
             }
             if (res == null || res.curIdx == res.length) {
@@ -154,10 +154,10 @@ public abstract class CrossQueryTimeGenerator {
                 return -1;
             } else {
                 if (l < r) {
-                    lastValueMap.set(ridx, r);
+                    lastValueList.set(ridx, r);
                     return l;
                 } else if (l > r) {
-                    lastValueMap.set(lidx, l);
+                    lastValueList.set(lidx, l);
                     return r;
                 } else {
                     return l;
@@ -176,7 +176,7 @@ public abstract class CrossQueryTimeGenerator {
         res = getDataInNextBatch(res, fetchSize, valueFilter);
         retMap.set(idx, res);
         if (res == null || res.length == 0) {
-            hasReadAllMap.set(idx, true);
+            hasReadAllList.set(idx, true);
         }
         return res;
     }

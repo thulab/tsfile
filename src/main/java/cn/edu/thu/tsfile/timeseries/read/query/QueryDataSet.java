@@ -108,10 +108,10 @@ public class QueryDataSet {
                 r.setDeltaObjectId(deltaObjectIds[i]);
                 r.setDeltaObjectType(cols[i].getDeltaObjectType());
             }
-            Field f;
+            Field f = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
 
             if (idxs[i] < cols[i].length && minTime == cols[i].getTime(idxs[i])) {
-                f = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
+                // f = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
                 f.setNull(false);
                 putValueToField(cols[i], idxs[i], f);
                 idxs[i]++;
@@ -119,7 +119,7 @@ public class QueryDataSet {
                     heapPut(cols[i].getTime(idxs[i]));
                 }
             } else {
-                f = new Field(cols[i].dataType, measurementIds[i]);
+                // f = new Field(cols[i].dataType, measurementIds[i]);
                 f.setNull(true);
             }
             r.addField(f);
