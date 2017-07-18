@@ -4,80 +4,80 @@ import cn.edu.thu.tsfile.common.utils.BytesUtils;
 
 /**
  * Statistics for long type
- * @author kangrong
  *
+ * @author kangrong
  */
 public class LongStatistics extends Statistics<Long> {
-	private long max;
-	private long min;
+    private long max;
+    private long min;
 
-	@Override
-	public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
-		max = BytesUtils.bytesToLong(maxBytes);
-		min = BytesUtils.bytesToLong(minBytes);
-	}
+    @Override
+    public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
+        max = BytesUtils.bytesToLong(maxBytes);
+        min = BytesUtils.bytesToLong(minBytes);
+    }
 
-	@Override
-	public Long getMin() {
-		return min;
-	}
+    @Override
+    public Long getMin() {
+        return min;
+    }
 
-	@Override
-	public Long getMax() {
-		return max;
-	}
-	
-	@Override
-	public void updateStats(long value) {
-		if (isEmpty) {
-			initializeStats(value, value);
-			isEmpty = false;
-		} else {
-			updateStats(value, value);
-		}
-	}
+    @Override
+    public Long getMax() {
+        return max;
+    }
 
-	@Override
-	public void updateStats(long minValue, long maxValue) {
-		if (minValue < min) {
-			min = minValue;
-		}
-		if (maxValue > max) {
-			max = maxValue;
-		}
-	}
+    @Override
+    public void updateStats(long value) {
+        if (isEmpty) {
+            initializeStats(value, value);
+            isEmpty = false;
+        } else {
+            updateStats(value, value);
+        }
+    }
 
-
-	@Override
-	protected void mergeStatisticsMinMax(Statistics<?> stats) {
-		LongStatistics longStats = (LongStatistics) stats;
-		if (isEmpty) {
-			initializeStats(longStats.getMin(), longStats.getMax());
-			isEmpty = false;
-		} else {
-			updateStats(longStats.getMin(), longStats.getMax());
-		}
-
-	}
+    @Override
+    public void updateStats(long minValue, long maxValue) {
+        if (minValue < min) {
+            min = minValue;
+        }
+        if (maxValue > max) {
+            max = maxValue;
+        }
+    }
 
 
-	public void initializeStats(long min, long max) {
-		this.min = min;
-		this.max = max;
-	}
+    @Override
+    protected void mergeStatisticsMinMax(Statistics<?> stats) {
+        LongStatistics longStats = (LongStatistics) stats;
+        if (isEmpty) {
+            initializeStats(longStats.getMin(), longStats.getMax());
+            isEmpty = false;
+        } else {
+            updateStats(longStats.getMin(), longStats.getMax());
+        }
 
-	@Override
-	public byte[] getMaxBytes() {
-		return BytesUtils.longToBytes(max);
-	}
+    }
 
-	@Override
-	public byte[] getMinBytes() {
-		return BytesUtils.longToBytes(min);
-	}
-	
-	@Override
-    public String toString(){
-        return "[max:"+max+",min:"+min+"]";
+
+    public void initializeStats(long min, long max) {
+        this.min = min;
+        this.max = max;
+    }
+
+    @Override
+    public byte[] getMaxBytes() {
+        return BytesUtils.longToBytes(max);
+    }
+
+    @Override
+    public byte[] getMinBytes() {
+        return BytesUtils.longToBytes(min);
+    }
+
+    @Override
+    public String toString() {
+        return "[max:" + max + ",min:" + min + "]";
     }
 }

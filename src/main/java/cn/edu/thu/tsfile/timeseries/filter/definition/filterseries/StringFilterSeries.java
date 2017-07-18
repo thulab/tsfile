@@ -5,16 +5,15 @@ import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 
 /**
  * The value type of BooleanFilterSeries is Boolean.
- * 
- * @author CGF
  *
+ * @author CGF
  */
 public class StringFilterSeries extends FilterSeries<Binary> {
 
-	private static final long serialVersionUID = 454794989741185890L;
+    private static final long serialVersionUID = 454794989741185890L;
 
-	public StringFilterSeries(String deltaObjectUID, String measurementUID, TSDataType seriesDataType,
-			FilterSeriesType filterType) {
-		super(deltaObjectUID, measurementUID, TSDataType.BYTE_ARRAY, filterType);
-	}
+    public StringFilterSeries(String deltaObjectUID, String measurementUID, TSDataType seriesDataType,
+                              FilterSeriesType filterType) {
+        super(deltaObjectUID, measurementUID, TSDataType.BYTE_ARRAY, filterType);
+    }
 }

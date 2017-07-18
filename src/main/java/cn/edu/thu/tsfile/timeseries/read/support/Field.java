@@ -118,7 +118,6 @@ public class Field {
     public void setNull(boolean isNull) {
         this.isNull = isNull;
     }
-
 }
 
 

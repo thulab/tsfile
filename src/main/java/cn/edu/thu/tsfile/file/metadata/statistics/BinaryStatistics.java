@@ -5,9 +5,10 @@ import cn.edu.thu.tsfile.common.utils.BytesUtils;
 
 /**
  * Statistics for string type
+ *
  * @author CGF
  */
-public class BinaryStatistics extends Statistics<Binary>{
+public class BinaryStatistics extends Statistics<Binary> {
     private Binary max = new Binary("");
     private Binary min = new Binary("");
 

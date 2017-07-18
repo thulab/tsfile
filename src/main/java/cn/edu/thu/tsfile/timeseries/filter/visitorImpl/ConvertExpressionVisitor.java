@@ -2,18 +2,12 @@ package cn.edu.thu.tsfile.timeseries.filter.visitorImpl;
 
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.GtEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.LtEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.And;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Eq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Not;
+import cn.edu.thu.tsfile.timeseries.filter.definition.operators.*;
 
 /**
- * To remove not operators, convert all operators recursively. 
+ * To remove not operators, convert all operators recursively.
  * Not(and(eq(), not(eq(y))) -> Or(notEq(), eq(y)).
- * 
+ *
  * @author CGF
  */
 public class ConvertExpressionVisitor implements FilterVisitor<FilterExpression> {

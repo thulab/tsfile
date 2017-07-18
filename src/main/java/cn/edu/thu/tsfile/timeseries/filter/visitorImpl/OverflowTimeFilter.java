@@ -1,20 +1,13 @@
 package cn.edu.thu.tsfile.timeseries.filter.visitorImpl;
 
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.And;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Eq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.GtEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.LtEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Not;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.NotEq;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.Or;
+import cn.edu.thu.tsfile.timeseries.filter.definition.operators.*;
 
 /**
  * To judge whether an overflow time interval satisfy the filter.</br>
  * Implemented using visitor pattern.
- * 
- * @author CGF
  *
+ * @author CGF
  */
 public class OverflowTimeFilter implements FilterVisitor<Boolean> {
 
@@ -23,7 +16,7 @@ public class OverflowTimeFilter implements FilterVisitor<Boolean> {
     public boolean satisfy(SingleSeriesFilterExpression timeFilter, Long s, Long e) {
         this.startTime = s;
         this.endTime = e;
-        return timeFilter.accept(this); 
+        return timeFilter.accept(this);
     }
 
     @Override
@@ -36,7 +29,7 @@ public class OverflowTimeFilter implements FilterVisitor<Boolean> {
     @Override
     public <T extends Comparable<T>> Boolean visit(NotEq<T> notEq) {
         return (Long) notEq.getValue() < startTime || (Long) notEq.getValue() > endTime;
-    } 
+    }
 
     @Override
     public <T extends Comparable<T>> Boolean visit(LtEq<T> ltEq) {

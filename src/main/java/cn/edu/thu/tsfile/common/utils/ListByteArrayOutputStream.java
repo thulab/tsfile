@@ -17,45 +17,12 @@ public class ListByteArrayOutputStream {
     private List<PublicBAOS> list;
     private int totalSize = 0;
 
-    public ListByteArrayOutputStream(PublicBAOS ... param) {
+    public ListByteArrayOutputStream(PublicBAOS... param) {
         list = new ArrayList<>();
-        for (PublicBAOS out : param){
+        for (PublicBAOS out : param) {
             list.add(out);
             totalSize += out.size();
         }
-    }
-
-    /**
-     * Inputs an OutputStream as parameter. Writes the complete contents in <code>list</code> to
-     * the specified output stream argument.
-     *
-     * @param out the output stream to write the data.
-     * @throws IOException if an I/O error occurs.
-     */
-    public void writeAllTo(OutputStream out) throws IOException{
-        for (PublicBAOS baos : list)
-            baos.writeTo(out);
-    }
-
-    /**
-     * get the total size of this class
-     * @return total size
-     */
-    public int size(){
-        return totalSize;
-    }
-
-    /**
-     * Creates a new <code>PublicBAOS</code> which specified size is the current
-     * total size and write the current contents in <code>list</code> into it.
-     *
-     * @return  the current contents of this class, as a byte array.
-     * @throws IOException if an I/O error occurs.
-     */
-    public byte[] toByteArray() throws IOException {
-        PublicBAOS baos = new PublicBAOS(totalSize);
-        this.writeAllTo(baos);
-        return baos.getBuf();
     }
 
     /**
@@ -69,7 +36,42 @@ public class ListByteArrayOutputStream {
     }
 
     /**
+     * Inputs an OutputStream as parameter. Writes the complete contents in <code>list</code> to
+     * the specified output stream argument.
+     *
+     * @param out the output stream to write the data.
+     * @throws IOException if an I/O error occurs.
+     */
+    public void writeAllTo(OutputStream out) throws IOException {
+        for (PublicBAOS baos : list)
+            baos.writeTo(out);
+    }
+
+    /**
+     * get the total size of this class
+     *
+     * @return total size
+     */
+    public int size() {
+        return totalSize;
+    }
+
+    /**
+     * Creates a new <code>PublicBAOS</code> which specified size is the current
+     * total size and write the current contents in <code>list</code> into it.
+     *
+     * @return the current contents of this class, as a byte array.
+     * @throws IOException if an I/O error occurs.
+     */
+    public byte[] toByteArray() throws IOException {
+        PublicBAOS baos = new PublicBAOS(totalSize);
+        this.writeAllTo(baos);
+        return baos.getBuf();
+    }
+
+    /**
      * Appends a <code>ByteArrayOutputStream</code> into this class.
+     *
      * @param out a output stream to be appended.
      */
     public void append(PublicBAOS out) {
@@ -84,18 +86,17 @@ public class ListByteArrayOutputStream {
         list.clear();
         totalSize = 0;
     }
-    
+
     /**
      * transform all {@link PublicBAOS} to list of {@link ByteArrayInputStream}
+     *
      * @return a list of {@link ByteArrayInputStream} contain all page data
      */
-    public List<ByteArrayInputStream> transform(){
-    	
-    	List<ByteArrayInputStream> ret = new ArrayList<>();
-    	for(PublicBAOS baos: list){
-    		ret.add(baos.transformToInputStream());
-    	}
-    	return ret;
+    public List<ByteArrayInputStream> transform() {
+        List<ByteArrayInputStream> ret = new ArrayList<>();
+        for (PublicBAOS baos : list) {
+            ret.add(baos.transformToInputStream());
+        }
+        return ret;
     }
-
 }

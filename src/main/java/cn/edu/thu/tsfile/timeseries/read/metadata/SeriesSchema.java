@@ -1,17 +1,15 @@
 package cn.edu.thu.tsfile.timeseries.read.metadata;
 
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
+
 import java.util.HashMap;
 
-import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
-import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
-
 /**
- *
+ * @author Jinrui Zhang
  * @description <p>This class define a schema for one time series.</p><br>
  * This schema includes three main parameters which represent the {@code name},the {@code dataType} and
  * the {@code encoding} type for this time series. Some other arguments are put in {@code args}
- *
- * @author Jinrui Zhang
  */
 public class SeriesSchema {
     public String name;

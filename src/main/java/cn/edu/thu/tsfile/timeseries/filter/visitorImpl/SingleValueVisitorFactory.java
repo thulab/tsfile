@@ -7,9 +7,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * To generate a SingleValueVisitor using TSDataType.
- * 
- * @author CGF
  *
+ * @author CGF
  */
 public class SingleValueVisitorFactory {
 
@@ -24,11 +23,12 @@ public class SingleValueVisitorFactory {
 
     /**
      * get SingleValueVisitor using TSDataType
+     *
      * @param type
      * @return
      */
     public static SingleValueVisitor<?> getSingleValueVisitor(TSDataType type) {
-        switch(type) {
+        switch (type) {
             case INT64:
                 return longVisitor;
             case INT32:

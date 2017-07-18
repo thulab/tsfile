@@ -1,11 +1,12 @@
 package cn.edu.thu.tsfile.timeseries.demo;
 
-
 import cn.edu.thu.tsfile.common.conf.TSFileConfig;
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.thu.tsfile.common.utils.RandomAccessOutputStream;
+import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
 import cn.edu.thu.tsfile.timeseries.utils.FileUtils;
+import cn.edu.thu.tsfile.timeseries.utils.RecordUtils;
 import cn.edu.thu.tsfile.timeseries.write.InternalRecordWriter;
 import cn.edu.thu.tsfile.timeseries.write.TSRecordWriteSupport;
 import cn.edu.thu.tsfile.timeseries.write.TSRecordWriter;
@@ -14,8 +15,6 @@ import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
-import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
-import cn.edu.thu.tsfile.timeseries.utils.RecordUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -34,7 +33,6 @@ import java.io.IOException;
  * Four parameters are needed: inputDataFilePath, outputDataFilePath, errorFile and schemaFile.
  *
  * @author kangrong
- *
  */
 public class WriteDemo {
     static final Logger LOG = LoggerFactory.getLogger(WriteDemo.class);

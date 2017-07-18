@@ -13,17 +13,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-
-
 /**
- * 
  * FileSchema stores the schema of registered measurements and delta objects that appeared in this
  * stage. All delta objects written to the same TSFile have the same schema. FileSchema takes the
  * JSON schema file as a parameter and registers measurement informations. FileSchema also records
  * all appeared delta object IDs in this stage.
- * 
- * @author kangrong
  *
+ * @author kangrong
  */
 public class FileSchema {
     static private final Logger LOG = LoggerFactory.getLogger(FileSchema.class);
@@ -51,19 +47,23 @@ public class FileSchema {
 
     private Map<String, String> props = new HashMap<>();
 
+    public FileSchema() {
+
+    }
+
+    public FileSchema(JSONObject jsonSchema) throws InvalidJsonSchemaException {
+        JsonConverter.converterJsonToSchema(jsonSchema, this);
+    }
+
     /**
      * Add a property to {@code props}. <br>
      * If the key exists, this method will update the value of the key.
+     *
      * @param key
      * @param value
      */
     public void addProp(String key, String value) {
         props.put(key, value);
-    }
-
-    public void setProps(Map<String, String> props) {
-        this.props.clear();
-        this.props.putAll(props);
     }
 
     public boolean hasProp(String key) {
@@ -74,8 +74,13 @@ public class FileSchema {
         return props;
     }
 
+    public void setProps(Map<String, String> props) {
+        this.props.clear();
+        this.props.putAll(props);
+    }
+
     public String getProp(String key) {
-        if(props.containsKey(key))
+        if (props.containsKey(key))
             return props.get(key);
         else
             return null;
@@ -93,17 +98,9 @@ public class FileSchema {
         this.currentRowMaxSize += currentSeries;
     }
 
-    public FileSchema() {
-
-    }
-
-    public FileSchema(JSONObject jsonSchema) throws InvalidJsonSchemaException {
-        JsonConverter.converterJsonToSchema(jsonSchema, this);
-    }
-
     /**
      * judge whether given delta object id exists in this stage.
-     * 
+     *
      * @param deltaObjectId - delta object id
      * @return - if this id appeared in this stage, return true, otherwise return false
      */
@@ -113,7 +110,7 @@ public class FileSchema {
 
     /**
      * add a delta object id to this schema
-     * 
+     *
      * @param deltaObjectId - delta object id to be added
      */
     public void addDeltaObject(String deltaObjectId) {
@@ -124,12 +121,12 @@ public class FileSchema {
         return appearDeltaObjectIdSet;
     }
 
-    public void setDeltaType(String deltaType) {
-        this.deltaType = deltaType;
-    }
-
     public String getDeltaType() {
         return deltaType;
+    }
+
+    public void setDeltaType(String deltaType) {
+        this.deltaType = deltaType;
     }
 
     public void addSeries(String measurementUID, TSDataType type) {
@@ -154,9 +151,9 @@ public class FileSchema {
 
     /**
      * add a TimeSeriesMetadata into this fileSchema
-     * 
+     *
      * @param measurementId - the measurement id of this TimeSeriesMetadata
-     * @param type - the data type of this TimeSeriesMetadata
+     * @param type          - the data type of this TimeSeriesMetadata
      */
     public void addTimeSeriesMetadata(String measurementId, TSDataType type) {
         TimeSeriesMetadata ts = new TimeSeriesMetadata(measurementId, type, deltaType);
@@ -173,9 +170,9 @@ public class FileSchema {
      * InternalRecordWriter} after flushing row group to file. The delta object id used in last
      * stage remains in this stage. The delta object id which not be used in last stage will be
      * removed
-     * 
+     *
      * @param groupWriters - {@code Map<deltaObjectId, RowGroupWriter>}, a map remaining all
-     *        {@linkplain IRowGroupWriter IRowGroupWriter}
+     *                     {@linkplain IRowGroupWriter IRowGroupWriter}
      */
     public void resetUnusedDeltaObjectId(Map<String, IRowGroupWriter> groupWriters) {
         int size = groupWriters.size();

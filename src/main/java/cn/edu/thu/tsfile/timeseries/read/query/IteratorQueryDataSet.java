@@ -1,16 +1,16 @@
 package cn.edu.thu.tsfile.timeseries.read.query;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.PriorityQueue;
-
 import cn.edu.thu.tsfile.timeseries.read.qp.Path;
 import cn.edu.thu.tsfile.timeseries.read.support.Field;
 import cn.edu.thu.tsfile.timeseries.read.support.RowRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.PriorityQueue;
 
 public abstract class IteratorQueryDataSet extends QueryDataSet {
     private static final Logger logger = LoggerFactory.getLogger(IteratorQueryDataSet.class);

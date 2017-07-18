@@ -33,6 +33,12 @@ public class Path {
 
     }
 
+    public static Path mergePath(Path prefix, Path suffix) {
+        Path ret = new Path(prefix.fullPath.clone());
+        ret.fullPath.addTail(suffix.fullPath);
+        return ret;
+    }
+
     public String getFullPath() {
         return fullPath.toString();
     }
@@ -62,12 +68,6 @@ public class Path {
             deltaObject = fullPath.getSubStringContainer(0, -2);
             measurement = fullPath.getSubString(-1);
         }
-    }
-
-    public static Path mergePath(Path prefix, Path suffix) {
-        Path ret = new Path(prefix.fullPath.clone());
-        ret.fullPath.addTail(suffix.fullPath);
-        return ret;
     }
 
     @Override
@@ -140,5 +140,4 @@ public class Path {
         this.fullPath = newPath;
         deltaObject = null;
     }
-
 }
