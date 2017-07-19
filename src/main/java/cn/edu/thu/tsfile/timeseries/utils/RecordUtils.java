@@ -74,7 +74,7 @@ public class RecordUtils {
                             ret.addTuple(new BooleanDataPoint(measurementId, Boolean
                                     .valueOf(value)));
                             break;
-                        case BYTE_ARRAY:
+                        case TEXT:
                             ret.addTuple(new StringDataPoint(measurementId, Binary
                                     .valueOf(items[i + 1])));
                             break;

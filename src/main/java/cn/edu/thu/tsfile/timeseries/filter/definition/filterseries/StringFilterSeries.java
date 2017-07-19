@@ -14,6 +14,6 @@ public class StringFilterSeries extends FilterSeries<Binary> {
 
     public StringFilterSeries(String deltaObjectUID, String measurementUID, TSDataType seriesDataType,
                               FilterSeriesType filterType) {
-        super(deltaObjectUID, measurementUID, TSDataType.BYTE_ARRAY, filterType);
+        super(deltaObjectUID, measurementUID, TSDataType.TEXT, filterType);
     }
 }

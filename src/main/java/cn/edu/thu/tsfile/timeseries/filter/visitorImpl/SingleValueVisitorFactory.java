@@ -39,7 +39,7 @@ public class SingleValueVisitorFactory {
                 return doubleVisitor;
             case BOOLEAN:
                 return booleanVisitor;
-            case BYTE_ARRAY:
+            case TEXT:
                 return stringVisitor;
             default:
                 LOG.error("Unsupported tsfile data type.");

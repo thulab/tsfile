@@ -34,7 +34,7 @@ public abstract class Decoder {
             return new LongRleDecoder(EndianType.LITTLE_ENDIAN);
         } else if (type == Encoding.BITMAP && dataType == TSDataType.ENUMS) {
             return new BitmapDecoder(EndianType.LITTLE_ENDIAN);
-        } else if (dataType == TSDataType.FLOAT || dataType == TSDataType.DOUBLE || dataType == TSDataType.BIGDECIMAL) {
+        } else if (dataType == TSDataType.FLOAT || dataType == TSDataType.DOUBLE) {
             return new FloatDecoder(TSEncoding.valueOf(type.toString()), dataType);
         }
 

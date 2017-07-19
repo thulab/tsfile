@@ -40,7 +40,7 @@ public class DigestForFilter {
                 return (T) ((Float) BytesUtils.bytesToFloat(min.array()));
             case DOUBLE:
                 return (T) ((Double) BytesUtils.bytesToDouble(min.array()));
-            case BYTE_ARRAY:
+            case TEXT:
                 return (T) new Binary(BytesUtils.bytesToString(min.array()));
             case BOOLEAN:
                 return (T) (Boolean) BytesUtils.bytesToBool(min.array());
@@ -60,7 +60,7 @@ public class DigestForFilter {
                 return (T) ((Float) BytesUtils.bytesToFloat(max.array()));
             case DOUBLE:
                 return (T) ((Double) BytesUtils.bytesToDouble(max.array()));
-            case BYTE_ARRAY:
+            case TEXT:
                 return (T) new Binary(BytesUtils.bytesToString(max.array()));
             case BOOLEAN:
                 return (T) (Boolean) BytesUtils.bytesToBool(max.array());
@@ -79,7 +79,7 @@ public class DigestForFilter {
                 return Float.class;
             case DOUBLE:
                 return Double.class;
-            case BYTE_ARRAY:
+            case TEXT:
                 return String.class;
             case BOOLEAN:
                 return Boolean.class;
