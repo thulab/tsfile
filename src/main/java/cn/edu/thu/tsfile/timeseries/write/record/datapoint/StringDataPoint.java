@@ -20,7 +20,7 @@ public class StringDataPoint extends DataPoint {
     private Binary value;
 
     public StringDataPoint(String measurementId, Binary v) {
-        super(TSDataType.BYTE_ARRAY, measurementId);
+        super(TSDataType.TEXT, measurementId);
         this.value = v;
     }
 

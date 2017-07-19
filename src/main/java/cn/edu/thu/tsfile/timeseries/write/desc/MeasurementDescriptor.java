@@ -96,7 +96,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
                 return 4;
             case DOUBLE:
                 return 8;
-            case BYTE_ARRAY:
+            case TEXT:
                 // 4 is the length of string in type of Integer.
                 // Note that one char corresponding to 3 byte is valid only in 16-bit BMP
                 return conf.maxStringLength * TSFileConfig.BYTE_SIZE_PER_CHAR + 4;

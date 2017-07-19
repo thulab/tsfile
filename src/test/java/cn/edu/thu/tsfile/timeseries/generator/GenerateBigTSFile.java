@@ -159,7 +159,7 @@ public class GenerateBigTSFile {
                 conf.valueEncoder);
         JSONObject s4 = new JSONObject();
         s4.put(JsonFormatConstant.MEASUREMENT_UID, "s4");
-        s4.put(JsonFormatConstant.DATA_TYPE, TSDataType.BYTE_ARRAY.toString());
+        s4.put(JsonFormatConstant.DATA_TYPE, TSDataType.TEXT.toString());
         s4.put(JsonFormatConstant.MEASUREMENT_ENCODING,
                 TSEncoding.PLAIN.toString());
         JSONArray measureGroup1 = new JSONArray();

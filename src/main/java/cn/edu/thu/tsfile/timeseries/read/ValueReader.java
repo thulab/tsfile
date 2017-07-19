@@ -176,7 +176,7 @@ public class ValueReader {
             byte[] maxValue = new byte[digest.max.remaining()];
             digest.max.get(maxValue);
             String maxString = enumValues.get(BytesUtils.bytesToInt(maxValue) - 1);
-            digestFF = new DigestForFilter(ByteBuffer.wrap(BytesUtils.StringToBytes(minString)), ByteBuffer.wrap(BytesUtils.StringToBytes(maxString)), TSDataType.BYTE_ARRAY);
+            digestFF = new DigestForFilter(ByteBuffer.wrap(BytesUtils.StringToBytes(minString)), ByteBuffer.wrap(BytesUtils.StringToBytes(maxString)), TSDataType.TEXT);
         } else {
             digestFF = new DigestForFilter(digest.min, digest.max, getDataType());
         }
@@ -288,7 +288,7 @@ public class ValueReader {
                         byte[] maxValue = new byte[pageDigest.max.remaining()];
                         pageDigest.max.get(maxValue);
                         String maxString = enumValues.get(BytesUtils.bytesToInt(maxValue) - 1);
-                        valueDigestFF = new DigestForFilter(ByteBuffer.wrap(BytesUtils.StringToBytes(minString)), ByteBuffer.wrap(BytesUtils.StringToBytes(maxString)), TSDataType.BYTE_ARRAY);
+                        valueDigestFF = new DigestForFilter(ByteBuffer.wrap(BytesUtils.StringToBytes(minString)), ByteBuffer.wrap(BytesUtils.StringToBytes(maxString)), TSDataType.TEXT);
                     } else {
                         valueDigestFF = new DigestForFilter(pageDigest.min, pageDigest.max, getDataType());
                     }
@@ -398,7 +398,7 @@ public class ValueReader {
                                     timeIdx++;
                                 }
                                 break;
-                            case BYTE_ARRAY:
+                            case TEXT:
                                 while (decoder.hasNext(page)) {
                                     Binary v = decoder.readBinary(page);
                                     if ((valueFilter == null && timeFilter == null)
@@ -580,7 +580,7 @@ public class ValueReader {
                             }
                         }
                         break;
-                    case BYTE_ARRAY:
+                    case TEXT:
                         while (i < timeValues.length && timeIdx < timestamps.length) {
                             while (i < timeValues.length && timeValues[i] < timestamps[timeIdx]) {
                                 i++;

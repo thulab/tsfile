@@ -98,7 +98,7 @@ public class Field {
                 return String.valueOf(floatV);
             case DOUBLE:
                 return String.valueOf(doubleV);
-            case BYTE_ARRAY:
+            case TEXT:
                 return binaryV.toString();
             case ENUMS:
                 return binaryV.toString();

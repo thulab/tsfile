@@ -96,7 +96,7 @@ public final class FilterFactory {
      */
     public static StringFilterSeries stringFilterSeries(String deltaObjectUID, String measurementUID,
                                                         FilterSeriesType filterType) {
-        return new StringFilterSeries(deltaObjectUID, measurementUID, TSDataType.BYTE_ARRAY, filterType);
+        return new StringFilterSeries(deltaObjectUID, measurementUID, TSDataType.TEXT, filterType);
     }
 
     /**

@@ -92,7 +92,7 @@ public class RowRecord {
                 return new IntDataPoint(measurementId, f.getIntV());
             case INT64:
                 return new LongDataPoint(measurementId, f.getLongV());
-            case BYTE_ARRAY:
+            case TEXT:
                 return new StringDataPoint(measurementId, Binary.valueOf(f.getStringValue()));
             default:
                 throw new UnSupportedDataTypeException(String.valueOf(dataType));

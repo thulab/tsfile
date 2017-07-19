@@ -36,7 +36,7 @@ public abstract class Statistics<T> {
                 return new IntegerStatistics();
             case INT64:
                 return new LongStatistics();
-            case BYTE_ARRAY:
+            case TEXT:
                 return new BinaryStatistics();
             case ENUMS:
                 return new NoStatistics();

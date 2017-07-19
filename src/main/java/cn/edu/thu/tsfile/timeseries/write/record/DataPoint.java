@@ -53,7 +53,7 @@ public abstract class DataPoint {
             case BOOLEAN:
                 dataPoint = new BooleanDataPoint(measurementId, Boolean.valueOf(value));
                 break;
-            case BYTE_ARRAY:
+            case TEXT:
                 dataPoint = new StringDataPoint(measurementId, new Binary(value));
                 break;
             case BIGDECIMAL:

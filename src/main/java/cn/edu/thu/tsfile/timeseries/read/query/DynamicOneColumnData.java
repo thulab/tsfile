@@ -100,7 +100,7 @@ public class DynamicOneColumnData {
                 doubleRet = new ArrayList<>();
                 doubleRet.add(new double[CAPACITY]);
                 break;
-            case BYTE_ARRAY:
+            case TEXT:
                 binaryRet = new ArrayList<>();
                 binaryRet.add(new Binary[CAPACITY]);
                 break;
@@ -184,7 +184,7 @@ public class DynamicOneColumnData {
                     putDouble(col.getDouble(i));
                 }
                 break;
-            case BYTE_ARRAY:
+            case TEXT:
                 for (int i = 0; i < col.length; i++) {
                     putBinary(col.getBinary(i));
                 }
@@ -391,7 +391,7 @@ public class DynamicOneColumnData {
             case DOUBLE:
                 putDouble((double) v);
                 break;
-            case FIXED_LEN_BYTE_ARRAY:
+            case TEXT:
                 putBinary((Binary) v);
                 break;
             default:
@@ -405,7 +405,7 @@ public class DynamicOneColumnData {
                 return getBoolean(idx);
             case DOUBLE:
                 return getDouble(idx);
-            case FIXED_LEN_BYTE_ARRAY:
+            case TEXT:
                 return getBinary(idx);
             case FLOAT:
                 return getFloat(idx);
@@ -426,7 +426,7 @@ public class DynamicOneColumnData {
             case DOUBLE:
                 setDouble(idx, (Double) v);
                 break;
-            case FIXED_LEN_BYTE_ARRAY:
+            case TEXT:
                 setBinary(idx, (Binary) v);
                 break;
             case FLOAT:
@@ -455,7 +455,7 @@ public class DynamicOneColumnData {
                 return String.valueOf(getFloat(idx));
             case DOUBLE:
                 return String.valueOf(getDouble(idx));
-            case BYTE_ARRAY:
+            case TEXT:
                 return String.valueOf(getBinary(idx));
             case ENUMS:
                 return String.valueOf(getBinary(idx));
@@ -482,7 +482,7 @@ public class DynamicOneColumnData {
             case DOUBLE:
                 v = String.valueOf(getDouble(idx));
                 break;
-            case BYTE_ARRAY:
+            case TEXT:
                 v = String.valueOf(getBinary(idx));
                 break;
             case ENUMS:
@@ -516,7 +516,7 @@ public class DynamicOneColumnData {
             case DOUBLE:
                 putDouble(B.getDouble(idx));
                 break;
-            case BYTE_ARRAY:
+            case TEXT:
                 putBinary(B.getBinary(idx));
                 break;
             case ENUMS:
@@ -554,7 +554,7 @@ public class DynamicOneColumnData {
                     case DOUBLE:
                         doubleRet.remove(arrayIdx);
                         break;
-                    case BYTE_ARRAY:
+                    case TEXT:
                         binaryRet.remove(arrayIdx);
                         break;
                     case ENUMS:
@@ -594,7 +594,7 @@ public class DynamicOneColumnData {
                 setDouble(aimIdx, B.getDouble(idx));
                 break;
             case ENUMS:
-            case BYTE_ARRAY:
+            case TEXT:
                 putBinary(B.getBinary(idx));
                 setBinary(aimIdx, B.getBinary(idx));
                 break;

@@ -62,7 +62,7 @@ public class RecordUtilsTest {
                 TSEncoding.PLAIN.toString());
         JSONObject s7 = new JSONObject();
         s7.put(JsonFormatConstant.MEASUREMENT_UID, "s7");
-        s7.put(JsonFormatConstant.DATA_TYPE, TSDataType.BYTE_ARRAY.toString());
+        s7.put(JsonFormatConstant.DATA_TYPE, TSDataType.TEXT.toString());
         s7.put(JsonFormatConstant.MEASUREMENT_ENCODING,
                 TSEncoding.PLAIN.toString());
         JSONArray columnGroup1 = new JSONArray();

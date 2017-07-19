@@ -155,7 +155,7 @@ public class QueryDataSet {
             case DOUBLE:
                 f.setDoubleV(col.getDouble(idx));
                 break;
-            case BYTE_ARRAY:
+            case TEXT:
                 f.setBinaryV(col.getBinary(idx));
                 break;
             case ENUMS:
