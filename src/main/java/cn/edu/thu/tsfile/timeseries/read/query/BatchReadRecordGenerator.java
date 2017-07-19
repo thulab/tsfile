@@ -1,14 +1,13 @@
 package cn.edu.thu.tsfile.timeseries.read.query;
 
+import cn.edu.thu.tsfile.common.exception.ProcessorException;
+import cn.edu.thu.tsfile.timeseries.read.qp.Path;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.PriorityQueue;
-
-import cn.edu.thu.tsfile.common.exception.ProcessorException;
-import cn.edu.thu.tsfile.timeseries.read.qp.Path;
-
 
 /**
  * This is class is used for {@code OverflowQueryEngine#readWithoutFilter} and

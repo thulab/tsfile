@@ -20,7 +20,7 @@ public class TSFileConfig {
      * The maximum number of data points in a page, defalut value is 1024 * 1024
      */
     public int maxNumberOfPointsInPage = 1024 * 1024;
-    
+
     // Data type configuration
     /**
      * Data type for input timestamp, TsFile supports INT32 or INT64
@@ -29,12 +29,12 @@ public class TSFileConfig {
     /**
      * Max length limitation of input string
      */
-    public int maxStringLength = 128;    
+    public int maxStringLength = 128;
     /**
      * Floating-point precision
      */
     public int floatPrecision = 2;
-    
+
     // Encoder configuration
     /**
      * Encoder of time series, TsFile supports TS_2DIFF, PLAIN and RLE(run-length encoding)
@@ -42,11 +42,11 @@ public class TSFileConfig {
      */
     public String timeSeriesEncoder = "TS_2DIFF";
     /**
-     * Encoder of value series. default value is RLE. 
+     * Encoder of value series. default value is RLE.
      * For int, long, float, double data type, TsFile also supports TS_2DIFF and RLE(run-length encoding)
      */
     public String valueEncoder = "PLAIN";
-    
+
     // RLE configuration
     /**
      * Default bit width of RLE encoding is 8
@@ -54,17 +54,17 @@ public class TSFileConfig {
     public int rleBitWidth = 8;
     public final int RLE_MIN_REPEATED_NUM = 8;
     public final int RLE_MAX_REPEATED_NUM = 0x7FFFFF;
-    public final int RLE_MAX_BIT_PACKED_NUM = 63;    
-    
+    public final int RLE_MAX_BIT_PACKED_NUM = 63;
+
     // TS_2DIFF configuration
     /**
      * Default block size of two-diff. delta encoding is 128
      */
-    public int deltaBlockSize = 128;    
-    
+    public int deltaBlockSize = 128;
+
     // Bitmap configuration
     public final int BITMAP_BITWIDTH = 1;
-    
+
     // Freq encoder configuration
     /**
      * Default frequency type is SINGLE_FREQ
@@ -80,18 +80,18 @@ public class TSFileConfig {
     public double sdtMaxError = 100;
     /**
      * Default DFT satisfy rate is 0.1
-     */   
+     */
     public double dftSatisfyRate = 0.1;
 
     // Compression configuration
     /**
-     * Data compression method, TsFile supports UNCOMPRESSED or SNAPPY. 
+     * Data compression method, TsFile supports UNCOMPRESSED or SNAPPY.
      * Default value is UNCOMPRESSED which means no compression
      */
     public String compressor = "UNCOMPRESSED";
-    
+
     // Don't change the following configuration
-    
+
     /**
      * Line count threshold for checking page memory occupied size
      */
@@ -116,13 +116,13 @@ public class TSFileConfig {
      * String encoder with UTF-8 encodes a character to at most 4 bytes.
      */
     public static final int BYTE_SIZE_PER_CHAR = 4;
-    
+
     public static final String STRING_ENCODING = "UTF-8";
-    
+
     public static final String CONFIG_NAME = "tsfile-format.properties";
-    
+
     public static String CONFIG_DEFAULT_PATH = "src/test/resources/" + CONFIG_NAME;
-    
+
     public TSFileConfig() {
 
     }

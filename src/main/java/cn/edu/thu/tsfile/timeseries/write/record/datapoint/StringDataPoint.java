@@ -11,10 +11,9 @@ import java.io.IOException;
 
 /**
  * a subclass for Integer data type extends DataPoint
- * 
- * @see DataPoint DataPoint
- * @author kangrong
  *
+ * @author kangrong
+ * @see DataPoint DataPoint
  */
 public class StringDataPoint extends DataPoint {
     private static final Logger LOG = LoggerFactory.getLogger(StringDataPoint.class);

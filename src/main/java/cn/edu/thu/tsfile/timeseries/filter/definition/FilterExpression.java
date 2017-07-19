@@ -8,9 +8,8 @@ import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
  * FilterExpression has two types of subclass : {@link SingleSeriesFilterExpression} and
  * {@link CrossSeriesFilterExpression}.</br>
  * FilterExpression is a role of interviewee in visitor pattern.
- * 
- * @author CGF
  *
+ * @author CGF
  */
 public interface FilterExpression {
     /**

@@ -1,12 +1,12 @@
 package cn.edu.thu.tsfile.timeseries.read.management;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.thu.tsfile.timeseries.read.LocalFileInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * This class provides some function to get one FileReader for one path.
@@ -22,16 +22,16 @@ public class FileStreamManager {
 
     }
 
+    public static FileStreamManager getInstance() {
+        return instance;
+    }
+
     public TSRandomAccessFileReader getLocalRandomAcessFileReader(String path) throws FileNotFoundException {
         return new LocalFileInput(path);
     }
 
     public void closeLocalRandomAcessFileReader(LocalFileInput localFileInput) throws IOException {
         localFileInput.close();
-    }
-
-    public static FileStreamManager getInstance() {
-        return instance;
     }
 
     public void close(TSRandomAccessFileReader raf) {

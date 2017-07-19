@@ -1,13 +1,13 @@
 package cn.edu.thu.tsfile.timeseries.write.series;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-
 import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.common.utils.ListByteArrayOutputStream;
 import cn.edu.thu.tsfile.common.utils.PublicBAOS;
 import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
 import cn.edu.thu.tsfile.encoding.encoder.Encoder;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  * This function is used to write time-value into a time series. It consists of a time encoder, a
@@ -73,7 +73,7 @@ public class ValueWriter {
 
     /**
      * flush all data remained in encoders.
-     * 
+     *
      * @throws IOException
      */
     private void prepareEndWriteOnePage() throws IOException {
@@ -85,7 +85,7 @@ public class ValueWriter {
 
     /**
      * getBytes return data what it has been written in form of <code>ListByteArrayOutputStream</code>.
-     * 
+     *
      * @return - list byte array output stream containing time size, time stream and value stream.
      */
     public ListByteArrayOutputStream getBytes() throws IOException {
@@ -96,7 +96,7 @@ public class ValueWriter {
 
     /**
      * calculate max possible memory size it occupies, including time outputStream and value outputStream
-     * 
+     *
      * @return allocated size in time, value and outputStream
      */
     public long estimateMaxMemSize() {

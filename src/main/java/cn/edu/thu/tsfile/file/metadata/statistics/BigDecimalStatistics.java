@@ -1,19 +1,19 @@
 package cn.edu.thu.tsfile.file.metadata.statistics;
 
-import java.math.BigDecimal;
-
 import cn.edu.thu.tsfile.common.utils.BytesUtils;
+
+import java.math.BigDecimal;
 
 /**
  * Statistics for BigDecimal type
- * @author kangrong
  *
+ * @author kangrong
  */
-public class BigDecimalStatistics extends Statistics<BigDecimal>{
+public class BigDecimalStatistics extends Statistics<BigDecimal> {
     private BigDecimal max;
     private BigDecimal min;
-    
-    
+
+
     @Override
     public void updateStats(BigDecimal value) {
         if (this.isEmpty) {
@@ -75,9 +75,9 @@ public class BigDecimalStatistics extends Statistics<BigDecimal>{
         max = new BigDecimal(BytesUtils.bytesToDouble(maxBytes));
         min = new BigDecimal(BytesUtils.bytesToDouble(minBytes));
     }
-    
+
     @Override
-    public String toString(){
-        return "[max:"+max+",min:"+min+"]";
+    public String toString() {
+        return "[max:" + max + ",min:" + min + "]";
     }
 }

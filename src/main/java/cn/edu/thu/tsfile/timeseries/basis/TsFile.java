@@ -4,23 +4,23 @@ import cn.edu.thu.tsfile.common.conf.TSFileConfig;
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
+import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.read.metadata.SeriesSchema;
 import cn.edu.thu.tsfile.timeseries.read.qp.Path;
+import cn.edu.thu.tsfile.timeseries.read.query.QueryDataSet;
 import cn.edu.thu.tsfile.timeseries.read.query.QueryEngine;
+import cn.edu.thu.tsfile.timeseries.utils.RecordUtils;
 import cn.edu.thu.tsfile.timeseries.write.InternalRecordWriter;
 import cn.edu.thu.tsfile.timeseries.write.TSRecordWriteSupport;
 import cn.edu.thu.tsfile.timeseries.write.TSRecordWriter;
 import cn.edu.thu.tsfile.timeseries.write.WriteSupport;
 import cn.edu.thu.tsfile.timeseries.write.exception.WriteProcessException;
+import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 import cn.edu.thu.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
-import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileWriter;
-import cn.edu.thu.tsfile.timeseries.read.query.QueryDataSet;
-import cn.edu.thu.tsfile.timeseries.utils.RecordUtils;
-import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class TsFile {
      * For Write
      *
      * @param tsFileOutputStream an output stream of TsFile
-     * @param schemaJson       the fileSchema of TsFile in type of JSON
+     * @param schemaJson         the fileSchema of TsFile in type of JSON
      */
     public TsFile(TSRandomAccessFileWriter tsFileOutputStream, JSONObject schemaJson)
             throws IOException, WriteProcessException {
@@ -65,7 +65,7 @@ public class TsFile {
      * For Write
      *
      * @param tsFileOutputStream an output stream of TsFile
-     * @param schema the fileSchema of TsFile
+     * @param schema             the fileSchema of TsFile
      */
     public TsFile(TSRandomAccessFileWriter tsFileOutputStream, FileSchema schema)
             throws IOException, WriteProcessException {
@@ -82,6 +82,18 @@ public class TsFile {
     }
 
     /**
+     * Notice: This constructor is only for reading TsFile.
+     *
+     * @param raf
+     * @throws IOException
+     */
+    public TsFile(TSRandomAccessFileReader raf) throws IOException {
+        this.status = READ;
+        queryEngine = new QueryEngine(raf);
+//        recordReader = queryEngine.recordReader;
+    }
+
+    /**
      * write a line into TsFile
      *
      * @param line a line of data
@@ -92,15 +104,6 @@ public class TsFile {
         checkStatus(WRITE);
         TSRecord record = RecordUtils.parseSimpleTupleRecord(line, fileSchema);
         innerWriter.write(record);
-    }
-
-    /**
-     * clear and set new properties
-     *
-     * @param props
-     */
-    public void setProps(Map<String, String> props) {
-        fileSchema.setProps(props);
     }
 
     /**
@@ -135,26 +138,14 @@ public class TsFile {
         innerWriter.close();
     }
 
-    /**
-     * Notice: This constructor is only for reading TsFile.
-     *
-     * @param raf
-     * @throws IOException
-     */
-    public TsFile(TSRandomAccessFileReader raf) throws IOException {
-        this.status = READ;
-        queryEngine = new QueryEngine(raf);
-//        recordReader = queryEngine.recordReader;
-    }
-
     public QueryDataSet query(List<Path> paths, FilterExpression timeFilter,
                               FilterExpression valueFilter) throws IOException {
         checkStatus(READ);
-        if (paths.size()==1 && valueFilter instanceof SingleSeriesFilterExpression
+        if (paths.size() == 1 && valueFilter instanceof SingleSeriesFilterExpression
                 && paths.get(0).getDeltaObjectToString().equals(valueFilter.getFilterSeries().getDeltaObjectUID())
                 && paths.get(0).getMeasurementToString().equals(valueFilter.getFilterSeries().getMeasurementUID())) {
 
-        } else if (valueFilter != null){
+        } else if (valueFilter != null) {
             valueFilter = FilterFactory.csAnd(valueFilter, valueFilter);
         }
         return queryEngine.query(paths, timeFilter, null, valueFilter);
@@ -198,6 +189,7 @@ public class TsFile {
 
     /**
      * Check whether given path exists in this TsFile
+     *
      * @param path A path of one Series
      * @throws IOException
      */
@@ -224,8 +216,9 @@ public class TsFile {
 
     /**
      * Get all RowGroups' offsets in current TsFile
+     *
      * @return res.get(i) represents the End-Position for specific rowGroup i in
-     *         this file.
+     * this file.
      */
     public ArrayList<Long> getRowGroupPosList() throws IOException {
         checkStatus(READ);
@@ -246,12 +239,21 @@ public class TsFile {
         return queryEngine.getProps();
     }
 
+    /**
+     * clear and set new properties
+     *
+     * @param props
+     */
+    public void setProps(Map<String, String> props) {
+        fileSchema.setProps(props);
+    }
+
     public String getProp(String key) {
         return queryEngine.getProp(key);
     }
 
     private void checkStatus(int status) throws IOException {
-        if(status != this.status){
+        if (status != this.status) {
             String[] msg = new String[]{"WRITE", "READ"};
             throw new IOException("This method should be invoked in status " + msg[status]
                     + ", but current status is " + msg[this.status]);

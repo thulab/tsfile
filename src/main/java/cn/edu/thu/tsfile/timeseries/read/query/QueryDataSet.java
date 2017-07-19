@@ -1,15 +1,15 @@
 package cn.edu.thu.tsfile.timeseries.read.query;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.PriorityQueue;
-
 import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.timeseries.read.qp.Path;
 import cn.edu.thu.tsfile.timeseries.read.support.Field;
 import cn.edu.thu.tsfile.timeseries.read.support.RowRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.PriorityQueue;
 
 
 public class QueryDataSet {
@@ -18,8 +18,8 @@ public class QueryDataSet {
 
     //Time Generator for Cross Query when using batching read
     public CrossQueryTimeGenerator timeQueryDataSet;
+    public LinkedHashMap<String, DynamicOneColumnData> mapRet;
     protected BatchReadRecordGenerator batchReaderRetGenerator;
-
     //special for save time values when processing cross getIndex
     protected PriorityQueue<Long> heap;
     protected DynamicOneColumnData[] cols;
@@ -31,8 +31,6 @@ public class QueryDataSet {
     protected int size;
     protected boolean ifInit = false;
     protected RowRecord currentRecord = null;
-
-    public LinkedHashMap<String, DynamicOneColumnData> mapRet;
 
     public QueryDataSet() {
         mapRet = new LinkedHashMap<>();

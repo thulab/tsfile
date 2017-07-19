@@ -3,7 +3,7 @@ package cn.edu.thu.tsfile.common.constant;
 /***
  * this class define several constant string variables used in tsfile schema's
  * keys.
- * 
+ *
  * @author kangrong
  *
  */

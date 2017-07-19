@@ -1,11 +1,11 @@
 package cn.edu.thu.tsfile.timeseries.read.query;
 
-import java.util.ArrayList;
-
 import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
+
+import java.util.ArrayList;
 
 /**
  * DynamicOneColumnData is a self-defined data structure which is optimized for different type
@@ -15,44 +15,38 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpressi
  */
 public class DynamicOneColumnData {
 
+    public static final int CAPACITY = 10000;
     //Read status
     public int rowGroupIndex = 0;
     public long pageOffset = -1;
     public long leftSize = -1;
     public boolean hasReadAll = false;
     public int insertTrueIndex = 0;
-
-    public static final int CAPACITY = 10000;
-
-    private String deltaObjectType;
     public TSDataType dataType;
     public String deltaObject;
     public String measurementID;
-
     public int arrayIdx;
     public int valueIdx;
     public int length; // value length
     public int curIdx;
-
     //Some variables that record overflow information
     public DynamicOneColumnData insertTrue;
     public DynamicOneColumnData updateTrue;
     public DynamicOneColumnData updateFalse;
     public SingleSeriesFilterExpression timeFilter;
-    //End read status
-
     //Some variables that record time values
     public ArrayList<long[]> timeRet = null;
+    //End read status
     public int timeArrayIdx;
     public int timeValueIdx;
     public int timeLength;
-
     public ArrayList<boolean[]> booleanRet;
     public ArrayList<int[]> intRet;
     public ArrayList<long[]> longRet;
     public ArrayList<float[]> floatRet;
     public ArrayList<double[]> doubleRet;
     public ArrayList<Binary[]> binaryRet;
+    private String deltaObjectType;
 
     public DynamicOneColumnData() {
         dataType = null;

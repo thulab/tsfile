@@ -1,35 +1,34 @@
 package cn.edu.thu.tsfile.timeseries.filter.utils;
 
-import java.nio.ByteBuffer;
-
 import cn.edu.thu.tsfile.common.exception.filter.UnSupportFilterDataTypeException;
 import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.common.utils.BytesUtils;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 
+import java.nio.ByteBuffer;
+
 /**
- * @description class to construct digest.
  * @author ZJR
- *
+ * @description class to construct digest.
  */
 public class DigestForFilter {
 
     private ByteBuffer min = null;
     private ByteBuffer max = null;
     private TSDataType type;
-    
+
     public DigestForFilter(ByteBuffer min, ByteBuffer max, TSDataType type) {
         this.min = min;
         this.max = max;
         this.type = type;
     }
-    
-    public DigestForFilter(long minv, long maxv){
-    	this.min = ByteBuffer.wrap(BytesUtils.longToBytes(minv));
-    	this.max = ByteBuffer.wrap(BytesUtils.longToBytes(maxv));
-    	this.type = TSDataType.INT64;
+
+    public DigestForFilter(long minv, long maxv) {
+        this.min = ByteBuffer.wrap(BytesUtils.longToBytes(minv));
+        this.max = ByteBuffer.wrap(BytesUtils.longToBytes(maxv));
+        this.type = TSDataType.INT64;
     }
-    
+
     @SuppressWarnings("unchecked")
     public <T extends Comparable<T>> T getMinValue() {
         switch (type) {
@@ -88,9 +87,9 @@ public class DigestForFilter {
                 throw new UnSupportFilterDataTypeException("DigestForFilter unsupported datatype : " + type.toString());
         }
     }
-    
-    public TSDataType getType(){
-    	return type;
+
+    public TSDataType getType() {
+        return type;
     }
 
 }

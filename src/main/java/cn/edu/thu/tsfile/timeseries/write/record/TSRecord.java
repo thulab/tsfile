@@ -1,21 +1,20 @@
 package cn.edu.thu.tsfile.timeseries.write.record;
 
+import cn.edu.thu.tsfile.timeseries.utils.StringContainer;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import cn.edu.thu.tsfile.timeseries.utils.StringContainer;
 
 /**
  * TSRecord is a kind of format that TSFile receives.TSRecord contains timestamp, deltaObjectId and
  * a list of data points.
- * 
- * @author kangrong
  *
+ * @author kangrong
  */
 public class TSRecord {
     public long time;
     public String deltaObjectId;
-    public List<DataPoint> dataPointList = new ArrayList<DataPoint>();
+    public List<DataPoint> dataPointList = new ArrayList<>();
 
     public TSRecord(long timestamp, String deltaObjectId) {
         this.time = timestamp;

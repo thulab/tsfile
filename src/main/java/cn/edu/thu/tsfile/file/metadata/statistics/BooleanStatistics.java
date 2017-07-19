@@ -3,7 +3,7 @@ package cn.edu.thu.tsfile.file.metadata.statistics;
 import cn.edu.thu.tsfile.common.utils.BytesUtils;
 
 /**
- *  @author CGF
+ * @author CGF
  */
 public class BooleanStatistics extends Statistics<Boolean> {
     private boolean max;
@@ -73,7 +73,7 @@ public class BooleanStatistics extends Statistics<Boolean> {
     }
 
     @Override
-    public String toString(){
-        return "[max:"+max+",min:"+min+"]";
+    public String toString() {
+        return "[max:" + max + ",min:" + min + "]";
     }
 }

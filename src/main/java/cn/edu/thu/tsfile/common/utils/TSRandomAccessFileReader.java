@@ -4,20 +4,20 @@ import java.io.IOException;
 
 /**
  * Interface for file read.
- * @author Jinrui Zhang
  *
+ * @author Jinrui Zhang
  */
 public interface TSRandomAccessFileReader {
 
-    public void seek(long offset) throws IOException;
+    void seek(long offset) throws IOException;
 
-    public int read() throws IOException;
+    int read() throws IOException;
 
-    public int read(byte[] b, int off, int len) throws IOException;
+    int read(byte[] b, int off, int len) throws IOException;
 
-    public long length() throws IOException;
+    long length() throws IOException;
 
-    public int readInt() throws IOException;
-    
-    public void close() throws IOException;
+    int readInt() throws IOException;
+
+    void close() throws IOException;
 }

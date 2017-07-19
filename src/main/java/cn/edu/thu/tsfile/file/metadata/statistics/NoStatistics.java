@@ -6,13 +6,13 @@ import cn.edu.thu.tsfile.common.utils.Binary;
 /**
  * This statistic is used as Unsupported data type. It just return a 0-byte array while asked max or
  * min.
- * 
- * @author kangrong
  *
+ * @author kangrong
  */
 public class NoStatistics extends Statistics<Long> {
     @Override
-    public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {}
+    public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
+    }
 
     @Override
     public Long getMin() {
@@ -25,19 +25,24 @@ public class NoStatistics extends Statistics<Long> {
     }
 
     @Override
-    public void updateStats(boolean value) {}
+    public void updateStats(boolean value) {
+    }
 
     @Override
-    public void updateStats(int value) {}
+    public void updateStats(int value) {
+    }
 
     @Override
-    public void updateStats(long value) {}
+    public void updateStats(long value) {
+    }
 
     @Override
-    public void updateStats(Binary value) {}
+    public void updateStats(Binary value) {
+    }
 
     @Override
-    protected void mergeStatisticsMinMax(Statistics<?> stats) {}
+    protected void mergeStatisticsMinMax(Statistics<?> stats) {
+    }
 
     @Override
     public byte[] getMaxBytes() {

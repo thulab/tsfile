@@ -1,15 +1,15 @@
 package cn.edu.thu.tsfile.timeseries.read.query;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import cn.edu.thu.tsfile.common.exception.ProcessorException;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSAnd;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSOr;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.SingleValueVisitor;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * This class is used in batch query for Cross Query.
@@ -18,13 +18,13 @@ import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.SingleValueVisitor;
  */
 public abstract class CrossQueryTimeGenerator {
 
-    protected SingleSeriesFilterExpression timeFilter;
-    protected SingleSeriesFilterExpression freqFilter;
-    protected FilterExpression valueFilter;
     public ArrayList<DynamicOneColumnData> retMap;
     //	HashMap<String, SingleSeriesFilterExpression> filterMap;
     public ArrayList<Boolean> hasReadAllList;
     protected ArrayList<Long> lastValueList;
+    protected SingleSeriesFilterExpression timeFilter;
+    protected SingleSeriesFilterExpression freqFilter;
+    protected FilterExpression valueFilter;
     protected ArrayList<Integer> idxCount;
     protected int fetchSize;
     //to record which valueFilter is used
@@ -70,6 +70,7 @@ public abstract class CrossQueryTimeGenerator {
             return l + r + 1;
         }
     }
+
     /**
      * Calculate common time using FilterExpression.
      */
@@ -183,5 +184,4 @@ public abstract class CrossQueryTimeGenerator {
 
     public abstract DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize
             , SingleSeriesFilterExpression valueFilter) throws ProcessorException, IOException;
-
 }
