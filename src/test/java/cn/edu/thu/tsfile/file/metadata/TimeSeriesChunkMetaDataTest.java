@@ -10,6 +10,7 @@ import cn.edu.thu.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.thu.tsfile.file.metadata.enums.TSChunkType;
 import cn.edu.thu.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.thu.tsfile.file.metadata.utils.Utils;
+import cn.edu.thu.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.thu.tsfile.format.CompressionType;
 import org.junit.After;
 import org.junit.Before;
@@ -49,7 +50,7 @@ public class TimeSeriesChunkMetaDataTest {
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
     RandomAccessOutputStream out = new RandomAccessOutputStream(file, "rw");
-    Utils.write(metaData.convertToThrift(), out.getOutputStream());
+    ReadWriteThriftFormatUtils.write(metaData.convertToThrift(), out.getOutputStream());
 
     out.close();
     fos.close();
@@ -57,7 +58,7 @@ public class TimeSeriesChunkMetaDataTest {
     FileInputStream fis = new FileInputStream(new File(PATH));
     Utils.isTimeSeriesChunkMetaDataEqual(metaData, metaData.convertToThrift());
     Utils.isTimeSeriesChunkMetaDataEqual(metaData,
-        Utils.read(fis, new cn.edu.thu.tsfile.format.TimeSeriesChunkMetaData()));
+    		ReadWriteThriftFormatUtils.read(fis, new cn.edu.thu.tsfile.format.TimeSeriesChunkMetaData()));
   }
 
   @Test

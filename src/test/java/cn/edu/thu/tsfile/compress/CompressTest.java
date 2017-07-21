@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.xerial.snappy.Snappy;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;

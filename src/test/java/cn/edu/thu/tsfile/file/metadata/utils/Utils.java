@@ -2,9 +2,6 @@ package cn.edu.thu.tsfile.file.metadata.utils;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -15,12 +12,6 @@ import cn.edu.thu.tsfile.file.metadata.TInTimeSeriesChunkMetaData;
 import cn.edu.thu.tsfile.format.TimeInTimeSeriesChunkMetaData;
 import cn.edu.thu.tsfile.format.TimeSeries;
 import cn.edu.thu.tsfile.format.ValueInTimeSeriesChunkMetaData;
-import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TIOStreamTransport;
-
 import cn.edu.thu.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.thu.tsfile.file.metadata.TimeSeriesMetadata;
 import cn.edu.thu.tsfile.format.FileMetaData;
@@ -268,28 +259,28 @@ public class Utils {
     }
   }
 
-  public static void write(TBase<?, ?> tbase, OutputStream to) throws IOException {
-    try {
-      tbase.write(protocol(to));
-    } catch (TException e) {
-      throw new IOException(e);
-    }
-  }
-
-  public static <T extends TBase<?, ?>> T read(InputStream from, T tbase) throws IOException {
-    try {
-      tbase.read(protocol(from));
-      return tbase;
-    } catch (TException e) {
-      throw new IOException(e);
-    }
-  }
-
-  private static TProtocol protocol(OutputStream to) {
-    return new TCompactProtocol((new TIOStreamTransport(to)));
-  }
-
-  private static TProtocol protocol(InputStream from) {
-    return new TCompactProtocol((new TIOStreamTransport(from)));
-  }
+//  public static void write(TBase<?, ?> tbase, OutputStream to) throws IOException {
+//    try {
+//      tbase.write(protocol(to));
+//    } catch (TException e) {
+//      throw new IOException(e);
+//    }
+//  }
+//
+//  public static <T extends TBase<?, ?>> T read(InputStream from, T tbase) throws IOException {
+//    try {
+//      tbase.read(protocol(from));
+//      return tbase;
+//    } catch (TException e) {
+//      throw new IOException(e);
+//    }
+//  }
+//
+//  private static TProtocol protocol(OutputStream to) {
+//    return new TCompactProtocol((new TIOStreamTransport(to)));
+//  }
+//
+//  private static TProtocol protocol(InputStream from) {
+//    return new TCompactProtocol((new TIOStreamTransport(from)));
+//  }
 }
