@@ -2,9 +2,19 @@ package cn.edu.thu.tsfile.file.utils;
 
 import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.thu.tsfile.file.metadata.statistics.Statistics;
-import cn.edu.thu.tsfile.format.*;
+import cn.edu.thu.tsfile.format.DataPageHeader;
+import cn.edu.thu.tsfile.format.DictionaryPageHeader;
+import cn.edu.thu.tsfile.format.Digest;
+import cn.edu.thu.tsfile.format.Encoding;
+import cn.edu.thu.tsfile.format.FileMetaData;
+import cn.edu.thu.tsfile.format.PageHeader;
+import cn.edu.thu.tsfile.format.PageType;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.thrift.TBase;
+import org.apache.thrift.TDeserializer;
 import org.apache.thrift.TException;
+import org.apache.thrift.TSerializer;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
@@ -91,7 +101,12 @@ public class ReadWriteThriftFormatUtils {
      * @throws IOException
      */
     public static void writePageHeader(PageHeader pageHeader, OutputStream to) throws IOException {
-        write(pageHeader, to);
+        try {
+        	pageHeader.write(protocol(to));
+        } catch (TException e) {
+            LOGGER.error("tsfile-file Utils: can not write {}", pageHeader, e);
+            throw new IOException(e);
+        }
     }
 
     /**
@@ -101,28 +116,40 @@ public class ReadWriteThriftFormatUtils {
      * @throws IOException
      */
     public static PageHeader readPageHeader(InputStream from) throws IOException {
-        return read(from, new PageHeader());
+        return readPageHeader(from, new PageHeader());
     }
 
-    private static void write(TBase<?, ?> tbase, OutputStream to) throws IOException {
+    public static PageHeader readPageHeader(InputStream from, PageHeader header) throws IOException {
         try {
-            tbase.write(protocol(to));
+        	header.read(protocol(from));
+            return header;
+        } catch (TException e) {
+            LOGGER.error("tsfile-file Utils: can not read {}", header, e);
+            throw new IOException(e);
+        }
+    }    
+    
+    public static void write(TBase<?, ?> tbase, OutputStream to) throws IOException {
+        try {
+        	TSerializer serializer = new TSerializer(new TCompactProtocol.Factory());
+        	to.write(serializer.serialize(tbase));
         } catch (TException e) {
             LOGGER.error("tsfile-file Utils: can not write {}", tbase, e);
             throw new IOException(e);
         }
     }
 
-    private static <T extends TBase<?, ?>> T read(InputStream from, T tbase) throws IOException {
+    public static <T extends TBase<?, ?>> T read(InputStream from, T tbase) throws IOException {
         try {
-            tbase.read(protocol(from));
+        	TDeserializer deserializer = new TDeserializer(new TCompactProtocol.Factory());
+        	deserializer.deserialize(tbase, IOUtils.toByteArray(from));
             return tbase;
         } catch (TException e) {
             LOGGER.error("tsfile-file Utils: can not read {}", tbase, e);
             throw new IOException(e);
         }
     }
-
+    
     private static TProtocol protocol(OutputStream to) {
         return new TCompactProtocol((new TIOStreamTransport(to)));
     }
