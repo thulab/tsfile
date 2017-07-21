@@ -119,6 +119,16 @@ public class ReadWriteThriftFormatUtils {
         return readPageHeader(from, new PageHeader());
     }
 
+    public static PageHeader readPageHeader(InputStream from, PageHeader header) throws IOException {
+        try {
+        	header.read(protocol(from));
+            return header;
+        } catch (TException e) {
+            LOGGER.error("tsfile-file Utils: can not read {}", header, e);
+            throw new IOException(e);
+        }
+    }    
+    
     public static void write(TBase<?, ?> tbase, OutputStream to) throws IOException {
         try {
         	TSerializer serializer = new TSerializer(new TCompactProtocol.Factory());
@@ -133,17 +143,6 @@ public class ReadWriteThriftFormatUtils {
         try {
         	TDeserializer deserializer = new TDeserializer(new TCompactProtocol.Factory());
         	deserializer.deserialize(tbase, IOUtils.toByteArray(from));
-            return tbase;
-        } catch (TException e) {
-            LOGGER.error("tsfile-file Utils: can not read {}", tbase, e);
-            throw new IOException(e);
-        }
-    }
-
-
-    public static <T extends TBase<?, ?>> T readPageHeader(InputStream from, T tbase) throws IOException {
-        try {
-            tbase.read(protocol(from));
             return tbase;
         } catch (TException e) {
             LOGGER.error("tsfile-file Utils: can not read {}", tbase, e);
