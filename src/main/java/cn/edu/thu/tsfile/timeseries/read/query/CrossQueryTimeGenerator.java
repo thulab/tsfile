@@ -109,10 +109,10 @@ public abstract class CrossQueryTimeGenerator {
         if (valueFilter instanceof SingleSeriesFilterExpression) {
             DynamicOneColumnData res = retMap.get(dfsCnt);
 
-            if ((res == null) || (res.curIdx == res.length && !hasReadAllList.get(dfsCnt))) {
+            if ((res == null) || (res.curIdx == res.valueLength && !hasReadAllList.get(dfsCnt))) {
                 res = getMoreRecordForOneCol(dfsCnt, (SingleSeriesFilterExpression) valueFilter);
             }
-            if (res == null || res.curIdx == res.length) {
+            if (res == null || res.curIdx == res.valueLength) {
                 //represent this col has no more value
                 return -1;
             }
@@ -176,7 +176,7 @@ public abstract class CrossQueryTimeGenerator {
         }
         res = getDataInNextBatch(res, fetchSize, valueFilter);
         retMap.set(idx, res);
-        if (res == null || res.length == 0) {
+        if (res == null || res.valueLength == 0) {
             hasReadAllList.set(idx, true);
         }
         return res;

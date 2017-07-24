@@ -19,6 +19,7 @@ public class QueryDataSet {
     //Time Generator for Cross Query when using batching read
     public CrossQueryTimeGenerator timeQueryDataSet;
     public LinkedHashMap<String, DynamicOneColumnData> mapRet;
+    //TODO this variable need to be set in TsFileDB
     protected BatchReadRecordGenerator batchReaderRetGenerator;
     //special for save time values when processing cross getIndex
     protected PriorityQueue<Long> heap;
@@ -58,7 +59,7 @@ public class QueryDataSet {
             measurementIds[i] = key.substring(key.lastIndexOf(PATH_SPLITTER) + 1);
             idxs[i] = 0;
 
-            if (cols[i] != null && (cols[i].length > 0 || cols[i].timeLength > 0)) {
+            if (cols[i] != null && (cols[i].valueLength > 0 || cols[i].timeLength > 0)) {
                 heapPut(cols[i].getTime(0));
             }
             i++;
@@ -108,12 +109,12 @@ public class QueryDataSet {
             }
             Field f = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
 
-            if (idxs[i] < cols[i].length && minTime == cols[i].getTime(idxs[i])) {
+            if (idxs[i] < cols[i].valueLength && minTime == cols[i].getTime(idxs[i])) {
                 // f = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
                 f.setNull(false);
                 putValueToField(cols[i], idxs[i], f);
                 idxs[i]++;
-                if (idxs[i] < cols[i].length) {
+                if (idxs[i] < cols[i].valueLength) {
                     heapPut(cols[i].getTime(idxs[i]));
                 }
             } else {
@@ -173,6 +174,7 @@ public class QueryDataSet {
         }
     }
 
+    //TODO this method need to be removed
     public void putRecordFromBatchReadRetGenerator() {
         for (Path p : getBatchReaderRetGenerator().retMap.keySet()) {
             DynamicOneColumnData oneColRet = getBatchReaderRetGenerator().retMap.get(p);
@@ -181,7 +183,7 @@ public class QueryDataSet {
             //Copy batch read info from oneColRet to leftRet
             oneColRet.copyFetchInfoTo(leftRet);
             getBatchReaderRetGenerator().retMap.put(p, leftRet);
-            oneColRet.rollBack(oneColRet.length - oneColRet.curIdx);
+            oneColRet.rollBack(oneColRet.valueLength - oneColRet.curIdx);
             this.mapRet.put(p.getFullPath(), oneColRet);
         }
     }

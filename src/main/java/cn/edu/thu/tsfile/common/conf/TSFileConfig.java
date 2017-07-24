@@ -123,6 +123,11 @@ public class TSFileConfig {
 
     public static String CONFIG_DEFAULT_PATH = "src/test/resources/" + CONFIG_NAME;
 
+    /**
+     * The default grow size of class DynamicOneColumnData
+     */
+    public static int dynamicDataSize = 1000;
+
     public TSFileConfig() {
 
     }

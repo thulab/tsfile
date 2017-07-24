@@ -28,7 +28,7 @@ public class SingleValueVisitor<V extends Comparable<V>> implements FilterVisito
     }
 
     public SingleValueVisitor(SingleSeriesFilterExpression filter) {
-        verifier = FilterVerifier.get(filter);
+        verifier = FilterVerifier.create(filter.getFilterSeries().getSeriesDataType());
         this.ssfilter = filter;
     }
 
