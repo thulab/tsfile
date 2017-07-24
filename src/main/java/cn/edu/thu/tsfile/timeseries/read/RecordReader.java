@@ -57,7 +57,7 @@ public class RecordReader {
             RowGroupReader rowGroupReader = rowGroupReaderList.get(i);
             res = getValueInOneColumn(res, fetchSize, rowGroupReader, measurementId);
             res.setDeltaObjectType(rowGroupReader.getDeltaObjectType());
-            if (res.length >= fetchSize) {
+            if (res.valueLength >= fetchSize) {
                 res.hasReadAll = false;
                 break;
             }
@@ -138,7 +138,7 @@ public class RecordReader {
             for (int k = 0; k < rowGroupSkipCount; k++) {
                 res.plusRowGroupIndexAndInitPageOffset();
             }
-            if (res.length >= fetchSize) {
+            if (res.valueLength >= fetchSize) {
                 res.hasReadAll = false;
                 break;
             }
@@ -165,7 +165,7 @@ public class RecordReader {
             RowGroupReader rowGroupReader = rowGroupReaderList.get(i);
             res = getValuesUseFilter(res, fetchSize, rowGroupReader, measurementId, timeFilter, freqFilter, valueFilter);
             res.setDeltaObjectType(rowGroupReader.getDeltaObjectType());
-            if (res.length >= fetchSize) {
+            if (res.valueLength >= fetchSize) {
                 res.hasReadAll = false;
                 break;
             }
@@ -274,7 +274,7 @@ public class RecordReader {
             for (int k = 0; k < rowGroupSkipCount; k++) {
                 res.plusRowGroupIndexAndInitPageOffset();
             }
-            if (res.length >= fetchSize) {
+            if (res.valueLength >= fetchSize) {
                 res.hasReadAll = false;
                 break;
             }

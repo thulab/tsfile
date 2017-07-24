@@ -261,7 +261,7 @@ public class ValueReader {
         }
 
         // record the length of res before reading
-        int currentLength = res.length;
+        int currentLength = res.valueLength;
 
         if (columnSatisfied(valueFilter, timeFilter, freqFilter)) {
             log.debug("ValueFilter satisfied Or ValueFilter is null. [ValueFilter] is: " + valueFilter);
@@ -270,7 +270,7 @@ public class ValueReader {
             ByteArrayInputStream bis = initBAISForOnePage(res.pageOffset);
             PageReader pageReader = new PageReader(bis, compressionTypeName);
             int pageCount = 0;
-            while ((res.pageOffset - fileOffset) < totalSize && (res.length - currentLength) < fetchSize) {
+            while ((res.pageOffset - fileOffset) < totalSize && (res.valueLength - currentLength) < fetchSize) {
                 int lastAvailable = bis.available();
 
                 pageCount++;

@@ -76,16 +76,16 @@ public abstract class CrossQueryIteratorDataSet extends QueryDataSet {
             Field f;
 
             //get more fields in columns i
-            if (idxs[i] < cols[i].length) {
+            if (idxs[i] < cols[i].valueLength) {
                 //Get more fields from file...
             }
 
-            if (idxs[i] < cols[i].length && minTime == cols[i].getTime(idxs[i])) {
+            if (idxs[i] < cols[i].valueLength && minTime == cols[i].getTime(idxs[i])) {
                 f = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
                 f.setNull(false);
                 putValueToField(cols[i], idxs[i], f);
                 idxs[i]++;
-                if (idxs[i] < cols[i].length) {
+                if (idxs[i] < cols[i].valueLength) {
                     heapPut(cols[i].getTime(idxs[i]));
                 }
             } else {

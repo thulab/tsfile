@@ -1,6 +1,7 @@
 package cn.edu.thu.tsfile.timeseries.filter.verifier;
 
 import cn.edu.thu.tsfile.common.exception.filter.UnSupportFilterDataTypeException;
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.utils.Interval;
 import org.slf4j.Logger;
@@ -16,8 +17,8 @@ public abstract class FilterVerifier {
 
     private static final Logger LOG = LoggerFactory.getLogger(FilterVerifier.class);
 
-    public static FilterVerifier get(SingleSeriesFilterExpression filter) {
-        switch (filter.getFilterSeries().getSeriesDataType()) {
+    public static FilterVerifier create(TSDataType dataType) {
+        switch (dataType) {
             case INT32:
                 return new IntFilterVerifier();
             case INT64:

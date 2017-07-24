@@ -33,7 +33,7 @@ public abstract class BatchReadRecordGenerator {
         for (Path p : paths) {
             DynamicOneColumnData res = getMoreRecordsForOneColumn(p, null);
             retMap.put(p, res);
-            if (res.length == 0) {
+            if (res.valueLength == 0) {
                 hasMoreRet.put(p, false);
                 noRetCount++;
             } else {
@@ -47,7 +47,7 @@ public abstract class BatchReadRecordGenerator {
         heap = new PriorityQueue<>();
         for (Path p : retMap.keySet()) {
             DynamicOneColumnData res = retMap.get(p);
-            if (res.curIdx < res.length) {
+            if (res.curIdx < res.valueLength) {
                 heapPut(res.getTime(res.curIdx));
             }
         }
@@ -73,6 +73,7 @@ public abstract class BatchReadRecordGenerator {
     public abstract DynamicOneColumnData getMoreRecordsForOneColumn(Path p
             , DynamicOneColumnData res) throws ProcessorException, IOException;
 
+    // TODO this method need to be removed from TsFile
     public void calculateRecord() throws ProcessorException, IOException {
         int recordCount = 0;
         while (recordCount < fetchSize && noRetCount < retMap.size()) {
@@ -85,9 +86,9 @@ public abstract class BatchReadRecordGenerator {
                     DynamicOneColumnData res = retMap.get(p);
                     if (minTime.equals(res.getTime(res.curIdx))) {
                         res.curIdx++;
-                        if (res.curIdx == res.length) {
+                        if (res.curIdx == res.valueLength) {
                             res = getMoreRecordsForOneColumn(p, res);
-                            if (res.curIdx == res.length) {
+                            if (res.curIdx == res.valueLength) {
                                 hasMoreRet.put(p, false);
                                 noRetCount++;
                                 continue;
@@ -101,17 +102,3 @@ public abstract class BatchReadRecordGenerator {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

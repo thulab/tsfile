@@ -1,5 +1,6 @@
 package cn.edu.thu.tsfile.timeseries.read.query;
 
+import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
@@ -15,38 +16,37 @@ import java.util.ArrayList;
  */
 public class DynamicOneColumnData {
 
-    public static final int CAPACITY = 10000;
-    //Read status
+    private static int CAPACITY = 1000;
+
     public int rowGroupIndex = 0;
     public long pageOffset = -1;
     public long leftSize = -1;
     public boolean hasReadAll = false;
-    public int insertTrueIndex = 0;
     public TSDataType dataType;
-    public String deltaObject;
-    public String measurementID;
-    public int arrayIdx;
-    public int valueIdx;
-    public int length; // value length
+    private String deltaObjectType;
     public int curIdx;
-    //Some variables that record overflow information
-    public DynamicOneColumnData insertTrue;
-    public DynamicOneColumnData updateTrue;
-    public DynamicOneColumnData updateFalse;
-    public SingleSeriesFilterExpression timeFilter;
-    //Some variables that record time values
+    public int insertTrueIndex = 0;
+
+    public int timeArrayIdx;  // the number of ArrayList in timeRet
+    private int curTimeIdx;      // the index of current ArrayList in timeRet
+    private int timeLength;   // the insert timestamp number of timeRet
+    private int valueArrayIdx;// the number of ArrayList in valueRet
+    private int curValueIdx;     // the index of current ArrayList in valueRet
+    public int valueLength;  // the insert value number of valueRet
+
     public ArrayList<long[]> timeRet = null;
-    //End read status
-    public int timeArrayIdx;
-    public int timeValueIdx;
-    public int timeLength;
     public ArrayList<boolean[]> booleanRet;
     public ArrayList<int[]> intRet;
     public ArrayList<long[]> longRet;
     public ArrayList<float[]> floatRet;
     public ArrayList<double[]> doubleRet;
     public ArrayList<Binary[]> binaryRet;
-    private String deltaObjectType;
+
+    // some variables that record overflow information
+    public DynamicOneColumnData insertTrue;
+    public DynamicOneColumnData updateTrue;
+    public DynamicOneColumnData updateFalse;
+    public SingleSeriesFilterExpression timeFilter;
 
     public DynamicOneColumnData() {
         dataType = null;
@@ -66,16 +66,17 @@ public class DynamicOneColumnData {
 
     public void init(TSDataType type, boolean recordTime) {
         this.dataType = type;
-        this.arrayIdx = 0;
-        this.valueIdx = 0;
-        this.length = 0;
+        this.valueArrayIdx = 0;
+        this.curValueIdx = 0;
+        this.valueLength = 0;
         this.curIdx = 0;
+        CAPACITY = TSFileDescriptor.getInstance().getConfig().dynamicDataSize;
 
         if (recordTime) {
             timeRet = new ArrayList<>();
             timeRet.add(new long[CAPACITY]);
             timeArrayIdx = 0;
-            timeValueIdx = 0;
+            curTimeIdx = 0;
             timeLength = 0;
         }
 
@@ -114,39 +115,13 @@ public class DynamicOneColumnData {
     }
 
     public void putTime(long v) {
-        if (timeValueIdx == CAPACITY) {
+        if (curTimeIdx == CAPACITY) {
             this.timeRet.add(new long[CAPACITY]);
             timeArrayIdx++;
-            timeValueIdx = 0;
+            curTimeIdx = 0;
         }
-        (timeRet.get(timeArrayIdx))[timeValueIdx++] = v;
+        (timeRet.get(timeArrayIdx))[curTimeIdx++] = v;
         timeLength++;
-    }
-
-    public void putTimePair(long s, long e) {
-        if (timeValueIdx == CAPACITY) {
-            this.timeRet.add(new long[CAPACITY]);
-            timeArrayIdx++;
-            timeValueIdx = 0;
-        }
-        (timeRet.get(timeArrayIdx))[timeValueIdx++] = s;
-        timeLength++;
-
-        if (timeValueIdx == CAPACITY) {
-            this.timeRet.add(new long[CAPACITY]);
-            timeArrayIdx++;
-            timeValueIdx = 0;
-        }
-        (timeRet.get(timeArrayIdx))[timeValueIdx++] = e;
-        timeLength++;
-    }
-
-    public void initTimeRet() {
-        timeRet = new ArrayList<>();
-        timeRet.add(new long[CAPACITY]);
-        timeArrayIdx = 0;
-        timeValueIdx = 0;
-        timeLength = 0;
     }
 
     /**
@@ -160,37 +135,37 @@ public class DynamicOneColumnData {
         }
         switch (dataType) {
             case BOOLEAN:
-                for (int i = 0; i < col.length; i++) {
+                for (int i = 0; i < col.valueLength; i++) {
                     putBoolean(col.getBoolean(i));
                 }
                 break;
             case INT32:
-                for (int i = 0; i < col.length; i++) {
+                for (int i = 0; i < col.valueLength; i++) {
                     putInt(col.getInt(i));
                 }
                 break;
             case INT64:
-                for (int i = 0; i < col.length; i++) {
+                for (int i = 0; i < col.valueLength; i++) {
                     putLong(col.getLong(i));
                 }
                 break;
             case FLOAT:
-                for (int i = 0; i < col.length; i++) {
+                for (int i = 0; i < col.valueLength; i++) {
                     putFloat(col.getFloat(i));
                 }
                 break;
             case DOUBLE:
-                for (int i = 0; i < col.length; i++) {
+                for (int i = 0; i < col.valueLength; i++) {
                     putDouble(col.getDouble(i));
                 }
                 break;
             case TEXT:
-                for (int i = 0; i < col.length; i++) {
+                for (int i = 0; i < col.valueLength; i++) {
                     putBinary(col.getBinary(i));
                 }
                 break;
             case ENUMS:
-                for (int i = 0; i < col.length; i++) {
+                for (int i = 0; i < col.valueLength; i++) {
                     putBinary(col.getBinary(i));
                 }
                 break;
@@ -200,75 +175,75 @@ public class DynamicOneColumnData {
     }
 
     public void putBoolean(boolean v) {
-        if (valueIdx == CAPACITY) {
-            if (this.booleanRet.size() <= arrayIdx + 1) {
+        if (curValueIdx == CAPACITY) {
+            if (this.booleanRet.size() <= valueArrayIdx + 1) {
                 this.booleanRet.add(new boolean[CAPACITY]);
             }
-            arrayIdx++;
-            valueIdx = 0;
+            valueArrayIdx++;
+            curValueIdx = 0;
         }
-        (this.booleanRet.get(arrayIdx))[valueIdx++] = v;
-        length++;
+        (this.booleanRet.get(valueArrayIdx))[curValueIdx++] = v;
+        valueLength++;
     }
 
     public void putInt(int v) {
-        if (valueIdx == CAPACITY) {
-            if (this.intRet.size() <= arrayIdx + 1) {
+        if (curValueIdx == CAPACITY) {
+            if (this.intRet.size() <= valueArrayIdx + 1) {
                 this.intRet.add(new int[CAPACITY]);
             }
-            arrayIdx++;
-            valueIdx = 0;
+            valueArrayIdx++;
+            curValueIdx = 0;
         }
-        (this.intRet.get(arrayIdx))[valueIdx++] = v;
-        length++;
+        (this.intRet.get(valueArrayIdx))[curValueIdx++] = v;
+        valueLength++;
     }
 
     public void putLong(long v) {
-        if (valueIdx == CAPACITY) {
-            if (this.longRet.size() <= arrayIdx + 1) {
+        if (curValueIdx == CAPACITY) {
+            if (this.longRet.size() <= valueArrayIdx + 1) {
                 this.longRet.add(new long[CAPACITY]);
             }
-            arrayIdx++;
-            valueIdx = 0;
+            valueArrayIdx++;
+            curValueIdx = 0;
         }
-        (this.longRet.get(arrayIdx))[valueIdx++] = v;
-        length++;
+        (this.longRet.get(valueArrayIdx))[curValueIdx++] = v;
+        valueLength++;
     }
 
     public void putFloat(float v) {
-        if (valueIdx == CAPACITY) {
-            if (this.floatRet.size() <= arrayIdx + 1) {
+        if (curValueIdx == CAPACITY) {
+            if (this.floatRet.size() <= valueArrayIdx + 1) {
                 this.floatRet.add(new float[CAPACITY]);
             }
-            arrayIdx++;
-            valueIdx = 0;
+            valueArrayIdx++;
+            curValueIdx = 0;
         }
-        (this.floatRet.get(arrayIdx))[valueIdx++] = v;
-        length++;
+        (this.floatRet.get(valueArrayIdx))[curValueIdx++] = v;
+        valueLength++;
     }
 
     public void putDouble(double v) {
-        if (valueIdx == CAPACITY) {
-            if (this.doubleRet.size() <= arrayIdx + 1) {
+        if (curValueIdx == CAPACITY) {
+            if (this.doubleRet.size() <= valueArrayIdx + 1) {
                 this.doubleRet.add(new double[CAPACITY]);
             }
-            arrayIdx++;
-            valueIdx = 0;
+            valueArrayIdx++;
+            curValueIdx = 0;
         }
-        (this.doubleRet.get(arrayIdx))[valueIdx++] = v;
-        length++;
+        (this.doubleRet.get(valueArrayIdx))[curValueIdx++] = v;
+        valueLength++;
     }
 
     public void putBinary(Binary v) {
-        if (valueIdx == CAPACITY) {
-            if (this.binaryRet.size() <= arrayIdx + 1) {
+        if (curValueIdx == CAPACITY) {
+            if (this.binaryRet.size() <= valueArrayIdx + 1) {
                 this.binaryRet.add(new Binary[CAPACITY]);
             }
-            arrayIdx++;
-            valueIdx = 0;
+            valueArrayIdx++;
+            curValueIdx = 0;
         }
-        (this.binaryRet.get(arrayIdx))[valueIdx++] = v;
-        length++;
+        (this.binaryRet.get(valueArrayIdx))[curValueIdx++] = v;
+        valueLength++;
     }
 
     /**
@@ -279,8 +254,8 @@ public class DynamicOneColumnData {
         if (idx < 0) {
             throw new IndexOutOfBoundsException("Index is negative: " + idx);
         }
-        if (idx >= length) {
-            throw new IndexOutOfBoundsException("Index : " + idx + ". Length : " + length);
+        if (idx >= valueLength) {
+            throw new IndexOutOfBoundsException("Index : " + idx + ". Length : " + valueLength);
         }
     }
 
@@ -293,7 +268,7 @@ public class DynamicOneColumnData {
             throw new IndexOutOfBoundsException("Index is negative: " + idx);
         }
         if (idx >= timeLength) {
-            throw new IndexOutOfBoundsException("Index : " + idx + ". Length : " + length);
+            throw new IndexOutOfBoundsException("Index : " + idx + ". Length : " + valueLength);
         }
     }
 
@@ -529,47 +504,47 @@ public class DynamicOneColumnData {
 
     public void rollBack(int size) {
         //rollback the length
-        length -= size;
+        valueLength -= size;
         timeLength -= size;
-        if (size <= valueIdx) {
-            valueIdx -= size;
-            timeValueIdx -= size;
+        if (size <= curValueIdx) {
+            curValueIdx -= size;
+            curTimeIdx -= size;
         } else {
-            size -= valueIdx;
+            size -= curValueIdx;
             size += CAPACITY;
             while (size > CAPACITY) {
                 switch (dataType) {
                     case BOOLEAN:
-                        booleanRet.remove(arrayIdx);
+                        booleanRet.remove(valueArrayIdx);
                         break;
                     case INT32:
-                        intRet.remove(arrayIdx);
+                        intRet.remove(valueArrayIdx);
                         break;
                     case INT64:
-                        longRet.remove(arrayIdx);
+                        longRet.remove(valueArrayIdx);
                         break;
                     case FLOAT:
-                        floatRet.remove(arrayIdx);
+                        floatRet.remove(valueArrayIdx);
                         break;
                     case DOUBLE:
-                        doubleRet.remove(arrayIdx);
+                        doubleRet.remove(valueArrayIdx);
                         break;
                     case TEXT:
-                        binaryRet.remove(arrayIdx);
+                        binaryRet.remove(valueArrayIdx);
                         break;
                     case ENUMS:
-                        binaryRet.remove(arrayIdx);
+                        binaryRet.remove(valueArrayIdx);
                         break;
                     default:
                         throw new UnSupportedDataTypeException(String.valueOf(dataType));
                 }
-                arrayIdx--;
+                valueArrayIdx--;
                 timeRet.remove(timeArrayIdx);
                 timeArrayIdx--;
 
                 size -= CAPACITY;
             }
-            valueIdx = CAPACITY - size;
+            curValueIdx = CAPACITY - size;
         }
     }
 
@@ -608,7 +583,7 @@ public class DynamicOneColumnData {
     }
 
     public DynamicOneColumnData sub(int startPos) {
-        return sub(startPos, this.length - 1);
+        return sub(startPos, this.valueLength - 1);
     }
 
     public DynamicOneColumnData sub(int startPos, int endPos) {
