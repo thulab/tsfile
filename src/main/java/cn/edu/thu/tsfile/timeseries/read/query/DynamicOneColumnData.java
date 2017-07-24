@@ -32,7 +32,7 @@ public class DynamicOneColumnData {
     public int timeLength;   // the insert timestamp number of timeRet
     private int valueArrayIdx;// the number of ArrayList in valueRet
     private int curValueIdx;     // the index of current ArrayList in valueRet
-    public int valueLength;  // the insert value number of valueRet
+    public int length;  // the insert value number of valueRet
 
     public ArrayList<long[]> timeRet = null;
     public ArrayList<boolean[]> booleanRet;
