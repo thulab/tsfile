@@ -1,5 +1,6 @@
 package cn.edu.thu.tsfile.timeseries.read.query;
 
+import cn.edu.thu.tsfile.common.conf.TSFileConfig;
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.common.utils.Binary;
@@ -70,7 +71,7 @@ public class DynamicOneColumnData {
         this.curValueIdx = 0;
         this.valueLength = 0;
         this.curIdx = 0;
-        CAPACITY = TSFileDescriptor.getInstance().getConfig().dynamicDataSize;
+        CAPACITY = TSFileConfig.dynamicDataSize;
 
         if (recordTime) {
             timeRet = new ArrayList<>();
