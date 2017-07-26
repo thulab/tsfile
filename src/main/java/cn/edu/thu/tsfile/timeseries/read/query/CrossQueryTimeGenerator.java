@@ -21,7 +21,7 @@ public abstract class CrossQueryTimeGenerator {
     public ArrayList<DynamicOneColumnData> retMap;
     //	HashMap<String, SingleSeriesFilterExpression> filterMap;
     public ArrayList<Boolean> hasReadAllList;
-    protected ArrayList<Long> lastValueList;
+    protected ArrayList<Long> lastValueList; //
     protected SingleSeriesFilterExpression timeFilter;
     protected SingleSeriesFilterExpression freqFilter;
     protected FilterExpression valueFilter;
@@ -109,9 +109,11 @@ public abstract class CrossQueryTimeGenerator {
         if (valueFilter instanceof SingleSeriesFilterExpression) {
             DynamicOneColumnData res = retMap.get(dfsCnt);
 
+            // res is null or res has no data.
             if ((res == null) || (res.curIdx == res.valueLength && !hasReadAllList.get(dfsCnt))) {
                 res = getMoreRecordForOneCol(dfsCnt, (SingleSeriesFilterExpression) valueFilter);
             }
+
             if (res == null || res.curIdx == res.valueLength) {
                 //represent this col has no more value
                 return -1;
@@ -172,6 +174,7 @@ public abstract class CrossQueryTimeGenerator {
             throws ProcessorException, IOException {
         DynamicOneColumnData res = retMap.get(idx);
         if (res != null) {
+            // rowGroupIdx will not change
             res.clearData();
         }
         res = getDataInNextBatch(res, fetchSize, valueFilter);
