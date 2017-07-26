@@ -4,11 +4,13 @@ import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.timeseries.read.qp.Path;
 import cn.edu.thu.tsfile.timeseries.read.support.Field;
 import cn.edu.thu.tsfile.timeseries.read.support.RowRecord;
+import org.omg.CORBA.OBJ_ADAPTER;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.PriorityQueue;
 
 
@@ -32,6 +34,7 @@ public class QueryDataSet {
     protected int size;
     protected boolean ifInit = false;
     protected RowRecord currentRecord = null;
+    private Map<String, Object> deltaMap; // this variable is used for TsFileDb
 
     public QueryDataSet() {
         mapRet = new LinkedHashMap<>();
@@ -194,5 +197,13 @@ public class QueryDataSet {
 
     public void setBatchReaderRetGenerator(BatchReadRecordGenerator batchReaderRetGenerator) {
         this.batchReaderRetGenerator = batchReaderRetGenerator;
+    }
+
+    public Map<String, Object> getDeltaMap() {
+        return this.deltaMap;
+    }
+
+    public void setDeltaMap(Map<String, Object> deltaMap) {
+        this.deltaMap = deltaMap;
     }
 }
