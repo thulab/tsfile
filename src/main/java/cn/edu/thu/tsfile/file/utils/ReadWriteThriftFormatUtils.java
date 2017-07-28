@@ -37,9 +37,9 @@ public class ReadWriteThriftFormatUtils {
     /**
      * write file metadata(thrift format) to stream
      *
-     * @param fileMetadata
-     * @param to
-     * @throws IOException
+     * @param fileMetadata file metadata to write
+     * @param to OutputStream
+     * @throws IOException cannot write file metadata to OutputStream
      */
     public static void writeFileMetaData(FileMetaData fileMetadata, OutputStream to)
             throws IOException {
@@ -49,19 +49,25 @@ public class ReadWriteThriftFormatUtils {
     /**
      * read file metadata(thrift format) from stream
      *
-     * @param from
-     * @throws IOException
+     * @param from InputStream
+     * @throws IOException cannot read file metadata from OutputStream
      */
     public static FileMetaData readFileMetaData(InputStream from) throws IOException {
         return read(from, new FileMetaData());
     }
 
     /**
-     * @return void
-     * @throws IOException
-     * @Description write DataPageHeader to output stream. For more information about DataPageHeader,
-     * see PageHeader and
-     * DataPageHeader in tsfile-format
+     * write DataPageHeader to output stream. For more information about DataPageHeader, see PageHeader and DataPageHeader in tsfile-format
+     * @param uncompressedSize uncompressed size in byte of one page size
+     * @param compressedSize compressed size in byte of one page size
+     * @param numValues number of value
+     * @param statistics statistics
+     * @param numRows number of row
+     * @param encoding encoding type
+     * @param to Outputstream
+     * @param max_timestamp max timestamp
+     * @param min_timestamp min timestamp
+     * @throws IOException cannot write data page header to OutputStream
      */
     public static void writeDataPageHeader(int uncompressedSize, int compressedSize, int numValues,
                                            Statistics<?> statistics, int numRows, TSEncoding encoding, OutputStream to,
@@ -70,12 +76,6 @@ public class ReadWriteThriftFormatUtils {
                 numValues, statistics, numRows, encoding, max_timestamp, min_timestamp), to);
     }
 
-    /**
-     * @return PageHeader
-     * @Descriptioncreate a new PageHeader which contains DataPageHeader. For more information about
-     * PageHeader and DataPageHeader, see PageHeader
-     * and DataPageHeader in tsfile-format
-     */
     private static PageHeader newDataPageHeader(int uncompressedSize, int compressedSize, int numValues,
                                                 Statistics<?> statistics, int numRows, TSEncoding encoding, long max_timestamp,
                                                 long min_timestamp) {
@@ -96,9 +96,9 @@ public class ReadWriteThriftFormatUtils {
     /**
      * write page header(thrift format) to stream
      *
-     * @param pageHeader
-     * @param to
-     * @throws IOException
+     * @param pageHeader input page header
+     * @param to OutputStream
+     * @throws IOException cannot write page header to OutputStream
      */
     public static void writePageHeader(PageHeader pageHeader, OutputStream to) throws IOException {
         try {
@@ -112,14 +112,14 @@ public class ReadWriteThriftFormatUtils {
     /**
      * read one page header from stream
      *
-     * @param from
-     * @throws IOException
+     * @param from InputStream
+     * @throws IOException cannot read page header from InputStream
      */
     public static PageHeader readPageHeader(InputStream from) throws IOException {
         return readPageHeader(from, new PageHeader());
     }
 
-    public static PageHeader readPageHeader(InputStream from, PageHeader header) throws IOException {
+    private static PageHeader readPageHeader(InputStream from, PageHeader header) throws IOException {
         try {
         	header.read(protocol(from));
             return header;
@@ -129,6 +129,11 @@ public class ReadWriteThriftFormatUtils {
         }
     }    
     
+    /**
+     * @param tbase input class in thrift format
+     * @param to OutputStream
+     * @throws IOException
+     */
     public static void write(TBase<?, ?> tbase, OutputStream to) throws IOException {
         try {
         	TSerializer serializer = new TSerializer(new TCompactProtocol.Factory());
@@ -139,6 +144,12 @@ public class ReadWriteThriftFormatUtils {
         }
     }
 
+    /**
+     * @param from InputStream
+     * @param tbase output class in thrift format
+     * @return Class in thrift format
+     * @throws IOException
+     */
     public static <T extends TBase<?, ?>> T read(InputStream from, T tbase) throws IOException {
         try {
         	TDeserializer deserializer = new TDeserializer(new TCompactProtocol.Factory());
@@ -159,13 +170,16 @@ public class ReadWriteThriftFormatUtils {
     }
 
     /**
-     * @return void
-     * @throws IOException
-     * @Description write DictionaryPageHeader to output stream. For more information about
-     * DictionaryPageHeader, see PageHeader and
-     * DictionaryPageHeader in tsfile-format.
-     * In current version, DictionaryPageHeader is not used.
+     * In current version, DictionaryPageHeader is not used
+     * @param uncompressedSize uncompressed size in byte of one page size
+     * @param compressedSize compressed size in byte of one page size
+     * @param numValues number of value
+     * @param numRows number of row
+     * @param encoding encoding type
+     * @param to Outputstream
+     * @throws IOException cannot write dictionary page header to OutputStream
      */
+    @Deprecated
     public void writeDictionaryPageHeader(int uncompressedSize, int compressedSize, int numValues,
                                           TSEncoding encoding, OutputStream to) throws IOException {
         PageHeader pageHeader =

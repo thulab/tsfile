@@ -75,7 +75,7 @@ public class BytesUtils {
     /**
      * byte[4] convert to integer
      *
-     * @param bytes
+     * @param bytes input byte[]
      * @return integer
      */
     public static int bytesToInt(byte[] bytes) {
@@ -196,10 +196,9 @@ public class BytesUtils {
 
     /**
      * convert double to byte into the given byte array started from offset.
-     *
-     * @param data
-     * @param offset
-     * @return byte[]
+     * @param d input double
+     * @param bytes target byte[]
+     * @param offset start pos
      */
     public static void doubleToBytes(double d, byte[] bytes, int offset) {
         assert bytes.length - offset >= 8;
@@ -266,6 +265,7 @@ public class BytesUtils {
      * convert boolean to byte[1]
      *
      * @param x boolean
+     * @return byte[]
      */
     public static byte[] boolToBytes(boolean x) {
         byte[] b = new byte[1];
@@ -310,7 +310,7 @@ public class BytesUtils {
     /**
      * convert one-bytes byte array cut from parameters to boolean.
      *
-     * @param bytes  source bytes which length should be greater than 1
+     * @param b source bytes which length should be greater than 1
      * @param offset position in parameter byte array that conversion result should start
      * @return boolean
      */
@@ -510,7 +510,7 @@ public class BytesUtils {
      *
      * @param data   input int variable
      * @param offset bit offset
-     * @return
+     * @return 0 or 1
      */
     public static int getIntN(int data, int offset) {
         offset %= 32;
@@ -706,7 +706,7 @@ public class BytesUtils {
      *
      * @param in InputStream
      * @return double
-     * @throws IOException
+     * @throws IOException cannot read double from InputStream
      */
     public static double readDouble(InputStream in) throws IOException {
         byte[] b = safeReadInputStreamToBytes(8, in);
@@ -718,7 +718,7 @@ public class BytesUtils {
      *
      * @param in InputStream
      * @return float
-     * @throws IOException
+     * @throws IOException cannot read float from InputStream
      */
     public static float readFloat(InputStream in) throws IOException {
         byte[] b = safeReadInputStreamToBytes(4, in);
@@ -730,7 +730,7 @@ public class BytesUtils {
      *
      * @param in InputStream
      * @return boolean
-     * @throws IOException
+     * @throws IOException cannot read boolean from InputStream
      */
     public static boolean readBool(InputStream in) throws IOException {
         byte[] b = safeReadInputStreamToBytes(1, in);
@@ -742,7 +742,7 @@ public class BytesUtils {
      *
      * @param in InputStream
      * @return integer
-     * @throws IOException
+     * @throws IOException cannot read int from InputStream
      */
     public static int readInt(InputStream in) throws IOException {
         byte[] b = safeReadInputStreamToBytes(4, in);
@@ -754,7 +754,7 @@ public class BytesUtils {
      *
      * @param in InputStream
      * @return long
-     * @throws IOException
+     * @throws IOException cannot read long from InputStream
      */
     public static long readLong(InputStream in) throws IOException {
         byte[] b = safeReadInputStreamToBytes(8, in);
@@ -767,7 +767,7 @@ public class BytesUtils {
      * @param count number of byte to read
      * @param in    InputStream
      * @return byte array
-     * @throws IOException
+     * @throws IOException  cannot read from InputStream
      */
     public static byte[] safeReadInputStreamToBytes(int count, InputStream in) throws IOException {
         byte[] bytes = new byte[count];
