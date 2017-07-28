@@ -7,6 +7,10 @@
 package cn.edu.thu.tsfile.format;
 
 
+import java.util.Map;
+import java.util.HashMap;
+import org.apache.thrift.TEnum;
+
 /**
  * Types supported by TSFile.  These types are intended to be used in combination
  * with the encodings to control the on disk storage format.
@@ -20,7 +24,7 @@ public enum DataType implements org.apache.thrift.TEnum {
   INT96(3),
   FLOAT(4),
   DOUBLE(5),
-  BYTE_ARRAY(6),
+  TEXT(6),
   FIXED_LEN_BYTE_ARRAY(7),
   ENUMS(8),
   BIGDECIMAL(9);
@@ -57,7 +61,7 @@ public enum DataType implements org.apache.thrift.TEnum {
       case 5:
         return DOUBLE;
       case 6:
-        return BYTE_ARRAY;
+        return TEXT;
       case 7:
         return FIXED_LEN_BYTE_ARRAY;
       case 8:

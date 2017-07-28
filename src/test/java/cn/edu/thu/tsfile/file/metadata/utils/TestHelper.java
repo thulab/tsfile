@@ -116,7 +116,7 @@ public class TestHelper {
 
   public static TimeSeries createSimpleTimeSeriesInThrift() {
     TimeSeries timeSeries = new TimeSeries(TimeSeriesMetadataTest.measurementUID,
-        DataType.BYTE_ARRAY, TimeSeriesMetadataTest.deltaObjectType);
+        DataType.TEXT, TimeSeriesMetadataTest.deltaObjectType);
     timeSeries.setFreq_type(FreqType.MULTI_FREQ);
     timeSeries.setType_length(TimeSeriesMetadataTest.typeLength);
     List<Integer> frequencies = new ArrayList<Integer>();

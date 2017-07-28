@@ -1,8 +1,5 @@
 package cn.edu.thu.tsfile.timeseries.write.desc;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.edu.thu.tsfile.common.conf.TSFileConfig;
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
@@ -16,26 +13,26 @@ import cn.edu.thu.tsfile.timeseries.utils.StringContainer;
 import cn.edu.thu.tsfile.timeseries.write.schema.FileSchema;
 import cn.edu.thu.tsfile.timeseries.write.schema.converter.TSDataTypeConverter;
 import cn.edu.thu.tsfile.timeseries.write.schema.converter.TSEncodingConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 /**
- * 
  * This class describes a measurement's information registered in
  * {@linkplain FileSchema FilSchema}, including measurement id,
  * data type, encoding and compressor type. For each TSEncoding, MeasurementDescriptor maintains
  * respective TSEncodingConverter; For TSDataType, only ENUM has TSDataTypeConverter up to now.
- * 
- * @since version 0.1.0
- * @author kangrong
  *
+ * @author kangrong
+ * @since version 0.1.0
  */
 public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> {
     private static final Logger LOG = LoggerFactory.getLogger(MeasurementDescriptor.class);
-    private String measurementId;
     private final TSDataType type;
-    private TSDataTypeConverter typeConverter;
     private final TSEncoding encoding;
+    private String measurementId;
+    private TSDataTypeConverter typeConverter;
     private TSEncodingConverter encodingConverter;
     private Compressor compressor;
     private TSFileConfig conf;
@@ -47,7 +44,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
         this.conf = TSFileDescriptor.getInstance().getConfig();
     }
 
-    public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding, Map<String, String> props){
+    public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding, Map<String, String> props) {
         this(measurementId, type, encoding);
         // initialize TSDataType. e.g. set data values for enum type
         if (type == TSDataType.ENUMS) {
@@ -88,7 +85,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
      * @return length in unit of byte
      */
     public int getTypeLength() {
-        switch (type){
+        switch (type) {
             case BOOLEAN:
                 return 1;
             case INT32:
@@ -99,7 +96,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
                 return 4;
             case DOUBLE:
                 return 8;
-            case BYTE_ARRAY:
+            case TEXT:
                 // 4 is the length of string in type of Integer.
                 // Note that one char corresponding to 3 byte is valid only in 16-bit BMP
                 return conf.maxStringLength * TSFileConfig.BYTE_SIZE_PER_CHAR + 4;
@@ -118,14 +115,11 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
             typeConverter.setDataValues(v);
     }
 
-    public Encoder getTimeEncoder(){
+    public Encoder getTimeEncoder() {
         TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
         TSEncoding timeSeriesEncoder = TSEncoding.valueOf(conf.timeSeriesEncoder);
         TSDataType timeType = TSDataType.valueOf(conf.timeSeriesDataType);
-        Encoder timeEncoder =
-                TSEncodingConverter.getConverter(timeSeriesEncoder)
-                    .getEncoder(measurementId, timeType);
-        return timeEncoder;
+        return TSEncodingConverter.getConverter(timeSeriesEncoder).getEncoder(measurementId, timeType);
     }
 
     public Encoder getValueEncoder() {
@@ -140,7 +134,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
      * Enum datum inputs a string value and returns its ordinal integer value.It's illegal that
      * other data type calling this method<br>
      * e.g. enum:[MAN(0),WOMAN(1)],calls parseEnumValue("WOMAN"),return 1
-     * 
+     *
      * @param string - enum value in type of string
      * @return - ordinal integer in enum field
      */
@@ -183,5 +177,4 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
         sc.addTail("]");
         return sc.toString();
     }
-
 }

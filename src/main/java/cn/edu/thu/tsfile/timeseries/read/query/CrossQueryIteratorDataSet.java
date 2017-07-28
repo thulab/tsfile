@@ -1,13 +1,12 @@
 package cn.edu.thu.tsfile.timeseries.read.query;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-
+import cn.edu.thu.tsfile.timeseries.read.support.Field;
 import cn.edu.thu.tsfile.timeseries.read.support.RowRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.thu.tsfile.timeseries.read.support.Field;
+import java.io.IOException;
+import java.util.LinkedHashMap;
 
 /**
  * This class is the subClass of {@code QueryDataSet}. It is used to store
@@ -15,7 +14,6 @@ import cn.edu.thu.tsfile.timeseries.read.support.Field;
  *
  * @author Jinrui Zhang
  */
-
 public abstract class CrossQueryIteratorDataSet extends QueryDataSet {
     private static final Logger LOG = LoggerFactory.getLogger(CrossQueryIteratorDataSet.class);
     //special for save time values when processing cross getIndex
@@ -78,16 +76,16 @@ public abstract class CrossQueryIteratorDataSet extends QueryDataSet {
             Field f;
 
             //get more fields in columns i
-            if (idxs[i] < cols[i].length) {
+            if (idxs[i] < cols[i].valueLength) {
                 //Get more fields from file...
             }
 
-            if (idxs[i] < cols[i].length && minTime == cols[i].getTime(idxs[i])) {
+            if (idxs[i] < cols[i].valueLength && minTime == cols[i].getTime(idxs[i])) {
                 f = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
                 f.setNull(false);
                 putValueToField(cols[i], idxs[i], f);
                 idxs[i]++;
-                if (idxs[i] < cols[i].length) {
+                if (idxs[i] < cols[i].valueLength) {
                     heapPut(cols[i].getTime(idxs[i]));
                 }
             } else {

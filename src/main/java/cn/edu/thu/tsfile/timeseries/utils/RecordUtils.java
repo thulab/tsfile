@@ -11,9 +11,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * RecordUtils is a utility class for parsing data in form of CSV string.
- * 
- * @author kangrong
  *
+ * @author kangrong
  */
 public class RecordUtils {
     private static final Logger LOG = LoggerFactory.getLogger(RecordUtils.class);
@@ -21,8 +20,8 @@ public class RecordUtils {
     /**
      * support input format: {@code <deltaObjectId>,<timestamp>,[<measurementId>,<value>,]}.CSV line
      * is separated by ","
-     * 
-     * @param str - input string
+     *
+     * @param str    - input string
      * @param schema - constructed file schema
      * @return
      */
@@ -75,7 +74,7 @@ public class RecordUtils {
                             ret.addTuple(new BooleanDataPoint(measurementId, Boolean
                                     .valueOf(value)));
                             break;
-                        case BYTE_ARRAY:
+                        case TEXT:
                             ret.addTuple(new StringDataPoint(measurementId, Binary
                                     .valueOf(items[i + 1])));
                             break;

@@ -9,32 +9,31 @@ import java.io.ByteArrayOutputStream;
  * with <code>size()</code> or <code>capacity = size</code>
  */
 public class PublicBAOS extends ByteArrayOutputStream {
-	
+
     public PublicBAOS(int size) {
         super(size);
     }
-    
-    public PublicBAOS(){
-    	super();
+
+    public PublicBAOS() {
+        super();
     }
-    
+
     /**
      * get current all bytes data
-     * 
+     *
      * @return all bytes data
      */
     public byte[] getBuf() {
-    	
+
         return this.buf;
     }
-    
+
     /**
      * Construct one {@link ByteArrayInputStream} from the buff data
-     * 
+     *
      * @return one {@link ByteArrayInputStream} have all buff data
      */
-    public ByteArrayInputStream transformToInputStream(){
-    	
-    	return new ByteArrayInputStream(this.buf,0,size());
+    public ByteArrayInputStream transformToInputStream() {
+        return new ByteArrayInputStream(this.buf, 0, size());
     }
 }

@@ -1,5 +1,8 @@
 package cn.edu.thu.tsfile.timeseries.read;
 
+import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
+import cn.edu.thu.tsfile.file.metadata.RowGroupMetaData;
+import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,17 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
-import cn.edu.thu.tsfile.file.metadata.RowGroupMetaData;
-import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
-
-
 /**
  * @author Jinrui Zhang
  * @description This class is used to construct FileReader. <br>
  * It is an adapter between {@code RecordReader} and {@code FileReader}
  */
-
 public class ReaderManager {
 
     private FileReader fileReader;

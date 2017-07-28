@@ -1,17 +1,8 @@
 package cn.edu.thu.tsfile.timeseries.read.query;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import cn.edu.thu.tsfile.common.constant.QueryConstant;
 import cn.edu.thu.tsfile.common.exception.ProcessorException;
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import cn.edu.thu.tsfile.common.constant.QueryConstant;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
@@ -23,14 +14,21 @@ import cn.edu.thu.tsfile.timeseries.read.RecordReader;
 import cn.edu.thu.tsfile.timeseries.read.RowGroupReader;
 import cn.edu.thu.tsfile.timeseries.read.metadata.SeriesSchema;
 import cn.edu.thu.tsfile.timeseries.read.qp.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class QueryEngine {
     private static final Logger logger = LoggerFactory.getLogger(QueryEngine.class);
-
+    private static int FETCH_SIZE = 20000;
     public TSRandomAccessFileReader raf;
     private RecordReader recordReader;
-    private static int FETCH_SIZE = 20000;
 
     public QueryEngine(TSRandomAccessFileReader raf) throws IOException {
         this.raf = raf;
@@ -49,6 +47,35 @@ public class QueryEngine {
         QueryDataSet queryDataSet = queryEngine.query(config);
         raf.close();
         return queryDataSet;
+    }
+
+    /**
+     * Get All Column info for every deltaObject
+     *
+     * @param raf
+     * @return
+     * @throws IOException
+     */
+    public static HashMap<String, ArrayList<SeriesSchema>> getAllColumns(TSRandomAccessFileReader raf) throws IOException {
+        RecordReader recordReader = new RecordReader(raf);
+        return recordReader.getAllSeriesSchemasGroupByDeltaObject();
+    }
+
+    /**
+     * Get RowGroupSize for every deltaObject
+     *
+     * @param raf
+     * @return HashMap
+     * @throws IOException
+     */
+    public static HashMap<String, Integer> getDeltaObjectRowGroupCount(TSRandomAccessFileReader raf) throws IOException {
+        RecordReader recordReader = new RecordReader(raf);
+        return recordReader.getDeltaObjectRowGroupCounts();
+    }
+
+    public static HashMap<String, String> getDeltaObjectTypes(TSRandomAccessFileReader raf) throws IOException {
+        RecordReader recordReader = new RecordReader(raf);
+        return recordReader.getDeltaObjectTypes();
     }
 
     public QueryDataSet query(QueryConfig config) throws IOException {
@@ -176,7 +203,7 @@ public class QueryEngine {
     /**
      * QueryWithoutFilter #2 : Query without filter according to paths and specific RowGroup(s)
      *
-     * @param paths path list which need to be selected
+     * @param paths           path list which need to be selected
      * @param RowGroupIdxList RowGroup index list.
      * @throws IOException
      */
@@ -216,7 +243,7 @@ public class QueryEngine {
      * @throws IOException
      */
     private QueryDataSet readOneColumnValueUseFilter(List<Path> paths, SingleSeriesFilterExpression timeFilter,
-                                                    SingleSeriesFilterExpression freqFilter, SingleSeriesFilterExpression valueFilter) throws IOException {
+                                                     SingleSeriesFilterExpression freqFilter, SingleSeriesFilterExpression valueFilter) throws IOException {
         logger.debug("start read one column data with filter...");
         return new IteratorQueryDataSet(paths) {
             @Override
@@ -251,7 +278,6 @@ public class QueryEngine {
         };
     }
 
-
     /**
      * CrossQuery #1: Function for Cross Columns Query
      *
@@ -280,7 +306,7 @@ public class QueryEngine {
      * @throws IOException
      */
     private QueryDataSet crossColumnQuery(List<Path> paths, SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
-                                         CrossSeriesFilterExpression valueFilter) throws IOException {
+                                          CrossSeriesFilterExpression valueFilter) throws IOException {
 
         CrossQueryTimeGenerator timeGenerator = new CrossQueryTimeGenerator(timeFilter, freqFilter, valueFilter, FETCH_SIZE) {
             @Override
@@ -357,41 +383,12 @@ public class QueryEngine {
         };
     }
 
-    /**
-     * Get All Column info for every deltaObject
-     *
-     * @param raf
-     * @return
-     * @throws IOException
-     */
-    public static HashMap<String, ArrayList<SeriesSchema>> getAllColumns(TSRandomAccessFileReader raf) throws IOException {
-        RecordReader recordReader = new RecordReader(raf);
-        return recordReader.getAllSeriesSchemasGroupByDeltaObject();
-    }
-
     public HashMap<String, ArrayList<SeriesSchema>> getAllSeriesSchemasGroupByDeltaObject() throws IOException {
         return recordReader.getAllSeriesSchemasGroupByDeltaObject();
     }
 
-    /**
-     * Get RowGroupSize for every deltaObject
-     *
-     * @param raf
-     * @return HashMap
-     * @throws IOException
-     */
-    public static HashMap<String, Integer> getDeltaObjectRowGroupCount(TSRandomAccessFileReader raf) throws IOException {
-        RecordReader recordReader = new RecordReader(raf);
-        return recordReader.getDeltaObjectRowGroupCounts();
-    }
-
     public HashMap<String, Integer> getDeltaObjectRowGroupCount() throws IOException {
         return recordReader.getDeltaObjectRowGroupCounts();
-    }
-
-    public static HashMap<String, String> getDeltaObjectTypes(TSRandomAccessFileReader raf) throws IOException {
-        RecordReader recordReader = new RecordReader(raf);
-        return recordReader.getDeltaObjectTypes();
     }
 
     public HashMap<String, String> getDeltaObjectTypes() throws IOException {

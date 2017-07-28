@@ -12,16 +12,8 @@ import java.io.IOException;
 
 /**
  * compress data according to type in schema
- *
- * @author XuYi xuyi556677@163.com
- * @date Apr 29, 2016 9:47:19 PM
  */
-
 public abstract class Compressor {
-    public abstract ListByteArrayOutputStream compress(ListByteArrayOutputStream ListByteArray);
-
-    public abstract CompressionTypeName getCodecName();
-
     public static Compressor getCompressor(String name) {
         return getCompressor(CompressionTypeName.valueOf(name));
     }
@@ -39,6 +31,10 @@ public abstract class Compressor {
                 throw new CompressionTypeNotSupportedException(name.toString());
         }
     }
+
+    public abstract ListByteArrayOutputStream compress(ListByteArrayOutputStream ListByteArray);
+
+    public abstract CompressionTypeName getCodecName();
 
     /**
      * NoCompressor will do nothing for data and return the input data directly.

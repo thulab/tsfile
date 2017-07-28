@@ -9,6 +9,8 @@ import java.util.ArrayList;
 
 import cn.edu.thu.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.thu.tsfile.file.metadata.utils.Utils;
+import cn.edu.thu.tsfile.file.utils.ReadWriteThriftFormatUtils;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +44,7 @@ public class RowGroupMetaDataTest {
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
     RandomAccessOutputStream out = new RandomAccessOutputStream(file, "rw");
-    Utils.write(metaData.convertToThrift(), out.getOutputStream());
+    ReadWriteThriftFormatUtils.write(metaData.convertToThrift(), out.getOutputStream());
 
     out.close();
     fos.close();
@@ -51,7 +53,7 @@ public class RowGroupMetaDataTest {
     Utils.isRowGroupMetaDataEqual(metaData, metaData.convertToThrift());
 
     Utils.isRowGroupMetaDataEqual(metaData,
-        Utils.read(fis, new cn.edu.thu.tsfile.format.RowGroupMetaData()));
+    		ReadWriteThriftFormatUtils.read(fis, new cn.edu.thu.tsfile.format.RowGroupMetaData()));
   }
 
   @Test

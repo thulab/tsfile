@@ -1,15 +1,15 @@
 package cn.edu.thu.tsfile.timeseries.read.query;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import cn.edu.thu.tsfile.common.exception.ProcessorException;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSAnd;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSOr;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.SingleValueVisitor;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * This class is used in batch query for Cross Query.
@@ -18,13 +18,13 @@ import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.SingleValueVisitor;
  */
 public abstract class CrossQueryTimeGenerator {
 
+    public ArrayList<DynamicOneColumnData> retMap;
+    //	HashMap<String, SingleSeriesFilterExpression> filterMap;
+    public ArrayList<Boolean> hasReadAllList;
+    protected ArrayList<Long> lastValueList; //
     protected SingleSeriesFilterExpression timeFilter;
     protected SingleSeriesFilterExpression freqFilter;
     protected FilterExpression valueFilter;
-    public ArrayList<DynamicOneColumnData> retMap;
-    //	HashMap<String, SingleSeriesFilterExpression> filterMap;
-    public ArrayList<Boolean> hasReadAllMap;
-    protected ArrayList<Long> lastValueMap;
     protected ArrayList<Integer> idxCount;
     protected int fetchSize;
     //to record which valueFilter is used
@@ -33,8 +33,8 @@ public abstract class CrossQueryTimeGenerator {
     public CrossQueryTimeGenerator(SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
                                    FilterExpression valueFilter, int fetchSize) {
         retMap = new ArrayList<>();
-        hasReadAllMap = new ArrayList<>();
-        lastValueMap = new ArrayList<>();
+        hasReadAllList = new ArrayList<>();
+        lastValueList = new ArrayList<>();
         idxCount = new ArrayList<>();
         this.valueFilter = valueFilter;
         this.timeFilter = timeFilter;
@@ -47,8 +47,8 @@ public abstract class CrossQueryTimeGenerator {
         dfsCnt++;
         int tmpIdx = dfsCnt;
         retMap.add(null);
-        hasReadAllMap.add(false);
-        lastValueMap.add(-1L);
+        hasReadAllList.add(false);
+        lastValueList.add(-1L);
         idxCount.add(-1);
 
         if (valueFilter instanceof SingleSeriesFilterExpression) {
@@ -70,6 +70,7 @@ public abstract class CrossQueryTimeGenerator {
             return l + r + 1;
         }
     }
+
     /**
      * Calculate common time using FilterExpression.
      */
@@ -99,19 +100,21 @@ public abstract class CrossQueryTimeGenerator {
     private long calculateOneTime(FilterExpression valueFilter) throws ProcessorException, IOException {
         //first check whether has a value not used in CSOr
         dfsCnt++;
-        if (lastValueMap.get(dfsCnt) != -1L) {
-            long v = lastValueMap.get(dfsCnt);
-            lastValueMap.set(dfsCnt, -1L);
+        if (lastValueList.get(dfsCnt) != -1L) {
+            long v = lastValueList.get(dfsCnt);
+            lastValueList.set(dfsCnt, -1L);
             dfsCnt += (idxCount.get(dfsCnt) - 1);
             return v;
         }
         if (valueFilter instanceof SingleSeriesFilterExpression) {
             DynamicOneColumnData res = retMap.get(dfsCnt);
 
-            if ((res == null) || (res.curIdx == res.length && !hasReadAllMap.get(dfsCnt))) {
+            // res is null or res has no data.
+            if ((res == null) || (res.curIdx == res.valueLength && !hasReadAllList.get(dfsCnt))) {
                 res = getMoreRecordForOneCol(dfsCnt, (SingleSeriesFilterExpression) valueFilter);
             }
-            if (res == null || res.curIdx == res.length) {
+
+            if (res == null || res.curIdx == res.valueLength) {
                 //represent this col has no more value
                 return -1;
             }
@@ -154,10 +157,10 @@ public abstract class CrossQueryTimeGenerator {
                 return -1;
             } else {
                 if (l < r) {
-                    lastValueMap.set(ridx, r);
+                    lastValueList.set(ridx, r);
                     return l;
                 } else if (l > r) {
-                    lastValueMap.set(lidx, l);
+                    lastValueList.set(lidx, l);
                     return r;
                 } else {
                     return l;
@@ -171,17 +174,17 @@ public abstract class CrossQueryTimeGenerator {
             throws ProcessorException, IOException {
         DynamicOneColumnData res = retMap.get(idx);
         if (res != null) {
+            // rowGroupIdx will not change
             res.clearData();
         }
         res = getDataInNextBatch(res, fetchSize, valueFilter);
         retMap.set(idx, res);
-        if (res == null || res.length == 0) {
-            hasReadAllMap.set(idx, true);
+        if (res == null || res.valueLength == 0) {
+            hasReadAllList.set(idx, true);
         }
         return res;
     }
 
     public abstract DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize
             , SingleSeriesFilterExpression valueFilter) throws ProcessorException, IOException;
-
 }

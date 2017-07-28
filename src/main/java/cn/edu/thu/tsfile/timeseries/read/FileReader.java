@@ -1,12 +1,5 @@
 package cn.edu.thu.tsfile.timeseries.read;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.thu.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.thu.tsfile.file.metadata.TSFileMetaData;
@@ -14,59 +7,63 @@ import cn.edu.thu.tsfile.file.metadata.converter.TSFileMetaDataConverter;
 import cn.edu.thu.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.thu.tsfile.timeseries.write.io.TSFileIOWriter;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
- * 
- * @description This class is used to read {@code TSFileMetaData} and construct
- *              file level reader which contains the information of
- *              rowgroupreader.
- *
  * @author Jinrui Zhang
- *
+ * @description This class is used to read {@code TSFileMetaData} and construct
+ * file level reader which contains the information of
+ * rowgroupreader.
  */
 public class FileReader {
-	private TSFileMetaData fileMetaData;
-	public static final int FOOTER_LENGTH = 4;
-	public static final int MAGIC_LENGTH = TSFileIOWriter.magicStringBytes.length;
+    public static final int FOOTER_LENGTH = 4;
+    public static final int MAGIC_LENGTH = TSFileIOWriter.magicStringBytes.length;
+    private TSFileMetaData fileMetaData;
+    private ByteArrayInputStream bais;
+    private TSRandomAccessFileReader raf;
+    private ArrayList<RowGroupReader> rowGroupReaderList;
+    private HashMap<String, ArrayList<RowGroupReader>> rowGroupReadersMap;
 
-	private ByteArrayInputStream bais;
-	private TSRandomAccessFileReader raf;
-	private ArrayList<RowGroupReader> rowGroupReaderList;
-	private HashMap<String, ArrayList<RowGroupReader>> rowGroupReadersMap;
-
-	public FileReader(TSRandomAccessFileReader raf) throws IOException {
-		this.raf = raf;
-		init();
-	}
-
-	public FileReader(TSRandomAccessFileReader raf, List<RowGroupMetaData> rowGroupMetaDataList){
-    	this.raf = raf;
-    	initFromRowGroupMetadataList(rowGroupMetaDataList);
+    public FileReader(TSRandomAccessFileReader raf) throws IOException {
+        this.raf = raf;
+        init();
     }
-	
-	/**
-	 * FileReader initialize, constructing fileMetaData and rowGroupReaders
-	 * @throws IOException 
-	 */
-	private void init() throws IOException {
-		long l = raf.length();
-		raf.seek(l - MAGIC_LENGTH - FOOTER_LENGTH);
-		int fileMetaDataLength = raf.readInt();
 
-		raf.seek(l - MAGIC_LENGTH - FOOTER_LENGTH - fileMetaDataLength);
-		byte[] buf = new byte[fileMetaDataLength];
-		raf.read(buf, 0, buf.length);
-		bais = new ByteArrayInputStream(buf);
+    public FileReader(TSRandomAccessFileReader raf, List<RowGroupMetaData> rowGroupMetaDataList) {
+        this.raf = raf;
+        initFromRowGroupMetadataList(rowGroupMetaDataList);
+    }
 
-		this.fileMetaData = new TSFileMetaDataConverter()
-				.toTSFileMetadata(ReadWriteThriftFormatUtils.readFileMetaData(bais));
+    /**
+     * FileReader initialize, constructing fileMetaData and rowGroupReaders
+     *
+     * @throws IOException
+     */
+    private void init() throws IOException {
+        long l = raf.length();
+        raf.seek(l - MAGIC_LENGTH - FOOTER_LENGTH);
+        int fileMetaDataLength = raf.readInt();
 
-		rowGroupReaderList = new ArrayList<>();
-		rowGroupReadersMap = new HashMap<>();
-		initFromRowGroupMetadataList(fileMetaData.getRowGroups());
-	}
+        raf.seek(l - MAGIC_LENGTH - FOOTER_LENGTH - fileMetaDataLength);
+        byte[] buf = new byte[fileMetaDataLength];
+        raf.read(buf, 0, buf.length);
+        bais = new ByteArrayInputStream(buf);
 
-    private void initFromRowGroupMetadataList(List<RowGroupMetaData> rowGroupMetadataList){
-    	rowGroupReaderList = new ArrayList<>();
+        this.fileMetaData = new TSFileMetaDataConverter()
+                .toTSFileMetadata(ReadWriteThriftFormatUtils.readFileMetaData(bais));
+
+        rowGroupReaderList = new ArrayList<>();
+        rowGroupReadersMap = new HashMap<>();
+        initFromRowGroupMetadataList(fileMetaData.getRowGroups());
+    }
+
+    private void initFromRowGroupMetadataList(List<RowGroupMetaData> rowGroupMetadataList) {
+        rowGroupReaderList = new ArrayList<>();
         rowGroupReadersMap = new HashMap<>();
         for (RowGroupMetaData rowGroupMetaData : rowGroupMetadataList) {
             String key = rowGroupMetaData.getDeltaObjectUID();
@@ -77,51 +74,48 @@ public class FileReader {
                 rowGroupReaderList.add(rowGroupReader);
                 rowGroupReadersMap.put(key, rowGroupReaderList);
             } else {
-            	rowGroupReadersMap.get(key).add(rowGroupReader);
+                rowGroupReadersMap.get(key).add(rowGroupReader);
             }
         }
     }
-	
-	public ArrayList<RowGroupReader> getOneRowGroupReader(String deltaObjectUID) {
-		return this.rowGroupReadersMap.get(deltaObjectUID);
-	}
 
-	public HashMap<String, ArrayList<RowGroupReader>> getRowGroupReadersMap() {
-		return this.rowGroupReadersMap;
-	}
+    public ArrayList<RowGroupReader> getOneRowGroupReader(String deltaObjectUID) {
+        return this.rowGroupReadersMap.get(deltaObjectUID);
+    }
 
-	public ArrayList<RowGroupReader> getRowGroupReaderList() {
-		return this.rowGroupReaderList;
-	}
+    public HashMap<String, ArrayList<RowGroupReader>> getRowGroupReadersMap() {
+        return this.rowGroupReadersMap;
+    }
 
-	/**
-	 * 
-	 * @param deltaObjectUID
-	 * @param index
-	 *            from 0 to n-1
-	 * @return
-	 */
-	public RowGroupReader getRowGroupReader(String deltaObjectUID, int index) {
-		return this.rowGroupReadersMap.get(deltaObjectUID).get(index);
-	}
+    public ArrayList<RowGroupReader> getRowGroupReaderList() {
+        return this.rowGroupReaderList;
+    }
 
-	public Map<String, String> getProps() {
-		return fileMetaData.getProps();
-	}
+    /**
+     * @param deltaObjectUID
+     * @param index          from 0 to n-1
+     * @return
+     */
+    public RowGroupReader getRowGroupReader(String deltaObjectUID, int index) {
+        return this.rowGroupReadersMap.get(deltaObjectUID).get(index);
+    }
 
-	public String getProp(String key) {
-		return fileMetaData.getProp(key);
-	}
+    public Map<String, String> getProps() {
+        return fileMetaData.getProps();
+    }
 
-	/**
-	 * 
-	 * @return the footer of the file
-	 */
-	public TSFileMetaData getFileMetadata() {
-		return this.fileMetaData;
-	}
-	
-	public void close() throws IOException{
-		this.raf.close();
-	}
+    public String getProp(String key) {
+        return fileMetaData.getProp(key);
+    }
+
+    /**
+     * @return the footer of the file
+     */
+    public TSFileMetaData getFileMetadata() {
+        return this.fileMetaData;
+    }
+
+    public void close() throws IOException {
+        this.raf.close();
+    }
 }
