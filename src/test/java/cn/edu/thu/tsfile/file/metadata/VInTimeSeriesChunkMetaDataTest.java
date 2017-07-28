@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import cn.edu.thu.tsfile.common.utils.RandomAccessOutputStream;
 import cn.edu.thu.tsfile.file.metadata.utils.Utils;
+import cn.edu.thu.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.thu.tsfile.format.ValueInTimeSeriesChunkMetaData;
 
 public class VInTimeSeriesChunkMetaDataTest {
@@ -40,14 +41,14 @@ public class VInTimeSeriesChunkMetaDataTest {
   @Test
   public void testWriteIntoFile() throws IOException {
     VInTimeSeriesChunkMetaData metaData =
-        TestHelper.createSimpleV2InTSF(TSDataType.BYTE_ARRAY, new TSDigest(), maxString, minString);
+        TestHelper.createSimpleV2InTSF(TSDataType.TEXT, new TSDigest(), maxString, minString);
     
     File file = new File(PATH);
     if (file.exists())
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
     RandomAccessOutputStream out = new RandomAccessOutputStream(file, "rw");
-    Utils.write(metaData.convertToThrift(), out.getOutputStream());
+    ReadWriteThriftFormatUtils.write(metaData.convertToThrift(), out.getOutputStream());
 
     out.close();
     fos.close();
@@ -55,7 +56,7 @@ public class VInTimeSeriesChunkMetaDataTest {
     FileInputStream fis = new FileInputStream(new File(PATH));
     Utils.isVSeriesChunkMetadataEqual(metaData, metaData.convertToThrift());
     Utils.isVSeriesChunkMetadataEqual(metaData,
-        Utils.read(fis, new ValueInTimeSeriesChunkMetaData()));
+    		ReadWriteThriftFormatUtils.read(fis, new ValueInTimeSeriesChunkMetaData()));
   }
 
   @Test

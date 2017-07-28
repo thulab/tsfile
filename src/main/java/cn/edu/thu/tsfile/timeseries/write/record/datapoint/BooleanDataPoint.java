@@ -1,20 +1,18 @@
 package cn.edu.thu.tsfile.timeseries.write.record.datapoint;
 
-import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.timeseries.write.record.DataPoint;
 import cn.edu.thu.tsfile.timeseries.write.series.ISeriesWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * a subclass for Boolean data type extends DataPoint
- * 
- * @see DataPoint DataPoint
- * @author kangrong
  *
+ * @author kangrong
+ * @see DataPoint DataPoint
  */
 public class BooleanDataPoint extends DataPoint {
     private static final Logger LOG = LoggerFactory.getLogger(BooleanDataPoint.class);

@@ -4,25 +4,24 @@ package cn.edu.thu.tsfile.common.exception;
  * This Exception is used while encoding failed. <br>
  * This Exception extends super class
  * {@link TSFileRuntimeException}
- * 
- * @author kangrong
  *
+ * @author kangrong
  */
 public class TSFileEncodingException extends TSFileRuntimeException {
-  private static final long serialVersionUID = -7225811149696714845L;
+    private static final long serialVersionUID = -7225811149696714845L;
 
-  public TSFileEncodingException() {}
+    public TSFileEncodingException() {
+    }
 
-  public TSFileEncodingException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public TSFileEncodingException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  public TSFileEncodingException(String message) {
-    super(message);
-  }
+    public TSFileEncodingException(String message) {
+        super(message);
+    }
 
-  public TSFileEncodingException(Throwable cause) {
-    super(cause);
-  }
-
+    public TSFileEncodingException(Throwable cause) {
+        super(cause);
+    }
 }

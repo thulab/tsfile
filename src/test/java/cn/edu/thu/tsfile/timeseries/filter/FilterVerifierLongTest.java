@@ -104,7 +104,83 @@ public class FilterVerifierLongTest {
         LongInterval intervalAns = new LongFilterVerifier().getInterval(andCombine3);
         assertEquals(intervalAns.count, 0);
     }
-    
+
+    @Test
+    public void andOrBorderTest() {
+
+        // And Operator
+        GtEq<Long> gtEq1 = FilterFactory.gtEq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2L, false);
+        LtEq<Long> ltEq1 = FilterFactory.ltEq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2L, false);
+        And and1 = (And) FilterFactory.and(gtEq1, ltEq1);
+        LongInterval ans = new LongFilterVerifier().getInterval(and1);
+        assertEquals(ans.count, 0);
+        and1 = (And) FilterFactory.and(ltEq1, gtEq1);
+        ans = new LongFilterVerifier().getInterval(and1);
+        assertEquals(ans.count, 0);
+
+        gtEq1 = FilterFactory.gtEq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2L, true);
+        ltEq1 = FilterFactory.ltEq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2L, false);
+        and1 = (And) FilterFactory.and(gtEq1, ltEq1);
+        ans = new LongFilterVerifier().getInterval(and1);
+        assertEquals(ans.count, 0);
+        and1 = (And) FilterFactory.and(ltEq1, gtEq1);
+        ans = new LongFilterVerifier().getInterval(and1);
+        assertEquals(ans.count, 0);
+
+        gtEq1 = FilterFactory.gtEq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2L, false);
+        ltEq1 = FilterFactory.ltEq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2L, true);
+        and1 = (And) FilterFactory.and(gtEq1, ltEq1);
+        ans = new LongFilterVerifier().getInterval(and1);
+        assertEquals(ans.count, 0);
+        and1 = (And) FilterFactory.and(ltEq1, gtEq1);
+        ans = new LongFilterVerifier().getInterval(and1);
+        assertEquals(ans.count, 0);
+
+        // Or Operator
+        gtEq1 = FilterFactory.gtEq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2L, false);
+        ltEq1 = FilterFactory.ltEq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2L, false);
+        Or or1 = (Or) FilterFactory.or(gtEq1, ltEq1);
+        ans = new LongFilterVerifier().getInterval(or1);
+        assertEquals(ans.count, 4);
+        assertEquals(ans.v[0], Long.MIN_VALUE); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[1], 2L); assertEquals(ans.flag[1], false);
+        assertEquals(ans.v[2], 2L); assertEquals(ans.flag[2], false);
+        assertEquals(ans.v[3], Long.MAX_VALUE); assertEquals(ans.flag[3], true);
+        or1 = (Or) FilterFactory.or(ltEq1, gtEq1);
+        ans = new LongFilterVerifier().getInterval(or1);
+        assertEquals(ans.count, 4);
+        assertEquals(ans.v[0], Long.MIN_VALUE); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[1], 2L); assertEquals(ans.flag[1], false);
+        assertEquals(ans.v[2], 2L); assertEquals(ans.flag[2], false);
+        assertEquals(ans.v[3], Long.MAX_VALUE); assertEquals(ans.flag[3], true);
+
+        gtEq1 = FilterFactory.gtEq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2L, true);
+        ltEq1 = FilterFactory.ltEq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2L, false);
+        or1 = (Or) FilterFactory.or(gtEq1, ltEq1);
+        ans = new LongFilterVerifier().getInterval(or1);
+        assertEquals(ans.count, 2);
+        assertEquals(ans.v[0], Long.MIN_VALUE); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[1], Long.MAX_VALUE); assertEquals(ans.flag[1], true);
+        or1 = (Or) FilterFactory.or(ltEq1, gtEq1);
+        ans = new LongFilterVerifier().getInterval(or1);
+        assertEquals(ans.count, 2);
+        assertEquals(ans.v[0], Long.MIN_VALUE); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[1], Long.MAX_VALUE); assertEquals(ans.flag[1], true);
+
+        gtEq1 = FilterFactory.gtEq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2L, false);
+        ltEq1 = FilterFactory.ltEq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2L, true);
+        or1 = (Or) FilterFactory.or(gtEq1, ltEq1);
+        ans = new LongFilterVerifier().getInterval(or1);
+        assertEquals(ans.count, 2);
+        assertEquals(ans.v[0], Long.MIN_VALUE); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[1], Long.MAX_VALUE); assertEquals(ans.flag[1], true);
+        or1 = (Or) FilterFactory.or(ltEq1, gtEq1);
+        ans = new LongFilterVerifier().getInterval(or1);
+        assertEquals(ans.count, 2);
+        assertEquals(ans.v[0], Long.MIN_VALUE); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[1], Long.MAX_VALUE); assertEquals(ans.flag[1], true);
+    }
+
     @Test
     public void notEqTest() {
         NotEq<Long> notEq = FilterFactory.noteq(FilterFactory.longFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 1000L);

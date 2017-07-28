@@ -1,23 +1,16 @@
 package cn.edu.thu.tsfile.timeseries.write.schema.converter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.edu.thu.tsfile.common.conf.TSFileConfig;
 import cn.edu.thu.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.thu.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.common.exception.metadata.MetadataArgsErrorException;
 import cn.edu.thu.tsfile.encoding.common.EndianType;
-import cn.edu.thu.tsfile.encoding.encoder.BitmapEncoder;
-import cn.edu.thu.tsfile.encoding.encoder.DeltaBinaryEncoder;
-import cn.edu.thu.tsfile.encoding.encoder.Encoder;
-import cn.edu.thu.tsfile.encoding.encoder.FloatEncoder;
-import cn.edu.thu.tsfile.encoding.encoder.IntRleEncoder;
-import cn.edu.thu.tsfile.encoding.encoder.LongRleEncoder;
-import cn.edu.thu.tsfile.encoding.encoder.PlainEncoder;
+import cn.edu.thu.tsfile.encoding.encoder.*;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.thu.tsfile.file.metadata.enums.TSEncoding;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -29,13 +22,93 @@ import java.util.Map;
  * Each TSEncoding has a responding TSEncodingConverter. The design referring to visit pattern
  * provides same outer interface for different TSEncodings and gets rid of the duplicate switch-case
  * code.
- * 
- * @author kangrong
  *
+ * @author kangrong
  */
 public abstract class TSEncodingConverter {
+    private static final Logger LOG = LoggerFactory.getLogger(TSEncodingConverter.class);
+    protected final TSFileConfig conf;
+
+    public TSEncodingConverter() {
+        this.conf = TSFileDescriptor.getInstance().getConfig();
+    }
+
+    /**
+     * return responding TSEncodingConverter from a TSEncoding
+     *
+     * @param type - given encoding type
+     * @return - responding TSEncodingConverter
+     */
+    public static TSEncodingConverter getConverter(TSEncoding type) {
+        switch (type) {
+            case PLAIN:
+                return new PLAIN();
+            case RLE:
+                return new RLE();
+            case TS_2DIFF:
+                return new TS_2DIFF();
+            case BITMAP:
+                return new BITMAP();
+            default:
+                throw new UnsupportedOperationException(type.toString());
+        }
+    }
+
+    /**
+     * check the validity of input parameter. If it's valid, return this parameter in its
+     * appropriate type.
+     *
+     * @param encoding - encoding type
+     * @param pmKey    - argument key in JSON object key-value pair
+     * @param value    - argument value in JSON object key-value pair in type of String
+     * @return - argument value in JSON object key-value pair in its suitable type
+     */
+    public static Object checkParameter(TSEncoding encoding, String pmKey, String value)
+            throws MetadataArgsErrorException {
+        return getConverter(encoding).checkParameter(pmKey, value);
+    }
+
+    /**
+     * return a series's encoder with different types and parameters according to its measurement id
+     * and data type
+     *
+     * @param measurementId - given measurement id
+     * @param type          - given data type
+     * @return - return a {@linkplain Encoder Encoder}
+     */
+    public abstract Encoder getEncoder(String measurementId, TSDataType type);
+
+    /**
+     * for TSEncoding, JSON is a kind of type for initialization. {@code InitFromJsonObject} gets
+     * values from JSON object which will be used latter.<br>
+     * if this type has extra parameters to construct, override it.
+     *
+     * @param measurementId - measurement id to be added.
+     * @param props         - properties of encoding
+     */
+    public void initFromProps(String measurementId, Map<String, String> props) {
+    }
+
+    /**
+     * For a TSEncodingConverter, check the input parameter. If it's valid, return this parameter in
+     * its appropriate type. This method needs to be extended.
+     *
+     * @param pmKey - argument key in JSON object key-value pair
+     * @param value - argument value in JSON object key-value pair in type of String
+     * @return - default return is null which means this data type needn't the parameter
+     */
+    public Object checkParameter(String pmKey, String value) throws MetadataArgsErrorException {
+        throw new MetadataArgsErrorException("don't need args:{}" + pmKey);
+    }
+
+    @Override
+    public String toString() {
+        return "";
+    }
+
     public static class PLAIN extends TSEncodingConverter {
         private int maxStringLength;
+
         @Override
         public Encoder getEncoder(String measurementId, TSDataType type) {
             return new PlainEncoder(EndianType.LITTLE_ENDIAN, type, maxStringLength);
@@ -71,10 +144,10 @@ public abstract class TSEncodingConverter {
                     return new LongRleEncoder(EndianType.LITTLE_ENDIAN);
                 case FLOAT:
                 case DOUBLE:
-                case BIGDECIMAL:
+//                case BIGDECIMAL:
                     return new FloatEncoder(TSEncoding.RLE, type, maxPointNumber);
                 default:
-                    throw new UnSupportedDataTypeException("RLE doesn't support data type: "+ type);
+                    throw new UnSupportedDataTypeException("RLE doesn't support data type: " + type);
             }
         }
 
@@ -133,10 +206,10 @@ public abstract class TSEncodingConverter {
                     return new DeltaBinaryEncoder.LongDeltaEncoder();
                 case FLOAT:
                 case DOUBLE:
-                case BIGDECIMAL:
+//                case BIGDECIMAL:
                     return new FloatEncoder(TSEncoding.TS_2DIFF, type, maxPointNumber);
                 default:
-                    throw new UnSupportedDataTypeException("TS_2DIFF doesn't support data type: "+ type);
+                    throw new UnSupportedDataTypeException("TS_2DIFF doesn't support data type: " + type);
             }
         }
 
@@ -188,91 +261,12 @@ public abstract class TSEncodingConverter {
     public static class BITMAP extends TSEncodingConverter {
         @Override
         public Encoder getEncoder(String measurementId, TSDataType type) {
-            switch (type){
+            switch (type) {
                 case ENUMS:
                     return new BitmapEncoder(EndianType.LITTLE_ENDIAN);
                 default:
-                    throw new UnSupportedDataTypeException("BITMAP doesn't support data type: "+ type);
+                    throw new UnSupportedDataTypeException("BITMAP doesn't support data type: " + type);
             }
         }
-    }
-
-    private static final Logger LOG = LoggerFactory.getLogger(TSEncodingConverter.class);
-    protected final TSFileConfig conf;
-
-    public TSEncodingConverter() {
-        this.conf = TSFileDescriptor.getInstance().getConfig();
-    }
-
-    /**
-     * return responding TSEncodingConverter from a TSEncoding
-     * 
-     * @param type - given encoding type
-     * @return - responding TSEncodingConverter
-     */
-    public static TSEncodingConverter getConverter(TSEncoding type) {
-        switch (type) {
-            case PLAIN:
-                return new PLAIN();
-            case RLE:
-                return new RLE();
-            case TS_2DIFF:
-                return new TS_2DIFF();
-            case BITMAP:
-                return new BITMAP();
-            default:
-                throw new UnsupportedOperationException(type.toString());
-        }
-    }
-
-    /**
-     * return a series's encoder with different types and parameters according to its measurement id
-     * and data type
-     * 
-     * @param measurementId - given measurement id
-     * @param type - given data type
-     * @return - return a {@linkplain Encoder Encoder}
-     */
-    public abstract Encoder getEncoder(String measurementId, TSDataType type);
-
-    /**
-     * for TSEncoding, JSON is a kind of type for initialization. {@code InitFromJsonObject} gets
-     * values from JSON object which will be used latter.<br>
-     * if this type has extra parameters to construct, override it.
-     * 
-     * @param measurementId - measurement id to be added.
-     * @param props - properties of encoding
-     */
-    public void initFromProps(String measurementId, Map<String, String> props) {}
-
-    /**
-     * For a TSEncodingConverter, check the input parameter. If it's valid, return this parameter in
-     * its appropriate type. This method needs to be extended.
-     * 
-     * @param pmKey - argument key in JSON object key-value pair
-     * @param value - argument value in JSON object key-value pair in type of String
-     * @return - default return is null which means this data type needn't the parameter
-     */
-    public Object checkParameter(String pmKey, String value) throws MetadataArgsErrorException {
-        throw new MetadataArgsErrorException("don't need args:{}" + pmKey);
-    }
-
-    /**
-     * check the validity of input parameter. If it's valid, return this parameter in its
-     * appropriate type.
-     * 
-     * @param encoding - encoding type
-     * @param pmKey - argument key in JSON object key-value pair
-     * @param value - argument value in JSON object key-value pair in type of String
-     * @return - argument value in JSON object key-value pair in its suitable type
-     */
-    public static Object checkParameter(TSEncoding encoding, String pmKey, String value)
-            throws MetadataArgsErrorException {
-        return getConverter(encoding).checkParameter(pmKey, value);
-    }
-
-    @Override
-    public String toString() {
-        return "";
     }
 }

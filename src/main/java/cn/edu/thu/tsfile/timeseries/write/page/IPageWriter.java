@@ -15,36 +15,35 @@ import java.util.List;
 /**
  * Each SeriesWriter has a page writer. While memory space occupied by series writer exceeds
  * specified threshold, pack it into a page.
- * 
- * @see ISeriesWriter
- * @author kangrong
  *
+ * @author kangrong
+ * @see ISeriesWriter
  */
 public interface IPageWriter {
     /**
      * store a page to this pageWriter.
-     * 
+     *
      * @param listByteArray - the data to be stored to pageWriter
-     * @param valueCount - the amount of values in that page
-     * @param statistics - the statistics for that page
-     * @param maxTimestamp - timestamp maximum in given data
-     * @param minTimestamp - timestamp minimum in given data
+     * @param valueCount    - the amount of values in that page
+     * @param statistics    - the statistics for that page
+     * @param maxTimestamp  - timestamp maximum in given data
+     * @param minTimestamp  - timestamp minimum in given data
      * @throws PageException - if an PageException occurs.
      */
     void writePage(ListByteArrayOutputStream listByteArray, int valueCount, Statistics<?> statistics,
                    long maxTimestamp, long minTimestamp) throws PageException;
-    
+
     /**
      * query all pages which have been packaged
-     * 
+     *
      * @return left is all pages data, right is the name of compression
      */
     Pair<List<ByteArrayInputStream>, CompressionTypeName> query();
 
     /**
      * write the page to specified IOWriter
-     * 
-     * @param writer - the specified IOWriter
+     *
+     * @param writer     - the specified IOWriter
      * @param statistics - the statistic information provided by series writer
      * @throws IOException
      */

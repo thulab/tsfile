@@ -90,7 +90,7 @@ public class ReadPageInMemTest {
 		Pair<List<ByteArrayInputStream>, CompressionTypeName> right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) result
 				.get(1);
 		assertEquals(0, right.left.size());
-		assertEquals(3, left.length);
+		assertEquals(3, left.valueLength);
 		for (int i = 1; i <= 3; i++) {
 			DynamicOneColumnData columnData = (DynamicOneColumnData) innerWriter.query("root.car.d1", "s1").get(0);
 			assertEquals(i, columnData.getTime(i - 1));
@@ -195,7 +195,7 @@ public class ReadPageInMemTest {
 		Pair<List<ByteArrayInputStream>, CompressionTypeName> right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter
 				.query("root.car.d2", "s1").get(1);
 		assertEquals(right.left.size(), right2.left.size());
-		assertEquals(left.length, left2.length);
+		assertEquals(left.valueLength, left2.valueLength);
 
 		right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.query("root.car.d1", "s2").get(1);
 		right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.query("root.car.d2", "s2").get(1);
@@ -203,7 +203,7 @@ public class ReadPageInMemTest {
 
 		left = (DynamicOneColumnData) innerWriter.query("root.car.d1", "s2").get(0);
 		left2 = (DynamicOneColumnData) innerWriter.query("root.car.d2", "s2").get(0);
-		assertEquals(left.length, left2.length);
+		assertEquals(left.valueLength, left2.valueLength);
 
 		right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.query("root.car.d1", "s3").get(1);
 		right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.query("root.car.d2", "s3").get(1);
@@ -211,7 +211,7 @@ public class ReadPageInMemTest {
 
 		left = (DynamicOneColumnData) innerWriter.query("root.car.d1", "s3").get(0);
 		left2 = (DynamicOneColumnData) innerWriter.query("root.car.d2", "s3").get(0);
-		assertEquals(left.length, left2.length);
+		assertEquals(left.valueLength, left2.valueLength);
 
 		right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.query("root.car.d1", "s4").get(1);
 		right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.query("root.car.d2", "s4").get(1);
@@ -221,7 +221,7 @@ public class ReadPageInMemTest {
 		left = (DynamicOneColumnData) innerWriter.query("root.car.d1", "s4").get(0);
 		left2 = (DynamicOneColumnData) innerWriter.query("root.car.d2", "s4").get(0);
 
-		assertEquals(left.length, left2.length);
+		assertEquals(left.valueLength, left2.valueLength);
 
 		assertEquals(null, innerWriter.query("root.car.d1", "s5").get(0));
 		assertEquals(null, innerWriter.query("root.car.d1", "s5").get(1));

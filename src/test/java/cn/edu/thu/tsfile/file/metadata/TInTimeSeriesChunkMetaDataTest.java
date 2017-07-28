@@ -18,6 +18,7 @@ import cn.edu.thu.tsfile.common.utils.RandomAccessOutputStream;
 import cn.edu.thu.tsfile.file.metadata.enums.TSFreqType;
 import cn.edu.thu.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.thu.tsfile.file.metadata.utils.Utils;
+import cn.edu.thu.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.thu.tsfile.format.FreqType;
 
 public class TInTimeSeriesChunkMetaDataTest {
@@ -48,14 +49,14 @@ public class TInTimeSeriesChunkMetaDataTest {
 
   @Test
   public void testWriteIntoFile() throws IOException {
-    TInTimeSeriesChunkMetaData metaData = TestHelper.createT2inTSF(TSDataType.BYTE_ARRAY,
+    TInTimeSeriesChunkMetaData metaData = TestHelper.createT2inTSF(TSDataType.TEXT,
         TSFreqType.IRREGULAR_FREQ, frequencies2, startTime, endTime);
     File file = new File(PATH);
     if (file.exists())
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
     RandomAccessOutputStream out = new RandomAccessOutputStream(file, "rw");
-    Utils.write(metaData.convertToThrift(), out.getOutputStream());
+    ReadWriteThriftFormatUtils.write(metaData.convertToThrift(), out.getOutputStream());
 
     out.close();
     fos.close();
@@ -63,7 +64,7 @@ public class TInTimeSeriesChunkMetaDataTest {
     FileInputStream fis = new FileInputStream(new File(PATH));
     Utils.isTSeriesChunkMetadataEqual(metaData, metaData.convertToThrift());
     Utils.isTSeriesChunkMetadataEqual(metaData,
-        Utils.read(fis, new TimeInTimeSeriesChunkMetaData()));
+    		ReadWriteThriftFormatUtils.read(fis, new TimeInTimeSeriesChunkMetaData()));
   }
 
   @Test

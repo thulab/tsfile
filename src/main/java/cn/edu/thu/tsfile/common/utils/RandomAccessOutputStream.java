@@ -10,13 +10,12 @@ import java.io.RandomAccessFile;
  * The main difference between RandomAccessOutputStream and general OutputStream
  * is:RandomAccessOutputStream provide method {@code getPos} for random accessing. It also
  * implements {@code getOutputStream} to return an OutputStream supporting tsfile-format
- * 
- * @author kangrong
  *
+ * @author kangrong
  */
 public class RandomAccessOutputStream extends OutputStream implements TSRandomAccessFileWriter {
-    private RandomAccessFile out;
     private static final String DEFAULT_FILE_MODE = "rw";
+    private RandomAccessFile out;
 
     public RandomAccessOutputStream(File file) throws IOException {
         this(file, DEFAULT_FILE_MODE);
@@ -44,9 +43,9 @@ public class RandomAccessOutputStream extends OutputStream implements TSRandomAc
     public long getPos() throws IOException {
         return out.length();
     }
-    
+
     public void seek(long offset) throws IOException {
-    	out.seek(offset);
+        out.seek(offset);
     }
 
     @Override

@@ -27,7 +27,6 @@ public class ColumnInfo {
         this.name = name;
     }
 
-
     public String toString() {
         return getName() + ":" + getDataType();
     }

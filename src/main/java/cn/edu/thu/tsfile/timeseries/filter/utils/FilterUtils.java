@@ -1,25 +1,18 @@
 package cn.edu.thu.tsfile.timeseries.filter.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cn.edu.thu.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.thu.tsfile.common.utils.Binary;
-import cn.edu.thu.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
-import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.*;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSAnd;
-import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSOr;
 import cn.edu.thu.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.IntFilterSeries;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.LongFilterSeries;
+import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.*;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSAnd;
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.CSOr;
 import cn.edu.thu.tsfile.timeseries.read.RecordReader;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FilterUtils {
 

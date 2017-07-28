@@ -1,23 +1,22 @@
 package cn.edu.thu.tsfile.timeseries.read;
 
+import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
+import cn.edu.thu.tsfile.timeseries.read.management.FileStreamManager;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
-import cn.edu.thu.tsfile.timeseries.read.management.FileStreamManager;
-
 /**
- * @description File-read interface for local file.
  * @author Jinrui Zhang
- *
+ * @description File-read interface for local file.
  */
 public class LocalFileInput implements TSRandomAccessFileReader {
 
     private RandomAccessFile raf;
 
     public LocalFileInput(String path) throws FileNotFoundException {
-         this.raf = new RandomAccessFile(path, "r");
+        this.raf = new RandomAccessFile(path, "r");
     }
 
     @Override
@@ -45,12 +44,12 @@ public class LocalFileInput implements TSRandomAccessFileReader {
     /**
      * use {@code FileStreamManager} to manage all LocalFileInput
      */
-    public void closeFromManager(){
-    	FileStreamManager.getInstance().close(this);
+    public void closeFromManager() {
+        FileStreamManager.getInstance().close(this);
     }
-    
-	@Override
-	public void close() throws IOException {
-		raf.close();
-	}
+
+    @Override
+    public void close() throws IOException {
+        raf.close();
+    }
 }
