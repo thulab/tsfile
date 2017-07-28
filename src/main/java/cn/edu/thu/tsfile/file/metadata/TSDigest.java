@@ -6,7 +6,7 @@ import cn.edu.thu.tsfile.format.Digest;
 import java.nio.ByteBuffer;
 
 /**
- * @Description For more information, see Digest in cn.edu.thu.tsfile.format package
+ * For more information, see Digest in cn.edu.thu.tsfile.format package
  */
 public class TSDigest implements IConverter<Digest> {
     /**

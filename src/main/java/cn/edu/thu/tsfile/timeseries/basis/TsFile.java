@@ -66,6 +66,8 @@ public class TsFile {
      *
      * @param tsFileOutputStream an output stream of TsFile
      * @param schema             the fileSchema of TsFile
+     * @throws IOException       cannot write TsFile
+     * @throws  WriteProcessException error occurs when writing
      */
     public TsFile(TSRandomAccessFileWriter tsFileOutputStream, FileSchema schema)
             throws IOException, WriteProcessException {
@@ -84,8 +86,8 @@ public class TsFile {
     /**
      * Notice: This constructor is only for reading TsFile.
      *
-     * @param raf
-     * @throws IOException
+     * @param raf input reader
+     * @throws IOException cannot read TsFile
      */
     public TsFile(TSRandomAccessFileReader raf) throws IOException {
         this.status = READ;
@@ -161,7 +163,7 @@ public class TsFile {
      * Get All information of column(s) for every deltaObject
      *
      * @return A set of ArrayList<SeriesSchema> stored in a HashMap separated by deltaObjectId
-     * @throws IOException
+     * @throws IOException thrown if fail to get all series schema
      */
     public HashMap<String, ArrayList<SeriesSchema>> getAllColumns() throws IOException {
         checkStatus(READ);
@@ -172,7 +174,7 @@ public class TsFile {
      * Get RowGroupSize for every deltaObject
      *
      * @return HashMap
-     * @throws IOException
+     * @throws IOException thrown if fail to get row group count
      */
     public HashMap<String, Integer> getDeltaObjectRowGroupCount() throws IOException {
         checkStatus(READ);
@@ -181,6 +183,7 @@ public class TsFile {
 
     /**
      * Get all DeltaObjects with type each.
+     * @throws IOException thrown if fail to get delta object type
      */
     public HashMap<String, String> getDeltaObjectTypes() throws IOException {
         checkStatus(READ);
@@ -191,7 +194,7 @@ public class TsFile {
      * Check whether given path exists in this TsFile
      *
      * @param path A path of one Series
-     * @throws IOException
+     * @throws IOException thrown if fail to check path exists
      */
     public boolean pathExist(Path path) throws IOException {
         checkStatus(READ);
@@ -200,6 +203,7 @@ public class TsFile {
 
     /**
      * Get all deltaObjects' name in current TsFile
+     * @throws IOException thrown if fail to get all delta object
      */
     public ArrayList<String> getAllDeltaObject() throws IOException {
         checkStatus(READ);
@@ -208,6 +212,7 @@ public class TsFile {
 
     /**
      * Get all series' schemas in current TsFile
+     * @throws IOException thrown if fail to all series
      */
     public ArrayList<SeriesSchema> getAllSeries() throws IOException {
         checkStatus(READ);
@@ -219,6 +224,7 @@ public class TsFile {
      *
      * @return res.get(i) represents the End-Position for specific rowGroup i in
      * this file.
+     * @throws IOException thrown if fail to get row group pos list
      */
     public ArrayList<Long> getRowGroupPosList() throws IOException {
         checkStatus(READ);
@@ -242,7 +248,7 @@ public class TsFile {
     /**
      * clear and set new properties
      *
-     * @param props
+     * @param props properties in map struct
      */
     public void setProps(Map<String, String> props) {
         fileSchema.setProps(props);

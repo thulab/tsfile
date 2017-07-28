@@ -14,12 +14,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TSRecordWriteSupport extends the super class {@coderiteSupport} with
+ * TSRecordWriteSupport extends the super class writeSupport with
  * {@code TSRecord}. It's used to receive a TSRecord with several data points
  * and send it to responding row group.
  *
  * @author kangrong
- * @see TSRecord TSRecord
  */
 public class TSRecordWriteSupport extends WriteSupport<TSRecord> {
 

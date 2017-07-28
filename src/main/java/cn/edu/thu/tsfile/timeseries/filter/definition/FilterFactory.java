@@ -6,7 +6,7 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.operators.*;
 
 /**
  * The FilterFactory is used to construct FilterSeries, SingleSeriesFilter, and
- * CrossSeriesFilter.</br>
+ * CrossSeriesFilter.
  *
  * @author CGF
  */
@@ -15,7 +15,7 @@ public final class FilterFactory {
     /**
      * To construct Time FilterSeries
      *
-     * @return
+     * @return LongFilterSeries
      */
     public static LongFilterSeries timeFilterSeries() {
         return new LongFilterSeries(null, null, TSDataType.INT64, FilterSeriesType.TIME_FILTER);
@@ -24,10 +24,10 @@ public final class FilterFactory {
     /**
      * To construct IntFilterSeries
      *
-     * @param deltaObjectUID
-     * @param measurementUID
-     * @param filterType
-     * @return
+     * @param deltaObjectUID delta object ID
+     * @param measurementUID measurement ID
+     * @param filterType filter type
+     * @return IntFilterSeries
      */
     public static IntFilterSeries intFilterSeries(String deltaObjectUID, String measurementUID,
                                                   FilterSeriesType filterType) {
@@ -37,10 +37,10 @@ public final class FilterFactory {
     /**
      * To construct DoubleFilterSeries
      *
-     * @param deltaObjectUID
-     * @param measurementUID
-     * @param filterType
-     * @return
+     * @param deltaObjectUID delta object ID
+     * @param measurementUID measurement ID
+     * @param filterType filter type
+     * @return DoubleFilterSeries
      */
     public static DoubleFilterSeries doubleFilterSeries(String deltaObjectUID, String measurementUID,
                                                         FilterSeriesType filterType) {
@@ -50,10 +50,10 @@ public final class FilterFactory {
     /**
      * To construct LongFilterSeries
      *
-     * @param deltaObjectUID
-     * @param measurementUID
-     * @param filterType
-     * @return
+     * @param deltaObjectUID delta object ID
+     * @param measurementUID measurement ID
+     * @param filterType filter type
+     * @return LongFilterSeries
      */
     public static LongFilterSeries longFilterSeries(String deltaObjectUID, String measurementUID,
                                                     FilterSeriesType filterType) {
@@ -63,10 +63,10 @@ public final class FilterFactory {
     /**
      * To construct FloatFilterSeries
      *
-     * @param deltaObjectUID
-     * @param measurementUID
-     * @param filterType
-     * @return
+     * @param deltaObjectUID delta object ID
+     * @param measurementUID measurement ID
+     * @param filterType filter type
+     * @return FloatFilterSeries
      */
     public static FloatFilterSeries floatFilterSeries(String deltaObjectUID, String measurementUID,
                                                       FilterSeriesType filterType) {
@@ -76,10 +76,10 @@ public final class FilterFactory {
     /**
      * To construct BooleanFilterSeries
      *
-     * @param deltaObjectUID
-     * @param measurementUID
-     * @param filterType
-     * @return
+     * @param deltaObjectUID delta object ID
+     * @param measurementUID measurement ID
+     * @param filterType filter type
+     * @return BooleanFilterSeries
      */
     public static BooleanFilterSeries booleanFilterSeries(String deltaObjectUID, String measurementUID,
                                                           FilterSeriesType filterType) {
@@ -89,10 +89,10 @@ public final class FilterFactory {
     /**
      * To construct StringFilterSeries
      *
-     * @param deltaObjectUID
-     * @param measurementUID
-     * @param filterType
-     * @return
+     * @param deltaObjectUID delta object ID
+     * @param measurementUID measurement ID
+     * @param filterType filter type
+     * @return StringFilterSeries
      */
     public static StringFilterSeries stringFilterSeries(String deltaObjectUID, String measurementUID,
                                                         FilterSeriesType filterType) {
@@ -102,9 +102,9 @@ public final class FilterFactory {
     /**
      * To generate Eq by filterSeries
      *
-     * @param filterSeries
-     * @param value
-     * @return
+     * @param filterSeries filter series
+     * @param value filter value
+     * @return filter
      */
     public static <T extends Comparable<T>, C extends FilterSeries<T>> Eq<T> eq(C filterSeries, T value) {
         return new Eq<T>(filterSeries, value);
@@ -113,10 +113,10 @@ public final class FilterFactory {
     /**
      * To generate LtEq by filterSeries
      *
-     * @param filterSeries
-     * @param value
-     * @param ifEq
-     * @return
+     * @param filterSeries filter series
+     * @param value filter value
+     * @param ifEq if equal
+     * @return lt expression
      */
     public static <T extends Comparable<T>, C extends FilterSeries<T>> LtEq<T> ltEq(C filterSeries, T value,
                                                                                     Boolean ifEq) {
@@ -126,10 +126,10 @@ public final class FilterFactory {
     /**
      * To generate GtEq by filterSeries
      *
-     * @param filterSeries
-     * @param value
-     * @param ifEq
-     * @return
+     * @param filterSeries filter series
+     * @param value filter value
+     * @param ifEq if equal
+     * @return gt expression
      */
     public static <T extends Comparable<T>, C extends FilterSeries<T>> GtEq<T> gtEq(C filterSeries, T value,
                                                                                     Boolean ifEq) {
@@ -139,9 +139,9 @@ public final class FilterFactory {
     /**
      * To generate NotEq by filterSeries
      *
-     * @param filterSeries
-     * @param value
-     * @return
+     * @param filterSeries filter series
+     * @param value filter value
+     * @return not equal expression
      */
     public static <T extends Comparable<T>, C extends FilterSeries<T>> NotEq<T> noteq(C filterSeries, T value) {
         return new NotEq<T>(filterSeries, value);
@@ -150,8 +150,8 @@ public final class FilterFactory {
     /**
      * To generate Not by filterSeries
      *
-     * @param that
-     * @return
+     * @param that not expression
+     * @return not expression
      */
     public static SingleSeriesFilterExpression not(SingleSeriesFilterExpression that) {
         return new Not(that);
@@ -160,9 +160,9 @@ public final class FilterFactory {
     /**
      * To generate And by filterSeries
      *
-     * @param left
-     * @param right
-     * @return
+     * @param left left expression
+     * @param right right expression
+     * @return and expression
      */
     private static SingleSeriesFilterExpression ssAnd(SingleSeriesFilterExpression left, SingleSeriesFilterExpression right) {
 //		if (left.getFilterSeries().sameSeries(right.getFilterSeries()))
@@ -174,9 +174,9 @@ public final class FilterFactory {
     /**
      * To generate Or by filterSeries
      *
-     * @param left
-     * @param right
-     * @return
+     * @param left left expression
+     * @param right right expression
+     * @return or expression
      */
     private static SingleSeriesFilterExpression ssOr(SingleSeriesFilterExpression left, SingleSeriesFilterExpression right) {
 //		if (left.getFilterSeries().sameSeries(right.getFilterSeries()))
@@ -189,9 +189,9 @@ public final class FilterFactory {
      * construct CSAnd(Cross Series Filter And Operators) use FilterExpression
      * left, right;
      *
-     * @param left
-     * @param right
-     * @return
+     * @param left left expression
+     * @param right right expression
+     * @return and expression
      */
     public static CSAnd csAnd(FilterExpression left, FilterExpression right) {
         return new CSAnd(left, right);
@@ -201,9 +201,9 @@ public final class FilterFactory {
      * construct CSOr(Cross Series Filter Or Operators) use FilterExpression
      * left, right;
      *
-     * @param left
-     * @param right
-     * @return
+     * @param left left expression
+     * @param right right expression
+     * @return or expression
      */
     private static CSOr csOr(FilterExpression left, FilterExpression right) {
         return new CSOr(left, right);

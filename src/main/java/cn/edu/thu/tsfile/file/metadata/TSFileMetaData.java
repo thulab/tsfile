@@ -64,8 +64,8 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
     }
 
     /**
+     * add row group metadata to rowGroups. THREAD NOT SAFE
      * @param rowGroup - row group metadata to add
-     * @Description add row group metadata to rowGroups. THREAD NOT SAFE
      */
     public void addRowGroupMetaData(RowGroupMetaData rowGroup) {
         if (rowGroupMetadataList == null) {
@@ -76,8 +76,7 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
 
     /**
      * add time series metadata to list. THREAD NOT SAFE
-     *
-     * @param time series metadata to add
+     * @param timeSeries series metadata to add
      */
     public void addTimeSeriesMetaData(TimeSeriesMetadata timeSeries) {
         if (timeSeriesList == null) {
@@ -89,7 +88,7 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
     /**
      * get all delta object uid and their types
      *
-     * @return set of Pair<delta-object-uid, delta-object-type>
+     * @return set of {@code Pair<delta-object-uid, delta-object-type>}
      */
     public Set<Pair<String, String>> getAllDeltaObjects() {
         // Pair<delta-object-uid, delta-object-type>
@@ -160,8 +159,8 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
     }
 
     /**
+     * receive file metadata in thrift format and convert it to tsfile format
      * @param metadataInThrift - file metadata in thrift format
-     * @Description receive file metadata in thrift format and convert it to tsfile format
      */
     @Override
     public void convertToTSF(FileMetaData metadataInThrift) {

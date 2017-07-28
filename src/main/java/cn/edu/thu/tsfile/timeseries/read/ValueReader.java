@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * @author Jinrui Zhang
- * @description This class is mainly used to read one column of data in
+ * This class is mainly used to read one column of data in
  * RowGroup. It provides a number of different methods to read data
  * in different ways.
  */
@@ -94,10 +94,11 @@ public class ValueReader {
     /**
      * Read time value from the page and return them.
      *
-     * @param page
-     * @param size
+     * @param page InputStream
+     * @param size time size
      * @param skip If skip is true, then return long[] which is null.
-     * @throws IOException
+     * @return common timestamp
+     * @throws IOException cannot init time value
      */
     protected long[] initTimeValue(InputStream page, int size, boolean skip) throws IOException {
         long[] res = null;
@@ -121,12 +122,6 @@ public class ValueReader {
         return res;
     }
 
-    /**
-     * Init current ValueReader use totalSize.
-     *
-     * @return
-     * @throws IOException
-     */
     private ByteArrayInputStream initBAIS() throws IOException {
         int length = (int) this.totalSize;
         byte[] buf = new byte[length];
@@ -152,13 +147,11 @@ public class ValueReader {
             throw new IOException("Expect byte size : " + length + ". Read size : " + readSize);
         }
 
-        ByteArrayInputStream bais = new ByteArrayInputStream(buf);
-        return bais;
+        return new ByteArrayInputStream(buf);
     }
 
     /**
      * //TODO what about timeFilters?
-     * <p>
      * Judge whether current column is satisfied for given filters
      */
     private boolean columnSatisfied(SingleSeriesFilterExpression valueFilter, SingleSeriesFilterExpression timeFilter,
@@ -206,7 +199,7 @@ public class ValueReader {
     /**
      * Read the whole column without filters.
      *
-     * @throws IOException
+     * @throws IOException occurs error in read one column
      */
     public DynamicOneColumnData readOneColumn(DynamicOneColumnData res, int fetchSize) throws IOException {
         return readOneColumnUseFilter(res, fetchSize, null, null, null);
@@ -233,8 +226,8 @@ public class ValueReader {
      * @param timeFilter  filter for time.
      * @param freqFilter  filter for frequency.
      * @param valueFilter filter for value.
-     * @return
-     * @throws IOException
+     * @return answer DynamicOneColumnData
+     * @throws IOException occurs error in read one column using filter
      */
     public DynamicOneColumnData readOneColumnUseFilter(DynamicOneColumnData res, int fetchSize,
                                                        SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter, SingleSeriesFilterExpression valueFilter)
@@ -460,8 +453,8 @@ public class ValueReader {
      * function is only for "time" Series
      *
      * @param timestamps array of the time.
-     * @return
-     * @throws IOException
+     * @return answer DynamicOneColumnData using given timestamps
+     * @throws IOException occurs error in read
      */
     public DynamicOneColumnData getValuesForGivenValues(long[] timestamps) throws IOException {
         DynamicOneColumnData res = new DynamicOneColumnData(dataType, true);

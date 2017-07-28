@@ -174,7 +174,6 @@ public class ReadWriteThriftFormatUtils {
      * @param uncompressedSize uncompressed size in byte of one page size
      * @param compressedSize compressed size in byte of one page size
      * @param numValues number of value
-     * @param numRows number of row
      * @param encoding encoding type
      * @param to Outputstream
      * @throws IOException cannot write dictionary page header to OutputStream
