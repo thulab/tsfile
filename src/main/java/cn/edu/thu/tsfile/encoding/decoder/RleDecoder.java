@@ -147,7 +147,7 @@ public abstract class RleDecoder extends Decoder {
      *
      * @return true or false to indicate whether there is another pattern left
      */
-    private boolean hasNextPackage() {
+    protected boolean hasNextPackage() {
         return currentCount > 0 || byteCache.available() > 0;
     }
 
