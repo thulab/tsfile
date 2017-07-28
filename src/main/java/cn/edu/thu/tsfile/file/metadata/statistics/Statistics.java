@@ -49,8 +49,9 @@ public abstract class Statistics<T> {
             case BYTE_ARRAY:
                 return new BinaryStatistics();
             case ENUMS:
-            case BOOLEAN:
                 return new NoStatistics();
+            case BOOLEAN:
+                return new BooleanStatistics();
             case DOUBLE:
                 return new DoubleStatistics();
             case FLOAT:
