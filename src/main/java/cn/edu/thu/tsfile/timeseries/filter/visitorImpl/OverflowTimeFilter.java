@@ -4,7 +4,7 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpressi
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.*;
 
 /**
- * To judge whether an overflow time interval satisfy the filter.</br>
+ * To judge whether an overflow time interval satisfy the filter.
  * Implemented using visitor pattern.
  *
  * @author CGF

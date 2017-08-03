@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * @author Jinrui Zhang
- * @description This class implements several read methods which can read data in different ways.<br>
+ * This class implements several read methods which can read data in different ways.<br>
  * This class provides some APIs for reading.
  */
 public class RecordReader {
@@ -40,10 +40,11 @@ public class RecordReader {
     /**
      * Read function 1#1: read one column without filter
      *
-     * @param deltaObjectUID
-     * @param measurementId
-     * @return
-     * @throws IOException
+     * @param deltaObjectUID delta object id
+     * @param fetchSize fetch size
+     * @param measurementId  measurement Id
+     * @return DynamicOneColumnData
+     * @throws IOException failed to get value
      */
     public DynamicOneColumnData getValueInOneColumn(DynamicOneColumnData res, int fetchSize
             , String deltaObjectUID, String measurementId) throws IOException {
@@ -65,14 +66,6 @@ public class RecordReader {
         return res;
     }
 
-    /**
-     * Read function 1#2: read one column without filter from one specific RowGroupReader
-     *
-     * @param rowGroupReader
-     * @param measurementId
-     * @return
-     * @throws IOException
-     */
     private DynamicOneColumnData getValueInOneColumn(DynamicOneColumnData res, int fetchSize,
                                                      RowGroupReader rowGroupReader, String measurementId) throws IOException {
         DynamicOneColumnData v = rowGroupReader.getValueReaders().get(measurementId).readOneColumn(res, fetchSize);
@@ -83,11 +76,11 @@ public class RecordReader {
      * Read function 1#3: read one column without filter from one specific
      * RowGroupReader according to the index
      *
-     * @param deltaObjectUID
-     * @param measurementId
-     * @param idx
-     * @return
-     * @throws IOException
+     * @param deltaObjectUID delta object id
+     * @param fetchSize fetch size
+     * @param measurementId  measurement Id
+     * @return DynamicOneColumnData
+     * @throws IOException failed to get value
      */
     public DynamicOneColumnData getValueInOneColumn(DynamicOneColumnData res, int fetchSize, String deltaObjectUID,
                                                     String measurementId, int idx) throws IOException {
@@ -110,11 +103,11 @@ public class RecordReader {
      * Read function 1#4: read one column without filter from one specific
      * RowGroupReader(s) according to the indexList
      *
-     * @param deltaObjectUID
-     * @param measurementId
-     * @param idxs
-     * @return
-     * @throws IOException
+     * @param deltaObjectUID delta object id
+     * @param fetchSize fetch size
+     * @param measurementId  measurement Id
+     * @return DynamicOneColumnData
+     * @throws IOException failed to get value
      */
     public DynamicOneColumnData getValueInOneColumn(DynamicOneColumnData res, int fetchSize, String deltaObjectUID,
                                                     String measurementId, ArrayList<Integer> idxs) throws IOException {
@@ -146,11 +139,6 @@ public class RecordReader {
         return res;
     }
 
-    /**
-     * Read function 2#1: read one column with filter
-     *
-     * @throws IOException
-     */
     public DynamicOneColumnData getValuesUseFilter(DynamicOneColumnData res, int fetchSize, String deltaObjectUID,
                                                    String measurementId, SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
                                                    SingleSeriesFilterExpression valueFilter) throws IOException {
@@ -188,17 +176,6 @@ public class RecordReader {
         return getValuesUseFilter(res, fetchSize, deltaObjectUID, measurementUID, null, null, valueFilter, idxs);
     }
 
-    /**
-     * Read function 2#2: read one column with filter from specific RowGroupReader
-     *
-     * @param rowGroupReader specific RowGroupReader
-     * @param measurementId
-     * @param timeFilter
-     * @param freqFilter
-     * @param valueFilter
-     * @return
-     * @throws IOException
-     */
     private DynamicOneColumnData getValuesUseFilter(DynamicOneColumnData res, int fetchSize,
                                                     RowGroupReader rowGroupReader, String measurementId, SingleSeriesFilterExpression timeFilter,
                                                     SingleSeriesFilterExpression freqFilter, SingleSeriesFilterExpression valueFilter) throws IOException {
@@ -208,19 +185,6 @@ public class RecordReader {
         return res;
     }
 
-    /**
-     * Read function 2#3: read one column with filter from specific
-     * RowGroupReader according to the index
-     *
-     * @param deltaObjectUID
-     * @param measurementId
-     * @param timeFilter
-     * @param freqFilter
-     * @param valueFilter
-     * @param idx,           index for RowGroupReader to be read.
-     * @return
-     * @throws IOException
-     */
     public DynamicOneColumnData getValuesUseFilter(DynamicOneColumnData res, int fetchSize, String deltaObjectUID,
                                                    String measurementId, SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
                                                    SingleSeriesFilterExpression valueFilter, int idx) throws IOException {
@@ -237,19 +201,6 @@ public class RecordReader {
         return res;
     }
 
-    /**
-     * Read function 2#4: read one column with filter from specific
-     * RowGroupReader(s) according to the indexList
-     *
-     * @param deltaObjectUID
-     * @param measurementId
-     * @param timeFilter
-     * @param freqFilter
-     * @param valueFilter
-     * @param idxs
-     * @return
-     * @throws IOException
-     */
     public DynamicOneColumnData getValuesUseFilter(DynamicOneColumnData res, int fetchSize, String deltaObjectUID,
                                                    String measurementId, SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
                                                    SingleSeriesFilterExpression valueFilter, ArrayList<Integer> idxs) throws IOException {
@@ -283,15 +234,6 @@ public class RecordReader {
     }
 
 
-    /**
-     * function 4#1: for cross getIndex. To get values in one column according to common timestamps.
-     *
-     * @param deltaObjectUID
-     * @param measurementId
-     * @param timeRet
-     * @return
-     * @throws IOException
-     */
     public DynamicOneColumnData getValuesUseTimeValue(String deltaObjectUID, String measurementId, long[] timeRet)
             throws IOException {
         checkSeries(deltaObjectUID, measurementId);
@@ -310,17 +252,7 @@ public class RecordReader {
         return res;
     }
 
-    /**
-     * function 4#2: for cross getIndex. To get values in one column according
-     * to a time list from specific RowGroupReader(s)
-     *
-     * @param deltaObjectUID
-     * @param measurementId
-     * @param timeRet
-     * @param idxs
-     * @return
-     * @throws IOException
-     */
+
     public DynamicOneColumnData getValuesUseTimeValue(String deltaObjectUID, String measurementId, long[] timeRet,
                                                       ArrayList<Integer> idxs) throws IOException {
         checkSeries(deltaObjectUID, measurementId);
@@ -347,16 +279,6 @@ public class RecordReader {
     }
 
 
-    /**
-     * Read time-value pairs whose time is be included in timeRet. WARNING: this
-     * function is only for "time" Series
-     *
-     * @param rowGroupReader RowGroupReader to be read
-     * @param measurementId
-     * @param timeRet
-     * @return
-     * @throws IOException
-     */
     private DynamicOneColumnData getValuesUseTimeValue(RowGroupReader rowGroupReader, String measurementId, long[] timeRet)
             throws IOException {
         return rowGroupReader.getValueReaders().get(measurementId).getValuesForGivenValues(timeRet);
@@ -375,9 +297,6 @@ public class RecordReader {
         return false;
     }
 
-    /**
-     * Get all series' schemas
-     */
     public ArrayList<SeriesSchema> getAllSeriesSchema() {
         HashMap<String, Integer> seriesMap = new HashMap<>();
         ArrayList<SeriesSchema> res = new ArrayList<>();
@@ -393,9 +312,6 @@ public class RecordReader {
         return res;
     }
 
-    /**
-     * Get all deltaObjects' name
-     */
     public ArrayList<String> getAllDeltaObjects() {
         ArrayList<String> res = new ArrayList<>();
         HashMap<String, Integer> deltaObjectMap = new HashMap<>();
@@ -410,9 +326,7 @@ public class RecordReader {
         return res;
     }
 
-    /**
-     * Get all series' schemas group by DeltaObject
-     */
+
     public HashMap<String, ArrayList<SeriesSchema>> getAllSeriesSchemasGroupByDeltaObject() {
         HashMap<String, ArrayList<SeriesSchema>> res = new HashMap<>();
         HashMap<String, List<RowGroupReader>> rowGroupReaders = readerManager.getRowGroupReaderMap();
@@ -458,12 +372,7 @@ public class RecordReader {
         return res;
     }
 
-    /**
-     * Get all RowGroups' offsets in the InputStream
-     *
-     * @return res.get(i) represents the End-Position for specific rowGroup i in
-     * this file.
-     */
+
     public ArrayList<Long> getRowGroupPosList() {
         ArrayList<Long> res = new ArrayList<>();
         long startPos = 0;
@@ -475,13 +384,7 @@ public class RecordReader {
         return res;
     }
 
-    /**
-     * This method is used to create different kinds of {@code SingleSeriesFilterExpression} dynamically.
-     *
-     * @param deltaObject
-     * @param measurement
-     * @return A FilterSeries in specific type
-     */
+
     public FilterSeries<?> getColumnByMeasurementName(String deltaObject, String measurement) {
         TSDataType type = readerManager.getDataTypeBySeriesName(deltaObject, measurement);
         if (type == TSDataType.INT32) {

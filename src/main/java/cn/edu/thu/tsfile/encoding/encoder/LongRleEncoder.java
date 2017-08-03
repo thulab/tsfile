@@ -34,7 +34,7 @@ public class LongRleEncoder extends RleEncoder<Long> {
      * write all values buffered in cache to OutputStream
      *
      * @param out - byteArrayOutputStream
-     * @throws IOException
+     * @throws IOException cannot flush to OutputStream
      */
     @Override
     public void flush(ByteArrayOutputStream out) throws IOException {
@@ -55,6 +55,7 @@ public class LongRleEncoder extends RleEncoder<Long> {
 
     /**
      * write bytes to OutputStream using rle rle format: [header][value]
+     * @throws IOException cannot write rle run
      */
     @Override
     protected void writeRleRun() throws IOException {

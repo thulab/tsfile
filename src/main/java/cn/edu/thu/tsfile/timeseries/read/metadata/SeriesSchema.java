@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 /**
  * @author Jinrui Zhang
- * @description <p>This class define a schema for one time series.</p><br>
+ * This class define a schema for one time series.
  * This schema includes three main parameters which represent the {@code name},the {@code dataType} and
  * the {@code encoding} type for this time series. Some other arguments are put in {@code args}
  */

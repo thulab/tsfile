@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * @author Jinrui Zhang
- * @description This class is used to read one RowGroup.
+ * This class is used to read one RowGroup.
  */
 public class RowGroupReader {
 
@@ -83,6 +83,7 @@ public class RowGroupReader {
      *
      * @param measurementId measurement's id
      * @param timeRet       Array of the time.
+     * @return DynamicOneColumnData
      * @throws IOException
      */
     public DynamicOneColumnData readValueUseTimeValue(String measurementId, long[] timeRet) throws IOException {

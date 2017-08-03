@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  * @author Jinrui Zhang
- * @description This class is used to read {@code TSFileMetaData} and construct
+ * This class is used to read {@code TSFileMetaData} and construct
  * file level reader which contains the information of
  * rowgroupreader.
  */
@@ -42,7 +42,7 @@ public class FileReader {
     /**
      * FileReader initialize, constructing fileMetaData and rowGroupReaders
      *
-     * @throws IOException
+     * @throws IOException cannot init
      */
     private void init() throws IOException {
         long l = raf.length();
@@ -92,9 +92,9 @@ public class FileReader {
     }
 
     /**
-     * @param deltaObjectUID
+     * @param deltaObjectUID delta object id
      * @param index          from 0 to n-1
-     * @return
+     * @return reader
      */
     public RowGroupReader getRowGroupReader(String deltaObjectUID, int index) {
         return this.rowGroupReadersMap.get(deltaObjectUID).get(index);

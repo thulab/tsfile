@@ -5,7 +5,7 @@ import cn.edu.thu.tsfile.common.utils.Binary;
 import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
 
 /**
- * {@Field} is the components of one {@code RowRecord} which store a value in
+ * Field is the components of one {@code RowRecord} which store a value in
  * specific data type.
  *
  * @author Jinrui Zhang

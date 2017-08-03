@@ -35,7 +35,7 @@ public class IntRleEncoder extends RleEncoder<Integer> {
      * write all values buffered in cache to OutputStream
      *
      * @param out - byteArrayOutputStream
-     * @throws IOException
+     * @throws IOException cannot flush to OutputStream
      */
     @Override
     public void flush(ByteArrayOutputStream out) throws IOException {

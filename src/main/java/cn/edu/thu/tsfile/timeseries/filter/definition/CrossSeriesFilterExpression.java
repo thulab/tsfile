@@ -1,7 +1,6 @@
 package cn.edu.thu.tsfile.timeseries.filter.definition;
 
 /**
- * CrossSeriesFilter definition.</br>
  *
  * @author CGF
  */

@@ -11,10 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * To judge whether a single value satisfy the filter.</br>
+ * To judge whether a single value satisfy the filter.
  * Implemented per visitor pattern.
  *
- * @param <V>
+ * @param <V> data type for filter
  * @author CGF
  */
 public class SingleValueVisitor<V extends Comparable<V>> implements FilterVisitor<Boolean> {
@@ -40,8 +40,8 @@ public class SingleValueVisitor<V extends Comparable<V>> implements FilterVisito
     /**
      * optimization of filter, filter -> value interval
      *
-     * @param value
-     * @return
+     * @param value value to filter
+     * @return is satisfied
      */
     public boolean verify(int value) {
         IntInterval val = (IntInterval) verifier.getInterval(ssfilter);
@@ -98,9 +98,9 @@ public class SingleValueVisitor<V extends Comparable<V>> implements FilterVisito
     /**
      * This method exits a problem, the data type of value must accord with filter.
      *
-     * @param value
-     * @param filter
-     * @return
+     * @param value value to filter
+     * @param filter filter
+     * @return is satisfied
      */
     public Boolean satisfyObject(Object value, SingleSeriesFilterExpression filter) {
         // The value type and filter type may not be consistent

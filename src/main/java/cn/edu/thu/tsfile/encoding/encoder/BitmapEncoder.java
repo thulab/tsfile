@@ -53,7 +53,7 @@ public class BitmapEncoder extends Encoder {
      *
      * @param value value to encode
      * @param out   OutputStream to write encoded stream
-     * @throws IOException
+     * @throws IOException cannot encode value
      * @see Encoder#encode(int, java.io.ByteArrayOutputStream)
      */
     @Override
@@ -65,7 +65,7 @@ public class BitmapEncoder extends Encoder {
      * When all data received, encoder now encodes values in list and write them to OutputStream
      *
      * @param out OutputStream to write encoded stream
-     * @throws IOException
+     * @throws IOException cannot flush to OutputStream
      * @see Encoder#flush(java.io.ByteArrayOutputStream)
      */
     @Override

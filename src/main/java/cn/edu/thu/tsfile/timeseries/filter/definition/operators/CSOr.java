@@ -6,7 +6,7 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
 import cn.edu.thu.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
 
 /**
- * Either of the left and right operators of CSOr must satisfy the condition.</br>
+ * Either of the left and right operators of CSOr must satisfy the condition
  * CSOr represents Cross Series Or operation.
  *
  * @author CGF
@@ -23,9 +23,8 @@ public class CSOr extends CrossSeriesFilterExpression {
     /**
      * Not Used
      *
-     * @param visitor
-     * @param <T>
-     * @return
+     * @param visitor filter visitor
+     * @return accept filter
      */
     @Override
     public <T> T accept(FilterVisitor<T> visitor) {
@@ -35,7 +34,7 @@ public class CSOr extends CrossSeriesFilterExpression {
     /**
      * Not Used
      *
-     * @return
+     * @return filter
      */
     @Override
     public FilterSeries<?> getFilterSeries() {
