@@ -25,7 +25,7 @@ public class FileStreamManager {
     private FileStreamManager() {
     }
 
-    public static FileStreamManager getInstance() {
+    public static final FileStreamManager getInstance() {
         return FileStreamManagerHolder.INSTANCE;
     }
 
