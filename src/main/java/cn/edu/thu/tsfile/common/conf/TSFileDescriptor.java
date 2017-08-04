@@ -1,6 +1,7 @@
 package cn.edu.thu.tsfile.common.conf;
 
 import cn.edu.thu.tsfile.common.constant.SystemConstant;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,16 +15,19 @@ import java.util.Properties;
  */
 public class TSFileDescriptor {
     private static final Logger LOGGER = LoggerFactory.getLogger(TSFileDescriptor.class);
-
-    private static TSFileDescriptor descriptor = new TSFileDescriptor();
+    
+	private static class TsfileDescriptorHolder{
+		private static final TSFileDescriptor INSTANCE = new TSFileDescriptor();
+	}
+    
     private TSFileConfig conf = new TSFileConfig();
 
     private TSFileDescriptor() {
         loadProps();
     }
 
-    public static TSFileDescriptor getInstance() {
-        return descriptor;
+    public static final TSFileDescriptor getInstance() {
+        return TsfileDescriptorHolder.INSTANCE;
     }
 
     public TSFileConfig getConfig() {
