@@ -6,7 +6,7 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.operators.*;
 
 /**
  * To remove not operators, convert all operators recursively.
- * Not(and(eq(), not(eq(y))) -> Or(notEq(), eq(y)).
+ * {@code Not(and(eq(), not(eq(y))) -> Or(notEq(), eq(y))}
  *
  * @author CGF
  */

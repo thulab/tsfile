@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 
 /**
  * @author ZJR
- * @description class to construct digest.
+ * class to construct digest.
  */
 public class DigestForFilter {
 

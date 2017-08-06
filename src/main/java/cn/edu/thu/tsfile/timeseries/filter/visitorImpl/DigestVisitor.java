@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * To judge whether a series, page could be skipped when reading process.</br>
+ * To judge whether a series, page could be skipped when reading process
  * Implemented using visitor pattern.
  *
  * @author CGF

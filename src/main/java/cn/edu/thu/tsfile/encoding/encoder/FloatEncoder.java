@@ -14,7 +14,6 @@ import java.io.IOException;
 /**
  * Encoder for float or double value using rle or two diff
  * according to following grammar:
- * <p>
  * <pre>
  * {@code
  * float encoder: <maxPointvalue> <encoded-data>

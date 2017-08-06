@@ -11,7 +11,7 @@ import java.io.InputStream;
 
 /**
  * @author Jinrui Zhang
- * @description PageReader is used to read a page in a column.
+ * PageReader is used to read a page in a column.
  */
 public class PageReader {
     private ByteArrayInputStream bis;

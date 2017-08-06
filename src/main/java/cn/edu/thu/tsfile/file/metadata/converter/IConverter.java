@@ -3,7 +3,7 @@ package cn.edu.thu.tsfile.file.metadata.converter;
 /**
  * convert metadata between TSFile format and thrift format
  *
- * @param <T>
+ * @param <T> TsFile-defined type
  */
 public interface IConverter<T> {
     /**

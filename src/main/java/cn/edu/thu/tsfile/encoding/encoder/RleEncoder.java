@@ -18,7 +18,6 @@ import java.util.List;
 /**
  * Encodes values using a combination of run length encoding and bit packing,
  * according to the following grammar:
- * <p>
  * <pre>
  * {@code
  * rle-bit-packing-hybrid: <length> <bitwidth> <encoded-data>
@@ -36,7 +35,7 @@ import java.util.List;
  * }
  * </pre>
  *
- * @param <T>
+ * @param <T> data type T for RLE
  */
 public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
     private static final Logger LOGGER = LoggerFactory.getLogger(RleEncoder.class);
@@ -121,7 +120,7 @@ public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
      * Write all values buffered in cache to OutputStream
      *
      * @param out - byteArrayOutputStream
-     * @throws IOException
+     * @throws IOException cannot flush to OutputStream
      */
     @Override
     public void flush(ByteArrayOutputStream out) throws IOException {
@@ -154,6 +153,7 @@ public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
      * rle format: {@code
      * [header][value]
      * header: (repeated value) << 1}
+     * @throws IOException cannot write RLE run
      */
     protected abstract void writeRleRun() throws IOException;
 
@@ -179,9 +179,10 @@ public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
 
     /**
      * End a bit-packing run write all bit-packing group to OutputStream bit-packing format:
+     * {@code
      * [header][lastBitPackedNum][bit-packing group]+
      * [bit-packing group]+ are saved in List<byte[]> bytesBuffer
-     *
+     * }
      * @param lastBitPackedNum - in last bit-packing group, it may have useful values less than 8.
      *                         This param indicates how many values are useful
      */

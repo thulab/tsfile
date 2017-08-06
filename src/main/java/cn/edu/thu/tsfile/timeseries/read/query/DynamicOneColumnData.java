@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 /**
  * DynamicOneColumnData is a self-defined data structure which is optimized for different type
- * of values. This class can be viewed as a collection which is more efficient than ArrayList<>.
+ * of values. This class can be viewed as a collection which is more efficient than ArrayList.
  *
  * @author Jinrui Zhang
  */

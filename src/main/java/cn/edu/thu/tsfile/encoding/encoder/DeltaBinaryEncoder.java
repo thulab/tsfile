@@ -143,8 +143,8 @@ abstract public class DeltaBinaryEncoder extends Encoder {
         /**
          * input a integer
          *
-         * @param value
-         * @param out   - the ByteArrayOutputStream which data encode into
+         * @param value value to encode
+         * @param out the ByteArrayOutputStream which data encode into
          */
         public void encodeValue(int value, ByteArrayOutputStream out) {
             if (writeIndex == -1) {
@@ -284,7 +284,7 @@ abstract public class DeltaBinaryEncoder extends Encoder {
         /**
          * input a integer or long value.
          *
-         * @param value
+         * @param value value to encode
          * @param out   - the ByteArrayOutputStream which data encode into
          */
         public void encodeValue(long value, ByteArrayOutputStream out) {

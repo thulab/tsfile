@@ -12,7 +12,7 @@ import java.util.Map;
 
 /**
  * @author Jinrui Zhang
- * @description This class is used to construct FileReader. <br>
+ * This class is used to construct FileReader. <br>
  * It is an adapter between {@code RecordReader} and {@code FileReader}
  */
 public class ReaderManager {

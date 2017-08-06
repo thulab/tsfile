@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 /**
  * this class is used to contact String effectively.It contains a StringBuider
- * and initialize it until {@code toString} is called.<br>
+ * and initialize it until {@code toString} is called.
  * Note:it's not thread safety
  *
  * @author kangrong
@@ -244,8 +244,8 @@ public class StringContainer {
 
     /**
      * /** return a sub-container consist of several continuous strings in this
-     * container.If start <= end, return a empty container<br>
-     * e.g. this container is ["aa","bbb","cc","d","ee"]; <br>
+     * {@code container.If start <= end, return a empty container}
+     * e.g. this container is ["aa","bbb","cc","d","ee"];
      * this.getSubString(0,0) = ["aa"]<br>
      * this.getSubString(1,3) = ["bbb","cc","d"]<br>
      * this.getSubString(1,-1) = ["bbb","cc","d", "ee"]<br>
