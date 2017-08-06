@@ -2,10 +2,10 @@ package cn.edu.thu.tsfile.common.utils;
 
 /**
  * Pair is a template class to represent a couple of values. It also override the Object basic
- * methods like hasnCode, equals and toString
+ * methods like hasnCode, equals and toString.
  *
- * @param <L>
- * @param <R>
+ * @param <L> L type
+ * @param <R> R type
  * @author kangrong
  */
 public class Pair<L, R> {

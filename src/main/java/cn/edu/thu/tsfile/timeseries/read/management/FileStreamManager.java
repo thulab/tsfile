@@ -2,6 +2,7 @@ package cn.edu.thu.tsfile.timeseries.read.management;
 
 import cn.edu.thu.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.thu.tsfile.timeseries.read.LocalFileInput;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,14 +17,16 @@ import java.io.IOException;
  */
 public class FileStreamManager {
     private static final Logger logger = LoggerFactory.getLogger(FileStreamManager.class);
-    private static FileStreamManager instance = new FileStreamManager();
-
+    
+	private static class FileStreamManagerHolder{
+		private static final FileStreamManager INSTANCE = new FileStreamManager();
+	}
+	
     private FileStreamManager() {
-
     }
 
-    public static FileStreamManager getInstance() {
-        return instance;
+    public static final FileStreamManager getInstance() {
+        return FileStreamManagerHolder.INSTANCE;
     }
 
     public TSRandomAccessFileReader getLocalRandomAcessFileReader(String path) throws FileNotFoundException {

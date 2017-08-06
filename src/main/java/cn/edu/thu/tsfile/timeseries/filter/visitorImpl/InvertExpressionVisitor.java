@@ -6,9 +6,8 @@ import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpressi
 import cn.edu.thu.tsfile.timeseries.filter.definition.operators.*;
 
 /**
- * Invert(FilterExpression) = Not(FilterExpression).</br>
- * Implemented using visitor pattern.</br>
- * see {@link cn.edu.thu.tsfile.timeseries.filter.InvertExpressionVisitorTest}
+ * Invert(FilterExpression) = Not(FilterExpression)
+ * Implemented using visitor pattern.
  *
  * @author CGF
  */

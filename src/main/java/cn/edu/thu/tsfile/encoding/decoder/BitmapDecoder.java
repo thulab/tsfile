@@ -132,7 +132,7 @@ public class BitmapDecoder extends Decoder {
      *
      * @param target   value to get its bitmap index
      * @param pageList input page list
-     * @return List\<Pair(length, bitmap index)\>
+     * @return List(Pair of (length, bitmap index) )
      */
     public List<Pair<Integer, byte[]>> decodeAll(int target, List<InputStream> pageList) {
         List<Pair<Integer, byte[]>> resultList = new ArrayList<>();
@@ -169,7 +169,7 @@ public class BitmapDecoder extends Decoder {
      *
      * @param in : decoded data saved in InputStream
      * @return true or false to indicate whether there is number left
-     * @throws IOException
+     * @throws IOException cannot read next value
      * @see Decoder#hasNext(java.io.InputStream)
      */
     @Override
@@ -184,7 +184,7 @@ public class BitmapDecoder extends Decoder {
      * In current version, boolean value is equal to Enums value in schema
      *
      * @param in : decoded data saved in InputStream
-     * @throws TSFileDecodingException
+     * @throws TSFileDecodingException cannot read next value
      * @see Decoder#readBoolean(java.io.InputStream)
      */
     @Override

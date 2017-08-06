@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  * minimum and null value count up to version 0.0.1.<br>
  * Each data type extends this Statistic as super class.<br>
  *
- * @param <T>
+ * @param <T> data type for Statistics
  * @author kangrong
  * @since 0.0.1
  */
@@ -28,7 +28,7 @@ public abstract class Statistics<T> {
      * static method providing statistic instance for respective data type.
      *
      * @param type - data type
-     * @return
+     * @return Statistics
      */
     public static Statistics<?> getStatsByType(TSDataType type) {
         switch (type) {
@@ -62,8 +62,8 @@ public abstract class Statistics<T> {
     /**
      * merge parameter to this statistic. Including
      *
-     * @param stats
-     * @throws StatisticsClassException
+     * @param stats input statistics
+     * @throws StatisticsClassException cannot merge statistics
      */
     public void mergeStatistics(Statistics<?> stats) throws StatisticsClassException {
         if (stats == null) {
@@ -105,8 +105,8 @@ public abstract class Statistics<T> {
      * This method with two parameters is only used by {@code overflow} which
      * updates/inserts/deletes timestamp.
      *
-     * @param min
-     * @param max
+     * @param min min timestamp
+     * @param max max timestamp
      */
     public void updateStats(long min, long max) {
         throw new UnsupportedOperationException();

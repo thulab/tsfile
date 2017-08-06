@@ -30,10 +30,10 @@ public abstract class DataPoint {
     /**
      * Construct one data point with data type and value
      *
-     * @param dataType
-     * @param measurementId
-     * @param value
-     * @return
+     * @param dataType data type
+     * @param measurementId measurement id
+     * @param value value in string format
+     * @return data point class according to data type
      */
     public static DataPoint getDataPoint(TSDataType dataType, String measurementId, String value) {
         DataPoint dataPoint = null;
@@ -71,9 +71,8 @@ public abstract class DataPoint {
     /**
      * write to seriesWriter and return the series name
      *
-     * @param time
-     * @param writer
-     * @return
+     * @param time timestamp
+     * @param writer writer
      */
     public abstract void write(long time, ISeriesWriter writer) throws IOException;
 

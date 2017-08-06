@@ -83,8 +83,9 @@ public abstract class DeltaBinaryDecoder extends Decoder {
         /**
          * if there's no decoded data left, decode next pack into {@code data}
          *
-         * @param in
-         * @return
+         * @param in InputStream
+         * @return int
+         * @throws IOException cannot read T from InputStream
          */
         protected int readT(InputStream in) throws IOException {
             if (nextReadIndex == readIntTotalCount)
@@ -105,8 +106,9 @@ public abstract class DeltaBinaryDecoder extends Decoder {
         /**
          * if remaining data has been run out, load next pack from InputStream
          *
-         * @param in
-         * @throws IOException
+         * @param in InputStream
+         * @return int
+         * @throws IOException cannot load batch from InputStream
          */
         protected int loadIntBatch(InputStream in) throws IOException {
             packNum = BytesUtils.readInt(in);
@@ -166,8 +168,9 @@ public abstract class DeltaBinaryDecoder extends Decoder {
         /**
          * if there's no decoded data left, decode next pack into {@code data}
          *
-         * @param in
-         * @return
+         * @param in InputStream
+         * @return long value
+         * @throws IOException cannot read T from InputStream
          */
         protected long readT(InputStream in) throws IOException {
             if (nextReadIndex == readIntTotalCount)
@@ -178,8 +181,9 @@ public abstract class DeltaBinaryDecoder extends Decoder {
         /***
          * if remaining data has been run out, load next pack from InputStream
          *
-         * @param in
-         * @throws IOException
+         * @param in InputStream
+         * @return long value
+         * @throws IOException  cannot load batch from InputStream
          */
         protected long loadIntBatch(InputStream in) throws IOException {
             packNum = BytesUtils.readInt(in);

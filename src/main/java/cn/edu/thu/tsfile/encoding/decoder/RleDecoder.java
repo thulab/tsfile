@@ -67,8 +67,8 @@ public abstract class RleDecoder extends Decoder {
     /**
      * get header for both rle and bit-packing current encode mode which is
      * saved in first bit of header
-     *
-     * @throws IOException
+     * @return int value
+     * @throws IOException cannot get header
      */
     public int getHeader() throws IOException {
         int header = ReadWriteStreamUtils.readUnsignedVarInt(byteCache);
@@ -79,7 +79,7 @@ public abstract class RleDecoder extends Decoder {
     /**
      * get all encoded data according to mode
      *
-     * @throws IOException
+     * @throws IOException cannot read next value
      */
     protected void readNext() throws IOException {
         int header = getHeader();
@@ -113,7 +113,7 @@ public abstract class RleDecoder extends Decoder {
      * read length and bit width of current package before we decode number
      *
      * @param in InputStream
-     * @throws IOException
+     * @throws IOException cannot read length and bit-width
      */
     protected void readLengthAndBitWidth(InputStream in) throws IOException {
         // long st = System.currentTimeMillis();
@@ -132,7 +132,7 @@ public abstract class RleDecoder extends Decoder {
      *
      * @param in decoded data saved in InputStream
      * @return true or false to indicate whether there is number left
-     * @throws IOException
+     * @throws IOException cannot check next value
      */
     @Override
     public boolean hasNext(InputStream in) throws IOException {
@@ -146,7 +146,6 @@ public abstract class RleDecoder extends Decoder {
      * Check whether there is another pattern left for reading
      *
      * @return true or false to indicate whether there is another pattern left
-     * @throws IOException
      */
     protected boolean hasNextPackage() {
         return currentCount > 0 || byteCache.available() > 0;
@@ -157,7 +156,7 @@ public abstract class RleDecoder extends Decoder {
     /**
      * Read rle package and save them in buffer
      *
-     * @throws IOException
+     * @throws IOException cannot read number
      */
     protected abstract void readNumberInRLE() throws IOException;
 
@@ -166,7 +165,7 @@ public abstract class RleDecoder extends Decoder {
      *
      * @param bitPackedGroupCount number of group number
      * @param lastBitPackedNum    number of useful value in last group
-     * @throws IOException
+     * @throws IOException cannot read bit pack
      */
     protected abstract void readBitPackingBuffer(int bitPackedGroupCount, int lastBitPackedNum) throws IOException;
 

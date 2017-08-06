@@ -7,7 +7,6 @@ import java.io.Serializable;
 /**
  * Definition for binary filter operations single series.
  *
- * @param <T>
  * @author CGF
  */
 
