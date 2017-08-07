@@ -549,36 +549,6 @@ public class DynamicOneColumnData {
         }
     }
 
-    public void updateAValueFromDynamicOneColumnData(DynamicOneColumnData B, int idx, int aimIdx) {
-        switch (dataType) {
-            case BOOLEAN:
-                setBoolean(aimIdx, B.getBoolean(idx));
-                break;
-            case INT32:
-                setInt(aimIdx, B.getInt(idx));
-                break;
-            case INT64:
-                putLong(B.getLong(idx));
-                setLong(aimIdx, B.getLong(idx));
-                break;
-            case FLOAT:
-                putFloat(B.getFloat(idx));
-                setFloat(aimIdx, B.getFloat(idx));
-                break;
-            case DOUBLE:
-                putDouble(B.getDouble(idx));
-                setDouble(aimIdx, B.getDouble(idx));
-                break;
-            case ENUMS:
-            case TEXT:
-                putBinary(B.getBinary(idx));
-                setBinary(aimIdx, B.getBinary(idx));
-                break;
-            default:
-                throw new UnSupportedDataTypeException(String.valueOf(B.dataType));
-        }
-    }
-
     public void clearData() {
         this.init(dataType, true);
     }
