@@ -1,7 +1,6 @@
 package cn.edu.thu.tsfile.encoding.bitpacking;
 
 /**
- * @author Zhang Jinrui
  *         This class is used to encode(decode) Integer in Java with specified bit-width.
  *         User need to guarantee that the length of every given Integer in binary mode
  *         is less than or equal to the bit-width.
@@ -18,7 +17,9 @@ package cn.edu.thu.tsfile.encoding.bitpacking;
  *         |1 |0 |1 |1 |0 |0 |1 |1 |   |1 |0 |1 |1 |0 |0 |0 |0 |   |0 |1 |0 |1 |1 |0 |1 |0 |
  *         +-----------------------+   +-----------------------+   +-----------------------+
  *         +-----+  +-----+  +---------+  +-----+  +-----+  +---------+  +-----+  +-----+
- *         5        4          7          3        0          1          3        2<
+ *         5        4          7          3        0          1          3        2
+ *
+ *         @author Zhang Jinrui
  */
 public class IntPacker {
 

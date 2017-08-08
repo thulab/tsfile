@@ -15,7 +15,6 @@ import java.util.Set;
 
 /**
  * Encodes values using bitmap, according to the following grammar:
- * <p>
  * <pre>
  * {@code
  * bitmap-encoding: <length> <num> <encoded-data>

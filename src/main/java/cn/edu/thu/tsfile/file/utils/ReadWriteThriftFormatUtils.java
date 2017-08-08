@@ -50,6 +50,7 @@ public class ReadWriteThriftFormatUtils {
      * read file metadata(thrift format) from stream
      *
      * @param from InputStream
+     * @return metadata of TsFile
      * @throws IOException cannot read file metadata from OutputStream
      */
     public static FileMetaData readFileMetaData(InputStream from) throws IOException {
@@ -113,6 +114,7 @@ public class ReadWriteThriftFormatUtils {
      * read one page header from stream
      *
      * @param from InputStream
+     * @return page header
      * @throws IOException cannot read page header from InputStream
      */
     public static PageHeader readPageHeader(InputStream from) throws IOException {
@@ -132,7 +134,7 @@ public class ReadWriteThriftFormatUtils {
     /**
      * @param tbase input class in thrift format
      * @param to OutputStream
-     * @throws IOException
+     * @throws IOException exception in IO
      */
     public static void write(TBase<?, ?> tbase, OutputStream to) throws IOException {
         try {
@@ -147,8 +149,9 @@ public class ReadWriteThriftFormatUtils {
     /**
      * @param from InputStream
      * @param tbase output class in thrift format
+     * @param <T> class in thrift-format
      * @return Class in thrift format
-     * @throws IOException
+     * @throws IOException exception in IO
      */
     public static <T extends TBase<?, ?>> T read(InputStream from, T tbase) throws IOException {
         try {

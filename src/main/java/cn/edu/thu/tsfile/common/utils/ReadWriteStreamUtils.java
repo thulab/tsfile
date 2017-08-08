@@ -66,7 +66,7 @@ public class ReadWriteStreamUtils {
      *
      * @param in stream to read an unsigned var int
      * @return integer value
-     * @throws IOException
+     * @throws IOException exception in IO
      */
     public static int readUnsignedVarInt(InputStream in) throws IOException {
         int value = 0;
@@ -88,7 +88,7 @@ public class ReadWriteStreamUtils {
      *
      * @param value value to write into stream
      * @param out   output stream
-     * @throws IOException
+     * @throws IOException exception in IO
      */
     public static void writeUnsignedVarInt(int value, OutputStream out) throws IOException {
         while ((value & 0xFFFFFF80) != 0L) {
@@ -104,7 +104,7 @@ public class ReadWriteStreamUtils {
      * @param value    value to write to stream
      * @param out      output stream
      * @param bitWidth bit length
-     * @throws IOException
+     * @throws IOException exception in IO
      */
     public static void writeIntLittleEndianPaddedOnBitWidth(int value, OutputStream out, int bitWidth)
             throws IOException {
@@ -127,7 +127,7 @@ public class ReadWriteStreamUtils {
      * @param value    value to write to stream
      * @param out      output stream
      * @param bitWidth bit length
-     * @throws IOException
+     * @throws IOException exception in IO
      */
     public static void writeLongLittleEndianPaddedOnBitWidth(long value, OutputStream out, int bitWidth)
             throws IOException {
@@ -145,7 +145,7 @@ public class ReadWriteStreamUtils {
      * @param in       input stream
      * @param bitWidth bit length
      * @return integer value
-     * @throws IOException
+     * @throws IOException exception in IO
      */
     public static int readIntLittleEndianPaddedOnBitWidth(InputStream in, int bitWidth) throws IOException {
         int paddedByteNum = (bitWidth + 7) / 8;
@@ -170,7 +170,7 @@ public class ReadWriteStreamUtils {
      * @param in       input stream
      * @param bitWidth bit length
      * @return long  long value
-     * @throws IOException
+     * @throws IOException exception in IO
      */
     public static long readLongLittleEndianPaddedOnBitWidth(InputStream in, int bitWidth) throws IOException {
         int paddedByteNum = (bitWidth + 7) / 8;
