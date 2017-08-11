@@ -264,7 +264,7 @@ public class StringContainer {
         if (realEndIndex < 0 || realEndIndex >= count)
             throw new IndexOutOfBoundsException("end Index: " + end
                     + ", Real end Index: " + realEndIndex + ", Size: " + count);
-        StringContainer ret = new StringContainer();
+        StringContainer ret = new StringContainer(joinSeparator);
         if (realStartIndex < reverseList.size()) {
             for (int i = reverseList.size() - 1 - realStartIndex; i >= Math
                     .max(0, reverseList.size() - 1 - realEndIndex); i--) {
