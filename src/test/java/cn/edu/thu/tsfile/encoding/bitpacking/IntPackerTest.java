@@ -7,7 +7,6 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import cn.edu.thu.tsfile.encoding.bitpacking.IntPacker;
 
 /**
  * 

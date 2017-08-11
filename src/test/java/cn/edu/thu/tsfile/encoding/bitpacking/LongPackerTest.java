@@ -12,7 +12,6 @@ import java.util.Random;
 
 import org.junit.Test;
 import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
-import cn.edu.thu.tsfile.encoding.bitpacking.LongPacker;
 
 /**
  * 
