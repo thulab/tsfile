@@ -14,7 +14,7 @@ import java.util.Arrays;
 /**
  * This class is used in batch query for Cross Query.
  *
- * @author Jinrui Zhang
+ * @author ZJR, CGF
  */
 public abstract class CrossQueryTimeGenerator {
 
@@ -187,6 +187,11 @@ public abstract class CrossQueryTimeGenerator {
         return res;
     }
 
+    /**
+     * valueFilterNumber parameter is mainly used for TsFileDB.
+     * Because of the exist of <code>RecordReaderCache</code>, 
+     * we must know the occur position of the SingleSeriesFilter in CrossSeriesFilterExpression.
+     */
     public abstract DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize,
                                                             SingleSeriesFilterExpression valueFilter, int valueFilterNumber)
             throws ProcessorException, IOException;
