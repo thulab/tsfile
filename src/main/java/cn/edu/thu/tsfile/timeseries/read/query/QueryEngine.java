@@ -311,7 +311,7 @@ public class QueryEngine {
         CrossQueryTimeGenerator timeGenerator = new CrossQueryTimeGenerator(timeFilter, freqFilter, valueFilter, FETCH_SIZE) {
             @Override
             public DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize,
-                                                           SingleSeriesFilterExpression valueFilter) throws ProcessorException, IOException {
+                                                           SingleSeriesFilterExpression valueFilter, int valueFilterNumber) throws ProcessorException, IOException {
                 return recordReader.getValuesUseFilter(res, fetchSize, valueFilter);
             }
         };
@@ -355,7 +355,7 @@ public class QueryEngine {
         CrossQueryTimeGenerator timeQueryDataSet = new CrossQueryTimeGenerator(timeFilter, freqFilter, valueFilter, FETCH_SIZE) {
             @Override
             public DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize,
-                                                           SingleSeriesFilterExpression valueFilter) throws ProcessorException, IOException {
+                                                           SingleSeriesFilterExpression valueFilter, int valueFilterNumber) throws ProcessorException, IOException {
                 return recordReader.getValuesUseFilter(res, fetchSize, valueFilter, RowGroupIdxList);
             }
         };

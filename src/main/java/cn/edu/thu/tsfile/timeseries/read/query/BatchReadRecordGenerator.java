@@ -11,7 +11,7 @@ import java.util.PriorityQueue;
 
 /**
  * This is class is used for {@code OverflowQueryEngine#readWithoutFilter} and
- * {@code OverflowQueryEngine#readOneColumnValueUseFilter} when batch read.
+ * {@code OverflowQueryEngine.readOneColumnValueUseFilter} when batch read.
  *
  * @author Jinrui Zhang
  */

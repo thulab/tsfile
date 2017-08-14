@@ -68,8 +68,7 @@ public class RecordReader {
 
     private DynamicOneColumnData getValueInOneColumn(DynamicOneColumnData res, int fetchSize,
                                                      RowGroupReader rowGroupReader, String measurementId) throws IOException {
-        DynamicOneColumnData v = rowGroupReader.getValueReaders().get(measurementId).readOneColumn(res, fetchSize);
-        return v;
+        return rowGroupReader.getValueReaders().get(measurementId).readOneColumn(res, fetchSize);
     }
 
     /**
