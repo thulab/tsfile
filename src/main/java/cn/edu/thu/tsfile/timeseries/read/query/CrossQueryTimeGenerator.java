@@ -14,21 +14,20 @@ import java.util.Arrays;
 /**
  * This class is used in batch query for Cross Query.
  *
- * @author Jinrui Zhang
+ * @author ZJR, CGF
  */
 public abstract class CrossQueryTimeGenerator {
 
-    public ArrayList<DynamicOneColumnData> retMap;
-    //	HashMap<String, SingleSeriesFilterExpression> filterMap;
-    public ArrayList<Boolean> hasReadAllList;
-    protected ArrayList<Long> lastValueList; //
+    public ArrayList<DynamicOneColumnData> retMap; // represent the single valueFilter and its' data
+    public ArrayList<Boolean> hasReadAllList; // represent whether the data has been read all
+    protected ArrayList<Long> lastValueList; // represent the value stored in CSOr relation
+    protected ArrayList<Integer> idxCount; // represent the dfsCnt and the sum node number of its' subtree
+    protected int dfsCnt; // to record which single valueFilter is used
+
     protected SingleSeriesFilterExpression timeFilter;
     protected SingleSeriesFilterExpression freqFilter;
     protected FilterExpression valueFilter;
-    protected ArrayList<Integer> idxCount;
     protected int fetchSize;
-    //to record which valueFilter is used
-    protected int dfsCnt;
 
     public CrossQueryTimeGenerator(SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
                                    FilterExpression valueFilter, int fetchSize) {
@@ -80,7 +79,7 @@ public abstract class CrossQueryTimeGenerator {
         int cnt = 0;
         SingleValueVisitor<Long> timeFilterVisitor = new SingleValueVisitor<>();
         while (cnt < fetchSize) {
-            //must before calculateOneTime
+            // init dfsCnt=-1 before calculateOneTime
             dfsCnt = -1;
             long v = calculateOneTime(valueFilter);
             if (v == -1) {
@@ -98,11 +97,13 @@ public abstract class CrossQueryTimeGenerator {
     }
 
     private long calculateOneTime(FilterExpression valueFilter) throws ProcessorException, IOException {
-        //first check whether has a value not used in CSOr
+        // first check whether the value is used in CSOr relation
         dfsCnt++;
         if (lastValueList.get(dfsCnt) != -1L) {
             long v = lastValueList.get(dfsCnt);
             lastValueList.set(dfsCnt, -1L);
+            // this current valueFilter is a branch of CSOr relation, and has been calculated before
+            // return the value directly and no need to calculate again
             dfsCnt += (idxCount.get(dfsCnt) - 1);
             return v;
         }
@@ -146,6 +147,7 @@ public abstract class CrossQueryTimeGenerator {
             FilterExpression right = ((CSOr) valueFilter).getRight();
             int lidx = dfsCnt + 1;
             long l = calculateOneTime(left);
+            // dfsCnt has changed when above calculateOneTime(left) is over
             int ridx = dfsCnt + 1;
             long r = calculateOneTime(right);
 
@@ -177,7 +179,7 @@ public abstract class CrossQueryTimeGenerator {
             // rowGroupIdx will not change
             res.clearData();
         }
-        res = getDataInNextBatch(res, fetchSize, valueFilter);
+        res = getDataInNextBatch(res, fetchSize, valueFilter, idx);
         retMap.set(idx, res);
         if (res == null || res.valueLength == 0) {
             hasReadAllList.set(idx, true);
@@ -185,6 +187,12 @@ public abstract class CrossQueryTimeGenerator {
         return res;
     }
 
-    public abstract DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize
-            , SingleSeriesFilterExpression valueFilter) throws ProcessorException, IOException;
+    /**
+     * valueFilterNumber parameter is mainly used for TsFileDB.
+     * Because of the exist of <code>RecordReaderCache</code>, 
+     * we must know the occur position of the SingleSeriesFilter in CrossSeriesFilterExpression.
+     */
+    public abstract DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize,
+                                                            SingleSeriesFilterExpression valueFilter, int valueFilterNumber)
+            throws ProcessorException, IOException;
 }
