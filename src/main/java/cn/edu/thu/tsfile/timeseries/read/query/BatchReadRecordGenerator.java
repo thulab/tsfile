@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 /**
- * This is class is used for {@code OverflowQueryEngine#readWithoutFilter} and
+ * This is class is used for {@code OverflowQueryEngine.readWithoutFilter} and
  * {@code OverflowQueryEngine.readOneColumnValueUseFilter} when batch read.
  *
  * @author Jinrui Zhang
@@ -73,7 +73,10 @@ public abstract class BatchReadRecordGenerator {
     public abstract DynamicOneColumnData getMoreRecordsForOneColumn(Path p
             , DynamicOneColumnData res) throws ProcessorException, IOException;
 
-    // TODO this method need to be removed from TsFile
+    /**
+     * Calculate the fetchSize number RowRecords.
+     * Invoking this method will remove the top value in heap until the RowRecord number reach to fetchSize.
+     */
     public void calculateRecord() throws ProcessorException, IOException {
         int recordCount = 0;
         while (recordCount < fetchSize && noRetCount < retMap.size()) {
@@ -81,15 +84,15 @@ public abstract class BatchReadRecordGenerator {
             if (minTime == null) {
                 break;
             }
-            for (Path p : retMap.keySet()) {
-                if (hasMoreRet.get(p)) {
-                    DynamicOneColumnData res = retMap.get(p);
+            for (Path path : retMap.keySet()) {
+                if (hasMoreRet.get(path)) {
+                    DynamicOneColumnData res = retMap.get(path);
                     if (minTime.equals(res.getTime(res.curIdx))) {
                         res.curIdx++;
                         if (res.curIdx == res.valueLength) {
-                            res = getMoreRecordsForOneColumn(p, res);
+                            res = getMoreRecordsForOneColumn(path, res);
                             if (res.curIdx == res.valueLength) {
-                                hasMoreRet.put(p, false);
+                                hasMoreRet.put(path, false);
                                 noRetCount++;
                                 continue;
                             }

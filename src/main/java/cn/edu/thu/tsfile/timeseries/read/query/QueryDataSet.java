@@ -17,19 +17,18 @@ public class QueryDataSet {
     private static final Logger LOG = LoggerFactory.getLogger(QueryDataSet.class);
     private static final char PATH_SPLITTER = '.';
 
-    //Time Generator for Cross Query when using batching read
+    // Time Generator for Cross Query when using batching read
     public CrossQueryTimeGenerator timeQueryDataSet;
     public LinkedHashMap<String, DynamicOneColumnData> mapRet;
-    //TODO this variable need to be set in TsFileDB
     protected BatchReadRecordGenerator batchReaderRetGenerator;
-    //special for save time values when processing cross getIndex
-    protected PriorityQueue<Long> heap;
-    protected DynamicOneColumnData[] cols;
+
+    protected PriorityQueue<Long> heap; // special for save time values when processing cross getIndex
+    protected DynamicOneColumnData[] cols; // the content of cols equals to mapRet
+    protected int[] idxs; // idxs[i] stores the curIdx of cols[i]
     protected String[] deltaObjectIds;
     protected String[] measurementIds;
-    protected int[] idxs;
-    // timestamp occurs time
-    protected HashMap<Long, Integer> timeMap;
+
+    protected HashMap<Long, Integer> timeMap; // timestamp occurs time
     protected int size;
     protected boolean ifInit = false;
     protected RowRecord currentRecord = null;
@@ -173,20 +172,6 @@ public class QueryDataSet {
         this.ifInit = false;
         for (DynamicOneColumnData col : mapRet.values()) {
             col.clearData();
-        }
-    }
-
-    //TODO this method need to be removed
-    public void putRecordFromBatchReadRetGenerator() {
-        for (Path p : getBatchReaderRetGenerator().retMap.keySet()) {
-            DynamicOneColumnData oneColRet = getBatchReaderRetGenerator().retMap.get(p);
-            DynamicOneColumnData leftRet = oneColRet.sub(oneColRet.curIdx);
-            leftRet.setDeltaObjectType(oneColRet.getDeltaObjectType());
-            //Copy batch read info from oneColRet to leftRet
-            oneColRet.copyFetchInfoTo(leftRet);
-            getBatchReaderRetGenerator().retMap.put(p, leftRet);
-            oneColRet.rollBack(oneColRet.valueLength - oneColRet.curIdx);
-            this.mapRet.put(p.getFullPath(), oneColRet);
         }
     }
 

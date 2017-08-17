@@ -503,6 +503,9 @@ public class DynamicOneColumnData {
         }
     }
 
+    /**
+     * Remove the data whose index position is between size and valueLength.
+     */
     public void rollBack(int size) {
         //rollback the length
         valueLength -= size;
@@ -557,6 +560,13 @@ public class DynamicOneColumnData {
         return sub(startPos, this.valueLength - 1);
     }
 
+    /**
+     * Extract the needed data between start position and end position.
+     *
+     * @param startPos start position of index
+     * @param endPos end position of index
+     * @return the new DynamicOneColumnData whose data is equals to position startPos and position endPos
+     */
     public DynamicOneColumnData sub(int startPos, int endPos) {
         DynamicOneColumnData subRes = new DynamicOneColumnData(dataType, true);
         for (int i = startPos; i <= endPos; i++) {
