@@ -565,7 +565,7 @@ public class DynamicOneColumnData {
      *
      * @param startPos start position of index
      * @param endPos end position of index
-     * @return the new DynamicOneColumnData which is data equals to position startPos and position endPos
+     * @return the new DynamicOneColumnData whose data is equals to position startPos and position endPos
      */
     public DynamicOneColumnData sub(int startPos, int endPos) {
         DynamicOneColumnData subRes = new DynamicOneColumnData(dataType, true);

@@ -175,23 +175,6 @@ public class QueryDataSet {
         }
     }
 
-    /**
-     * This method in only used in TsFileDB.
-     */
-    public void putRecordFromBatchReadRetGenerator() {
-        for (Path path : getBatchReaderRetGenerator().retMap.keySet()) {
-            DynamicOneColumnData oneColRet = getBatchReaderRetGenerator().retMap.get(path);
-            DynamicOneColumnData leftRet = oneColRet.sub(oneColRet.curIdx);
-            leftRet.setDeltaObjectType(oneColRet.getDeltaObjectType());
-
-            // copy batch read info from oneColRet to leftRet
-            oneColRet.copyFetchInfoTo(leftRet);
-            getBatchReaderRetGenerator().retMap.put(path, leftRet);
-            oneColRet.rollBack(oneColRet.valueLength - oneColRet.curIdx);
-            this.mapRet.put(path.getFullPath(), oneColRet);
-        }
-    }
-
     public BatchReadRecordGenerator getBatchReaderRetGenerator() {
         return batchReaderRetGenerator;
     }
