@@ -19,7 +19,6 @@ public class QueryDataSet {
 
     // Time Generator for Cross Query when using batching read
     public CrossQueryTimeGenerator timeQueryDataSet;
-    // why must LinkedHashMap?
     public LinkedHashMap<String, DynamicOneColumnData> mapRet;
     protected BatchReadRecordGenerator batchReaderRetGenerator;
 
