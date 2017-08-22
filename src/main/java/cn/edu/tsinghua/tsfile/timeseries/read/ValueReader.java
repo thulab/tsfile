@@ -441,8 +441,8 @@ public class ValueReader {
                 res.pageOffset += (lastAvailable - bis.available());
             }
 
-            // Represents current Column has been read all. Prepare for next
-            // column in another RowGroup
+            // Represents current Column has been read all.
+            // Prepare for next column in another RowGroup.
             if ((res.pageOffset - fileOffset) >= totalSize) {
                 res.plusRowGroupIndexAndInitPageOffset();
             }

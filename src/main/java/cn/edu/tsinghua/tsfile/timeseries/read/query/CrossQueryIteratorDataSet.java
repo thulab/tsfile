@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 
 /**
- * This class is the subClass of {@code QueryDataSet}. It is used to store
+ * This class is the subclass of {@code QueryDataSet}. It is used to store
  * and fetch more records for batch query in TsFile's SingleFileQuery.
  *
  * @author Jinrui Zhang
@@ -34,7 +34,7 @@ public abstract class CrossQueryIteratorDataSet extends QueryDataSet {
 
     public boolean hasNextRecord() {
         if (!ifInit) {
-            //That hasReadAll is true represents that there is no records in this QueryDataSet
+            // hasReadAll is true represents that there is no records in this QueryDataSet
             if (hasReadAll) {
                 return false;
             }
@@ -97,12 +97,3 @@ public abstract class CrossQueryIteratorDataSet extends QueryDataSet {
         return r;
     }
 }
-
-
-
-
-
-
-
-
-

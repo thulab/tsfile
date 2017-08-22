@@ -6,138 +6,176 @@ import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
 /**
  * This class define an Object named Path to represent a series in delta system.
  * And in batch read, this definition is also used in query processing.
+ * Note that, Path is unmodified after a new object has been created.
  *
  * @author Kangrong
  */
 public class Path {
     private String measurement = null;
-    private StringContainer deltaObject = null;
-    private StringContainer fullPath;
+    private String deltaObject = null;
+    private String fullPath;
 
     public Path(StringContainer pathSc) {
+        assert pathSc != null;
         String[] splits = pathSc.toString().split(SystemConstant.PATH_SEPARATER_NO_REGEX);
-        fullPath = new StringContainer(splits, SystemConstant.PATH_SEPARATOR);
+        init(splits);
     }
 
     public Path(String pathSc) {
+        assert pathSc != null;
         String[] splits = pathSc.split(SystemConstant.PATH_SEPARATER_NO_REGEX);
-        fullPath = new StringContainer(splits, SystemConstant.PATH_SEPARATOR);
-
+        init(splits);
     }
 
     public Path(String[] pathSc) {
+        assert pathSc != null;
         String[] splits =
                 new StringContainer(pathSc, SystemConstant.PATH_SEPARATOR).toString().split(
                         SystemConstant.PATH_SEPARATER_NO_REGEX);
-        fullPath = new StringContainer(splits, SystemConstant.PATH_SEPARATOR);
-
+        init(splits);
     }
 
-    public static Path mergePath(Path prefix, Path suffix) {
-        Path ret = new Path(prefix.fullPath.clone());
-        ret.fullPath.addTail(suffix.fullPath);
-        return ret;
+    private void init(String[] splitedPathArray) {
+        StringContainer sc = new StringContainer(splitedPathArray, SystemConstant.PATH_SEPARATOR);
+        if (sc.size() <= 1) {
+            deltaObject = "";
+            fullPath = measurement = sc.toString();
+        } else {
+            deltaObject = sc.getSubStringContainer(0, -2).toString();
+            measurement = sc.getSubString(-1);
+            fullPath = sc.toString();
+        }
     }
+
 
     public String getFullPath() {
-        return fullPath.toString();
+        return fullPath;
     }
 
     public String getDeltaObjectToString() {
-        if (deltaObject == null || measurement == null) {
-            separateDeltaObjectMeasurement();
-        }
-        return deltaObject.join(SystemConstant.PATH_SEPARATOR);
+        return deltaObject;
     }
 
     public String getMeasurementToString() {
-        if (deltaObject == null || measurement == null) {
-            separateDeltaObjectMeasurement();
-        }
         return measurement;
-    }
-
-    private void separateDeltaObjectMeasurement() {
-        if (fullPath == null || fullPath.size() == 0) {
-            deltaObject = new StringContainer();
-            measurement = "";
-        } else if (fullPath.size() == 1) {
-            deltaObject = new StringContainer();
-            measurement = fullPath.toString();
-        } else {
-            deltaObject = fullPath.getSubStringContainer(0, -2);
-            measurement = fullPath.getSubString(-1);
-        }
     }
 
     @Override
     public int hashCode() {
-        return fullPath.toString().hashCode();
+        return fullPath.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null)
-            return false;
-        if (!(obj instanceof Path))
-            return false;
-        return this.fullPath.toString().equals(((Path) obj).fullPath.toString());
+        return obj != null && obj instanceof Path && this.fullPath.equals(((Path) obj).fullPath);
     }
 
     public boolean equals(String obj) {
-        if (obj == null)
-            return false;
-        return this.fullPath.toString().equals(obj);
+        return obj != null && this.fullPath.equals(obj);
     }
 
     @Override
     public String toString() {
-        return fullPath.toString();
+        return fullPath;
     }
 
-    public void addHeadPath(String deltaObject) {
-        String[] splits = deltaObject.split(SystemConstant.PATH_SEPARATER_NO_REGEX);
-        fullPath.addHead(splits);
-        deltaObject = null;
-    }
-
-    public void addHeadPath(Path prefix) {
-        fullPath.addHead(prefix.fullPath);
-        deltaObject = null;
-
-    }
 
     @Override
     public Path clone() {
-        StringContainer sc = this.fullPath.clone();
+        return new Path(fullPath);
+    }
+
+    /**
+     * if prefix is null, return false, else judge whether this.fullPath starts with prefix
+     *
+     * @param prefix the prefix string to be tested.
+     * @return True if fullPath starts with prefix
+     */
+    public boolean startWith(String prefix) {
+        return prefix != null && fullPath.startsWith(prefix);
+    }
+
+    /**
+     * if prefix is null, return false, else judge whether this.fullPath starts with prefix.fullPath
+     *
+     * @param prefix the prefix path to be tested.
+     * @return True if fullPath starts with prefix.fullPath
+     */
+    public boolean startWith(Path prefix) {
+        return startWith(prefix.fullPath);
+    }
+
+    public static Path mergePath(Path prefix, Path suffix) {
+        StringContainer sc = new StringContainer(SystemConstant.PATH_SEPARATOR);
+        sc.addTail(prefix);
+        sc.addTail(suffix);
         return new Path(sc);
     }
 
     /**
-     * if prefix is null, return false
+     * add {@code prefix}  as the prefix of {@code src}.
      *
+<<<<<<< HEAD:src/main/java/cn/edu/tsinghua/tsfile/timeseries/read/qp/Path.java
      * @param prefix prefix string of path
      * @return if this path start with prefix
+=======
+     * @param src    to be added.
+     * @param prefix the newly prefix
+     * @return
+>>>>>>> upstream/master:src/main/java/cn/edu/thu/tsfile/timeseries/read/qp/Path.java
      */
-    public boolean startWith(String prefix) {
-        if (prefix == null)
-            return false;
-        return fullPath.toString().startsWith(prefix);
+    public static Path addPrefixPath(Path src, String prefix) {
+        StringContainer sc = new StringContainer(SystemConstant.PATH_SEPARATOR);
+        sc.addTail(prefix);
+        sc.addTail(src);
+        return new Path(sc);
     }
 
-    public boolean startWith(Path prefix) {
-        if (prefix == null)
-            return false;
-        return fullPath.toString().startsWith(prefix.fullPath.toString());
+    /**
+     * add {@code prefix}  as the prefix of {@code src}.
+     *
+     * @param src    to be added.
+     * @param prefix the newly prefix
+     * @return
+     */
+    public static Path addPrefixPath(Path src, Path prefix) {
+        return addPrefixPath(src, prefix.fullPath);
     }
 
-    public void replace(String srcPrefix, Path descPrefix) {
-        if (!startWith(srcPrefix))
-            return;
+    /**
+     * replace prefix of descPrefix with given parameter {@code srcPrefix}.
+     * If the level of the path constructed by {@code srcPrefix} is larger than {@code descPrefix}, return {@code
+     * srcPrefix} directly.
+     *
+     * @param srcPrefix  the prefix to replace descPrefix
+     * @param descPrefix to be replaced
+     * @return If the level of the path constructed by {@code srcPrefix} is larger than {@code descPrefix}, return
+     * {@code srcPrefix} directly.
+     */
+    public static Path replace(String srcPrefix, Path descPrefix) {
+        if ("".equals(srcPrefix) || descPrefix.startWith(srcPrefix))
+            return descPrefix;
         int prefixSize = srcPrefix.split(SystemConstant.PATH_SEPARATER_NO_REGEX).length;
-        StringContainer newPath = fullPath.getSubStringContainer(prefixSize, -1);
-        newPath.addHead(descPrefix.fullPath);
-        this.fullPath = newPath;
-        deltaObject = null;
+        String[] descArray = descPrefix.fullPath.split(SystemConstant.PATH_SEPARATER_NO_REGEX);
+        if (descArray.length <= prefixSize)
+            return new Path(srcPrefix);
+        StringContainer sc = new StringContainer(SystemConstant.PATH_SEPARATOR);
+        sc.addTail(srcPrefix);
+        for (int i = prefixSize; i < descArray.length; i++) {
+            sc.addTail(descArray[i]);
+        }
+        return new Path(sc);
+    }
+
+    /**
+     * replace prefix of {@code descPrefix} with given parameter {@code srcPrefix}.
+     * If the level of {@code srcPrefix} is larger than {@code descPrefix}, return {@code srcPrefix} directly.
+     *
+     * @param srcPrefix  the prefix to replace descPrefix
+     * @param descPrefix to be replaced
+     * @return If the level of {@code srcPrefix} is larger than {@code descPrefix}, return {@code srcPrefix} directly.
+     */
+    public static Path replace(Path srcPrefix, Path descPrefix) {
+        return replace(srcPrefix.fullPath, descPrefix);
     }
 }

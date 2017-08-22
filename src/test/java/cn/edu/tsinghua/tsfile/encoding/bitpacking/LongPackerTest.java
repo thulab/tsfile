@@ -12,6 +12,10 @@ import java.util.Random;
 
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
 import org.junit.Test;
+<<<<<<< HEAD:src/test/java/cn/edu/tsinghua/tsfile/encoding/bitpacking/LongPackerTest.java
+=======
+import cn.edu.thu.tsfile.common.utils.ReadWriteStreamUtils;
+>>>>>>> upstream/master:src/test/java/cn/edu/thu/tsfile/encoding/bitpacking/LongPackerTest.java
 
 /**
  * 

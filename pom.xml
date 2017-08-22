@@ -6,7 +6,7 @@
     <version>0.1.0</version>
     <packaging>jar</packaging>
 
-    <name>${project.groupId}:${project.artifactId}</name>
+    <name>TsFile</name>
     <description>A columnar file format designed for time-series data</description>
     <url>https://github.com/thulab/tsfile</url>
 
@@ -58,7 +58,7 @@
         <developerConnection>scm:git:ssh://github.com:thulab/tsfile.git</developerConnection>
         <url>http://github.com/thulab/tsfile/tree/master</url>
       <tag>tsfile-0.1.0</tag>
-  </scm>
+    </scm>
 
     <distributionManagement>
         <snapshotRepository>

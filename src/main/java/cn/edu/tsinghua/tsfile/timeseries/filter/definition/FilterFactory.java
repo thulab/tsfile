@@ -213,7 +213,7 @@ public final class FilterFactory {
      * @param right right expression
      * @return or expression
      */
-    private static CSOr csOr(FilterExpression left, FilterExpression right) {
+    public static CSOr csOr(FilterExpression left, FilterExpression right) {
         return new CSOr(left, right);
     }
 
