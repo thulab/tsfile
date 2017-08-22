@@ -115,14 +115,9 @@ public class Path {
     /**
      * add {@code prefix}  as the prefix of {@code src}.
      *
-<<<<<<< HEAD:src/main/java/cn/edu/tsinghua/tsfile/timeseries/read/qp/Path.java
-     * @param prefix prefix string of path
-     * @return if this path start with prefix
-=======
      * @param src    to be added.
      * @param prefix the newly prefix
-     * @return
->>>>>>> upstream/master:src/main/java/cn/edu/thu/tsfile/timeseries/read/qp/Path.java
+     * @return if this path start with prefix
      */
     public static Path addPrefixPath(Path src, String prefix) {
         StringContainer sc = new StringContainer(SystemConstant.PATH_SEPARATOR);

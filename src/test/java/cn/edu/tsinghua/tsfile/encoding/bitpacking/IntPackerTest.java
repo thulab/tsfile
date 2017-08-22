@@ -7,10 +7,6 @@ import java.util.Random;
 
 import org.junit.Test;
 
-<<<<<<< HEAD:src/test/java/cn/edu/tsinghua/tsfile/encoding/bitpacking/IntPackerTest.java
-=======
-
->>>>>>> upstream/master:src/test/java/cn/edu/thu/tsfile/encoding/bitpacking/IntPackerTest.java
 /**
  * 
  * @author Zhang Jinrui

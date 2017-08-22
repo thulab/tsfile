@@ -1,14 +1,14 @@
 package cn.edu.tsinghua.tsfile.timeseries.read;
 
 
-import cn.edu.thu.tsfile.common.exception.ProcessorException;
-import cn.edu.thu.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.thu.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
-import cn.edu.thu.tsfile.timeseries.filter.definition.FilterFactory;
-import cn.edu.thu.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
-import cn.edu.thu.tsfile.timeseries.filter.definition.filterseries.FilterSeriesType;
-import cn.edu.thu.tsfile.timeseries.read.query.CrossQueryTimeGenerator;
-import cn.edu.thu.tsfile.timeseries.read.query.DynamicOneColumnData;
+import cn.edu.tsinghua.tsfile.common.exception.ProcessorException;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
+import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterFactory;
+import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
+import cn.edu.tsinghua.tsfile.timeseries.filter.definition.filterseries.FilterSeriesType;
+import cn.edu.tsinghua.tsfile.timeseries.read.query.CrossQueryTimeGenerator;
+import cn.edu.tsinghua.tsfile.timeseries.read.query.DynamicOneColumnData;
 import org.junit.Assert;
 import org.junit.Test;
 

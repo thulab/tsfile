@@ -195,6 +195,20 @@ public abstract class CrossQueryTimeGenerator {
      * Because of the exist of <code>RecordReaderCache</code>, 
      * we must know the occur position of the SingleSeriesFilter in CrossSeriesFilterExpression.
      */
+
+    /**
+     * valueFilterNumber parameter is mainly used for TsFileDB.
+     * Because of the exist of <code>RecordReaderCache</code>,
+     * we must know the occur position of the SingleSeriesFilter in CrossSeriesFilterExpression.
+     *
+     * @param res result set
+     * @param fetchSize fetch size of this query
+     * @param valueFilter filter of value
+     * @param valueFilterNumber the position number of SingleValueFilter in CrossValueFilter
+     * @return the query data of next read
+     * @throws ProcessorException exception in query process
+     * @throws IOException exception in IO
+     */
     public abstract DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize,
                                                             SingleSeriesFilterExpression valueFilter, int valueFilterNumber)
             throws ProcessorException, IOException;

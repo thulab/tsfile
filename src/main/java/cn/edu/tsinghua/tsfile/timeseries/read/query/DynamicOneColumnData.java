@@ -504,6 +504,7 @@ public class DynamicOneColumnData {
 
     /**
      * Remove the data whose index position is between size and valueLength.
+     * @param size the data whose position is greater than size will be removed
      */
     public void rollBack(int size) {
         //rollback the length
