@@ -3,15 +3,16 @@ package cn.edu.tsinghua.tsfile.encoding.decoder;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 
-public class SinglePrecisionDecoder extends FloatDecoder2 {
-
+public class SinglePrecisionDecoder extends GorillaDecoder {
+	private static final Logger LOGGER = LoggerFactory.getLogger(SinglePrecisionDecoder.class);
 	private int preValue;
 
-	public SinglePrecisionDecoder(TSEncoding type) {
-		super(type);
+	public SinglePrecisionDecoder() {
 	}
 
 	@Override
@@ -30,8 +31,7 @@ public class SinglePrecisionDecoder extends FloatDecoder2 {
 				checkNextFlags(in);
 				return Float.intBitsToFloat(preValue);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOGGER.error("SinglePrecisionDecoder cannot read first float number because: {}", e.getMessage());
 			}
 		} else {
 			try {
@@ -61,8 +61,7 @@ public class SinglePrecisionDecoder extends FloatDecoder2 {
 					return Float.intBitsToFloat(tmp);
 				}
 			} catch (IOException e) {
-				// TODO: handle exception
-				e.printStackTrace();
+				LOGGER.error("SinglePrecisionDecoder cannot read following float number because: {}", e.getMessage());
 			}
 		}
 		return Float.MIN_VALUE;

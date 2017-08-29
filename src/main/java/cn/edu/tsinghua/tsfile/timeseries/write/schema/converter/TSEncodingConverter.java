@@ -6,6 +6,7 @@ import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.tsinghua.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.tsinghua.tsfile.common.exception.metadata.MetadataArgsErrorException;
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
+import cn.edu.tsinghua.tsfile.encoding.decoder.DoublePrecisionDecoder;
 import cn.edu.tsinghua.tsfile.encoding.encoder.*;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
@@ -49,6 +50,8 @@ public abstract class TSEncodingConverter {
                 return new TS_2DIFF();
             case BITMAP:
                 return new BITMAP();
+            case GORILLA:
+            		return new GORILLA();
             default:
                 throw new UnsupportedOperationException(type.toString());
         }
@@ -271,4 +274,20 @@ public abstract class TSEncodingConverter {
             }
         }
     }
+    
+	public static class GORILLA extends TSEncodingConverter {
+
+		@Override
+		public Encoder getEncoder(String measurementId, TSDataType type) {
+			switch (type) {
+			case FLOAT:
+				return new SinglePrecisionEncoder();
+			case DOUBLE:
+				return new DoublePrecisionEncoder();
+			default:
+				throw new UnSupportedDataTypeException("GORILLA doesn't support data type: " + type);
+			}
+		}
+
+	}
 }

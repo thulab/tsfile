@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 
-public abstract class FloatEncoder2 extends Encoder{
+public abstract class GorillaEncoder extends Encoder{
 	protected boolean flag;
 	protected int leadingZeroNum, tailingZeroNum;
 	// 8-bit buffer of bits to write out
@@ -13,8 +13,8 @@ public abstract class FloatEncoder2 extends Encoder{
 	// number of bits remaining in buffer
 	protected int n;
 	
-	public FloatEncoder2(TSEncoding type) {
-		super(type);
+	public GorillaEncoder() {
+		super(TSEncoding.GORILLA);
 		this.flag = false;
 	}
 

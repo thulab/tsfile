@@ -4,13 +4,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 
-public class SinglePrecisionEncoder extends FloatEncoder2{
+public class SinglePrecisionEncoder extends GorillaEncoder{
 	private int preValue;
 
-	public SinglePrecisionEncoder(TSEncoding type) {
-		super(type);		
+	public SinglePrecisionEncoder() {	
 	}
 	
     @Override

@@ -4,13 +4,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 
-public class DoublePrecisionEncoder extends FloatEncoder2 {
+public class DoublePrecisionEncoder extends GorillaEncoder {
 	private long preValue;
 
-	public DoublePrecisionEncoder(TSEncoding type) {
-		super(type);
+	public DoublePrecisionEncoder() {
 	}
 
 	@Override

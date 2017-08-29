@@ -36,7 +36,11 @@ public abstract class Decoder {
             return new BitmapDecoder(EndianType.LITTLE_ENDIAN);
         } else if (dataType == TSDataType.FLOAT || dataType == TSDataType.DOUBLE) {
             return new FloatDecoder(TSEncoding.valueOf(type.toString()), dataType);
-        }
+        } else if (type == Encoding.GORILLA && dataType == TSDataType.INT32) {
+			return new SinglePrecisionDecoder();
+		} else if (type == Encoding.GORILLA && dataType == TSDataType.INT64) {
+			return new DoublePrecisionDecoder();
+		}
 
         // PLA and DFT encoding are not supported in current version
         // } else if (type == Encoding.PLA) {

@@ -18,8 +18,8 @@ import cn.edu.tsinghua.tsfile.encoding.encoder.DoublePrecisionEncoder;
 import cn.edu.tsinghua.tsfile.encoding.encoder.Encoder;
 import cn.edu.tsinghua.tsfile.encoding.encoder.SinglePrecisionEncoder;
 
-public class FloatDecoder2Test {
-	private static final Logger LOGGER = LoggerFactory.getLogger(FloatDecoder2Test.class);
+public class GorillaDecoderTest {
+	private static final Logger LOGGER = LoggerFactory.getLogger(GorillaDecoderTest.class);
 	private List<Float> floatList;
 	private List<Double> doubleList;
 	private final double delta = 0.0000001;
@@ -30,7 +30,7 @@ public class FloatDecoder2Test {
 	public void setUp() throws Exception {
 		floatList = new ArrayList<Float>();	
 		int hybridCount = 11;
-		int hybridNum = 5;
+		int hybridNum = 50;
 		int hybridStart = 2000;
 		for (int i = 0; i < hybridNum; i++) {
 			for (int j = 0; j < hybridCount; j++) {
@@ -46,7 +46,7 @@ public class FloatDecoder2Test {
 
 		doubleList = new ArrayList<Double>();
 		int hybridCountDouble = 11;
-		int hybridNumDouble = 5;
+		int hybridNumDouble = 50;
 		long hybridStartDouble = 2000;
 
 		for (int i = 0; i < hybridNumDouble; i++) {
@@ -67,33 +67,59 @@ public class FloatDecoder2Test {
 	}
 
 	@Test
-	public void test() throws IOException {
-		Encoder encoder = new SinglePrecisionEncoder(null);
+	public void testNegativeNumber() throws IOException {
+		Encoder encoder = new SinglePrecisionEncoder();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		float value = 7.101f;
+		float value = -7.101f;
 		encoder.encode(value, baos);
-		encoder.encode(value + 2, baos);
-		encoder.encode(value + 4, baos);
+		encoder.encode(value - 2, baos);
+		encoder.encode(value - 4, baos);
 		encoder.flush(baos);		
 		encoder.encode(value, baos);
-		encoder.encode(value + 2, baos);
-		encoder.encode(value + 4, baos);
+		encoder.encode(value - 2, baos);
+		encoder.encode(value - 4, baos);
 		encoder.flush(baos);
 		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 		for(int i = 0; i < 2;i++){
-			Decoder decoder = new SinglePrecisionDecoder(null);
+			Decoder decoder = new SinglePrecisionDecoder();
 			if(decoder.hasNext(bais)){
 				assertEquals(value, decoder.readFloat(bais), delta);
 			}
 			if(decoder.hasNext(bais)){
-				assertEquals(value+2, decoder.readFloat(bais), delta);
+				assertEquals(value-2, decoder.readFloat(bais), delta);
 			}
 			if(decoder.hasNext(bais)){
-				assertEquals(value+4, decoder.readFloat(bais), delta);
+				assertEquals(value-4, decoder.readFloat(bais), delta);
 			}
 		}
-		
-
+	}
+	
+	@Test
+	public void testZeroNumber() throws IOException{
+		Encoder encoder = new DoublePrecisionEncoder();
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		double value = 0f;
+		encoder.encode(value, baos);
+		encoder.encode(value, baos);
+		encoder.encode(value, baos);
+		encoder.flush(baos);		
+		encoder.encode(value, baos);
+		encoder.encode(value, baos);
+		encoder.encode(value, baos);
+		encoder.flush(baos);
+		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+		for(int i = 0; i < 2;i++){
+			Decoder decoder = new DoublePrecisionDecoder();
+			if(decoder.hasNext(bais)){
+				assertEquals(value, decoder.readDouble(bais), delta);
+			}
+			if(decoder.hasNext(bais)){
+				assertEquals(value, decoder.readDouble(bais), delta);
+			}
+			if(decoder.hasNext(bais)){
+				assertEquals(value, decoder.readDouble(bais), delta);
+			}
+		}
 	}
 	
 	@Test
@@ -112,7 +138,7 @@ public class FloatDecoder2Test {
 	
 	@Test
 	public void testFloat() throws IOException {
-		Encoder encoder = new SinglePrecisionEncoder(null);
+		Encoder encoder = new SinglePrecisionEncoder();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		float value = 7.101f;
 		int num = 10000;
@@ -121,7 +147,7 @@ public class FloatDecoder2Test {
 		}
 		encoder.flush(baos);
 		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-		Decoder decoder = new SinglePrecisionDecoder(null);
+		Decoder decoder = new SinglePrecisionDecoder();
 		for(int i = 0; i < num;i++){
 			if(decoder.hasNext(bais)){
 				assertEquals(value + 2 * i, decoder.readFloat(bais), delta);
@@ -132,7 +158,7 @@ public class FloatDecoder2Test {
 	}
 
 	private void testFloatLength(List<Float> valueList, boolean isDebug, int repeatCount) throws Exception {
-		Encoder encoder = new SinglePrecisionEncoder(null);
+		Encoder encoder = new SinglePrecisionEncoder();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		for (int i = 0; i < repeatCount; i++) {
 			for (float value : valueList) {
@@ -143,7 +169,7 @@ public class FloatDecoder2Test {
 		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 		for (int i = 0; i < repeatCount; i++) {
 			
-			Decoder decoder = new SinglePrecisionDecoder(null);
+			Decoder decoder = new SinglePrecisionDecoder();
 			for (float value : valueList) {
 //				System.out.println("Repeat: "+i+" value: "+value);
 				if(decoder.hasNext(bais)){
@@ -160,7 +186,7 @@ public class FloatDecoder2Test {
 	}
 
 	private void testDoubleLength(List<Double> valueList, boolean isDebug, int repeatCount) throws Exception {
-		Encoder encoder = new DoublePrecisionEncoder(null);
+		Encoder encoder = new DoublePrecisionEncoder();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		for (int i = 0; i < repeatCount; i++) {
 			for (double value : valueList) {
@@ -172,7 +198,7 @@ public class FloatDecoder2Test {
 		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 
 		for (int i = 0; i < repeatCount; i++) {
-			Decoder decoder = new DoublePrecisionDecoder(null);
+			Decoder decoder = new DoublePrecisionDecoder();
 			for (double value : valueList) {
 				if(decoder.hasNext(bais)){
 					double value_ = decoder.readDouble(bais);

@@ -3,9 +3,13 @@ package cn.edu.tsinghua.tsfile.encoding.decoder;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 
-public abstract class FloatDecoder2 extends Decoder {
+public abstract class GorillaDecoder extends Decoder {
+	private static final Logger LOGGER = LoggerFactory.getLogger(GorillaDecoder.class);
 	protected static final int EOF = -1;
 	protected boolean flag;
 	
@@ -19,15 +23,14 @@ public abstract class FloatDecoder2 extends Decoder {
 	protected boolean nextFlag1;
 	protected boolean nextFlag2;
 
-	public FloatDecoder2(TSEncoding type) {
-		super(type);
+	public GorillaDecoder() {
+		super(TSEncoding.GORILLA);
 		this.flag = false;
 		this.isEnd = false;
 	}
 
 	@Override
 	public boolean hasNext(InputStream in) throws IOException {
-		// TODO Auto-generated method stub
 		if (in.available() > 0 || !isEnd) {
 			return true;
 		}
@@ -53,7 +56,7 @@ public abstract class FloatDecoder2 extends Decoder {
             buffer = in.read();
             n = 8;
         } catch (IOException e) {
-            System.err.println("EOF");
+        		LOGGER.error("Failed to fill a new buffer, because {}",e.getMessage());
             buffer = EOF;
             n = -1;
         }
