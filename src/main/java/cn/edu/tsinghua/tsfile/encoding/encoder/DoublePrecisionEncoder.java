@@ -47,6 +47,7 @@ public class DoublePrecisionEncoder extends GorillaEncoder {
 					writeBits(tmp, out, TSFileConfig.DOUBLE_LENGTH - 1 - leadingZeroNumTmp, tailingZeroNumTmp);
 				}
 			}
+			preValue = nextValue;
 		}
 	}
 

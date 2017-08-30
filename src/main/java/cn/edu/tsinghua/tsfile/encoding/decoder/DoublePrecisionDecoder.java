@@ -51,6 +51,7 @@ public class DoublePrecisionDecoder extends GorillaDecoder{
 					}
 					tmp ^= preValue;
 					checkNextFlags(in);
+					preValue = tmp;
 					return Double.longBitsToDouble(tmp);
 				}
 
@@ -61,6 +62,7 @@ public class DoublePrecisionDecoder extends GorillaDecoder{
 					tmp <<= (TSFileConfig.DOUBLE_LENGTH - leadingZeroNumTmp - lenTmp);
 					tmp ^= preValue;
 					checkNextFlags(in);
+					preValue = tmp;
 					return Double.longBitsToDouble(tmp);
 				}
 			} catch (IOException e) {

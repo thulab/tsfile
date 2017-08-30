@@ -48,6 +48,7 @@ public class SinglePrecisionDecoder extends GorillaDecoder {
 					}
 					tmp ^= preValue;
 					checkNextFlags(in);
+					preValue = tmp;
 					return Float.intBitsToFloat(tmp);
 				}
 
@@ -58,6 +59,7 @@ public class SinglePrecisionDecoder extends GorillaDecoder {
 					tmp <<= (TSFileConfig.FLOAT_LENGTH - leadingZeroNumTmp - lenTmp);
 					tmp ^= preValue;
 					checkNextFlags(in);
+					preValue = tmp;
 					return Float.intBitsToFloat(tmp);
 				}
 			} catch (IOException e) {

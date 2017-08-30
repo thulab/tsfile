@@ -43,6 +43,7 @@ public class SinglePrecisionEncoder extends GorillaEncoder{
             			writeBits(tmp, out, TSFileConfig.FLOAT_LENGTH - 1 - leadingZeroNumTmp, tailingZeroNumTmp); 
             		}
         		}
+        		preValue = nextValue;
         }
     }
     
