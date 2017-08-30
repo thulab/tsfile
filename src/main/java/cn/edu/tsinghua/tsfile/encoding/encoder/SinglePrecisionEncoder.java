@@ -52,4 +52,14 @@ public class SinglePrecisionEncoder extends GorillaEncoder{
 			writeBit(bit, out);
 		}
 	}
+	
+    @Override
+    public int getOneItemMaxSize() {
+        return 4;
+    }
+
+    @Override
+    public long getMaxByteSize() {
+        return 4 + 14;
+    }
 }

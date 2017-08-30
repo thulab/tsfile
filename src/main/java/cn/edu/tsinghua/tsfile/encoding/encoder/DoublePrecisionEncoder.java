@@ -56,4 +56,14 @@ public class DoublePrecisionEncoder extends GorillaEncoder {
 			writeBit(bit, out);
 		}
 	}
+	
+    @Override
+    public int getOneItemMaxSize() {
+        return 8;
+    }
+
+    @Override
+    public long getMaxByteSize() {     
+        return 8 + 14;
+    }
 }
