@@ -11,14 +11,14 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 public abstract class GorillaDecoder extends Decoder {
 	private static final Logger LOGGER = LoggerFactory.getLogger(GorillaDecoder.class);
 	protected static final int EOF = -1;
+	// flag to indicate whether the first value is read from stream
 	protected boolean flag;
-	
 	protected int leadingZeroNum, tailingZeroNum;
 	protected boolean isEnd;
 	// 8-bit buffer of bits to write out
 	protected int buffer;
 	// number of bits remaining in buffer
-	protected int n;
+	protected int numberLeftInBuffer;
 	
 	protected boolean nextFlag1;
 	protected boolean nextFlag2;
@@ -42,31 +42,73 @@ public abstract class GorillaDecoder extends Decoder {
     }
 	
 	protected boolean readBit(InputStream in) throws IOException {
-		if(n == 0 && !isEnd){
+		if(numberLeftInBuffer == 0 && !isEnd){
 			fillBuffer(in);
 		}
 		if (isEmpty()) throw new IOException("Reading from empty input stream");
-        n--;
-        boolean bit = ((buffer >> n) & 1) == 1;
+        numberLeftInBuffer--;
+        boolean bit = ((buffer >> numberLeftInBuffer) & 1) == 1;
         return bit;
     }
 	
+	/**
+	 * read one byte and save in buffer
+	 * @param in stream to read
+	 */
 	protected void fillBuffer(InputStream in) {
         try {
             buffer = in.read();
-            n = 8;
+            numberLeftInBuffer = 8;
         } catch (IOException e) {
         		LOGGER.error("Failed to fill a new buffer, because {}",e.getMessage());
             buffer = EOF;
-            n = -1;
+            numberLeftInBuffer = -1;
         }
     }
-    
+
+	/**
+	 * read next two bit to check whether gorilla encoding is ended
+	 * @param in stream to read
+	 * @throws IOException cannot read from stream
+	 */
 	protected void checkNextFlags(InputStream in) throws IOException{
     		nextFlag1 = readBit(in);
     		nextFlag2 = readBit(in);
+    		// case: read '01', encoding ends
     		if(!nextFlag1 && nextFlag2){
     			isEnd = true;
     		}
     }
+	
+	/**
+	 * read some bits and convert them to a int value
+	 * @param in stream to read
+	 * @param len number of bit to read
+	 * @return converted int value
+	 * @throws IOException cannot read from stream
+	 */
+	protected int readIntFromStream(InputStream in, int len) throws IOException{
+		int num = 0;
+		for (int i = 0; i < len; i++) {
+			int bit = readBit(in) ? 1 : 0;
+			num |= bit << (len - 1 - i);
+		}
+		return num;
+	}
+	
+	/**
+	 * read some bits and convert them to a long value
+	 * @param in stream to read
+	 * @param len number of bit to read
+	 * @return converted long value
+	 * @throws IOException cannot read from stream
+	 */
+	protected long readLongFromStream(InputStream in, int len) throws IOException{
+		long num = 0;
+		for (int i = 0; i < len; i++) {
+			long bit = (long)(readBit(in) ? 1 : 0);
+			num |= bit << (len - 1 - i);
+		}
+		return num;
+	}
 }

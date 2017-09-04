@@ -51,7 +51,7 @@ public abstract class TSEncodingConverter {
             case BITMAP:
                 return new BITMAP();
             case GORILLA:
-            		return new GORILLA();
+                return new GORILLA();
             default:
                 throw new UnsupportedOperationException(type.toString());
         }

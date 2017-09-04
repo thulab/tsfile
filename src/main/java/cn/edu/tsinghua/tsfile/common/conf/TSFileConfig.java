@@ -56,6 +56,7 @@ public class TSFileConfig {
     public final int RLE_MAX_REPEATED_NUM = 0x7FFFFF;
     public final int RLE_MAX_BIT_PACKED_NUM = 63;
     
+    // Gorilla encoding configuration
     public final static int FLOAT_LENGTH = 32;
     public final static int FLAOT_LEADING_ZERO_LENGTH = 5;
     public final static int FLOAT_VALUE_LENGTH = 6;

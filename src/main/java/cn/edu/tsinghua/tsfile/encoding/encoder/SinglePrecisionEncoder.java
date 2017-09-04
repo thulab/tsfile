@@ -5,6 +5,10 @@ import java.io.IOException;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 
+/**
+ * Encoder for int value using gorilla encoding
+ *
+ */
 public class SinglePrecisionEncoder extends GorillaEncoder{
 	private int preValue;
 
@@ -26,16 +30,19 @@ public class SinglePrecisionEncoder extends GorillaEncoder{
         		int nextValue = Float.floatToIntBits(value);
         		int tmp = nextValue ^ preValue;
         		if(tmp == 0){
+    				// case: write '00'
         			writeBit(false, out);
         			writeBit(false, out);
         		} else{
         			int leadingZeroNumTmp = Integer.numberOfLeadingZeros(tmp);
             		int tailingZeroNumTmp = Integer.numberOfTrailingZeros(tmp);
             		if(leadingZeroNumTmp >= leadingZeroNum && tailingZeroNumTmp >= tailingZeroNum){
+    					// case: write '10' and effective bits without first leadingZeroNum '0' and last tailingZeroNum '0'
             			writeBit(true, out);
             			writeBit(false, out);
             			writeBits(tmp, out, TSFileConfig.FLOAT_LENGTH - 1 - leadingZeroNum, tailingZeroNum);     
             		} else{
+    					// case: write '11', leading zero num of value, effective bits len and effective bit value
             			writeBit(true, out);
             			writeBit(true, out);
             			writeBits(leadingZeroNumTmp, out, TSFileConfig.FLAOT_LEADING_ZERO_LENGTH - 1, 0);
@@ -56,11 +63,13 @@ public class SinglePrecisionEncoder extends GorillaEncoder{
 	
     @Override
     public int getOneItemMaxSize() {
+    		// int preValue stores 4 bytes
         return 4;
     }
 
     @Override
     public long getMaxByteSize() {
+		// preValue(4) + flag(1) + eadingZeroNum(4) + tailingZeroNum(4) + buffer(1) + numberLeftInBuffer(4)
         return 4 + 14;
     }
 }

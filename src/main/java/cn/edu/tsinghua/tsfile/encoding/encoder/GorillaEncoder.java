@@ -5,13 +5,18 @@ import java.io.IOException;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 
+/**
+ * Gorilla encoding. For more information about how it works, 
+ * please see http://www.vldb.org/pvldb/vol8/p1816-teller.pdf
+ */
 public abstract class GorillaEncoder extends Encoder{
+	// flag to indicate whether the first value is saved
 	protected boolean flag;
 	protected int leadingZeroNum, tailingZeroNum;
 	// 8-bit buffer of bits to write out
 	protected byte buffer;
 	// number of bits remaining in buffer
-	protected int n;
+	protected int numberLeftInBuffer;
 	
 	public GorillaEncoder() {
 		super(TSEncoding.GORILLA);
@@ -20,7 +25,7 @@ public abstract class GorillaEncoder extends Encoder{
 
 	@Override
 	public void flush(ByteArrayOutputStream out) throws IOException {
-		// TODO Auto-generated method stub
+		// write '01' to indicate encoding is ended
 		writeBit(false, out);
 		writeBit(true, out);
 		clearBuffer(out);
@@ -33,8 +38,8 @@ public abstract class GorillaEncoder extends Encoder{
         if (b) buffer |= 1;
 
         // if buffer is full (8 bits), write out as a single byte
-        n++;
-        if (n == 8) clearBuffer(out);
+        numberLeftInBuffer++;
+        if (numberLeftInBuffer == 8) clearBuffer(out);
 	}
 	
 	protected void writeBit(int i, ByteArrayOutputStream out){
@@ -54,16 +59,16 @@ public abstract class GorillaEncoder extends Encoder{
 	}
 	
 	protected void clearBuffer(ByteArrayOutputStream out){
-		if (n == 0) return;
-        if (n > 0) buffer <<= (8 - n);
+		if (numberLeftInBuffer == 0) return;
+        if (numberLeftInBuffer > 0) buffer <<= (8 - numberLeftInBuffer);
         out.write(buffer);
-        n = 0;
+        numberLeftInBuffer = 0;
         buffer = 0;
 	}
 	
 	private void reset(){
 		this.flag = false;
-		this.n = 0;
+		this.numberLeftInBuffer = 0;
 		this.buffer = 0;
 	}
 }

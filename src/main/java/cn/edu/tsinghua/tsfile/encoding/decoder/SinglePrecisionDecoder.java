@@ -8,6 +8,10 @@ import org.slf4j.LoggerFactory;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 
+
+/**
+ * Decoder for value value using gorilla
+ */
 public class SinglePrecisionDecoder extends GorillaDecoder {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SinglePrecisionDecoder.class);
 	private int preValue;
@@ -35,11 +39,13 @@ public class SinglePrecisionDecoder extends GorillaDecoder {
 			}
 		} else {
 			try {
+				// case: read '00' from stream
 				if (!nextFlag1 && !nextFlag2) {
 					checkNextFlags(in);
 					return Float.intBitsToFloat(preValue);
 				}
 
+				// case: read '10' from stream
 				if (nextFlag1 && !nextFlag2) {
 					int tmp = 0;
 					for (int i = 0; i < TSFileConfig.FLOAT_LENGTH - leadingZeroNum - tailingZeroNum; i++) {
@@ -52,6 +58,7 @@ public class SinglePrecisionDecoder extends GorillaDecoder {
 					return Float.intBitsToFloat(tmp);
 				}
 
+				// case: read '11' from stream
 				if (nextFlag1 && nextFlag2) {
 					int leadingZeroNumTmp = readIntFromStream(in, TSFileConfig.FLAOT_LEADING_ZERO_LENGTH);
 					int lenTmp = readIntFromStream(in, TSFileConfig.FLOAT_VALUE_LENGTH);
@@ -67,14 +74,5 @@ public class SinglePrecisionDecoder extends GorillaDecoder {
 			}
 		}
 		return Float.MIN_VALUE;
-	}
-	
-	private int readIntFromStream(InputStream in, int end) throws IOException{
-		int num = 0;
-		for (int i = 0; i < end; i++) {
-			int bit = readBit(in) ? 1 : 0;
-			num |= bit << (end - 1 - i);
-		}
-		return num;
 	}
 }

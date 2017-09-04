@@ -5,6 +5,10 @@ import java.io.IOException;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 
+/**
+ * Encoder for int value using gorilla encoding
+ *
+ */
 public class DoublePrecisionEncoder extends GorillaEncoder {
 	private long preValue;
 
@@ -14,6 +18,7 @@ public class DoublePrecisionEncoder extends GorillaEncoder {
 	@Override
 	public void encode(double value, ByteArrayOutputStream out) throws IOException {
 		if (!flag) {
+			// case: write first 8 byte value without any encoding
 			flag = true;
 			preValue = Double.doubleToLongBits(value);
 			leadingZeroNum = Long.numberOfLeadingZeros(preValue);
@@ -30,16 +35,19 @@ public class DoublePrecisionEncoder extends GorillaEncoder {
 			long nextValue = Double.doubleToLongBits(value);
 			long tmp = nextValue ^ preValue;
 			if (tmp == 0) {
+				// case: write '00'
 				writeBit(false, out);
 				writeBit(false, out);
 			} else {
 				int leadingZeroNumTmp = Long.numberOfLeadingZeros(tmp);
 				int tailingZeroNumTmp = Long.numberOfTrailingZeros(tmp);
 				if (leadingZeroNumTmp >= leadingZeroNum && tailingZeroNumTmp >= tailingZeroNum) {
+					// case: write '10' and effective bits without first leadingZeroNum '0' and last tailingZeroNum '0'
 					writeBit(true, out);
 					writeBit(false, out);
 					writeBits(tmp, out, TSFileConfig.DOUBLE_LENGTH - 1 - leadingZeroNum, tailingZeroNum);
 				} else {
+					// case: write '11', leading zero num of value, effective bits len and effective bit value
 					writeBit(true, out);
 					writeBit(true, out);
 					writeBits(leadingZeroNumTmp, out, TSFileConfig.DOUBLE_LEADING_ZERO_LENGTH - 1, 0);
@@ -60,11 +68,13 @@ public class DoublePrecisionEncoder extends GorillaEncoder {
 	
     @Override
     public int getOneItemMaxSize() {
+		// long preValue stores 8 bytes
         return 8;
     }
 
     @Override
-    public long getMaxByteSize() {     
+    public long getMaxByteSize() {
+		// preValue(8) + flag(1) + eadingZeroNum(4) + tailingZeroNum(4) + buffer(1) + numberLeftInBuffer(4)
         return 8 + 14;
     }
 }
