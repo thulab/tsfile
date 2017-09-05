@@ -31,50 +31,63 @@ public class DoublePrecisionDecoder extends GorillaDecoder{
 		            res += ((long) buf[i] << (i * 8));
 		        }
 		        preValue = res;
+		        double tmp = Double.longBitsToDouble(preValue);
 				leadingZeroNum = Long.numberOfLeadingZeros(preValue);
 				tailingZeroNum = Long.numberOfTrailingZeros(preValue);
 				fillBuffer(in);
-				checkNextFlags(in);
-				return Double.longBitsToDouble(preValue);
+				getNextValue(in);
+				return tmp;
 			} catch (IOException e) {
 				LOGGER.error("DoublePrecisionDecoder cannot read first double number because: {}", e.getMessage());
 			}
 		} else {
 			try {
-				// case: read '00' from stream
-				if (!nextFlag1 && !nextFlag2) {
-					checkNextFlags(in);
-					return Double.longBitsToDouble(preValue);
-				}
-				
-				// case: read '10' from stream
-				if (nextFlag1 && !nextFlag2) {
-					long tmp = 0;
-					for (int i = 0; i < TSFileConfig.DOUBLE_LENGTH - leadingZeroNum - tailingZeroNum; i++) {
-						int bit = readBit(in) ? 1 : 0;
-						tmp |= bit << (TSFileConfig.DOUBLE_LENGTH - 1 - leadingZeroNum - i);
-					}
-					tmp ^= preValue;
-					checkNextFlags(in);
-					preValue = tmp;
-					return Double.longBitsToDouble(tmp);
-				}
-				
-				// case: read '11' from stream
-				if (nextFlag1 && nextFlag2) {
-					int leadingZeroNumTmp = readIntFromStream(in, TSFileConfig.DOUBLE_LEADING_ZERO_LENGTH);
-					int lenTmp = readIntFromStream(in, TSFileConfig.DOUBLE_VALUE_LENGTH);
-					long tmp = readLongFromStream(in, lenTmp);
-					tmp <<= (TSFileConfig.DOUBLE_LENGTH - leadingZeroNumTmp - lenTmp);
-					tmp ^= preValue;
-					checkNextFlags(in);
-					preValue = tmp;
-					return Double.longBitsToDouble(tmp);
-				}
+				double tmp = Double.longBitsToDouble(preValue);
+				getNextValue(in);
+				return tmp;
 			} catch (IOException e) {
 				LOGGER.error("DoublePrecisionDecoder cannot read following double number because: {}", e.getMessage());
 			}
 		}
-		return Float.MIN_VALUE;
+		return Double.NaN;
+	}
+	
+	/**
+	 * check whether there is any value to encode left
+	 * 
+	 * @param in stream to read
+	 * @throws IOException cannot read from stream
+	 */
+	private void getNextValue(InputStream in) throws IOException {
+		nextFlag1 = readBit(in);
+		// case: '0'
+		if (!nextFlag1) {
+			return;
+		}
+		nextFlag2 = readBit(in);
+		
+		if (!nextFlag2) {
+			// case: '10'
+			long tmp = 0;
+			for (int i = 0; i < TSFileConfig.DOUBLE_LENGTH - leadingZeroNum - tailingZeroNum; i++) {
+				long bit = readBit(in) ? 1 : 0;
+				tmp |= (bit << (TSFileConfig.DOUBLE_LENGTH - 1 - leadingZeroNum - i));
+			}
+			tmp ^= preValue;
+			preValue = tmp;
+		} else {
+			// case: '11'
+			int leadingZeroNumTmp = readIntFromStream(in, TSFileConfig.DOUBLE_LEADING_ZERO_LENGTH);
+			int lenTmp = readIntFromStream(in, TSFileConfig.DOUBLE_VALUE_LENGTH);
+			long tmp = readLongFromStream(in, lenTmp);
+			tmp <<= (TSFileConfig.DOUBLE_LENGTH - leadingZeroNumTmp - lenTmp);
+			tmp ^= preValue;
+			preValue = tmp;
+		}
+		leadingZeroNum = Long.numberOfLeadingZeros(preValue);
+		tailingZeroNum = Long.numberOfTrailingZeros(preValue);
+		if(Double.isNaN(Double.longBitsToDouble(preValue))){
+			isEnd = true;
+		}
 	}
 }

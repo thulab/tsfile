@@ -65,20 +65,6 @@ public abstract class GorillaDecoder extends Decoder {
             numberLeftInBuffer = -1;
         }
     }
-
-	/**
-	 * read next two bit to check whether gorilla encoding is ended
-	 * @param in stream to read
-	 * @throws IOException cannot read from stream
-	 */
-	protected void checkNextFlags(InputStream in) throws IOException{
-    		nextFlag1 = readBit(in);
-    		nextFlag2 = readBit(in);
-    		// case: read '01', encoding ends
-    		if(!nextFlag1 && nextFlag2){
-    			isEnd = true;
-    		}
-    }
 	
 	/**
 	 * read some bits and convert them to a int value

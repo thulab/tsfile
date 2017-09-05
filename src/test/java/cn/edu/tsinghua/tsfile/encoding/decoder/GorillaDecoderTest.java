@@ -156,6 +156,28 @@ public class GorillaDecoderTest {
 			fail();
 		}
 	}
+	
+	@Test
+	public void testDouble() throws IOException {
+		Encoder encoder = new DoublePrecisionEncoder();
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		double value = 7.101f;
+		int num = 1000;
+		for(int i = 0; i < num;i++){
+			encoder.encode(value + 2 * i, baos);
+		}
+		encoder.flush(baos);
+		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+		Decoder decoder = new DoublePrecisionDecoder();
+		for(int i = 0; i < num;i++){
+			if(decoder.hasNext(bais)){
+//				System.out.println("turn "+i);
+				assertEquals(value + 2 * i, decoder.readDouble(bais), delta);
+				continue;
+			}
+			fail();
+		}
+	}
 
 	private void testFloatLength(List<Float> valueList, boolean isDebug, int repeatCount) throws Exception {
 		Encoder encoder = new SinglePrecisionEncoder();

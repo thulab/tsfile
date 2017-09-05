@@ -35,8 +35,7 @@ public class DoublePrecisionEncoder extends GorillaEncoder {
 			long nextValue = Double.doubleToLongBits(value);
 			long tmp = nextValue ^ preValue;
 			if (tmp == 0) {
-				// case: write '00'
-				writeBit(false, out);
+				// case: write '0'
 				writeBit(false, out);
 			} else {
 				int leadingZeroNumTmp = Long.numberOfLeadingZeros(tmp);
@@ -51,11 +50,13 @@ public class DoublePrecisionEncoder extends GorillaEncoder {
 					writeBit(true, out);
 					writeBit(true, out);
 					writeBits(leadingZeroNumTmp, out, TSFileConfig.DOUBLE_LEADING_ZERO_LENGTH - 1, 0);
-					writeBits(32 - leadingZeroNumTmp - tailingZeroNumTmp, out, TSFileConfig.DOUBLE_VALUE_LENGTH - 1, 0);
+					writeBits(TSFileConfig.DOUBLE_LENGTH - leadingZeroNumTmp - tailingZeroNumTmp, out, TSFileConfig.DOUBLE_VALUE_LENGTH - 1, 0);
 					writeBits(tmp, out, TSFileConfig.DOUBLE_LENGTH - 1 - leadingZeroNumTmp, tailingZeroNumTmp);
 				}
 			}
 			preValue = nextValue;
+			leadingZeroNum = Long.numberOfLeadingZeros(preValue);
+			tailingZeroNum = Long.numberOfTrailingZeros(preValue);
 		}
 	}
 
@@ -64,6 +65,13 @@ public class DoublePrecisionEncoder extends GorillaEncoder {
 			long bit = num & (1L << i);
 			writeBit(bit, out);
 		}
+	}
+	
+	@Override
+	public void flush(ByteArrayOutputStream out) throws IOException {
+		encode(Double.NaN, out);
+		clearBuffer(out);
+		reset();
 	}
 	
     @Override

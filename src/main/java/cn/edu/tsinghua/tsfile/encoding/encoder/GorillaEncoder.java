@@ -1,7 +1,6 @@
 package cn.edu.tsinghua.tsfile.encoding.encoder;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 
@@ -21,15 +20,6 @@ public abstract class GorillaEncoder extends Encoder{
 	public GorillaEncoder() {
 		super(TSEncoding.GORILLA);
 		this.flag = false;
-	}
-
-	@Override
-	public void flush(ByteArrayOutputStream out) throws IOException {
-		// write '01' to indicate encoding is ended
-		writeBit(false, out);
-		writeBit(true, out);
-		clearBuffer(out);
-		reset();
 	}
 
 	protected void writeBit(boolean b, ByteArrayOutputStream out){
@@ -66,7 +56,7 @@ public abstract class GorillaEncoder extends Encoder{
         buffer = 0;
 	}
 	
-	private void reset(){
+	protected void reset(){
 		this.flag = false;
 		this.numberLeftInBuffer = 0;
 		this.buffer = 0;

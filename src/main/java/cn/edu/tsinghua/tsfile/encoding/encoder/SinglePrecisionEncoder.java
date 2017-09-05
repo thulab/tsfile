@@ -30,9 +30,9 @@ public class SinglePrecisionEncoder extends GorillaEncoder{
         		int nextValue = Float.floatToIntBits(value);
         		int tmp = nextValue ^ preValue;
         		if(tmp == 0){
-    				// case: write '00'
+    				// case: write '0'
         			writeBit(false, out);
-        			writeBit(false, out);
+//        			writeBit(false, out);
         		} else{
         			int leadingZeroNumTmp = Integer.numberOfLeadingZeros(tmp);
             		int tailingZeroNumTmp = Integer.numberOfTrailingZeros(tmp);
@@ -46,13 +46,22 @@ public class SinglePrecisionEncoder extends GorillaEncoder{
             			writeBit(true, out);
             			writeBit(true, out);
             			writeBits(leadingZeroNumTmp, out, TSFileConfig.FLAOT_LEADING_ZERO_LENGTH - 1, 0);
-            			writeBits(32 - leadingZeroNumTmp - tailingZeroNumTmp, out, TSFileConfig.FLOAT_VALUE_LENGTH - 1, 0);
+            			writeBits(TSFileConfig.FLOAT_LENGTH - leadingZeroNumTmp - tailingZeroNumTmp, out, TSFileConfig.FLOAT_VALUE_LENGTH - 1, 0);
             			writeBits(tmp, out, TSFileConfig.FLOAT_LENGTH - 1 - leadingZeroNumTmp, tailingZeroNumTmp); 
             		}
         		}
         		preValue = nextValue;
+        		leadingZeroNum = Integer.numberOfLeadingZeros(preValue);
+        		tailingZeroNum = Integer.numberOfTrailingZeros(preValue);
         }
     }
+    
+	@Override
+	public void flush(ByteArrayOutputStream out) throws IOException {
+		encode(Float.NaN, out);
+		clearBuffer(out);
+		reset();
+	}
     
 	private void writeBits(int num, ByteArrayOutputStream out, int start, int end){
 		for(int i = start; i >= end; i--){
