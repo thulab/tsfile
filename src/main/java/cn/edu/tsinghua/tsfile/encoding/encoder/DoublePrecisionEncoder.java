@@ -76,13 +76,14 @@ public class DoublePrecisionEncoder extends GorillaEncoder {
 	
     @Override
     public int getOneItemMaxSize() {
-		// long preValue stores 8 bytes
-        return 8;
+    		// case '11'
+		// 2bit + 6bit + 7bit + 64bit = 79bit 
+        return 10;
     }
 
     @Override
     public long getMaxByteSize() {
-		// preValue(8) + flag(1) + eadingZeroNum(4) + tailingZeroNum(4) + buffer(1) + numberLeftInBuffer(4)
-        return 8 + 14;
+		// max(first 8 byte, case '11' 2bit + 6bit + 7bit + 64bit = 79bit ) + NaN(2bit + 6bit + 7bit + 64bit = 79bit) = 158bit
+        return 20;
     }
 }

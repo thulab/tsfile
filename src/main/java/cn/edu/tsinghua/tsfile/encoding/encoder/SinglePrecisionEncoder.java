@@ -32,7 +32,6 @@ public class SinglePrecisionEncoder extends GorillaEncoder{
         		if(tmp == 0){
     				// case: write '0'
         			writeBit(false, out);
-//        			writeBit(false, out);
         		} else{
         			int leadingZeroNumTmp = Integer.numberOfLeadingZeros(tmp);
             		int tailingZeroNumTmp = Integer.numberOfTrailingZeros(tmp);
@@ -72,13 +71,14 @@ public class SinglePrecisionEncoder extends GorillaEncoder{
 	
     @Override
     public int getOneItemMaxSize() {
-    		// int preValue stores 4 bytes
-        return 4;
+    		// case '11'
+    		// 2bit + 5bit + 6bit + 32bit = 45bit 
+        return 6;
     }
 
     @Override
     public long getMaxByteSize() {
-		// preValue(4) + flag(1) + eadingZeroNum(4) + tailingZeroNum(4) + buffer(1) + numberLeftInBuffer(4)
-        return 4 + 14;
+		// max(first 4 byte, case '11' bit + 5bit + 6bit + 32bit = 45bit) + NaN(case '11' bit + 5bit + 6bit + 32bit = 45bit) = 90bit
+        return 12;
     }
 }
