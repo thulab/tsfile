@@ -47,8 +47,7 @@ public abstract class GorillaDecoder extends Decoder {
 		}
 		if (isEmpty()) throw new IOException("Reading from empty input stream");
         numberLeftInBuffer--;
-        boolean bit = ((buffer >> numberLeftInBuffer) & 1) == 1;
-        return bit;
+        return ((buffer >> numberLeftInBuffer) & 1) == 1;
     }
 	
 	/**
