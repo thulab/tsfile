@@ -55,7 +55,15 @@ public class TSFileConfig {
     public final int RLE_MIN_REPEATED_NUM = 8;
     public final int RLE_MAX_REPEATED_NUM = 0x7FFFFF;
     public final int RLE_MAX_BIT_PACKED_NUM = 63;
-
+    
+    // Gorilla encoding configuration
+    public final static int FLOAT_LENGTH = 32;
+    public final static int FLAOT_LEADING_ZERO_LENGTH = 5;
+    public final static int FLOAT_VALUE_LENGTH = 6;
+    public final static int DOUBLE_LENGTH = 64;
+    public final static int DOUBLE_LEADING_ZERO_LENGTH = 6;
+    public final static int DOUBLE_VALUE_LENGTH = 7;
+    
     // TS_2DIFF configuration
     /**
      * Default block size of two-diff. delta encoding is 128

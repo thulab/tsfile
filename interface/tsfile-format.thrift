@@ -185,6 +185,11 @@ enum Encoding {
    * Discrete Fourier transform
    */
   DFT = 14;
+  
+  /**
+   * Float encoding used in Gorilla
+   */
+  GORILLA = 15;
 }
 
 /**
