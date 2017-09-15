@@ -227,6 +227,12 @@ public class ReadPageInMemTest {
 		assertEquals(null, innerWriter.query("root.car.d1", "s5").get(1));
 		assertEquals(null, innerWriter.query("root.car.d2", "s5").get(0));
 		assertEquals(null, innerWriter.query("root.car.d2", "s5").get(1));
+		try {
+			innerWriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
 	}
 
 	private static JSONObject getJsonSchema() {
