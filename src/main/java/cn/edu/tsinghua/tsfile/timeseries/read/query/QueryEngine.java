@@ -27,7 +27,7 @@ import java.util.Map;
 public class QueryEngine {
     private static final Logger logger = LoggerFactory.getLogger(QueryEngine.class);
     private static int FETCH_SIZE = 20000;
-    public TSRandomAccessFileReader raf;
+    private TSRandomAccessFileReader raf;
     private RecordReader recordReader;
 
     public QueryEngine(TSRandomAccessFileReader raf) throws IOException {
@@ -461,5 +461,9 @@ public class QueryEngine {
 
     public String getProp(String key) {
         return recordReader.getProp(key);
+    }
+    
+    public void close() throws IOException{
+    	raf.close();
     }
 }

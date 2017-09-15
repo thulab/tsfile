@@ -212,10 +212,10 @@ public class ReadPerf {
             innerWriter.write(record);
             lineCount++;
         }
-        in.close();
         endTime = System.currentTimeMillis();
         LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
         innerWriter.close();
+        in.close();
         endTime = System.currentTimeMillis();
         LOG.info("write total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
         LOG.info("src file size:{}GB", FileUtils.getLocalFileByte(inputDataFile, Unit.GB));
