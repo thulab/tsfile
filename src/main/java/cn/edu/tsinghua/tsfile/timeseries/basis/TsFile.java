@@ -138,8 +138,15 @@ public class TsFile {
      * @throws IOException thrown if write process meats IOException like the output stream is closed abnormally.
      */
     public void close() throws IOException {
-        checkStatus(WRITE);
-        innerWriter.close();
+    	if(this.status==WRITE){
+    		innerWriter.close();
+    	}else if(this.status==READ){
+    		queryEngine.close();
+    	}else{
+    		 String[] msg = new String[]{"WRITE", "READ"};
+             throw new IOException("This method should be invoked in status " + msg[status]
+                     + ", but current status is " + msg[this.status]);
+    	}
     }
 
     public QueryDataSet query(List<Path> paths, FilterExpression timeFilter,
