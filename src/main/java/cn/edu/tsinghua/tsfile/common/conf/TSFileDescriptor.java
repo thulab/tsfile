@@ -53,7 +53,7 @@ public class TSFileDescriptor {
                 File file = new File(url);
                 inputStream = new FileInputStream(file);
             } catch (FileNotFoundException e) {
-                LOGGER.warn("Fail to find config file {}", url, e);
+                LOGGER.warn("Fail to find config file {}", url);
                 return;
             }
         }
@@ -71,10 +71,9 @@ public class TSFileDescriptor {
             conf.valueEncoder = properties.getProperty("value_encoder", conf.valueEncoder);
             conf.compressor = properties.getProperty("compressor", conf.compressor);
         } catch (IOException e) {
-            LOGGER.warn("Cannot load config file, use default configuration", e);
+            LOGGER.warn("Cannot load config file because {}, use default configuration", e.getMessage());
         } catch (Exception e) {
-            LOGGER.error("Loading settings {} failed.", url, e);
-            //System.exit(1);
+            LOGGER.error("Loading settings {} failed because {}", url, e.getMessage());
         } finally {
             if (inputStream != null) {
                 try {
