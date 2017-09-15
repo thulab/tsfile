@@ -38,35 +38,35 @@ public class TSFileDescriptor {
      * load an .properties file and set TSFileConfig variables
      */
     private void loadProps() {
-    		InputStream inputStream = null;
-    		String url = System.getProperty(SystemConstant.TSFILE_CONF, null);
-    		if(url != null){
-    			try {
-	                inputStream = new FileInputStream(new File(url));
+        InputStream inputStream = null;
+        String url = System.getProperty(SystemConstant.TSFILE_CONF, null);
+        if (url != null) {
+            try {
+                inputStream = new FileInputStream(new File(url));
+            } catch (FileNotFoundException e) {
+                LOGGER.warn("Fail to find config file {}", url);
+                return;
+                }
+        } else {
+            url = System.getProperty(SystemConstant.TSFILE_HOME, TSFileConfig.CONFIG_DEFAULT_PATH);
+            if (url.equals(TSFileConfig.CONFIG_DEFAULT_PATH)) {
+                try {
+                    inputStream = new FileInputStream(new File(url));
+                } catch (FileNotFoundException e) {
+                    LOGGER.warn("Fail to find config file {}", url);
+                    return;
+                }
+	        } else {
+	            url = url + File.separator + "conf" + File.separator + TSFileConfig.CONFIG_NAME;
+	            try {
+	                File file = new File(url);
+	                inputStream = new FileInputStream(file);
 	            } catch (FileNotFoundException e) {
 	                LOGGER.warn("Fail to find config file {}", url);
 	                return;
 	            }
-    		} else {
-    			url = System.getProperty(SystemConstant.TSFILE_HOME, TSFileConfig.CONFIG_DEFAULT_PATH);
-    	        if (url.equals(TSFileConfig.CONFIG_DEFAULT_PATH)) {
-    	            try {
-    	                inputStream = new FileInputStream(new File(url));
-    	            } catch (FileNotFoundException e) {
-    	                LOGGER.warn("Fail to find config file {}", url);
-    	                return;
-    	            }
-    	        } else {
-    	            url = url + File.separator + "conf" + File.separator + TSFileConfig.CONFIG_NAME;
-    	            try {
-    	                File file = new File(url);
-    	                inputStream = new FileInputStream(file);
-    	            } catch (FileNotFoundException e) {
-    	                LOGGER.warn("Fail to find config file {}", url);
-    	                return;
-    	            }
-    	        }
-		}
+	        }
+        }
         
         LOGGER.info("Start to read config file {}", url);
         Properties properties = new Properties();
