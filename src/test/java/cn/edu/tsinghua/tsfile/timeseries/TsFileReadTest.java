@@ -72,5 +72,6 @@ public class TsFileReadTest {
         while (queryDataSet.hasNextRecord()) {
             System.out.println(queryDataSet.getNextRecord());
         }
+        readTsFile.close();
     }
 }
