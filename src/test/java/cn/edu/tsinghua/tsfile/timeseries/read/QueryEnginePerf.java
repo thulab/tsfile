@@ -193,6 +193,7 @@ public class QueryEnginePerf {
 			innerWriter.write(record);
 			lineCount++;
 		}
+		in.close();
 		endTime = System.currentTimeMillis();
 		LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
 		innerWriter.close();
