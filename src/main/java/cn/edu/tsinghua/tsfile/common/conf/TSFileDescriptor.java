@@ -44,7 +44,7 @@ public class TSFileDescriptor {
             try {
                 inputStream = new FileInputStream(new File(url));
             } catch (FileNotFoundException e) {
-                LOGGER.warn("Fail to find config file {}", url, e);
+                LOGGER.warn("Fail to find config file {}", url);
                 return;
             }
         } else {
