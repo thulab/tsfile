@@ -30,6 +30,16 @@ public class IntRleEncoder extends RleEncoder<Integer> {
     public void encode(int value, ByteArrayOutputStream out) {
         values.add(value);
     }
+    
+    @Override
+    public void encode(boolean value, ByteArrayOutputStream out) {
+    		if(value){
+    			this.encode(1, out);
+    		} else {
+    			this.encode(0, out);
+    		}
+    		
+    }
 
     /**
      * write all values buffered in cache to OutputStream
