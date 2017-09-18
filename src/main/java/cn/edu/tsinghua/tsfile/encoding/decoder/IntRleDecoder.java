@@ -38,7 +38,7 @@ public class IntRleDecoder extends RleDecoder {
     
     @Override
     public boolean readBoolean(InputStream in) {
-    		return this.readInt(in) == 0 ? false : true;
+    	return this.readInt(in) == 0 ? false : true;
     }
 
     /**

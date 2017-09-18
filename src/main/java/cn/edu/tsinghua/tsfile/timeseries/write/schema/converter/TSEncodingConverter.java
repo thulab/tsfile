@@ -144,7 +144,7 @@ public abstract class TSEncodingConverter {
             switch (type) {
                 case ENUMS:
                 case INT32:
-                	case BOOLEAN:
+                case BOOLEAN:
                     return new IntRleEncoder(EndianType.LITTLE_ENDIAN);
                 case INT64:
                     return new LongRleEncoder(EndianType.LITTLE_ENDIAN);
