@@ -57,7 +57,7 @@
         <connection>scm:git:git://github.com/thulab/tsfile.git</connection>
         <developerConnection>scm:git:ssh://github.com:thulab/tsfile.git</developerConnection>
         <url>http://github.com/thulab/tsfile/tree/master</url>
-      <tag>0.1.2</tag>
+      <tag>v0.1.2</tag>
     </scm>
 
     <distributionManagement>
