@@ -41,8 +41,8 @@ public class TSFileDescriptor {
         InputStream inputStream = null;
         String url = System.getProperty(SystemConstant.TSFILE_CONF, null);
         if (url == null) {
-            url = System.getProperty(SystemConstant.TSFILE_HOME, TSFileConfig.CONFIG_DEFAULT_PATH);
-            if(!url.equals(TSFileConfig.CONFIG_DEFAULT_PATH)){
+            url = System.getProperty(SystemConstant.TSFILE_HOME, TSFileConfig.HOME_DEFAULT_PATH);
+            if(!url.equals(TSFileConfig.HOME_DEFAULT_PATH)){
             	    url = url + File.separator + "conf" + File.separator + TSFileConfig.CONFIG_NAME;
             }
         }
