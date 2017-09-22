@@ -102,7 +102,7 @@ public abstract class InternalRecordWriter<T> {
      * writing stage, thus we don't add new {@code IRowGroupWriter} if its
      * deltaObjecyId has existed.
      *
-     * @param deltaObjectId - delta object to be add
+     * @param record - delta object to be add
      */
     protected void addGroupToInternalRecordWriter(TSRecord record) throws WriteProcessException {
         IRowGroupWriter groupWriter;

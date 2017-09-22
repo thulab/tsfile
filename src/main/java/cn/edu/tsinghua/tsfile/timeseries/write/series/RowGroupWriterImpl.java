@@ -37,9 +37,11 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
 
     @Override
     public void addSeriesWriter(MeasurementDescriptor desc, int pageSizeThreshold) {
-        IPageWriter pageWriter = new PageWriterImpl(desc);
-        ISeriesWriter seriesWriter = new SeriesWriterImpl(deltaObjectId, desc, pageWriter, pageSizeThreshold);
-        this.dataSeriesWriters.put(desc.getMeasurementId(), seriesWriter);
+        if(!dataSeriesWriters.containsKey(desc.getMeasurementId())) {
+            IPageWriter pageWriter = new PageWriterImpl(desc);
+            ISeriesWriter seriesWriter = new SeriesWriterImpl(deltaObjectId, desc, pageWriter, pageSizeThreshold);
+            this.dataSeriesWriters.put(desc.getMeasurementId(), seriesWriter);
+        }
     }
 
     @Override

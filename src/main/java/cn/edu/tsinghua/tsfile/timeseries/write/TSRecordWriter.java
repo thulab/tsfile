@@ -26,8 +26,8 @@ public class TSRecordWriter extends InternalRecordWriter<TSRecord> {
     protected boolean checkRowGroup(TSRecord record) throws IOException, WriteProcessException {
         if (!schema.hasDeltaObject(record.deltaObjectId)) {
             schema.addDeltaObject(record.deltaObjectId);
-            addGroupToInternalRecordWriter(record);
         }
+        addGroupToInternalRecordWriter(record);
         return true;
     }
 }
