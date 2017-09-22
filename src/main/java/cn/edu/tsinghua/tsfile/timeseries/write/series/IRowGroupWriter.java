@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.series;
 
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
@@ -50,4 +51,12 @@ public interface IRowGroupWriter {
      * @return - allocated memory size.
      */
     long updateMaxGroupMemSize();
+
+    /**
+     * given a measurement descriptor, create a corresponding writer and put into this RowGroupWriter
+     *
+     * @param measurementDescriptor a measurement descriptor containing the message of the series
+     * @param pageSize the specified page size
+     */
+    void addSeriesWriter(MeasurementDescriptor measurementDescriptor, int pageSize);
 }

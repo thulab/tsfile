@@ -1,11 +1,10 @@
 package cn.edu.tsinghua.tsfile.timeseries.write;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
-
-import java.io.IOException;
 
 /**
  * TSRecordWriter extends InternalRecordWriter and overrides method {@code checkRowGroup()} and
@@ -22,10 +21,10 @@ public class TSRecordWriter extends InternalRecordWriter<TSRecord> {
     }
 
     @Override
-    protected boolean checkRowGroup(TSRecord record) throws IOException {
+    protected boolean checkRowGroup(TSRecord record) throws WriteProcessException {
         if (!schema.hasDeltaObject(record.deltaObjectId)) {
             schema.addDeltaObject(record.deltaObjectId);
-            addGroupToInternalRecordWriter(record.deltaObjectId);
+            addGroupToInternalRecordWriter(record);
         }
         return true;
     }

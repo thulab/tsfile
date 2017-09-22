@@ -43,7 +43,7 @@ public class SchemaBuilderTest {
         assertEquals("value", fileSchema.getProp("key"));
         assertEquals("{max_point_number=2, key=value}", fileSchema.getProps().toString());
 
-        Collection<MeasurementDescriptor> measurements = fileSchema.getDescriptor();
+        Collection<MeasurementDescriptor> measurements = fileSchema.getDescriptor().values();
         String[] measureDesStrings =
                 {
                         "[,s3,ENUMS,BITMAP,,SNAPPY,[MAN, WOMAN],]",

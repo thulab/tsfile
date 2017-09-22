@@ -1,11 +1,17 @@
 package cn.edu.tsinghua.tsfile.timeseries.write;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.NoMeasurementException;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.converter.JsonConverter;
 import cn.edu.tsinghua.tsfile.timeseries.write.series.IRowGroupWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.series.RowGroupWriterImpl;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,10 +51,19 @@ public abstract class InternalRecordWriter<T> {
         this.writeSupport = writeSupport;
         this.schema = schema;
         this.primaryRowGroupSize = conf.groupSizeInByte;
-        this.oneRowMaxSize = schema.getCurrentRowMaxSize();
-        this.rowGroupSizeThreshold = primaryRowGroupSize - oneRowMaxSize;
         this.pageSize = conf.pageSizeInByte;
+        this.oneRowMaxSize = schema.getCurrentRowMaxSize();
+        assert primaryRowGroupSize > oneRowMaxSize;
+        this.rowGroupSizeThreshold = primaryRowGroupSize - oneRowMaxSize;
         writeSupport.init(groupWriters);
+    }
+
+    public void addMeasurementByJson(JSONObject measurement) throws IOException {
+        JsonConverter.addJsonToMeasurement(measurement, schema);
+        this.oneRowMaxSize = schema.getCurrentRowMaxSize();
+        assert primaryRowGroupSize > oneRowMaxSize;
+        this.rowGroupSizeThreshold = primaryRowGroupSize - oneRowMaxSize;
+        checkMemorySize();
     }
 
     /**
@@ -89,10 +104,20 @@ public abstract class InternalRecordWriter<T> {
      *
      * @param deltaObjectId - delta object to be add
      */
-    protected void addGroupToInternalRecordWriter(String deltaObjectId) {
-        if (!groupWriters.containsKey(deltaObjectId)) {
-            IRowGroupWriter groupWriter = new RowGroupWriterImpl(deltaObjectId, schema, pageSize);
-            groupWriters.put(deltaObjectId, groupWriter);
+    protected void addGroupToInternalRecordWriter(TSRecord record) throws WriteProcessException {
+        IRowGroupWriter groupWriter;
+        if (!groupWriters.containsKey(record.deltaObjectId)) {
+            groupWriter = new RowGroupWriterImpl(record.deltaObjectId);
+            groupWriters.put(record.deltaObjectId, groupWriter);
+        } else
+            groupWriter = groupWriters.get(record.deltaObjectId);
+        Map<String, MeasurementDescriptor> schemaDescriptorMap = schema.getDescriptor();
+        for (DataPoint dp : record.dataPointList) {
+            String measurementId = dp.getMeasurementId();
+            if (schemaDescriptorMap.containsKey(measurementId))
+                groupWriter.addSeriesWriter(schemaDescriptorMap.get(measurementId), pageSize);
+            else
+                throw new NoMeasurementException("input measurement is invalid: " + measurementId);
         }
     }
 

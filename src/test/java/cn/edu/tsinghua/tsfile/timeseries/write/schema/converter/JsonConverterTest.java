@@ -9,12 +9,12 @@ import java.util.Collection;
 import java.util.List;
 
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesMetadata;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.Test;
 
+import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesMetadata;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 
@@ -36,7 +36,7 @@ public class JsonConverterTest {
 
         FileSchema fileSchema = new FileSchema(obj);
         assertEquals("test_type", fileSchema.getDeltaType());
-        Collection<MeasurementDescriptor> measurements = fileSchema.getDescriptor();
+        Collection<MeasurementDescriptor> measurements = fileSchema.getDescriptor().values();
         String[] measureDesStrings =
                 {
                         "[,s3,ENUMS,BITMAP,,SNAPPY,[MAN, WOMAN],]",
