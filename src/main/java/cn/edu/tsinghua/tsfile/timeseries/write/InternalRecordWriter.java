@@ -74,7 +74,7 @@ public abstract class InternalRecordWriter<T> {
      * @return - whether the record has been added into RecordWriter legally
      * @throws IOException exception in IO
      */
-    abstract protected boolean checkRowGroup(T record) throws IOException;
+    abstract protected boolean checkRowGroup(T record) throws IOException, WriteProcessException;
 
     /**
      * write a record in type of T
