@@ -129,7 +129,7 @@ public class TSFileConfig {
 
     public static final String CONFIG_NAME = "tsfile-format.properties";
 
-    public static String HOME_DEFAULT_PATH = "conf/" + CONFIG_NAME;
+//    public static String HOME_DEFAULT_PATH = "conf/" + CONFIG_NAME;
 
     /**
      * The default grow size of class DynamicOneColumnData
