@@ -54,7 +54,7 @@ public class WriteTest {
     private TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
 
     @Before
-    public void prepare() throws IOException, InvalidJsonSchemaException {
+    public void prepare() throws IOException, WriteProcessException {
         inputDataFile = "src/test/resources/writeTestInputData";
         outputDataFile = "src/test/resources/writeTestOutputData.ksn";
         errorOutputDataFile = "src/test/resources/writeTestErrorOutputData.ksn";

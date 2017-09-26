@@ -18,7 +18,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
  */
 public class TSRecordWriter extends InternalRecordWriter<TSRecord> {
     public TSRecordWriter(TSFileConfig conf, TSFileIOWriter tsfileIOWriter,
-                          WriteSupport<TSRecord> writeSupport, FileSchema schema) {
+                          WriteSupport<TSRecord> writeSupport, FileSchema schema) throws WriteProcessException {
         super(conf, tsfileIOWriter, writeSupport, schema);
     }
 

@@ -46,24 +46,30 @@ public abstract class InternalRecordWriter<T> {
     private int oneRowMaxSize;
 
     public InternalRecordWriter(TSFileConfig conf, TSFileIOWriter tsfileWriter, WriteSupport<T> writeSupport,
-                                FileSchema schema) {
+                                FileSchema schema) throws WriteProcessException {
         this.deltaFileWriter = tsfileWriter;
         this.writeSupport = writeSupport;
         this.schema = schema;
         this.primaryRowGroupSize = conf.groupSizeInByte;
         this.pageSize = conf.pageSizeInByte;
         this.oneRowMaxSize = schema.getCurrentRowMaxSize();
-        assert primaryRowGroupSize > oneRowMaxSize;
+        if(primaryRowGroupSize <= oneRowMaxSize)
+            throw new WriteProcessException("initial measurement error: the potential size of one row is too large");
         this.rowGroupSizeThreshold = primaryRowGroupSize - oneRowMaxSize;
         writeSupport.init(groupWriters);
     }
 
-    public void addMeasurementByJson(JSONObject measurement) throws IOException {
+    public void addMeasurementByJson(JSONObject measurement) throws WriteProcessException {
         JsonConverter.addJsonToMeasurement(measurement, schema);
         this.oneRowMaxSize = schema.getCurrentRowMaxSize();
-        assert primaryRowGroupSize > oneRowMaxSize;
+        if(primaryRowGroupSize <= oneRowMaxSize)
+            throw new WriteProcessException("add measurement error: the potential size of one row is too large");
         this.rowGroupSizeThreshold = primaryRowGroupSize - oneRowMaxSize;
-        checkMemorySize();
+        try {
+            checkMemorySize();
+        } catch (IOException e) {
+            throw new WriteProcessException(e.getMessage());
+        }
     }
 
     /**
