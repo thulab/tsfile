@@ -39,7 +39,7 @@ import static org.junit.Assert.fail;
  */
 public class WriteTest {
     private static final Logger LOG = LoggerFactory.getLogger(WriteTest.class);
-    private final int ROW_COUNT = 1000;
+    private final int ROW_COUNT = 20;
     private InternalRecordWriter<TSRecord> innerWriter;
     private String inputDataFile;
     private String outputDataFile;
@@ -52,6 +52,7 @@ public class WriteTest {
     private int prePageSize;
     private int prePageCheckThres;
     private TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
+    private JSONArray measurementArray;
 
     @Before
     public void prepare() throws IOException, WriteProcessException {
@@ -81,10 +82,9 @@ public class WriteTest {
                         "\"key1\": \"value1\",\n" +
                         "\"key2\": \"value2\"\n" +
                         "},\"schema\": [],}");
-        JSONArray measurementArray =
+        measurementArray =
                 new JSONObject(new JSONTokener(new FileReader(new File(schemaFile)))).getJSONArray(JsonFormatConstant
                         .JSON_SCHEMA);
-        ;
         schema = new FileSchema(emptySchema);
         LOG.info(schema.toString());
         WriteSupport<TSRecord> writeSupport = new TSRecordWriteSupport();
@@ -97,10 +97,6 @@ public class WriteTest {
         TSFileIOWriter tsfileWriter = new TSFileIOWriter(schema, outputStream);
         innerWriter =
                 new TSRecordWriter(conf, tsfileWriter, writeSupport, schema);
-        for (int i = 0; i < measurementArray.length(); i++) {
-            innerWriter.addMeasurementByJson((JSONObject) measurementArray.get(i));
-        }
-
     }
 
     @After
@@ -182,6 +178,10 @@ public class WriteTest {
         long lineCount = 0;
         long startTime = System.currentTimeMillis();
         String[] strings;
+        //add all measurement except the last one at before writing
+        for (int i = 0; i < measurementArray.length() - 1; i++) {
+            innerWriter.addMeasurementByJson((JSONObject) measurementArray.get(i));
+        }
         while (true) {
             if (lineCount % stageSize == 0) {
                 LOG.info("write line:{},use time:{}s", lineCount,
@@ -191,6 +191,8 @@ public class WriteTest {
                 if (stageState == stageDeltaObjectIds.length)
                     break;
             }
+            if (lineCount == ROW_COUNT / 2)
+                innerWriter.addMeasurementByJson((JSONObject) measurementArray.get(measurementArray.length() - 1));
             strings = getNextRecord(lineCount, stageState);
             for (String str : strings) {
                 TSRecord record = RecordUtils.parseSimpleTupleRecord(str, schema);
