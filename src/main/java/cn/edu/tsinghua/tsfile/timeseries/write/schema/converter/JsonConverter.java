@@ -79,6 +79,13 @@ public class JsonConverter {
         }
     }
 
+
+    public static void addJsonToMeasurement(JSONObject measurement, FileSchema fileSchema) {
+        int currentRowMaxSize = fileSchema.getCurrentRowMaxSize();
+        currentRowMaxSize += registerMeasurement(fileSchema, measurement);
+        fileSchema.setCurrentRowMaxSize(currentRowMaxSize);
+    }
+
     /**
      * * for each measurement, it may have some information to be initialized.
      * <br>
