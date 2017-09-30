@@ -145,8 +145,8 @@ public class FileSchema {
         return descriptorMap.get(measurementUID);
     }
 
-    public Collection<MeasurementDescriptor> getDescriptor() {
-        return descriptorMap.values();
+    public Map<String, MeasurementDescriptor> getDescriptor() {
+        return descriptorMap;
     }
 
     /**

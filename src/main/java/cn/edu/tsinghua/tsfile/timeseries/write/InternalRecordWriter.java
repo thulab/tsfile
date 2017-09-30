@@ -1,11 +1,17 @@
 package cn.edu.tsinghua.tsfile.timeseries.write;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.NoMeasurementException;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.converter.JsonConverter;
 import cn.edu.tsinghua.tsfile.timeseries.write.series.IRowGroupWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.series.RowGroupWriterImpl;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,15 +46,30 @@ public abstract class InternalRecordWriter<T> {
     private int oneRowMaxSize;
 
     public InternalRecordWriter(TSFileConfig conf, TSFileIOWriter tsfileWriter, WriteSupport<T> writeSupport,
-                                FileSchema schema) {
+                                FileSchema schema) throws WriteProcessException {
         this.deltaFileWriter = tsfileWriter;
         this.writeSupport = writeSupport;
         this.schema = schema;
         this.primaryRowGroupSize = conf.groupSizeInByte;
-        this.oneRowMaxSize = schema.getCurrentRowMaxSize();
-        this.rowGroupSizeThreshold = primaryRowGroupSize - oneRowMaxSize;
         this.pageSize = conf.pageSizeInByte;
+        this.oneRowMaxSize = schema.getCurrentRowMaxSize();
+        if(primaryRowGroupSize <= oneRowMaxSize)
+            throw new WriteProcessException("initial measurement error: the potential size of one row is too large");
+        this.rowGroupSizeThreshold = primaryRowGroupSize - oneRowMaxSize;
         writeSupport.init(groupWriters);
+    }
+
+    public void addMeasurementByJson(JSONObject measurement) throws WriteProcessException {
+        JsonConverter.addJsonToMeasurement(measurement, schema);
+        this.oneRowMaxSize = schema.getCurrentRowMaxSize();
+        if(primaryRowGroupSize <= oneRowMaxSize)
+            throw new WriteProcessException("add measurement error: the potential size of one row is too large");
+        this.rowGroupSizeThreshold = primaryRowGroupSize - oneRowMaxSize;
+        try {
+            checkMemorySize();
+        } catch (IOException e) {
+            throw new WriteProcessException(e.getMessage());
+        }
     }
 
     /**
@@ -59,7 +80,7 @@ public abstract class InternalRecordWriter<T> {
      * @return - whether the record has been added into RecordWriter legally
      * @throws IOException exception in IO
      */
-    abstract protected boolean checkRowGroup(T record) throws IOException;
+    abstract protected boolean checkRowGroup(T record) throws IOException, WriteProcessException;
 
     /**
      * write a record in type of T
@@ -87,12 +108,22 @@ public abstract class InternalRecordWriter<T> {
      * writing stage, thus we don't add new {@code IRowGroupWriter} if its
      * deltaObjecyId has existed.
      *
-     * @param deltaObjectId - delta object to be add
+     * @param record - delta object to be add
      */
-    protected void addGroupToInternalRecordWriter(String deltaObjectId) {
-        if (!groupWriters.containsKey(deltaObjectId)) {
-            IRowGroupWriter groupWriter = new RowGroupWriterImpl(deltaObjectId, schema, pageSize);
-            groupWriters.put(deltaObjectId, groupWriter);
+    protected void addGroupToInternalRecordWriter(TSRecord record) throws WriteProcessException {
+        IRowGroupWriter groupWriter;
+        if (!groupWriters.containsKey(record.deltaObjectId)) {
+            groupWriter = new RowGroupWriterImpl(record.deltaObjectId);
+            groupWriters.put(record.deltaObjectId, groupWriter);
+        } else
+            groupWriter = groupWriters.get(record.deltaObjectId);
+        Map<String, MeasurementDescriptor> schemaDescriptorMap = schema.getDescriptor();
+        for (DataPoint dp : record.dataPointList) {
+            String measurementId = dp.getMeasurementId();
+            if (schemaDescriptorMap.containsKey(measurementId))
+                groupWriter.addSeriesWriter(schemaDescriptorMap.get(measurementId), pageSize);
+            else
+                throw new NoMeasurementException("input measurement is invalid: " + measurementId);
         }
     }
 

@@ -128,11 +128,51 @@ public class IntRleDecoderTest {
 			testLength(hybridList,hybridWidth,false,i);
 		}
 	}
+
+	@Test
+	public void testHybridReadBoolean() throws IOException{
+		for(int i = 1;i < 10;i++){
+			testLength(hybridList,hybridWidth,false,i);
+		}
+	}
 	
 	@Test 
 	public void testBitPackingReadHeader() throws IOException{
 		for(int i = 1;i < 505;i++){
 			testBitPackedReadHeader(i);
+		}
+	}
+	
+	public void testBooleanLength(List<Integer> list,int bitWidth,boolean isDebug,int repeatCount) throws IOException{
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		RleEncoder<Integer> encoder = new IntRleEncoder(EndianType.LITTLE_ENDIAN);
+		for(int i = 0;i < repeatCount;i++){
+			for(int value : list){
+				if(value % 2 == 0){
+					encoder.encode(false, baos);
+				} else {
+					encoder.encode(true, baos);
+				}
+				
+			}
+			encoder.flush(baos);
+		}
+		
+		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+		RleDecoder decoder = new IntRleDecoder(EndianType.LITTLE_ENDIAN);
+		for(int i = 0;i < repeatCount;i++){
+			for(int value : list){
+				boolean value_ = decoder.readBoolean(bais);
+				if(isDebug){
+					System.out.println(value_+"/"+value);
+				}
+				if(value % 2 == 0){
+					assertEquals(false, value_);
+				} else{
+					assertEquals(true, value_);
+				}
+				
+			}
 		}
 	}
 	

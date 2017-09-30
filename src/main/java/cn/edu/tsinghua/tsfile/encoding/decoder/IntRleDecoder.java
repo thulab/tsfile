@@ -35,6 +35,11 @@ public class IntRleDecoder extends RleDecoder {
         super(endianType);
         currentValue = 0;
     }
+    
+    @Override
+    public boolean readBoolean(InputStream in) {
+    	return this.readInt(in) == 0 ? false : true;
+    }
 
     /**
      * read a int value from InputStream

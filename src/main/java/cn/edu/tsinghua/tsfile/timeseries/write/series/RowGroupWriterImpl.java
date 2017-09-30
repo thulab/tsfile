@@ -10,7 +10,6 @@ import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.page.IPageWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.page.PageWriterImpl;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
-import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,16 +31,17 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
     private final String deltaObjectId;
     private Map<String, ISeriesWriter> dataSeriesWriters = new HashMap<String, ISeriesWriter>();
 
-    public RowGroupWriterImpl(String deltaObjectId, FileSchema fileSchema, int pageSizeThreshold) {
+    public RowGroupWriterImpl(String deltaObjectId) {
         this.deltaObjectId = deltaObjectId;
-        for (MeasurementDescriptor desc : fileSchema.getDescriptor()) {
-            this.dataSeriesWriters.put(desc.getMeasurementId(), createSeriesWriter(desc, pageSizeThreshold));
-        }
     }
 
-    private ISeriesWriter createSeriesWriter(MeasurementDescriptor desc, int pageSizeThreshold) {
-        IPageWriter pageWriter = new PageWriterImpl(desc);
-        return new SeriesWriterImpl(deltaObjectId, desc, pageWriter, pageSizeThreshold);
+    @Override
+    public void addSeriesWriter(MeasurementDescriptor desc, int pageSizeThreshold) {
+        if(!dataSeriesWriters.containsKey(desc.getMeasurementId())) {
+            IPageWriter pageWriter = new PageWriterImpl(desc);
+            ISeriesWriter seriesWriter = new SeriesWriterImpl(deltaObjectId, desc, pageWriter, pageSizeThreshold);
+            this.dataSeriesWriters.put(desc.getMeasurementId(), seriesWriter);
+        }
     }
 
     @Override

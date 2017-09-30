@@ -24,7 +24,9 @@ public abstract class Decoder {
     public static Decoder getDecoderByType(Encoding type, TSDataType dataType) {
         if (type == Encoding.PLAIN) {
             return new PlainDecoder(EndianType.LITTLE_ENDIAN);
-        } else if (type == Encoding.TS_2DIFF && dataType == TSDataType.INT32) {
+        } else if (type == Encoding.RLE && dataType == TSDataType.BOOLEAN) {
+        	return new IntRleDecoder(EndianType.LITTLE_ENDIAN);
+		}  else if (type == Encoding.TS_2DIFF && dataType == TSDataType.INT32) {
             return new DeltaBinaryDecoder.IntDeltaDecoder();
         } else if (type == Encoding.TS_2DIFF && dataType == TSDataType.INT64) {
             return new DeltaBinaryDecoder.LongDeltaDecoder();
