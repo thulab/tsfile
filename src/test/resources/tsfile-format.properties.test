@@ -1,9 +1,0 @@
-group_size_in_byte=134217729
-page_size_in_byte=1048577
-max_number_of_points_in_page=1048577
-time_series_data_type=INT32
-max_string_length=129
-float_precision=3
-time_series_encoder=RLE
-value_encoder=RLE
-compressor=SNAPPY
