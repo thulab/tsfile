@@ -48,6 +48,7 @@ public class TSFileDescriptor {
 				}
 			}
 		} catch (IOException e) {
+			LOGGER.error("Failed to get url list for {}", resource);
 		}
 	}
 	
@@ -64,16 +65,15 @@ public class TSFileDescriptor {
 		if (url == null) {
 			url = System.getProperty(SystemConstant.TSFILE_HOME, null);
 			if (url != null) {
-				url = url + File.separator + "conf" + File.separator + TSFileConfig.CONFIG_NAME;
+				url = url + File.separator + "conf" + File.separator + TSFileConfig.CONFIG_FILE_NAME;
 			} else {
 				ClassLoader  classLoader = Loader.getClassLoaderOfObject(this);
-				URL u = getResource(TSFileConfig.CONFIG_NAME, classLoader);
+				URL u = getResource(TSFileConfig.CONFIG_FILE_NAME, classLoader);
 				if(u == null){
-					LOGGER.warn("Failed to find config file {} at classpath, use default configuration", TSFileConfig.CONFIG_NAME);
+					LOGGER.warn("Failed to find config file {} at classpath, use default configuration", TSFileConfig.CONFIG_FILE_NAME);
 					return;
-				}
-				else{
-					multiplicityWarning(TSFileConfig.CONFIG_NAME, classLoader);
+				} else{
+					multiplicityWarning(TSFileConfig.CONFIG_FILE_NAME, classLoader);
 					url = u.getFile();
 				}
 			}
@@ -89,15 +89,11 @@ public class TSFileDescriptor {
 		Properties properties = new Properties();
 		try {
 			properties.load(inputStream);
-			conf.groupSizeInByte = Integer
-					.parseInt(properties.getProperty("group_size_in_byte", conf.groupSizeInByte + ""));
-			conf.pageSizeInByte = Integer
-					.parseInt(properties.getProperty("page_size_in_byte", conf.pageSizeInByte + ""));
-			conf.maxNumberOfPointsInPage = Integer.parseInt(
-					properties.getProperty("max_number_of_points_in_page", conf.maxNumberOfPointsInPage + ""));
+			conf.groupSizeInByte = Integer.parseInt(properties.getProperty("group_size_in_byte", conf.groupSizeInByte + ""));
+			conf.pageSizeInByte = Integer.parseInt(properties.getProperty("page_size_in_byte", conf.pageSizeInByte + ""));
+			conf.maxNumberOfPointsInPage = Integer.parseInt(properties.getProperty("max_number_of_points_in_page", conf.maxNumberOfPointsInPage + ""));
 			conf.timeSeriesDataType = properties.getProperty("time_series_data_type", conf.timeSeriesDataType);
-			conf.maxStringLength = Integer
-					.parseInt(properties.getProperty("max_string_length", conf.maxStringLength + ""));
+			conf.maxStringLength = Integer.parseInt(properties.getProperty("max_string_length", conf.maxStringLength + ""));
 			conf.floatPrecision = Integer.parseInt(properties.getProperty("float_precision", conf.floatPrecision + ""));
 			conf.timeSeriesEncoder = properties.getProperty("time_series_encoder", conf.timeSeriesEncoder);
 			conf.valueEncoder = properties.getProperty("value_encoder", conf.valueEncoder);
@@ -112,13 +108,9 @@ public class TSFileDescriptor {
 					inputStream.close();
 					inputStream = null;
 				} catch (IOException e) {
+					LOGGER.error("Failed to close stream for loading config because {}", e.getMessage());
 				}
 			}
 		}
-	}
-
-	public static void main(String[] args) {
-		TSFileConfig config = TSFileDescriptor.getInstance().getConfig();
-//		System.out.println(System.getProperty("java.class.path"));
 	}
 }

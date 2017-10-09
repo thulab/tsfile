@@ -127,9 +127,7 @@ public class TSFileConfig {
 
     public static final String STRING_ENCODING = "UTF-8";
 
-    public static final String CONFIG_NAME = "tsfile-format.properties";
-
-//    public static String HOME_DEFAULT_PATH = "conf/" + CONFIG_NAME;
+    public static final String CONFIG_FILE_NAME = "tsfile-format.properties";
 
     /**
      * The default grow size of class DynamicOneColumnData
