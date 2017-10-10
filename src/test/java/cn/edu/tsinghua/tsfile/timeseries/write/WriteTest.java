@@ -30,6 +30,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -200,6 +202,14 @@ public class WriteTest {
                 innerWriter.write(record);
             }
             lineCount++;
+        }
+        //test duplicate measurement adding
+        JSONObject dupMeasure = (JSONObject) measurementArray.get(measurementArray.length() - 1);
+        try {
+            innerWriter.addMeasurementByJson(dupMeasure);
+        }catch (WriteProcessException e){
+            assertEquals("given measurement has exists! "+
+                    dupMeasure.getString(JsonFormatConstant.MEASUREMENT_UID), e.getMessage());
         }
         try {
             innerWriter.close();

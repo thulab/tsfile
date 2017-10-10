@@ -5,6 +5,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import org.json.JSONArray;
@@ -57,7 +58,7 @@ public class JsonConverter {
      * @throws InvalidJsonSchemaException throw exception when json schema is not valid
      */
     public static void converterJsonToSchema(JSONObject jsonSchema, FileSchema fileSchema)
-            throws InvalidJsonSchemaException {
+            throws WriteProcessException {
         if (!jsonSchema.has(JsonFormatConstant.JSON_SCHEMA))
             throw new InvalidJsonSchemaException("missing fields:" + JsonFormatConstant.JSON_SCHEMA);
         //set deltaType
@@ -80,7 +81,7 @@ public class JsonConverter {
     }
 
 
-    public static void addJsonToMeasurement(JSONObject measurement, FileSchema fileSchema) {
+    public static void addJsonToMeasurement(JSONObject measurement, FileSchema fileSchema) throws WriteProcessException {
         int currentRowMaxSize = fileSchema.getCurrentRowMaxSize();
         currentRowMaxSize += registerMeasurement(fileSchema, measurement);
         fileSchema.setCurrentRowMaxSize(currentRowMaxSize);
@@ -103,7 +104,7 @@ public class JsonConverter {
      * @param measurementObj - JSON object of this measurement id in given schema
      * @return the max size of this measurement
      */
-    private static int registerMeasurement(FileSchema fileSchema, JSONObject measurementObj) {
+    private static int registerMeasurement(FileSchema fileSchema, JSONObject measurementObj) throws WriteProcessException {
         if (!measurementObj.has(JsonFormatConstant.MEASUREMENT_UID) && !measurementObj.has(JsonFormatConstant.DATA_TYPE)
                 && !measurementObj.has(JsonFormatConstant.MEASUREMENT_ENCODING)) {
             LOG.warn("The format of given json is error. Give up to register this measurement. Given json:{}",
@@ -112,6 +113,8 @@ public class JsonConverter {
         }
         // register series info to fileSchema
         String measurementId = measurementObj.getString(JsonFormatConstant.MEASUREMENT_UID);
+        if(fileSchema.hasMeasurement(measurementId))
+            throw new WriteProcessException("given measurement has exists! " + measurementId);
         TSDataType type = TSDataType.valueOf(measurementObj.getString(JsonFormatConstant.DATA_TYPE));
         fileSchema.addSeries(measurementId, type);
         // add TimeSeries into metadata

@@ -5,6 +5,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.write.InternalRecordWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.converter.JsonConverter;
 import cn.edu.tsinghua.tsfile.timeseries.write.series.IRowGroupWriter;
 import org.json.JSONObject;
@@ -51,7 +52,7 @@ public class FileSchema {
 
     }
 
-    public FileSchema(JSONObject jsonSchema) throws InvalidJsonSchemaException {
+    public FileSchema(JSONObject jsonSchema) throws WriteProcessException {
         JsonConverter.converterJsonToSchema(jsonSchema, this);
     }
 
@@ -188,5 +189,9 @@ public class FileSchema {
             }
         }
         appearDeltaObjectIdSet.clear();
+    }
+
+    public boolean hasMeasurement(String measurementId) {
+        return descriptorMap.containsKey(measurementId);
     }
 }
