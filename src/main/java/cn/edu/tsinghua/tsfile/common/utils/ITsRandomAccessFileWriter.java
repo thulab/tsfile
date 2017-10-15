@@ -12,7 +12,7 @@ import java.io.OutputStream;
  *
  * @author kangrong
  */
-public interface TSRandomAccessFileWriter {
+public interface ITsRandomAccessFileWriter {
     long getPos() throws IOException;
 
     void seek(long offset) throws IOException;

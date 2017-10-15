@@ -1,17 +1,23 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.schema;
 
-import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesMetadata;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.timeseries.write.InternalRecordWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
-import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
-import cn.edu.tsinghua.tsfile.timeseries.write.schema.converter.JsonConverter;
-import cn.edu.tsinghua.tsfile.timeseries.write.series.IRowGroupWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesMetadata;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.timeseries.write.TsFileWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.converter.JsonConverter;
+import cn.edu.tsinghua.tsfile.timeseries.write.series.IRowGroupWriter;
 
 /**
  * FileSchema stores the schema of registered measurements and delta objects that appeared in this
@@ -31,28 +37,31 @@ public class FileSchema {
     /**
      * {@code Map<measurementId, TSDataType>}
      */
-    private Map<String, TSDataType> dataTypeMap = new HashMap<>();
+    private Map<String, TSDataType> measurementDataTypeMap = new HashMap<>();
     /**
      * {@code Map<measurementId, MeasurementDescriptor>}
      */
-    private Map<String, MeasurementDescriptor> descriptorMap =
-            new HashMap<>();
+    private Map<String, MeasurementDescriptor> measurementNameDescriptorMap;
     private String[] tempKeyArray = new String[10];
-    /**
-     * deltaType of this TSFile
-     */
-    private String deltaType;
-    private List<TimeSeriesMetadata> tsMetadata = new ArrayList<>();
-    private int currentRowMaxSize;
 
-    private Map<String, String> props = new HashMap<>();
+    private List<TimeSeriesMetadata> tsMetadata = new ArrayList<>();
+    private int currentMaxByteSizeInOneRow;
+
+    private Map<String, String> additionalProperties = new HashMap<>();
 
     public FileSchema() {
-
+    		this.measurementNameDescriptorMap=new HashMap<>();
+    		this.additionalProperties=new HashMap<>();
     }
-
+    
     public FileSchema(JSONObject jsonSchema) throws InvalidJsonSchemaException {
-        JsonConverter.converterJsonToSchema(jsonSchema, this);
+        this(JsonConverter.converterJsonToMeasurementDescriptors(jsonSchema),JsonConverter.convertJsonToSchemaProperties(jsonSchema));
+    }
+    
+    public FileSchema(Map<String,MeasurementDescriptor> measurements, Map<String, String> additionalProperties) {
+    		this();
+    		this.additionalProperties=additionalProperties;
+    		this.registerMeasurements(measurements);
     }
 
     /**
@@ -63,39 +72,39 @@ public class FileSchema {
      * @param value value of property
      */
     public void addProp(String key, String value) {
-        props.put(key, value);
+        additionalProperties.put(key, value);
     }
 
     public boolean hasProp(String key) {
-        return props.containsKey(key);
+        return additionalProperties.containsKey(key);
     }
 
     public Map<String, String> getProps() {
-        return props;
+        return additionalProperties;
     }
 
     public void setProps(Map<String, String> props) {
-        this.props.clear();
-        this.props.putAll(props);
+        this.additionalProperties.clear();
+        this.additionalProperties.putAll(props);
     }
 
     public String getProp(String key) {
-        if (props.containsKey(key))
-            return props.get(key);
+        if (additionalProperties.containsKey(key))
+            return additionalProperties.get(key);
         else
             return null;
     }
 
     public int getCurrentRowMaxSize() {
-        return currentRowMaxSize;
+        return currentMaxByteSizeInOneRow;
     }
 
-    public void setCurrentRowMaxSize(int currentRowMaxSize) {
-        this.currentRowMaxSize = currentRowMaxSize;
+    public void setMaxByteSizeInOneRow(int maxByteSizeInOneRow) {
+        this.currentMaxByteSizeInOneRow = maxByteSizeInOneRow;
     }
 
-    public void addCurrentRowMaxSize(int currentSeries) {
-        this.currentRowMaxSize += currentSeries;
+    private void enlargeMaxByteSizeInOneRow(int additionalByteSize) {
+        this.currentMaxByteSizeInOneRow += additionalByteSize;
     }
 
     /**
@@ -121,32 +130,20 @@ public class FileSchema {
         return appearDeltaObjectIdSet;
     }
 
-    public String getDeltaType() {
-        return deltaType;
+    private void indexMeasurementDataType(String measurementUID, TSDataType type) {
+        measurementDataTypeMap.put(measurementUID, type);
     }
 
-    public void setDeltaType(String deltaType) {
-        this.deltaType = deltaType;
+    public TSDataType getMeasurementDataTypes(String measurementUID) {
+        return measurementDataTypeMap.get(measurementUID);
     }
 
-    public void addSeries(String measurementUID, TSDataType type) {
-        dataTypeMap.put(measurementUID, type);
-    }
-
-    public TSDataType getSeriesType(String measurementUID) {
-        return dataTypeMap.get(measurementUID);
-    }
-
-    public void setDescriptor(String measurementUID, MeasurementDescriptor convertor) {
-        descriptorMap.put(measurementUID, convertor);
-    }
-
-    public MeasurementDescriptor getDescriptor(String measurementUID) {
-        return descriptorMap.get(measurementUID);
+    public MeasurementDescriptor getMeasurementDescriptor(String measurementUID) {
+        return measurementNameDescriptorMap.get(measurementUID);
     }
 
     public Map<String, MeasurementDescriptor> getDescriptor() {
-        return descriptorMap;
+        return measurementNameDescriptorMap;
     }
 
     /**
@@ -155,8 +152,8 @@ public class FileSchema {
      * @param measurementId - the measurement id of this TimeSeriesMetadata
      * @param type          - the data type of this TimeSeriesMetadata
      */
-    public void addTimeSeriesMetadata(String measurementId, TSDataType type) {
-        TimeSeriesMetadata ts = new TimeSeriesMetadata(measurementId, type, deltaType);
+    private void addTimeSeriesMetadata(String measurementId, TSDataType type) {
+        TimeSeriesMetadata ts = new TimeSeriesMetadata(measurementId, type);
         LOG.debug("add Time Series:{}", ts);
         this.tsMetadata.add(ts);
     }
@@ -166,7 +163,7 @@ public class FileSchema {
     }
 
     /**
-     * This method is called in {@linkplain InternalRecordWriter
+     * This method is called in {@linkplain TsFileWriter
      * InternalRecordWriter} after flushing row group to file. The delta object id used in last
      * stage remains in this stage. The delta object id which not be used in last stage will be
      * removed
@@ -189,4 +186,14 @@ public class FileSchema {
         }
         appearDeltaObjectIdSet.clear();
     }
+
+	public void registerMeasurement(MeasurementDescriptor descriptor) {
+		this.measurementNameDescriptorMap.put(descriptor.getMeasurementId(), descriptor);
+		this.indexMeasurementDataType(descriptor.getMeasurementId(), descriptor.getType());
+		this.addTimeSeriesMetadata(descriptor.getMeasurementId(), descriptor.getType());
+		this.enlargeMaxByteSizeInOneRow( descriptor.getTimeEncoder().getOneItemMaxSize() + descriptor.getValueEncoder().getOneItemMaxSize());
+	}
+	public void registerMeasurements(Map<String,MeasurementDescriptor> measurements) {
+		measurements.forEach((id,md)->registerMeasurement(md));
+	}
 }

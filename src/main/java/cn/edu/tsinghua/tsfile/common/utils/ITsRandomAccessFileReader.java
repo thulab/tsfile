@@ -7,7 +7,7 @@ import java.io.IOException;
  *
  * @author Jinrui Zhang
  */
-public interface TSRandomAccessFileReader {
+public interface ITsRandomAccessFileReader {
 
     void seek(long offset) throws IOException;
 

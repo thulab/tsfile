@@ -1,19 +1,13 @@
 package cn.edu.tsinghua.tsfile.timeseries.write;
 
-import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
-import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
-import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.tsinghua.tsfile.common.utils.RandomAccessOutputStream;
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.timeseries.basis.TsFile;
-import cn.edu.tsinghua.tsfile.timeseries.read.LocalFileInput;
-import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
-import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
-import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
-import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
-import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Random;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -24,13 +18,16 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Random;
-
-import static org.junit.Assert.fail;
+import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
+import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
+import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
+import cn.edu.tsinghua.tsfile.timeseries.basis.TsFile;
+import cn.edu.tsinghua.tsfile.timeseries.read.TsRandomAccessLocalFileReader;
+import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
+import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 
 /**
  * test writing processing correction combining writing process and reading process.
@@ -40,7 +37,7 @@ import static org.junit.Assert.fail;
 public class WriteTest {
     private static final Logger LOG = LoggerFactory.getLogger(WriteTest.class);
     private final int ROW_COUNT = 20;
-    private InternalRecordWriter<TSRecord> innerWriter;
+    private TsFileWriter innerWriter;
     private String inputDataFile;
     private String outputDataFile;
     private String errorOutputDataFile;
@@ -87,16 +84,7 @@ public class WriteTest {
                         .JSON_SCHEMA);
         schema = new FileSchema(emptySchema);
         LOG.info(schema.toString());
-        WriteSupport<TSRecord> writeSupport = new TSRecordWriteSupport();
-        TSRandomAccessFileWriter outputStream = null;
-        try {
-            outputStream = new RandomAccessOutputStream(file);
-        } catch (IOException e) {
-            fail();
-        }
-        TSFileIOWriter tsfileWriter = new TSFileIOWriter(schema, outputStream);
-        innerWriter =
-                new TSRecordWriter(conf, tsfileWriter, writeSupport, schema);
+        innerWriter = new TsFileWriter(file, schema, conf);
     }
 
     @After
@@ -166,7 +154,7 @@ public class WriteTest {
         }
         LOG.info("write processing has finished");
 
-        LocalFileInput input = new LocalFileInput(outputDataFile);
+        TsRandomAccessLocalFileReader input = new TsRandomAccessLocalFileReader(outputDataFile);
         TsFile readTsFile = new TsFile(input);
         String value1 = readTsFile.getProp("key1");
         Assert.assertEquals("value1", value1);

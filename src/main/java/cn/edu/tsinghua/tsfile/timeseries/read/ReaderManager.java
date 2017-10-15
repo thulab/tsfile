@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.read;
 
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 
@@ -18,14 +18,14 @@ import java.util.Map;
 public class ReaderManager {
 
     private FileReader fileReader;
-    private TSRandomAccessFileReader raf;
+    private ITsRandomAccessFileReader raf;
 
     private List<FileReader> fileReaderList;
-    private List<TSRandomAccessFileReader> rafList;
+    private List<ITsRandomAccessFileReader> rafList;
     private HashMap<String, List<RowGroupReader>> rowGroupReaderMap;
     private List<RowGroupReader> rowGroupReaderList;
 
-    public ReaderManager(TSRandomAccessFileReader raf) throws IOException {
+    public ReaderManager(ITsRandomAccessFileReader raf) throws IOException {
         this.raf = raf;
         rowGroupReaderList = new ArrayList<>();
         rowGroupReaderMap = new HashMap<>();
@@ -39,7 +39,7 @@ public class ReaderManager {
      * @param rafList fileInputStreamList
      * @throws IOException exception in IO
      */
-    public ReaderManager(List<TSRandomAccessFileReader> rafList) throws IOException {
+    public ReaderManager(List<ITsRandomAccessFileReader> rafList) throws IOException {
         this.rafList = rafList;
         rowGroupReaderList = new ArrayList<>();
         rowGroupReaderMap = new HashMap<>();
@@ -59,8 +59,8 @@ public class ReaderManager {
      * @param rowGroupMetadataList  RowGroupMetadata List for unenvelopedFile
      * @throws IOException exception in IO
      */
-    public ReaderManager(List<TSRandomAccessFileReader> rafList,
-                         TSRandomAccessFileReader unenvelopedFileReader, List<RowGroupMetaData> rowGroupMetadataList) throws IOException {
+    public ReaderManager(List<ITsRandomAccessFileReader> rafList,
+                         ITsRandomAccessFileReader unenvelopedFileReader, List<RowGroupMetaData> rowGroupMetadataList) throws IOException {
         this(rafList);
         this.rafList.add(unenvelopedFileReader);
 
@@ -100,7 +100,7 @@ public class ReaderManager {
         return this.fileReader.getRowGroupReader(deltaObjectUID, index);
     }
 
-    public TSRandomAccessFileReader getInput() {
+    public ITsRandomAccessFileReader getInput() {
         return this.raf;
     }
 
@@ -129,9 +129,9 @@ public class ReaderManager {
      * @throws IOException exception in IO
      */
     public void close() throws IOException {
-        for (TSRandomAccessFileReader raf : rafList) {
-            if (raf instanceof LocalFileInput) {
-                ((LocalFileInput) raf).closeFromManager();
+        for (ITsRandomAccessFileReader raf : rafList) {
+            if (raf instanceof TsRandomAccessLocalFileReader) {
+                ((TsRandomAccessLocalFileReader) raf).closeFromManager();
             } else {
                 raf.close();
             }

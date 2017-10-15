@@ -7,7 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.edu.tsinghua.tsfile.common.utils.RandomAccessOutputStream;
+import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.file.metadata.converter.TSFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
@@ -67,8 +67,8 @@ public class TsFileMetadtaBigTest {
 		File file = new File(PATH);
 		if (file.exists())
 			file.delete();
-		RandomAccessOutputStream out = new RandomAccessOutputStream(file, "rw");
-		ReadWriteThriftFormatUtils.writeFileMetaData(fileMetaData, out);
+		TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
+		ReadWriteThriftFormatUtils.writeFileMetaData(fileMetaData, out.getOutputStream());
 		out.close();
 		System.out.println("3: write to File" + (System.currentTimeMillis() - startTime)+"ms");
 

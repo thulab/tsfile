@@ -1,18 +1,17 @@
 package cn.edu.tsinghua.tsfile.timeseries;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import org.json.JSONObject;
+
 import cn.edu.tsinghua.tsfile.timeseries.basis.TsFile;
-import cn.edu.tsinghua.tsfile.common.utils.RandomAccessOutputStream;
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.FloatDataPoint;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.IntDataPoint;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 
 public class TsFileWriteTest {
 
@@ -45,8 +44,7 @@ public class TsFileWriteTest {
                 "}";
         JSONObject schemaObject = new JSONObject(s);
 
-        TSRandomAccessFileWriter output = new RandomAccessOutputStream(new File(path));
-        TsFile tsFile = new TsFile(output, schemaObject);
+        TsFile tsFile = new TsFile(new File(path), schemaObject);
 
         tsFile.writeLine("device_1,1, sensor_1, 1.2, sensor_2, 20, sensor_3,");
         tsFile.writeLine("device_1,2, sensor_1, , sensor_2, 20, sensor_3, 50");
@@ -71,9 +69,9 @@ public class TsFileWriteTest {
             add(new IntDataPoint("sensor_2", 30));
             add(new IntDataPoint("sensor_3", 31));
         }};
-        tsFile.writeLine(tsRecord1);
-        tsFile.writeLine(tsRecord2);
-        tsFile.writeLine(tsRecord3);
+        tsFile.writeRecord(tsRecord1);
+        tsFile.writeRecord(tsRecord2);
+        tsFile.writeRecord(tsRecord3);
         tsFile.close();
     }
 }

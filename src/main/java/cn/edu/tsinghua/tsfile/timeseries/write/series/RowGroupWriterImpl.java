@@ -56,7 +56,7 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
     }
 
     @Override
-    public List<Object> query(String measurementId) {
+    public List<Object> getDataInMemory(String measurementId) {
         if (dataSeriesWriters.get(measurementId) == null) {
             LOG.warn("The measurementId {} is not exist", measurementId);
             DynamicOneColumnData left = null;

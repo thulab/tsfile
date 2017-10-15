@@ -42,7 +42,7 @@ public interface IRowGroupWriter {
      * @param measurementId measurement id to query
      * @return fist object is the current page data, second object is the all pages which is packaged
      */
-    List<Object> query(String measurementId);
+    List<Object> getDataInMemory(String measurementId);
 
     /**
      * Note that, this method should be called after running

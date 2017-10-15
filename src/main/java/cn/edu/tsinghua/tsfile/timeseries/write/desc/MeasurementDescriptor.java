@@ -16,6 +16,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.converter.TSEncodingConver
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -38,14 +39,14 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     private TSFileConfig conf;
 
     public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding) {
-        this.type = type;
-        this.measurementId = measurementId;
-        this.encoding = encoding;
-        this.conf = TSFileDescriptor.getInstance().getConfig();
+    	this(measurementId, type, encoding, Collections.emptyMap());
     }
 
     public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding, Map<String, String> props) {
-        this(measurementId, type, encoding);
+    	 	 this.type = type;
+         this.measurementId = measurementId;
+         this.encoding = encoding;
+         this.conf = TSFileDescriptor.getInstance().getConfig();    
         // initialize TSDataType. e.g. set data values for enum type
         if (type == TSDataType.ENUMS) {
             typeConverter = TSDataTypeConverter.getConverter(type);

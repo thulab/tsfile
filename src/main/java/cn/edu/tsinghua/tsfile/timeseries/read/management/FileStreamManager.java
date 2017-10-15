@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.read.management;
 
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileReader;
-import cn.edu.tsinghua.tsfile.timeseries.read.LocalFileInput;
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.timeseries.read.TsRandomAccessLocalFileReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,15 +29,15 @@ public class FileStreamManager {
         return FileStreamManagerHolder.INSTANCE;
     }
 
-    public TSRandomAccessFileReader getLocalRandomAcessFileReader(String path) throws FileNotFoundException {
-        return new LocalFileInput(path);
+    public ITsRandomAccessFileReader getLocalRandomAcessFileReader(String path) throws FileNotFoundException {
+        return new TsRandomAccessLocalFileReader(path);
     }
 
-    public void closeLocalRandomAcessFileReader(LocalFileInput localFileInput) throws IOException {
+    public void closeLocalRandomAcessFileReader(TsRandomAccessLocalFileReader localFileInput) throws IOException {
         localFileInput.close();
     }
 
-    public void close(TSRandomAccessFileReader raf) {
+    public void close(ITsRandomAccessFileReader raf) {
         try {
             raf.close();
         } catch (IOException e) {

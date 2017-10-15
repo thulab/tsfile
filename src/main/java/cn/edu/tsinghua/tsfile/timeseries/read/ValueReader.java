@@ -3,7 +3,7 @@ package cn.edu.tsinghua.tsfile.timeseries.read;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
 import cn.edu.tsinghua.tsfile.encoding.decoder.DeltaBinaryDecoder;
 import cn.edu.tsinghua.tsfile.file.metadata.TSDigest;
@@ -43,7 +43,7 @@ public class ValueReader {
     protected long totalSize = -1;
     protected TSDataType dataType;
     protected TSDigest digest;
-    protected TSRandomAccessFileReader raf;
+    protected ITsRandomAccessFileReader raf;
     protected List<String> enumValues;
     protected CompressionTypeName compressionTypeName;
     protected long rowNums;
@@ -67,7 +67,7 @@ public class ValueReader {
         this.digest = digest;
     }
 
-    public ValueReader(long offset, long totalSize, TSDataType dataType, TSDigest digest, TSRandomAccessFileReader raf,
+    public ValueReader(long offset, long totalSize, TSDataType dataType, TSDigest digest, ITsRandomAccessFileReader raf,
                        CompressionTypeName compressionTypeName) {
         this(offset, totalSize, dataType, digest);
         this.compressionTypeName = compressionTypeName;
@@ -84,7 +84,7 @@ public class ValueReader {
      * @param compressionTypeName CompressionType used for this column
      * @param rowNums             Total of rows for this column
      */
-    public ValueReader(long offset, long totalSize, TSDataType dataType, TSDigest digest, TSRandomAccessFileReader raf,
+    public ValueReader(long offset, long totalSize, TSDataType dataType, TSDigest digest, ITsRandomAccessFileReader raf,
                        List<String> enumValues, CompressionTypeName compressionTypeName, long rowNums) {
         this(offset, totalSize, dataType, digest, raf, compressionTypeName);
         this.enumValues = enumValues;

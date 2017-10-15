@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.read;
 
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.management.FileStreamManager;
 
 import java.io.FileNotFoundException;
@@ -12,27 +12,27 @@ import java.io.RandomAccessFile;
  *
  * @author Jinrui Zhang
  */
-public class LocalFileInput implements TSRandomAccessFileReader {
+public class TsRandomAccessLocalFileReader implements ITsRandomAccessFileReader {
 
     private RandomAccessFile raf;
 
-    public LocalFileInput(String path) throws FileNotFoundException {
-        this.raf = new RandomAccessFile(path, "r");
+    public TsRandomAccessLocalFileReader(String filePath) throws FileNotFoundException {
+        this.raf = new RandomAccessFile(filePath, "r");
     }
 
     @Override
     public void seek(long offset) throws IOException {
         this.raf.seek(offset);
     }
-
+    @Override
     public int read() throws IOException {
         return raf.read();
     }
-
+    @Override
     public int read(byte[] b, int off, int len) throws IOException {
         return raf.read(b, off, len);
     }
-
+    @Override
     public long length() throws IOException {
         return raf.length();
     }

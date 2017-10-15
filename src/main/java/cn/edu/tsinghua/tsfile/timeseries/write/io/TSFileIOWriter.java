@@ -3,7 +3,8 @@ package cn.edu.tsinghua.tsfile.timeseries.write.io;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileWriter;
+import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.file.metadata.*;
 import cn.edu.tsinghua.tsfile.file.metadata.converter.TSFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
@@ -16,6 +17,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -37,25 +39,36 @@ public class TSFileIOWriter {
         magicStringBytes = BytesUtils.StringToBytes(MAGIC_STRING);
     }
 
-    private final FileSchema schema;
-    private final TSRandomAccessFileWriter out;
-    protected List<RowGroupMetaData> rowGroups = new ArrayList<>();
-    private RowGroupMetaData currentRowGroup;
-    private TimeSeriesChunkMetaData currentSeries;
+    private final ITsRandomAccessFileWriter out;
+    protected List<RowGroupMetaData> rowGroupMetaDatas = new ArrayList<>();
+    private RowGroupMetaData currentRowGroupMetaData;
+    private TimeSeriesChunkMetaData currentChunkMetaData;
 
+    
     /**
-     * This is just used to restore one TSFile from List of RowGroupMetaData and the offset
+     * for writing a new tsfile
      *
      * @param schema schema containing measurement information
      * @param output be used to output written data
      * @throws IOException if I/O error occurs
      */
-    public TSFileIOWriter(FileSchema schema, TSRandomAccessFileWriter output) throws IOException {
-        this.schema = schema;
+    public TSFileIOWriter(File file) throws IOException {
+        this.out = new TsRandomAccessFileWriter(file);
+        startFile();
+    }
+    
+    /**
+     * for writing a new tsfile.
+     *
+     * @param schema schema containing measurement information
+     * @param output be used to output written data
+     * @throws IOException if I/O error occurs
+     */
+    public TSFileIOWriter(ITsRandomAccessFileWriter output) throws IOException {
         this.out = output;
         startFile();
     }
-
+   
     /**
      * This is just used to restore one TSFile from List of RowGroupMetaData and the offset
      *
@@ -65,12 +78,11 @@ public class TSFileIOWriter {
      * @param rowGroups given a constructed row group list for fault recovery
      * @throws IOException if I/O error occurs
      */
-    public TSFileIOWriter(FileSchema schema, TSRandomAccessFileWriter output, long offset,
+    public TSFileIOWriter(ITsRandomAccessFileWriter output, long offset,
                           List<RowGroupMetaData> rowGroups) throws IOException {
-        this.schema = schema;
         this.out = output;
         out.seek(offset);
-        this.rowGroups = rowGroups;
+        this.rowGroupMetaDatas = rowGroups;
     }
 
     /**
@@ -96,12 +108,11 @@ public class TSFileIOWriter {
      * @param deltaObjectType - delta type of this row group
      * @throws IOException if I/O error occurs
      */
-    public void startRowGroup(long recordCount, String deltaObjectId, String deltaObjectType)
+    public void startRowGroup(long recordCount, String deltaObjectId)
             throws IOException {
         LOG.debug("start row group:{}", deltaObjectId);
-        currentRowGroup =
-                new RowGroupMetaData(deltaObjectId, recordCount, 0,
-                        new ArrayList<>(), deltaObjectType);
+        currentRowGroupMetaData =
+                new RowGroupMetaData(deltaObjectId, recordCount, 0, new ArrayList<>(), "");//FIXME remove deltaType
     }
 
     /**
@@ -121,11 +132,11 @@ public class TSFileIOWriter {
                             CompressionTypeName compressionCodecName, TSDataType tsDataType,
                             Statistics<?> statistics, long maxTime, long minTime) throws IOException {
         LOG.debug("start series:{}", descriptor);
-        currentSeries =
+        currentChunkMetaData =
                 new TimeSeriesChunkMetaData(descriptor.getMeasurementId(), TSChunkType.VALUE,
                         out.getPos(), compressionCodecName);
         TInTimeSeriesChunkMetaData t = new TInTimeSeriesChunkMetaData(tsDataType, minTime, maxTime);
-        currentSeries.setTInTimeSeriesChunkMetaData(t);
+        currentChunkMetaData.setTInTimeSeriesChunkMetaData(t);
         byte[] max = statistics.getMaxBytes();
         byte[] min = statistics.getMinBytes();
 
@@ -135,22 +146,22 @@ public class TSFileIOWriter {
                         min.length));
         v.setDigest(tsDigest);
         descriptor.setDataValues(v);
-        currentSeries.setVInTimeSeriesChunkMetaData(v);
+        currentChunkMetaData.setVInTimeSeriesChunkMetaData(v);
     }
 
     public void endSeries(long size, long totalValueCount) throws IOException {
-        LOG.debug("end series:{},totalvalue:{}", currentSeries, totalValueCount);
-        currentSeries.setTotalByteSize(size);
-        currentSeries.setNumRows(totalValueCount);
-        currentRowGroup.addTimeSeriesChunkMetaData(currentSeries);
-        currentSeries = null;
+        LOG.debug("end series:{},totalvalue:{}", currentChunkMetaData, totalValueCount);
+        currentChunkMetaData.setTotalByteSize(size);
+        currentChunkMetaData.setNumRows(totalValueCount);
+        currentRowGroupMetaData.addTimeSeriesChunkMetaData(currentChunkMetaData);
+        currentChunkMetaData = null;
     }
 
     public void endRowGroup(long memSize) throws IOException {
-        currentRowGroup.setTotalByteSize(memSize);
-        rowGroups.add(currentRowGroup);
-        LOG.debug("end row group:{}", currentRowGroup);
-        currentRowGroup = null;
+        currentRowGroupMetaData.setTotalByteSize(memSize);
+        rowGroupMetaDatas.add(currentRowGroupMetaData);
+        LOG.debug("end row group:{}", currentRowGroupMetaData);
+        currentRowGroupMetaData = null;
     }
 
     /**
@@ -159,11 +170,11 @@ public class TSFileIOWriter {
      *
      * @throws IOException if I/O error occurs
      */
-    public void endFile() throws IOException {
+    public void endFile(FileSchema schema) throws IOException {
         List<TimeSeriesMetadata> timeSeriesList = schema.getTimeSeriesMetadatas();
         LOG.debug("get time series list:{}", timeSeriesList);
         TSFileMetaData tsfileMetadata =
-                new TSFileMetaData(rowGroups, timeSeriesList, TSFileDescriptor.getInstance().getConfig().currentVersion);
+                new TSFileMetaData(rowGroupMetaDatas, timeSeriesList, TSFileDescriptor.getInstance().getConfig().currentVersion);
         Map<String, String> props = schema.getProps();
         tsfileMetadata.setProps(props);
         serializeTsFileMetadata(tsfileMetadata);
@@ -206,7 +217,7 @@ public class TSFileIOWriter {
      * @return - current list of RowGroupMetaData
      */
     public List<RowGroupMetaData> getRowGroups() {
-        return rowGroups;
+        return rowGroupMetaDatas;
     }
 
 }

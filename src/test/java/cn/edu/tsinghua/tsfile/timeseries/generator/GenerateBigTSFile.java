@@ -1,37 +1,32 @@
 package cn.edu.tsinghua.tsfile.timeseries.generator;
 
 
-import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.tsinghua.tsfile.common.utils.RandomAccessOutputStream;
-import cn.edu.tsinghua.tsfile.timeseries.write.TSRecordWriteSupport;
-import cn.edu.tsinghua.tsfile.timeseries.write.TSRecordWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.WriteSupport;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
-import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
-import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
-import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils;
-import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
-import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
-import cn.edu.tsinghua.tsfile.timeseries.write.InternalRecordWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
+import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
+import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
+import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils;
+import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
+import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
+import cn.edu.tsinghua.tsfile.timeseries.write.TsFileWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
+
 public class GenerateBigTSFile {
     private static final Logger LOG = LoggerFactory.getLogger(GenerateBigTSFile.class);
-    private static InternalRecordWriter<TSRecord> innerWriter;
+    private static TsFileWriter innerWriter;
     private static String outputDataFile;
     private static TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
 
@@ -198,18 +193,7 @@ public class GenerateBigTSFile {
         sensorSet.add("s1");
         sensorSet.add("s2");
         // write file
-        WriteSupport<TSRecord> writeSupport = new TSRecordWriteSupport();
-        TSRandomAccessFileWriter outputStream;
-        try {
-            outputStream = new RandomAccessOutputStream(new File(outputDataFile));
-        } catch (IOException e) {
-            LOG.error("conf error output stream failed:");
-            return;
-        }
-        TSFileIOWriter tsfileWriter =
-                new TSFileIOWriter(fileSchema, outputStream);
-        innerWriter =
-                new TSRecordWriter(conf, tsfileWriter, writeSupport, fileSchema);
+        innerWriter = new TsFileWriter(new File(outputDataFile), fileSchema, conf);
         System.out.println("setRowGroupSize: " + setRowGroupSize + ",total target:" + size);
         writeToFile(size);
     }

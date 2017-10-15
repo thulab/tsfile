@@ -2,14 +2,14 @@ package cn.edu.tsinghua.tsfile.timeseries.read.query;
 
 import cn.edu.tsinghua.tsfile.common.constant.QueryConstant;
 import cn.edu.tsinghua.tsfile.common.exception.ProcessorException;
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.filterseries.FilterSeries;
 import cn.edu.tsinghua.tsfile.timeseries.filter.utils.FilterUtils;
-import cn.edu.tsinghua.tsfile.timeseries.read.LocalFileInput;
+import cn.edu.tsinghua.tsfile.timeseries.read.TsRandomAccessLocalFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.RecordReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.RowGroupReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.metadata.SeriesSchema;
@@ -27,22 +27,22 @@ import java.util.Map;
 public class QueryEngine {
     private static final Logger logger = LoggerFactory.getLogger(QueryEngine.class);
     private static int FETCH_SIZE = 20000;
-    private TSRandomAccessFileReader raf;
+    private ITsRandomAccessFileReader raf;
     private RecordReader recordReader;
 
-    public QueryEngine(TSRandomAccessFileReader raf) throws IOException {
+    public QueryEngine(ITsRandomAccessFileReader raf) throws IOException {
         this.raf = raf;
         recordReader = new RecordReader(raf);
     }
 
-    public QueryEngine(TSRandomAccessFileReader raf, int fetchSize) throws IOException {
+    public QueryEngine(ITsRandomAccessFileReader raf, int fetchSize) throws IOException {
         this.raf = raf;
         recordReader = new RecordReader(raf);
         FETCH_SIZE = fetchSize;
     }
 
     public static QueryDataSet query(QueryConfig config, String fileName) throws IOException {
-        LocalFileInput raf = new LocalFileInput(fileName);
+        TsRandomAccessLocalFileReader raf = new TsRandomAccessLocalFileReader(fileName);
         QueryEngine queryEngine = new QueryEngine(raf);
         QueryDataSet queryDataSet = queryEngine.query(config);
         raf.close();
@@ -56,7 +56,7 @@ public class QueryEngine {
      * @return deltaObjects with each series
      * @throws IOException exception in IO
      */
-    public static HashMap<String, ArrayList<SeriesSchema>> getAllColumns(TSRandomAccessFileReader raf) throws IOException {
+    public static HashMap<String, ArrayList<SeriesSchema>> getAllColumns(ITsRandomAccessFileReader raf) throws IOException {
         RecordReader recordReader = new RecordReader(raf);
         return recordReader.getAllSeriesSchemasGroupByDeltaObject();
     }
@@ -68,12 +68,12 @@ public class QueryEngine {
      * @return HashMap deltaObjects with each RowGroup contains
      * @throws IOException exception in IO
      */
-    public static HashMap<String, Integer> getDeltaObjectRowGroupCount(TSRandomAccessFileReader raf) throws IOException {
+    public static HashMap<String, Integer> getDeltaObjectRowGroupCount(ITsRandomAccessFileReader raf) throws IOException {
         RecordReader recordReader = new RecordReader(raf);
         return recordReader.getDeltaObjectRowGroupCounts();
     }
 
-    public static HashMap<String, String> getDeltaObjectTypes(TSRandomAccessFileReader raf) throws IOException {
+    public static HashMap<String, String> getDeltaObjectTypes(ITsRandomAccessFileReader raf) throws IOException {
         RecordReader recordReader = new RecordReader(raf);
         return recordReader.getDeltaObjectTypes();
     }

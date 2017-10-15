@@ -11,7 +11,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.format.DataType;
 import cn.edu.tsinghua.tsfile.format.Digest;
-import cn.edu.tsinghua.tsfile.common.utils.RandomAccessOutputStream;
+import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.format.ValueInTimeSeriesChunkMetaData;
@@ -46,7 +46,7 @@ public class VInTimeSeriesChunkMetaDataTest {
     if (file.exists())
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
-    RandomAccessOutputStream out = new RandomAccessOutputStream(file, "rw");
+    TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
     ReadWriteThriftFormatUtils.write(metaData.convertToThrift(), out.getOutputStream());
 
     out.close();
