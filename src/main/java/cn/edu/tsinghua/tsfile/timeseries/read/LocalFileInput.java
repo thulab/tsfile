@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.apache.commons.io.IOUtils;
+
 /**
  * File-read interface for local file.
  *
@@ -30,7 +32,15 @@ public class LocalFileInput implements TSRandomAccessFileReader {
     }
 
     public int read(byte[] b, int off, int len) throws IOException {
-        return raf.read(b, off, len);
+    		int end=len+off;
+    		int get=0;
+    		int total=0;
+    		for(int i=off;i<end; i+=get) {
+    			get=raf.read(b, i, end-i);
+    			if(get>0)
+    				total+=get;
+    		}
+        return total;
     }
 
     public long length() throws IOException {
