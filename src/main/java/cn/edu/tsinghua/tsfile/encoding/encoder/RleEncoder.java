@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.encoding.encoder;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
+import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.exception.TSFileEncodingException;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
@@ -94,7 +95,7 @@ public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
      */
     protected ByteArrayOutputStream byteCache;
 
-    protected TSFileConfig config = new TSFileConfig();
+    protected TSFileConfig config = TSFileDescriptor.getInstance().getConfig();
 
     public RleEncoder(EndianType endianType) {
         super(TSEncoding.RLE);

@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.encoding.decoder;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
+import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.exception.TSFileDecodingException;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
@@ -20,7 +21,7 @@ import java.math.BigDecimal;
 public abstract class RleDecoder extends Decoder {
     // private static final Logger LOGGER = LoggerFactory.getLogger(RleDecoder.class);
     public EndianType endianType;
-    protected TSFileConfig config = new TSFileConfig();
+    protected TSFileConfig config = TSFileDescriptor.getInstance().getConfig();
     /**
      * mode to indicate current encoding type
      * 0 - RLE
