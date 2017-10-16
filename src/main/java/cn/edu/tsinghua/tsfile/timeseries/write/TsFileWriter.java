@@ -198,7 +198,7 @@ public class TsFileWriter {
 	 *
 	 * @return total memory size used
 	 */
-	public long updateMemSizeForAllGroup() {
+	public long calculateMemSizeForAllGroup() {
 		int memTotalSize = 0;
 		for (IRowGroupWriter group : groupWriters.values()) {
 			memTotalSize += group.updateMaxGroupMemSize();
@@ -214,7 +214,7 @@ public class TsFileWriter {
 	 */
 	protected void checkMemorySize() throws IOException {
 		if (recordCount >= recordCountForNextMemCheck) {
-			long memSize = updateMemSizeForAllGroup();
+			long memSize = calculateMemSizeForAllGroup();
 			if (memSize > rowGroupSizeThreshold) {
 				LOG.info("start_write_row_group, memory space occupy:" + memSize);
 				flushRowGroup(true);
@@ -278,7 +278,7 @@ public class TsFileWriter {
 	 */
 	public void close() throws IOException {
 		LOG.info("start close file");
-		updateMemSizeForAllGroup();
+		calculateMemSizeForAllGroup();
 		flushRowGroup(false);
 		deltaFileWriter.endFile(this.schema);
 	}

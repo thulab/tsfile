@@ -70,7 +70,7 @@ public class WriteDemo {
             if (lineCount % 1000000 == 0) {
                 endTime = System.currentTimeMillis();
                 LOG.info("write line:{},inner space consumer:{},use time:{}", lineCount,
-                        tsFileWriter.updateMemSizeForAllGroup(), endTime);
+                        tsFileWriter.calculateMemSizeForAllGroup(), endTime);
                 LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
             }
             // String str = in.nextLine();

@@ -105,7 +105,7 @@ public class GenerateBigTSFile {
                 endTime = System.currentTimeMillis();
                 currentSpace =
                         (long) FileUtils.getLocalFileByte(outputDataFile, FileUtils.Unit.B)
-                                + innerWriter.updateMemSizeForAllGroup();
+                                + innerWriter.calculateMemSizeForAllGroup();
                 LOG.info("write line:{},use time:{}s, space:{}", lineCount,
                         (endTime - startTime) / 1000,
                         FileUtils.transformUnit(currentSpace, FileUtils.Unit.MB));
