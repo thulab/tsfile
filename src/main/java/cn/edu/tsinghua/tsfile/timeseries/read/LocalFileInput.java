@@ -39,6 +39,8 @@ public class LocalFileInput implements TSRandomAccessFileReader {
     			get=raf.read(b, i, end-i);
     			if(get>0)
     				total+=get;
+    			else
+    				break;
     		}
         return total;
     }
