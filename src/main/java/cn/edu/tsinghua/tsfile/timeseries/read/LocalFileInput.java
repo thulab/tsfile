@@ -33,7 +33,7 @@ public class LocalFileInput implements TSRandomAccessFileReader {
 
     public int read(byte[] b, int off, int len) throws IOException {
     		int end=len+off;
-    		int get=0;
+    		int get=1;
     		int total=0;
     		for(int i=off;i<end; i+=get) {
     			get=raf.read(b, i, end-i);
