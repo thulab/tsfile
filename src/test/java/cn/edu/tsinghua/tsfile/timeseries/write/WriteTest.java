@@ -37,7 +37,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 public class WriteTest {
     private static final Logger LOG = LoggerFactory.getLogger(WriteTest.class);
     private final int ROW_COUNT = 20;
-    private TsFileWriter innerWriter;
+    private TsFileWriter tsFileWriter;
     private String inputDataFile;
     private String outputDataFile;
     private String errorOutputDataFile;
@@ -84,7 +84,7 @@ public class WriteTest {
                         .JSON_SCHEMA);
         schema = new FileSchema(emptySchema);
         LOG.info(schema.toString());
-        innerWriter = new TsFileWriter(file, schema, conf);
+        tsFileWriter = new TsFileWriter(file, schema, conf);
     }
 
     @After
@@ -168,7 +168,7 @@ public class WriteTest {
         String[] strings;
         //add all measurement except the last one at before writing
         for (int i = 0; i < measurementArray.length() - 1; i++) {
-            innerWriter.addMeasurementByJson((JSONObject) measurementArray.get(i));
+            tsFileWriter.addMeasurementByJson((JSONObject) measurementArray.get(i));
         }
         while (true) {
             if (lineCount % stageSize == 0) {
@@ -180,17 +180,17 @@ public class WriteTest {
                     break;
             }
             if (lineCount == ROW_COUNT / 2)
-                innerWriter.addMeasurementByJson((JSONObject) measurementArray.get(measurementArray.length() - 1));
+                tsFileWriter.addMeasurementByJson((JSONObject) measurementArray.get(measurementArray.length() - 1));
             strings = getNextRecord(lineCount, stageState);
             for (String str : strings) {
                 TSRecord record = RecordUtils.parseSimpleTupleRecord(str, schema);
                 System.out.println(str);
-                innerWriter.write(record);
+                tsFileWriter.write(record);
             }
             lineCount++;
         }
         try {
-            innerWriter.close();
+            tsFileWriter.close();
         } catch (IOException e) {
             fail("close writer failed");
         }

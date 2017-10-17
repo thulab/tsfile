@@ -21,7 +21,7 @@ import java.util.List;
 public class RowGroupReader {
 
     protected static final Logger logger = LoggerFactory.getLogger(RowGroupReader.class);
-    public HashMap<String, TSDataType> chunkDataTypeMap;
+    public HashMap<String, TSDataType> seriesDataTypeMap;
     /**
      * measurement->values
      */
@@ -35,7 +35,7 @@ public class RowGroupReader {
 
     public RowGroupReader(RowGroupMetaData rowGroupMetaData, ITsRandomAccessFileReader raf) {
         logger.debug("init a new RowGroupReader..");
-        chunkDataTypeMap = new HashMap<>();
+        seriesDataTypeMap = new HashMap<>();
         deltaObjectUID = rowGroupMetaData.getDeltaObjectUID();
         measurementIds = new ArrayList<>();
         this.totalByteSize = rowGroupMetaData.getTotalByteSize();
@@ -44,7 +44,7 @@ public class RowGroupReader {
         for (TimeSeriesChunkMetaData tscMetaData : rowGroupMetaData.getTimeSeriesChunkMetaDataList()) {
             if (tscMetaData.getVInTimeSeriesChunkMetaData() != null) {
                 measurementIds.add(tscMetaData.getProperties().getMeasurementUID());
-                chunkDataTypeMap.put(tscMetaData.getProperties().getMeasurementUID(),
+                seriesDataTypeMap.put(tscMetaData.getProperties().getMeasurementUID(),
                         tscMetaData.getVInTimeSeriesChunkMetaData().getDataType());
 
                 ValueReader si = new ValueReader(tscMetaData.getProperties().getFileOffset(),
@@ -69,7 +69,7 @@ public class RowGroupReader {
 
 
     public TSDataType getDataTypeBySeriesName(String name) {
-        return this.chunkDataTypeMap.get(name);
+        return this.seriesDataTypeMap.get(name);
     }
 
     public String getDeltaObjectUID() {
