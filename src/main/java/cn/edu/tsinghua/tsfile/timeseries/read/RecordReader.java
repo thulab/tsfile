@@ -296,9 +296,9 @@ public class RecordReader {
         ArrayList<SeriesSchema> res = new ArrayList<>();
         List<RowGroupReader> rowGroupReaders = readerManager.getAllRowGroupReaders();
         for (RowGroupReader rgr : rowGroupReaders) {
-            for (String measurement : rgr.chunkDataTypeMap.keySet()) {
+            for (String measurement : rgr.seriesDataTypeMap.keySet()) {
                 if (!seriesMap.containsKey(measurement)) {
-                    res.add(new SeriesSchema(measurement, rgr.chunkDataTypeMap.get(measurement), null));
+                    res.add(new SeriesSchema(measurement, rgr.seriesDataTypeMap.get(measurement), null));
                     seriesMap.put(measurement, 1);
                 }
             }
@@ -328,9 +328,9 @@ public class RecordReader {
             HashMap<String, Integer> measurementMap = new HashMap<>();
             ArrayList<SeriesSchema> cols = new ArrayList<>();
             for (RowGroupReader rgr : rowGroupReaders.get(deltaObjectUID)) {
-                for (String measurement : rgr.chunkDataTypeMap.keySet()) {
+                for (String measurement : rgr.seriesDataTypeMap.keySet()) {
                     if (!measurementMap.containsKey(measurement)) {
-                        cols.add(new SeriesSchema(measurement, rgr.chunkDataTypeMap.get(measurement), null));
+                        cols.add(new SeriesSchema(measurement, rgr.seriesDataTypeMap.get(measurement), null));
                         measurementMap.put(measurement, 1);
                     }
                 }

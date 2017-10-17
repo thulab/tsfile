@@ -32,267 +32,304 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
  */
 public class TsFile {
 
-	private static final int WRITE = 0;
-	private static final int READ = 1;
-	private QueryEngine queryEngine;
-	private int status;
-	private TsFileWriter innerWriter;
-	private FileSchema fileSchema;
+    private static final int WRITE = 0;
+    private static final int READ = 1;
+    private QueryEngine queryEngine;
+    private int status;
+    private TsFileWriter writer;
+    private FileSchema fileSchema;
 
-	/**
-	 * For Write
-	 *
-	 * @param tsFileOutputStream an output stream of TsFile
-	 * @param schemaJson         the fileSchema of TsFile in type of JSON
-	 * @throws IOException exception in IO
-	 * @throws WriteProcessException exception in write process
-	 */
-	public TsFile(File file, JSONObject schemaJson)
-			throws IOException, WriteProcessException {
-		this(file, new FileSchema(schemaJson));
-	}
+    /**
+     * For Write
+     *
+     * @param tsFileOutputStream
+     *            an output stream of TsFile
+     * @param schemaJson
+     *            the fileSchema of TsFile in type of JSON
+     * @throws IOException
+     *             exception in IO
+     * @throws WriteProcessException
+     *             exception in write process
+     */
+    public TsFile(File file, JSONObject schemaJson) throws IOException, WriteProcessException {
+	this(file, new FileSchema(schemaJson));
+    }
 
-	/**
-	 * For Write
-	 *
-	 * @param tsFileOutputStream an output stream of TsFile
-	 * @param schema             the fileSchema of TsFile
-	 * @throws IOException       cannot write TsFile
-	 * @throws  WriteProcessException error occurs when writing
-	 */
-	public TsFile(File file, FileSchema schema)
-			throws IOException, WriteProcessException {
-		this(schema);
-		innerWriter = new TsFileWriter(file, fileSchema, TSFileDescriptor.getInstance().getConfig());
-	}
-	
-	/**
-	 * For Write
-	 *
-	 * @param tsFileOutputStream an output stream of TsFile
-	 * @param schemaJson         the fileSchema of TsFile in type of JSON
-	 * @throws IOException exception in IO
-	 * @throws WriteProcessException exception in write process
-	 */
-	public TsFile(ITsRandomAccessFileWriter output, JSONObject schemaJson)
-			throws IOException, WriteProcessException {
-		this(new FileSchema(schemaJson));
-		TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
-		innerWriter = new TsFileWriter(output,  fileSchema, conf);
-	}
+    /**
+     * For Write
+     *
+     * @param tsFileOutputStream
+     *            an output stream of TsFile
+     * @param schema
+     *            the fileSchema of TsFile
+     * @throws IOException
+     *             cannot write TsFile
+     * @throws WriteProcessException
+     *             error occurs when writing
+     */
+    public TsFile(File file, FileSchema schema) throws IOException, WriteProcessException {
+	this(schema);
+	writer = new TsFileWriter(file, fileSchema, TSFileDescriptor.getInstance().getConfig());
+    }
 
-	/**
-	 * For Write
-	 *
-	 * @param tsFileOutputStream an output stream of TsFile
-	 * @param schema             the fileSchema of TsFile
-	 * @throws IOException       cannot write TsFile
-	 * @throws  WriteProcessException error occurs when writing
-	 */
-	public TsFile(ITsRandomAccessFileWriter output, FileSchema schema)
-			throws IOException, WriteProcessException {
-		this(schema);
-		innerWriter = new TsFileWriter(output, fileSchema, TSFileDescriptor.getInstance().getConfig());
-	}
-	
-	private TsFile(FileSchema schema) {
-		fileSchema = schema;
-		TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
-		if (fileSchema.hasProp(JsonFormatConstant.ROW_GROUP_SIZE))
-			conf.groupSizeInByte = Integer.valueOf(fileSchema.getProp(JsonFormatConstant.ROW_GROUP_SIZE));
-		if (fileSchema.hasProp(JsonFormatConstant.PAGE_SIZE))
-			conf.pageSizeInByte = Integer.valueOf(fileSchema.getProp(JsonFormatConstant.PAGE_SIZE));
-		this.status = WRITE;
-	}
-	
-	/**
-	 * Notice: This constructor is only for reading TsFile.
-	 *
-	 * @param raf input reader
-	 * @throws IOException cannot read TsFile
-	 */
-	public TsFile(ITsRandomAccessFileReader raf) throws IOException {
-		this.status = READ;
-		queryEngine = new QueryEngine(raf);
-		//        recordReader = queryEngine.recordReader;
-	}
+    /**
+     * For Write
+     *
+     * @param tsFileOutputStream
+     *            an output stream of TsFile
+     * @param schemaJson
+     *            the fileSchema of TsFile in type of JSON
+     * @throws IOException
+     *             exception in IO
+     * @throws WriteProcessException
+     *             exception in write process
+     */
+    public TsFile(ITsRandomAccessFileWriter output, JSONObject schemaJson) throws IOException, WriteProcessException {
+	this(new FileSchema(schemaJson));
+	TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
+	writer = new TsFileWriter(output, fileSchema, conf);
+    }
 
-	/**
-	 * write a line into TsFile
-	 *<br> the corresponding schema must be defined.
-	 * @param line a line of data
-	 * @throws IOException           thrown if write process meats IOException like the output stream is closed abnormally.
-	 * @throws WriteProcessException thrown if given data is not matched to fileSchema
-	 */
-	public void writeLine(String line) throws IOException, WriteProcessException {
-		checkStatus(WRITE);
-		TSRecord record = RecordUtils.parseSimpleTupleRecord(line, fileSchema);
-		innerWriter.write(record);
-	}
+    /**
+     * For Write
+     *
+     * @param tsFileOutputStream
+     *            an output stream of TsFile
+     * @param schema
+     *            the fileSchema of TsFile
+     * @throws IOException
+     *             cannot write TsFile
+     * @throws WriteProcessException
+     *             error occurs when writing
+     */
+    public TsFile(ITsRandomAccessFileWriter output, FileSchema schema) throws IOException, WriteProcessException {
+	this(schema);
+	writer = new TsFileWriter(output, fileSchema, TSFileDescriptor.getInstance().getConfig());
+    }
 
-	/**
-	 * add a new property, replace old value if already exist
-	 *
-	 * @param key key of property
-	 * @param value value of property
-	 */
-	public void addProp(String key, String value) {
-		fileSchema.addProp(key, value);
-	}
+    private TsFile(FileSchema schema) {
+	fileSchema = schema;
+	TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
+	if (fileSchema.hasProp(JsonFormatConstant.ROW_GROUP_SIZE))
+	    conf.groupSizeInByte = Integer.valueOf(fileSchema.getProp(JsonFormatConstant.ROW_GROUP_SIZE));
+	if (fileSchema.hasProp(JsonFormatConstant.PAGE_SIZE))
+	    conf.pageSizeInByte = Integer.valueOf(fileSchema.getProp(JsonFormatConstant.PAGE_SIZE));
+	this.status = WRITE;
+    }
 
-	/**
-	 * write a TSRecord into TsFile
-	 *
-	 * @param tsRecord a line of data in form of {@linkplain TSRecord}
-	 * @throws IOException           thrown if write process meats IOException like the output stream is closed abnormally.
-	 * @throws WriteProcessException thrown if given data is not matched to fileSchema
-	 */
-	public void writeRecord(TSRecord tsRecord) throws IOException, WriteProcessException {
-		checkStatus(WRITE);
-		innerWriter.write(tsRecord);
-	}
+    /**
+     * Notice: This constructor is only for reading TsFile.
+     *
+     * @param raf
+     *            input reader
+     * @throws IOException
+     *             cannot read TsFile
+     */
+    public TsFile(ITsRandomAccessFileReader raf) throws IOException {
+	this.status = READ;
+	queryEngine = new QueryEngine(raf);
+	// recordReader = queryEngine.recordReader;
+    }
 
-	/**
-	 * end the write process normally
-	 *
-	 * @throws IOException thrown if write process meats IOException like the output stream is closed abnormally.
-	 */
-	public void close() throws IOException {
-		if(this.status==WRITE){
-			innerWriter.close();
-		}else if(this.status==READ){
-			queryEngine.close();
-		}else{
-			String[] msg = new String[]{"WRITE", "READ"};
-			throw new IOException("This method should be invoked in status " + msg[status]
-					+ ", but current status is " + msg[this.status]);
-		}
-	}
+    /**
+     * write a line into TsFile <br>
+     * the corresponding schema must be defined.
+     * 
+     * @param line
+     *            a line of data
+     * @throws IOException
+     *             thrown if write process meats IOException like the output stream
+     *             is closed abnormally.
+     * @throws WriteProcessException
+     *             thrown if given data is not matched to fileSchema
+     */
+    public void writeLine(String line) throws IOException, WriteProcessException {
+	checkStatus(WRITE);
+	TSRecord record = RecordUtils.parseSimpleTupleRecord(line, fileSchema);
+	writer.write(record);
+    }
 
-	public QueryDataSet query(List<Path> paths, FilterExpression timeFilter,
-			FilterExpression valueFilter) throws IOException {
-		checkStatus(READ);
-		if (paths.size() == 1 && valueFilter instanceof SingleSeriesFilterExpression
-				&& paths.get(0).getDeltaObjectToString().equals(valueFilter.getFilterSeries().getDeltaObjectUID())
-				&& paths.get(0).getMeasurementToString().equals(valueFilter.getFilterSeries().getMeasurementUID())) {
+    /**
+     * add a new property, replace old value if already exist
+     *
+     * @param key
+     *            key of property
+     * @param value
+     *            value of property
+     */
+    public void addProp(String key, String value) {
+	fileSchema.addProp(key, value);
+    }
 
-		} else if (valueFilter != null) {
-			valueFilter = FilterFactory.csAnd(valueFilter, valueFilter);
-		}
-		return queryEngine.query(paths, timeFilter, null, valueFilter);
-	}
+    /**
+     * write a TSRecord into TsFile
+     *
+     * @param tsRecord
+     *            a line of data in form of {@linkplain TSRecord}
+     * @throws IOException
+     *             thrown if write process meats IOException like the output stream
+     *             is closed abnormally.
+     * @throws WriteProcessException
+     *             thrown if given data is not matched to fileSchema
+     */
+    public void writeRecord(TSRecord tsRecord) throws IOException, WriteProcessException {
+	checkStatus(WRITE);
+	writer.write(tsRecord);
+    }
 
-	public QueryDataSet query(List<Path> paths, FilterExpression timeFilter,
-			FilterExpression valueFilter, Map<String, Long> params) throws IOException {
-		checkStatus(READ);
-		return queryEngine.query(paths, timeFilter, null, valueFilter, params);
+    /**
+     * end the write process normally
+     *
+     * @throws IOException
+     *             thrown if write process meats IOException like the output stream
+     *             is closed abnormally.
+     */
+    public void close() throws IOException {
+	if (this.status == WRITE) {
+	    writer.close();
+	} else if (this.status == READ) {
+	    queryEngine.close();
+	} else {
+	    String[] msg = new String[] { "WRITE", "READ" };
+	    throw new IOException("This method should be invoked in status " + msg[status] + ", but current status is "
+		    + msg[this.status]);
 	}
+    }
 
-	/**
-	 * Get All information of column(s) for every deltaObject
-	 *
-	 * @return A set of ArrayList SeriesSchema stored in a HashMap separated by deltaObjectId
-	 * @throws IOException thrown if fail to get all series schema
-	 */
-	public HashMap<String, ArrayList<SeriesSchema>> getAllColumns() throws IOException {
-		checkStatus(READ);
-		return queryEngine.getAllSeriesSchemasGroupByDeltaObject();
-	}
+    public QueryDataSet query(List<Path> paths, FilterExpression timeFilter, FilterExpression valueFilter)
+	    throws IOException {
+	checkStatus(READ);
+	if (paths.size() == 1 && valueFilter instanceof SingleSeriesFilterExpression
+		&& paths.get(0).getDeltaObjectToString().equals(valueFilter.getFilterSeries().getDeltaObjectUID())
+		&& paths.get(0).getMeasurementToString().equals(valueFilter.getFilterSeries().getMeasurementUID())) {
 
-	/**
-	 * Get RowGroupSize for every deltaObject
-	 *
-	 * @return HashMap
-	 * @throws IOException thrown if fail to get row group count
-	 */
-	public HashMap<String, Integer> getDeltaObjectRowGroupCount() throws IOException {
-		checkStatus(READ);
-		return queryEngine.getDeltaObjectRowGroupCount();
+	} else if (valueFilter != null) {
+	    valueFilter = FilterFactory.csAnd(valueFilter, valueFilter);
 	}
+	return queryEngine.query(paths, timeFilter, null, valueFilter);
+    }
 
-	/**
-	 * @return a map contains all DeltaObjects with type each.
-	 * @throws IOException thrown if fail to get delta object type
-	 */
-	public HashMap<String, String> getDeltaObjectTypes() throws IOException {
-		checkStatus(READ);
-		return queryEngine.getDeltaObjectTypes();
-	}
+    public QueryDataSet query(List<Path> paths, FilterExpression timeFilter, FilterExpression valueFilter,
+	    Map<String, Long> params) throws IOException {
+	checkStatus(READ);
+	return queryEngine.query(paths, timeFilter, null, valueFilter, params);
+    }
 
-	/**
-	 * Check whether given path exists in this TsFile
-	 *
-	 * @param path A path of one Series
-	 * @return if the path exists
-	 * @throws IOException thrown if fail to check path exists
-	 */
-	public boolean pathExist(Path path) throws IOException {
-		checkStatus(READ);
-		return queryEngine.pathExist(path);
-	}
+    /**
+     * Get All information of column(s) for every deltaObject
+     *
+     * @return A set of ArrayList SeriesSchema stored in a HashMap separated by
+     *         deltaObjectId
+     * @throws IOException
+     *             thrown if fail to get all series schema
+     */
+    public HashMap<String, ArrayList<SeriesSchema>> getAllColumns() throws IOException {
+	checkStatus(READ);
+	return queryEngine.getAllSeriesSchemasGroupByDeltaObject();
+    }
 
-	/**
-	 * @return all deltaObjects' name in current TsFile
-	 * @throws IOException thrown if fail to get all delta object
-	 */
-	public ArrayList<String> getAllDeltaObject() throws IOException {
-		checkStatus(READ);
-		return queryEngine.getAllDeltaObject();
-	}
+    /**
+     * Get RowGroupSize for every deltaObject
+     *
+     * @return HashMap
+     * @throws IOException
+     *             thrown if fail to get row group count
+     */
+    public HashMap<String, Integer> getDeltaObjectRowGroupCount() throws IOException {
+	checkStatus(READ);
+	return queryEngine.getDeltaObjectRowGroupCount();
+    }
 
-	/**
-	 * @return all series' schemas in current TsFile
-	 * @throws IOException thrown if fail to all series
-	 */
-	public ArrayList<SeriesSchema> getAllSeries() throws IOException {
-		checkStatus(READ);
-		return queryEngine.getAllSeriesSchema();
-	}
+    /**
+     * @return a map contains all DeltaObjects with type each.
+     * @throws IOException
+     *             thrown if fail to get delta object type
+     */
+    public HashMap<String, String> getDeltaObjectTypes() throws IOException {
+	checkStatus(READ);
+	return queryEngine.getDeltaObjectTypes();
+    }
 
-	/**
-	 * Get all RowGroups' offsets in current TsFile
-	 *
-	 * @return res.get(i) represents the End-Position for specific rowGroup i in
-	 * this file.
-	 * @throws IOException thrown if fail to get row group pos list
-	 */
-	public ArrayList<Long> getRowGroupPosList() throws IOException {
-		checkStatus(READ);
-		return queryEngine.getRowGroupPosList();
-	}
+    /**
+     * Check whether given path exists in this TsFile
+     *
+     * @param path
+     *            A path of one Series
+     * @return if the path exists
+     * @throws IOException
+     *             thrown if fail to check path exists
+     */
+    public boolean pathExist(Path path) throws IOException {
+	checkStatus(READ);
+	return queryEngine.pathExist(path);
+    }
 
-	public ArrayList<Integer> calSpecificRowGroupByPartition(long start, long end) throws IOException {
-		checkStatus(READ);
-		return queryEngine.calSpecificRowGroupByPartition(start, end);
-	}
+    /**
+     * @return all deltaObjects' name in current TsFile
+     * @throws IOException
+     *             thrown if fail to get all delta object
+     */
+    public ArrayList<String> getAllDeltaObject() throws IOException {
+	checkStatus(READ);
+	return queryEngine.getAllDeltaObject();
+    }
 
-	public ArrayList<String> getAllDeltaObjectUIDByPartition(long start, long end) throws IOException {
-		checkStatus(READ);
-		return queryEngine.getAllDeltaObjectUIDByPartition(start, end);
-	}
+    /**
+     * @return all series' schemas in current TsFile
+     * @throws IOException
+     *             thrown if fail to all series
+     */
+    public ArrayList<SeriesSchema> getAllSeries() throws IOException {
+	checkStatus(READ);
+	return queryEngine.getAllSeriesSchema();
+    }
 
-	public Map<String, String> getProps() {
-		return queryEngine.getProps();
-	}
+    /**
+     * Get all RowGroups' offsets in current TsFile
+     *
+     * @return res.get(i) represents the End-Position for specific rowGroup i in
+     *         this file.
+     * @throws IOException
+     *             thrown if fail to get row group pos list
+     */
+    public ArrayList<Long> getRowGroupPosList() throws IOException {
+	checkStatus(READ);
+	return queryEngine.getRowGroupPosList();
+    }
 
-	/**
-	 * clear and set new properties
-	 *
-	 * @param props properties in map struct
-	 */
-	public void setProps(Map<String, String> props) {
-		fileSchema.setProps(props);
-	}
+    public ArrayList<Integer> calSpecificRowGroupByPartition(long start, long end) throws IOException {
+	checkStatus(READ);
+	return queryEngine.calSpecificRowGroupByPartition(start, end);
+    }
 
-	public String getProp(String key) {
-		return queryEngine.getProp(key);
-	}
+    public ArrayList<String> getAllDeltaObjectUIDByPartition(long start, long end) throws IOException {
+	checkStatus(READ);
+	return queryEngine.getAllDeltaObjectUIDByPartition(start, end);
+    }
 
-	private void checkStatus(int status) throws IOException {
-		if (status != this.status) {
-			String[] msg = new String[]{"WRITE", "READ"};
-			throw new IOException("This method should be invoked in status " + msg[status]
-					+ ", but current status is " + msg[this.status]);
-		}
+    public Map<String, String> getProps() {
+	return queryEngine.getProps();
+    }
+
+    /**
+     * clear and set new properties
+     *
+     * @param props
+     *            properties in map struct
+     */
+    public void setProps(Map<String, String> props) {
+	fileSchema.setProps(props);
+    }
+
+    public String getProp(String key) {
+	return queryEngine.getProp(key);
+    }
+
+    private void checkStatus(int status) throws IOException {
+	if (status != this.status) {
+	    String[] msg = new String[] { "WRITE", "READ" };
+	    throw new IOException("This method should be invoked in status " + msg[status] + ", but current status is "
+		    + msg[this.status]);
 	}
+    }
 }
