@@ -42,7 +42,7 @@ public class TsFile {
 	/**
 	 * For Write
 	 *
-	 * @param tsFileOutputStream an output stream of TsFile
+	 * @param file an output stream of TsFile
 	 * @param schemaJson         the fileSchema of TsFile in type of JSON
 	 * @throws IOException exception in IO
 	 * @throws WriteProcessException exception in write process
@@ -55,7 +55,7 @@ public class TsFile {
 	/**
 	 * For Write
 	 *
-	 * @param tsFileOutputStream an output stream of TsFile
+	 * @param file an output stream of TsFile
 	 * @param schema             the fileSchema of TsFile
 	 * @throws IOException       cannot write TsFile
 	 * @throws  WriteProcessException error occurs when writing
@@ -69,7 +69,7 @@ public class TsFile {
 	/**
 	 * For Write
 	 *
-	 * @param tsFileOutputStream an output stream of TsFile
+	 * @param output an output stream of TsFile
 	 * @param schemaJson         the fileSchema of TsFile in type of JSON
 	 * @throws IOException exception in IO
 	 * @throws WriteProcessException exception in write process
@@ -84,7 +84,7 @@ public class TsFile {
 	/**
 	 * For Write
 	 *
-	 * @param tsFileOutputStream an output stream of TsFile
+	 * @param output an output stream of TsFile
 	 * @param schema             the fileSchema of TsFile
 	 * @throws IOException       cannot write TsFile
 	 * @throws  WriteProcessException error occurs when writing
