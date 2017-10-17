@@ -2,7 +2,7 @@ package cn.edu.tsinghua.tsfile.timeseries.write.series;
 
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public interface IRowGroupWriter {
      * @param tsfileWriter - TSFileIOWriter
      * @throws IOException exception in IO
      */
-    void flushToFileWriter(TSFileIOWriter tsfileWriter) throws IOException;
+    void flushToFileWriter(TsFileIOWriter tsfileWriter) throws IOException;
 
     /**
      * query this measurementId data in memory

@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.series;
 
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -29,7 +29,7 @@ public interface ISeriesWriter {
 
     List<Object> query();
 
-    void writeToFileWriter(TSFileIOWriter tsfileWriter) throws IOException;
+    void writeToFileWriter(TsFileIOWriter tsfileWriter) throws IOException;
 
     long estimateMaxSeriesMemSize();
 }

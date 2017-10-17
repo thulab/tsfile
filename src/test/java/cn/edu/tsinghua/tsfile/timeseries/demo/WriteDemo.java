@@ -10,7 +10,7 @@ import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.TsFileWriter;
 
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import org.json.JSONException;

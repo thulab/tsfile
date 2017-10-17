@@ -27,7 +27,7 @@ import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils;
 import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils.Unit;
 import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 
 /**

@@ -2,7 +2,6 @@ package cn.edu.tsinghua.tsfile.timeseries.demo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
@@ -13,7 +12,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.FloatDataPoint;
 
-public class WriteATsfile {
+public class WriteTsfileDemo {
 
 	public static void main(String[] args) throws WriteProcessException, IOException {
 		TsFileWriter tsFileWriter=new TsFileWriter(new File("test.ts"));

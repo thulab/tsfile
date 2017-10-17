@@ -5,7 +5,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TSFileMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.converter.TSFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class FileReader {
     public static final int FOOTER_LENGTH = 4;
-    public static final int MAGIC_LENGTH = TSFileIOWriter.magicStringBytes.length;
+    public static final int MAGIC_LENGTH = TsFileIOWriter.magicStringBytes.length;
     private TSFileMetaData fileMetaData;
     private ByteArrayInputStream bais;
     private ITsRandomAccessFileReader raf;

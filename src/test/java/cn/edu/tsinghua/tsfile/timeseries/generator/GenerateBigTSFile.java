@@ -26,7 +26,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 
 public class GenerateBigTSFile {
     private static final Logger LOG = LoggerFactory.getLogger(GenerateBigTSFile.class);
-    private static TsFileWriter innerWriter;
+    private static TsFileWriter writer;
     private static String outputDataFile;
     private static TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
 
@@ -105,7 +105,7 @@ public class GenerateBigTSFile {
                 endTime = System.currentTimeMillis();
                 currentSpace =
                         (long) FileUtils.getLocalFileByte(outputDataFile, FileUtils.Unit.B)
-                                + innerWriter.calculateMemSizeForAllGroup();
+                                + writer.calculateMemSizeForAllGroup();
                 LOG.info("write line:{},use time:{}s, space:{}", lineCount,
                         (endTime - startTime) / 1000,
                         FileUtils.transformUnit(currentSpace, FileUtils.Unit.MB));
@@ -116,14 +116,14 @@ public class GenerateBigTSFile {
 
                 for (String str : strLines) {
                     TSRecord ts = RecordUtils.parseSimpleTupleRecord(str, fileSchema);
-                    innerWriter.write(ts);
+                    writer.write(ts);
                 }
             } catch (WriteProcessException e) {
                 e.printStackTrace();
             }
             lineCount++;
         }
-        innerWriter.close();
+        writer.close();
         endTime = System.currentTimeMillis();
         LOG.info("write total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
         LOG.info("src file size:{}MB", FileUtils.getLocalFileByte(outputDataFile, FileUtils.Unit.MB));
@@ -193,7 +193,7 @@ public class GenerateBigTSFile {
         sensorSet.add("s1");
         sensorSet.add("s2");
         // write file
-        innerWriter = new TsFileWriter(new File(outputDataFile), fileSchema, conf);
+        writer = new TsFileWriter(new File(outputDataFile), fileSchema, conf);
         System.out.println("setRowGroupSize: " + setRowGroupSize + ",total target:" + size);
         writeToFile(size);
     }
