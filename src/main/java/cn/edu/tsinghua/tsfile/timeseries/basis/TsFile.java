@@ -90,6 +90,7 @@ public class TsFile {
 	writer = new TsFileWriter(output, fileSchema, conf);
     }
 
+
     /**
      * For Write
      *
