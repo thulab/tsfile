@@ -90,6 +90,8 @@ public class TsFileWriter {
 	}
 	
 	public void addMeasurement(MeasurementDescriptor measurementDescriptor) throws WriteProcessException  {
+	  if(schema.hasMeasurement(measurementDescriptor.getMeasurementId()))
+      throw new WriteProcessException("given measurement has exists! " + measurementDescriptor.getMeasurementId());
 		schema.registerMeasurement(measurementDescriptor);
 		this.oneRowMaxSize = schema.getCurrentRowMaxSize();
 		if(primaryRowGroupSize <= oneRowMaxSize)

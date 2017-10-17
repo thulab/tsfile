@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.write;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -28,6 +29,7 @@ import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
+
 
 /**
  * test writing processing correction combining writing process and reading process.
@@ -188,6 +190,14 @@ public class WriteTest {
                 tsFileWriter.write(record);
             }
             lineCount++;
+        }
+        //test duplicate measurement adding
+        JSONObject dupMeasure = (JSONObject) measurementArray.get(measurementArray.length() - 1);
+        try {
+          tsFileWriter.addMeasurementByJson(dupMeasure);
+        }catch (WriteProcessException e){
+            assertEquals("given measurement has exists! "+
+                    dupMeasure.getString(JsonFormatConstant.MEASUREMENT_UID), e.getMessage());
         }
         try {
             tsFileWriter.close();

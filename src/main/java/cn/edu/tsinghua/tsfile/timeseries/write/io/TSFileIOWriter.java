@@ -48,8 +48,7 @@ public class TSFileIOWriter {
     /**
      * for writing a new tsfile
      *
-     * @param schema schema containing measurement information
-     * @param output be used to output written data
+     * @param file be used to output written data
      * @throws IOException if I/O error occurs
      */
     public TSFileIOWriter(File file) throws IOException {
