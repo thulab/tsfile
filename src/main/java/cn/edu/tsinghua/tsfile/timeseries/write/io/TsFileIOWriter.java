@@ -113,10 +113,8 @@ public class TsFileIOWriter {
    *          - the record count of this time series input in this stage
    * @param deltaObjectId
    *          - delta object id
-   * @throws IOException
-   *           if I/O error occurs
    */
-  public void startRowGroup(long recordCount, String deltaObjectId) throws IOException {
+  public void startRowGroup(long recordCount, String deltaObjectId) {
     LOG.debug("start row group:{}", deltaObjectId);
     currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, recordCount, 0, new ArrayList<>(),
         "");// FIXME remove deltaType
@@ -159,7 +157,7 @@ public class TsFileIOWriter {
     currentChunkMetaData.setVInTimeSeriesChunkMetaData(v);
   }
 
-  public void endSeries(long size, long totalValueCount) throws IOException {
+  public void endSeries(long size, long totalValueCount) {
     LOG.debug("end series:{},totalvalue:{}", currentChunkMetaData, totalValueCount);
     currentChunkMetaData.setTotalByteSize(size);
     currentChunkMetaData.setNumRows(totalValueCount);
@@ -167,7 +165,7 @@ public class TsFileIOWriter {
     currentChunkMetaData = null;
   }
 
-  public void endRowGroup(long memSize) throws IOException {
+  public void endRowGroup(long memSize) {
     currentRowGroupMetaData.setTotalByteSize(memSize);
     rowGroupMetaDatas.add(currentRowGroupMetaData);
     LOG.debug("end row group:{}", currentRowGroupMetaData);

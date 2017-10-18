@@ -141,10 +141,9 @@ public class TsFileWriter {
    * @param record
    *          - a record responding a line
    * @return - whether the record has been added into RecordWriter legally
-   * @throws IOException
-   *           exception in IO
+   * @throws WriteProcessException
    */
-  protected boolean checkIsDeltaExist(TSRecord record) throws IOException, WriteProcessException {
+  protected boolean checkIsDeltaExist(TSRecord record) throws WriteProcessException {
     if (!schema.hasDeltaObject(record.deltaObjectId)) {
       schema.addDeltaObject(record.deltaObjectId);
     }
