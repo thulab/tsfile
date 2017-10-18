@@ -25,14 +25,17 @@ public class LocalFileInput implements TSRandomAccessFileReader {
         this.raf.seek(offset);
     }
 
+    @Override
     public int read() throws IOException {
         return raf.read();
     }
 
+    @Override
     public int read(byte[] b, int off, int len) throws IOException {
         return raf.read(b, off, len);
     }
 
+    @Override
     public long length() throws IOException {
         return raf.length();
     }
@@ -42,15 +45,16 @@ public class LocalFileInput implements TSRandomAccessFileReader {
         return raf.readInt();
     }
 
+    @Override
+    public void close() throws IOException {
+        raf.close();
+    }
+
     /**
+     * TODO This method should not be put here.
      * use {@code FileStreamManager} to manage all LocalFileInput
      */
     public void closeFromManager() {
         FileStreamManager.getInstance().close(this);
-    }
-
-    @Override
-    public void close() throws IOException {
-        raf.close();
     }
 }

@@ -29,14 +29,6 @@ public class FileStreamManager {
         return FileStreamManagerHolder.INSTANCE;
     }
 
-    public TSRandomAccessFileReader getLocalRandomAcessFileReader(String path) throws FileNotFoundException {
-        return new LocalFileInput(path);
-    }
-
-    public void closeLocalRandomAcessFileReader(LocalFileInput localFileInput) throws IOException {
-        localFileInput.close();
-    }
-
     public void close(TSRandomAccessFileReader raf) {
         try {
             raf.close();

@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Jinrui Zhang
  * This class implements several read methods which can read data in different ways.<br>
  * This class provides some APIs for reading.
  */
@@ -28,10 +27,6 @@ public class RecordReader {
     private static final Logger logger = LoggerFactory.getLogger(RecordReader.class);
     private ReaderManager readerManager;
     private HashMap<String, HashMap<String, SeriesSchema>> seriesSchemaMap;
-
-    public RecordReader(String path) throws IOException {
-        this.readerManager = new ReaderManager(new LocalFileInput(path));
-    }
 
     public RecordReader(TSRandomAccessFileReader raf) throws IOException {
         this.readerManager = new ReaderManager(raf);

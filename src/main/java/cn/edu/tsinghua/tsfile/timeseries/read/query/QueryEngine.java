@@ -23,20 +23,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class QueryEngine {
     private static final Logger logger = LoggerFactory.getLogger(QueryEngine.class);
     private static int FETCH_SIZE = 20000;
-    private TSRandomAccessFileReader raf;
     private RecordReader recordReader;
 
     public QueryEngine(TSRandomAccessFileReader raf) throws IOException {
-        this.raf = raf;
         recordReader = new RecordReader(raf);
     }
 
     public QueryEngine(TSRandomAccessFileReader raf, int fetchSize) throws IOException {
-        this.raf = raf;
         recordReader = new RecordReader(raf);
         FETCH_SIZE = fetchSize;
     }
@@ -47,35 +43,6 @@ public class QueryEngine {
         QueryDataSet queryDataSet = queryEngine.query(config);
         raf.close();
         return queryDataSet;
-    }
-
-    /**
-     * Get All Column info for every deltaObject
-     *
-     * @param raf read stream of TsFile
-     * @return deltaObjects with each series
-     * @throws IOException exception in IO
-     */
-    public static HashMap<String, ArrayList<SeriesSchema>> getAllColumns(TSRandomAccessFileReader raf) throws IOException {
-        RecordReader recordReader = new RecordReader(raf);
-        return recordReader.getAllSeriesSchemasGroupByDeltaObject();
-    }
-
-    /**
-     * Get RowGroupSize for every deltaObject
-     *
-     * @param raf read stream of TsFile
-     * @return HashMap deltaObjects with each RowGroup contains
-     * @throws IOException exception in IO
-     */
-    public static HashMap<String, Integer> getDeltaObjectRowGroupCount(TSRandomAccessFileReader raf) throws IOException {
-        RecordReader recordReader = new RecordReader(raf);
-        return recordReader.getDeltaObjectRowGroupCounts();
-    }
-
-    public static HashMap<String, String> getDeltaObjectTypes(TSRandomAccessFileReader raf) throws IOException {
-        RecordReader recordReader = new RecordReader(raf);
-        return recordReader.getDeltaObjectTypes();
     }
 
     public QueryDataSet query(QueryConfig config) throws IOException {
@@ -139,30 +106,6 @@ public class QueryEngine {
             paths.add(p);
         }
         return paths;
-    }
-
-    /**
-     * read from specific RowGroup
-     *
-     * @param config query config
-     * @param idx The index of RowGroup for given deltaObject in config
-     * @return QueryDataSet
-     * @throws IOException exception in IO
-     */
-    public QueryDataSet queryInOneRowGroup(QueryConfig config, int idx) throws IOException {
-        List<Path> paths = getPathsFromSelectedColumns(config.getSelectColumns());
-        SingleSeriesFilterExpression timeFilter = FilterUtils.construct(config.getTimeFilter(), null);
-        SingleSeriesFilterExpression freqFilter = FilterUtils.construct(config.getFreqFilter(), null);
-        FilterExpression valueFilter;
-        if (config.getQueryType() == QueryType.CROSS_QUERY) {
-            valueFilter = FilterUtils.constructCrossFilter(config.getValueFilter(), recordReader);
-        } else {
-            valueFilter = FilterUtils.construct(config.getValueFilter(), recordReader);
-        }
-
-        ArrayList<Integer> rowGroupIndexList = new ArrayList<>();
-        rowGroupIndexList.add(idx);
-        return queryWithSpecificRowGroups(paths, timeFilter, freqFilter, valueFilter, rowGroupIndexList);
     }
 
     private QueryDataSet queryWithSpecificRowGroups(List<Path> paths, FilterExpression timeFilter, FilterExpression freqFilter
@@ -462,8 +405,9 @@ public class QueryEngine {
     public String getProp(String key) {
         return recordReader.getProp(key);
     }
-    
+
+    // TODO
     public void close() throws IOException{
-    	raf.close();
+
     }
 }
