@@ -1,7 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.read;
 
 import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileReader;
-import cn.edu.tsinghua.tsfile.timeseries.read.management.FileStreamManager;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -48,13 +47,5 @@ public class LocalFileInput implements TSRandomAccessFileReader {
     @Override
     public void close() throws IOException {
         raf.close();
-    }
-
-    /**
-     * TODO This method should not be put here.
-     * use {@code FileStreamManager} to manage all LocalFileInput
-     */
-    public void closeFromManager() {
-        FileStreamManager.getInstance().close(this);
     }
 }

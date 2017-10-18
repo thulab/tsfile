@@ -4,6 +4,7 @@ import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TSFileMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.converter.TSFileMetaDataConverter;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
 
@@ -30,10 +31,10 @@ public class FileReader {
     private TSFileMetaData fileMetaData;
     private TSRandomAccessFileReader randomAccessFileReader;
     /**
-     * TODO Are rowGroupReaderList and rowGroupReaderMap all needed?
+     * TODO rowGroupReaderList could be removed.
      */
-    private ArrayList<RowGroupReader> rowGroupReaderList;
-    private HashMap<String, ArrayList<RowGroupReader>> rowGroupReaderMap;
+    private List<RowGroupReader> rowGroupReaderList;
+    private Map<String, List<RowGroupReader>> rowGroupReaderMap;
 
     public FileReader(TSRandomAccessFileReader randomAccessFileReader) throws IOException {
         this.randomAccessFileReader = randomAccessFileReader;
@@ -79,21 +80,12 @@ public class FileReader {
         }
     }
 
-    public HashMap<String, ArrayList<RowGroupReader>> getRowGroupReaderMap() {
+    public Map<String, List<RowGroupReader>> getRowGroupReaderMap() {
         return this.rowGroupReaderMap;
     }
 
-    public ArrayList<RowGroupReader> getRowGroupReaderList() {
+    public List<RowGroupReader> getRowGroupReaderList() {
         return this.rowGroupReaderList;
-    }
-
-    /**
-     * @param deltaObjectUID delta object id
-     * @param index          from 0 to n-1
-     * @return reader
-     */
-    public RowGroupReader getRowGroupReader(String deltaObjectUID, int index) {
-        return this.rowGroupReaderMap.get(deltaObjectUID).get(index);
     }
 
     public Map<String, String> getProps() {
@@ -102,6 +94,22 @@ public class FileReader {
 
     public String getProp(String key) {
         return fileMetaData.getProp(key);
+    }
+
+    public List<RowGroupReader> getRowGroupReaderListByDeltaObject(String deltaObjectUID) {
+        List<RowGroupReader> ret = rowGroupReaderMap.get(deltaObjectUID);
+        if (ret == null) {
+            return new ArrayList<>();
+        }
+        return ret;
+    }
+
+    public TSDataType getDataTypeBySeriesName(String deltaObject, String measurement) {
+        List<RowGroupReader> rgrList = getRowGroupReaderMap().get(deltaObject);
+        if (rgrList == null || rgrList.size() == 0) {
+            return null;
+        }
+        return rgrList.get(0).getDataTypeBySeriesName(measurement);
     }
 
     public void close() throws IOException {

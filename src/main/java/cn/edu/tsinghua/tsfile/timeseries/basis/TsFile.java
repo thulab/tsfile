@@ -8,7 +8,7 @@ import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
-import cn.edu.tsinghua.tsfile.timeseries.read.metadata.SeriesSchema;
+import cn.edu.tsinghua.tsfile.timeseries.read.management.SeriesSchema;
 import cn.edu.tsinghua.tsfile.timeseries.read.qp.Path;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryDataSet;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryEngine;
@@ -174,7 +174,7 @@ public class TsFile {
      * @return A set of ArrayList SeriesSchema stored in a HashMap separated by deltaObjectId
      * @throws IOException thrown if fail to get all series schema
      */
-    public HashMap<String, ArrayList<SeriesSchema>> getAllColumns() throws IOException {
+    public Map<String, ArrayList<SeriesSchema>> getAllColumns() throws IOException {
         checkStatus(READ);
         return queryEngine.getAllSeriesSchemasGroupByDeltaObject();
     }
@@ -185,7 +185,7 @@ public class TsFile {
      * @return HashMap
      * @throws IOException thrown if fail to get row group count
      */
-    public HashMap<String, Integer> getDeltaObjectRowGroupCount() throws IOException {
+    public Map<String, Integer> getDeltaObjectRowGroupCount() throws IOException {
         checkStatus(READ);
         return queryEngine.getDeltaObjectRowGroupCount();
     }
@@ -194,7 +194,7 @@ public class TsFile {
      * @return a map contains all DeltaObjects with type each.
      * @throws IOException thrown if fail to get delta object type
      */
-    public HashMap<String, String> getDeltaObjectTypes() throws IOException {
+    public Map<String, String> getDeltaObjectTypes() throws IOException {
         checkStatus(READ);
         return queryEngine.getDeltaObjectTypes();
     }
