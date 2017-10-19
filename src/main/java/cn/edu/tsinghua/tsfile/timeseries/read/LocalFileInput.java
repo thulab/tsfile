@@ -14,43 +14,53 @@ import java.io.RandomAccessFile;
  */
 public class LocalFileInput implements TSRandomAccessFileReader {
 
-    private RandomAccessFile raf;
+  private RandomAccessFile raf;
 
-    public LocalFileInput(String path) throws FileNotFoundException {
-        this.raf = new RandomAccessFile(path, "r");
-    }
+  public LocalFileInput(String path) throws FileNotFoundException {
+    this.raf = new RandomAccessFile(path, "r");
+  }
 
-    @Override
-    public void seek(long offset) throws IOException {
-        this.raf.seek(offset);
-    }
+  @Override
+  public void seek(long offset) throws IOException {
+    this.raf.seek(offset);
+  }
 
-    public int read() throws IOException {
-        return raf.read();
-    }
+  public int read() throws IOException {
+    return raf.read();
+  }
 
-    public int read(byte[] b, int off, int len) throws IOException {
-        return raf.read(b, off, len);
+  public int read(byte[] b, int off, int len) throws IOException {
+    int end = len + off;
+    int get = 1;
+    int total = 0;
+    for (int i = off; i < end; i += get) {
+      get = raf.read(b, i, end - i);
+      if (get > 0)
+        total += get;
+      else
+        break;
     }
+    return total;
+  }
 
-    public long length() throws IOException {
-        return raf.length();
-    }
+  public long length() throws IOException {
+    return raf.length();
+  }
 
-    @Override
-    public int readInt() throws IOException {
-        return raf.readInt();
-    }
+  @Override
+  public int readInt() throws IOException {
+    return raf.readInt();
+  }
 
-    /**
-     * use {@code FileStreamManager} to manage all LocalFileInput
-     */
-    public void closeFromManager() {
-        FileStreamManager.getInstance().close(this);
-    }
+  /**
+   * use {@code FileStreamManager} to manage all LocalFileInput
+   */
+  public void closeFromManager() {
+    FileStreamManager.getInstance().close(this);
+  }
 
-    @Override
-    public void close() throws IOException {
-        raf.close();
-    }
+  @Override
+  public void close() throws IOException {
+    raf.close();
+  }
 }
