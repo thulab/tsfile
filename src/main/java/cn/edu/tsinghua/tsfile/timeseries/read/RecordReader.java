@@ -28,10 +28,6 @@ public class RecordReader {
     private FileReader fileReader;
     private HashMap<String, HashMap<String, SeriesSchema>> seriesSchemaMap;
 
-    public RecordReader(String filePath) throws IOException {
-        this.fileReader = new FileReader(new TsRandomAccessLocalFileReader(filePath));
-    }
-
     public RecordReader(ITsRandomAccessFileReader raf) throws IOException {
         this.fileReader = new FileReader(raf);
     }
@@ -153,22 +149,6 @@ public class RecordReader {
 
         res = rowGroupReader.getValueReaders().get(measurementId).readOneColumnUseFilter(res, fetchSize, timeFilter,
                 freqFilter, valueFilter);
-        return res;
-    }
-
-    public DynamicOneColumnData getValuesUseFilter(DynamicOneColumnData res, int fetchSize, String deltaObjectUID,
-                                                   String measurementId, SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
-
-                                                   SingleSeriesFilterExpression valueFilter, int idx) throws IOException {
-        checkSeries(deltaObjectUID, measurementId);
-        List<RowGroupReader> rowGroupReaderList = fileReader.getRowGroupReaderListByDeltaObject(deltaObjectUID);
-        if (idx >= rowGroupReaderList.size()) {
-            logger.error("RowGroup index is not right. Index :" + idx + ". Size: " + rowGroupReaderList.size());
-            return null;
-        }
-
-        RowGroupReader rowGroupReader = rowGroupReaderList.get(idx);
-        res = getValuesUseFilter(res, fetchSize, rowGroupReader, measurementId, timeFilter, freqFilter, valueFilter);
         return res;
     }
 

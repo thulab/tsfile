@@ -22,14 +22,11 @@ public class RowGroupReader {
 
     protected static final Logger logger = LoggerFactory.getLogger(RowGroupReader.class);
     public HashMap<String, TSDataType> seriesDataTypeMap;
-    /**
-     * measurement->values
-     */
     protected HashMap<String, ValueReader> valueReaders = new HashMap<>();
     protected String deltaObjectUID;
 
-    protected ArrayList<String> measurementIds;
-    protected long totalByteSize;
+    private ArrayList<String> measurementIds;
+    private long totalByteSize;
 
     protected ITsRandomAccessFileReader raf;
 
@@ -65,8 +62,6 @@ public class RowGroupReader {
         }
         return timeRes;
     }
-
-
 
     public TSDataType getDataTypeBySeriesName(String name) {
         return this.seriesDataTypeMap.get(name);
