@@ -41,7 +41,7 @@ public class RecordUtils {
         TSDataType type;
         for (int i = 2; i < items.length - 1; i += 2) {
             measurementId = items[i].trim();
-            type = schema.getSeriesType(measurementId);
+            type = schema.getMeasurementDataTypes(measurementId);
             if (type == null) {
                 LOG.warn("measurementId:{},type not found, pass", measurementId);
                 continue;
@@ -68,7 +68,7 @@ public class RecordUtils {
                             break;
                         case ENUMS:
                             ret.addTuple(new EnumDataPoint(measurementId, (schema
-                                    .getDescriptor(measurementId)).parseEnumValue(value)));
+                                    .getMeasurementDescriptor(measurementId)).parseEnumValue(value)));
                             break;
                         case BOOLEAN:
                             ret.addTuple(new BooleanDataPoint(measurementId, Boolean

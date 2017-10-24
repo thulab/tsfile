@@ -1,12 +1,12 @@
 package cn.edu.tsinghua.tsfile.timeseries.read;
 
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TSFileMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.converter.TSFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,23 +22,29 @@ import java.util.Map;
  * @author Jinrui Zhang
  */
 public class FileReader {
+
     private static final int FOOTER_LENGTH = 4;
-    private static final int MAGIC_LENGTH = TSFileIOWriter.magicStringBytes.length;
+    private static final int MAGIC_LENGTH = TsFileIOWriter.magicStringBytes.length;
     /**
      * If the file has many rowgroups and series,
      * the storage of <code>fileMetaData</code> may be large.
      */
     private TSFileMetaData fileMetaData;
-    private TSRandomAccessFileReader randomAccessFileReader;
+    private ITsRandomAccessFileReader randomAccessFileReader;
     /**
      * TODO rowGroupReaderList could be removed.
      */
     private List<RowGroupReader> rowGroupReaderList;
     private Map<String, List<RowGroupReader>> rowGroupReaderMap;
 
-    public FileReader(TSRandomAccessFileReader randomAccessFileReader) throws IOException {
-        this.randomAccessFileReader = randomAccessFileReader;
+    public FileReader(ITsRandomAccessFileReader raf) throws IOException {
+        this.randomAccessFileReader = raf;
         init();
+    }
+
+    public FileReader(ITsRandomAccessFileReader raf, List<RowGroupMetaData> rowGroupMetaDataList) {
+        this.randomAccessFileReader = raf;
+        initFromRowGroupMetadataList(rowGroupMetaDataList);
     }
 
     /**
@@ -53,7 +59,7 @@ public class FileReader {
         int fileMetaDataLength = randomAccessFileReader.readInt();
         randomAccessFileReader.seek(l - MAGIC_LENGTH - FOOTER_LENGTH - fileMetaDataLength);
         byte[] buf = new byte[fileMetaDataLength];
-        randomAccessFileReader.read(buf, 0, buf.length);
+        randomAccessFileReader.read(buf, 0, buf.length);//FIXME  is this a potential bug?
 
         ByteArrayInputStream bais = new ByteArrayInputStream(buf);
         this.fileMetaData = new TSFileMetaDataConverter().toTSFileMetadata(ReadWriteThriftFormatUtils.readFileMetaData(bais));

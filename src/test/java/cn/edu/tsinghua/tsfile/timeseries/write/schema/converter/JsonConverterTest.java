@@ -5,7 +5,9 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
@@ -35,7 +37,6 @@ public class JsonConverterTest {
         }
 
         FileSchema fileSchema = new FileSchema(obj);
-        assertEquals("test_type", fileSchema.getDeltaType());
         Collection<MeasurementDescriptor> measurements = fileSchema.getDescriptor().values();
         String[] measureDesStrings =
                 {
@@ -51,8 +52,8 @@ public class JsonConverterTest {
             assertEquals(measureDesStrings[i++], desc.toString());
         }
 
-        List<TimeSeriesMetadata> tsMetadatas = fileSchema.getTimeSeriesMetadatas();
-        String[] tsMetadataList =
+        List<TimeSeriesMetadata> tsMetadataList = fileSchema.getTimeSeriesMetadatas();
+        String[] tsMetadatas =
                 {
                         "TimeSeriesMetadata: measurementUID s1, type length 0, DataType INT32, FreqType null,frequencies null",
                         "TimeSeriesMetadata: measurementUID s2, type length 0, DataType INT64, FreqType null,frequencies null",
@@ -60,8 +61,10 @@ public class JsonConverterTest {
                         "TimeSeriesMetadata: measurementUID s4, type length 0, DataType DOUBLE, FreqType null,frequencies null",
                         "TimeSeriesMetadata: measurementUID s5, type length 0, DataType INT32, FreqType null,frequencies null",
                 };
-        for (int j = 0; j < tsMetadatas.size(); j++) {
-            assertEquals(tsMetadataList[j], tsMetadatas.get(j).toString());
+        Collections.sort(tsMetadataList, (x,y)->x.getMeasurementUID().compareTo(y.getMeasurementUID()));
+        Arrays.sort(tsMetadatas, (x,y)->x.compareTo(y));
+        for (int j = 0; j < tsMetadataList.size(); j++) {
+            assertEquals(tsMetadatas[j], tsMetadataList.get(j).toString());
         }
 
     }

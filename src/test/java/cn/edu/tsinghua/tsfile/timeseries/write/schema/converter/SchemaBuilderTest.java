@@ -10,7 +10,9 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.SchemaBuilder;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +64,13 @@ public class SchemaBuilderTest {
                         "TimeSeriesMetadata: measurementUID s4, type length 0, DataType DOUBLE, FreqType null,frequencies null",
                         "TimeSeriesMetadata: measurementUID s5, type length 0, DataType INT32, FreqType null,frequencies null",
                 };
+        Arrays.sort(tsMetadataList, (x,y)->x.compareTo(y));
+        Collections.sort(tsMetadatas, (x,y)->x.getMeasurementUID().compareTo(y.getMeasurementUID()));
         for (int j = 0; j < tsMetadatas.size(); j++) {
+        		if(!tsMetadataList[j].equals(tsMetadatas.get(j).toString())) {
+        			System.err.println(tsMetadatas.get(j).toString());
+        			System.err.println(tsMetadataList[j]);
+        		}
             assertEquals(tsMetadataList[j], tsMetadatas.get(j).toString());
         }
 

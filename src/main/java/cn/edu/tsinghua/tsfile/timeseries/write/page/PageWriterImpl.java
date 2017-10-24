@@ -9,7 +9,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.PageException;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +91,7 @@ public class PageWriterImpl implements IPageWriter {
     }
 
     @Override
-    public void writeToFileWriter(TSFileIOWriter writer, Statistics<?> statistics) throws IOException {
+    public void writeToFileWriter(TsFileIOWriter writer, Statistics<?> statistics) throws IOException {
         writer.startSeries(desc, compressor.getCodecName(), desc.getType(), statistics, maxTimestamp, minTimestamp);
         long totalByteSize = writer.getPos();
         writer.writeBytesToStream(buf);
@@ -117,6 +117,6 @@ public class PageWriterImpl implements IPageWriter {
 
     private int estimateMaxPageHeaderSize() {
         int digestSize = (totalValueCount == 0) ? 0 : desc.getTypeLength() * 2;
-        return TSFileIOWriter.metadataConverter.calculatePageHeaderSize(digestSize);
+        return TsFileIOWriter.metadataConverter.calculatePageHeaderSize(digestSize);
     }
 }

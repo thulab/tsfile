@@ -15,7 +15,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 import cn.edu.tsinghua.tsfile.format.TimeSeries;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.tsinghua.tsfile.common.utils.RandomAccessOutputStream;
+import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.format.FileMetaData;
 import org.junit.After;
 import org.junit.Before;
@@ -63,7 +63,7 @@ public class TSFileMetaDataTest {
     if (file.exists())
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
-    RandomAccessOutputStream out = new RandomAccessOutputStream(file, "rw");
+    TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
     ReadWriteThriftFormatUtils.writeFileMetaData(converter.toThriftFileMetadata(tsfMetaData),
         out.getOutputStream());
 

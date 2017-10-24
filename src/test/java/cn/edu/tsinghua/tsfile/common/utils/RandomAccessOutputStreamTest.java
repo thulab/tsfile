@@ -23,7 +23,7 @@ public class RandomAccessOutputStreamTest {
     File file = new File(fileName);
     if (file.exists())
       file.delete();
-    RandomAccessOutputStream out = new RandomAccessOutputStream(file, "rw");
+    TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
     out.write(bt1);
     out.write(BytesUtils.intToBytes(i1));
     out.write(BytesUtils.boolToBytes(b1));

@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryEngine;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Field;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.RowRecord;
@@ -23,9 +23,9 @@ public class ReadTest {
 	// LoggerFactory.getLogger(ReadTest1.class);
 
 	private static String fileName = "src/test/resources/perTestOutputData.ksn";
-	private static LocalFileInput inputFile;
+	private static TsRandomAccessLocalFileReader inputFile;
 	private static QueryEngine engine = null;
-	static TSRandomAccessFileReader raf;
+	static ITsRandomAccessFileReader raf;
 	private static QueryConfig configOneSeriesWithNoFilter = new QueryConfig("d1.s1");
 
 	private static QueryConfig configTwoSeriesWithNoFilter = new QueryConfig("d1.s1|d2.s2");

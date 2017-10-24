@@ -23,7 +23,6 @@ public class DynamicOneColumnData {
     public long leftSize = -1;
     public boolean hasReadAll = false;
     public TSDataType dataType;
-    private String deltaObjectType;
     public int curIdx;
     public int insertTrueIndex = 0;
 
@@ -574,14 +573,6 @@ public class DynamicOneColumnData {
             subRes.putAValueFromDynamicOneColumnData(this, i);
         }
         return subRes;
-    }
-
-    public String getDeltaObjectType() {
-        return deltaObjectType;
-    }
-
-    public void setDeltaObjectType(String deltaObjectType) {
-        this.deltaObjectType = deltaObjectType;
     }
 
     public void putOverflowInfo(DynamicOneColumnData insertTrue, DynamicOneColumnData updateTrue,

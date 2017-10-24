@@ -1,19 +1,14 @@
 package cn.edu.tsinghua.tsfile.timeseries.write;
 
-import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
-import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
-import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.tsinghua.tsfile.common.utils.RandomAccessOutputStream;
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.timeseries.basis.TsFile;
-import cn.edu.tsinghua.tsfile.timeseries.read.LocalFileInput;
-import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
-import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
-import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
-import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
-import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Random;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -24,15 +19,17 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Random;
+import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
+import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
+import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
+import cn.edu.tsinghua.tsfile.timeseries.basis.TsFile;
+import cn.edu.tsinghua.tsfile.timeseries.read.TsRandomAccessLocalFileReader;
+import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
+import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * test writing processing correction combining writing process and reading process.
@@ -42,7 +39,7 @@ import static org.junit.Assert.fail;
 public class WriteTest {
     private static final Logger LOG = LoggerFactory.getLogger(WriteTest.class);
     private final int ROW_COUNT = 20;
-    private InternalRecordWriter<TSRecord> innerWriter;
+    private TsFileWriter tsFileWriter;
     private String inputDataFile;
     private String outputDataFile;
     private String errorOutputDataFile;
@@ -89,16 +86,7 @@ public class WriteTest {
                         .JSON_SCHEMA);
         schema = new FileSchema(emptySchema);
         LOG.info(schema.toString());
-        WriteSupport<TSRecord> writeSupport = new TSRecordWriteSupport();
-        TSRandomAccessFileWriter outputStream = null;
-        try {
-            outputStream = new RandomAccessOutputStream(file);
-        } catch (IOException e) {
-            fail();
-        }
-        TSFileIOWriter tsfileWriter = new TSFileIOWriter(schema, outputStream);
-        innerWriter =
-                new TSRecordWriter(conf, tsfileWriter, writeSupport, schema);
+        tsFileWriter = new TsFileWriter(file, schema, conf);
     }
 
     @After
@@ -168,7 +156,7 @@ public class WriteTest {
         }
         LOG.info("write processing has finished");
 
-        LocalFileInput input = new LocalFileInput(outputDataFile);
+        TsRandomAccessLocalFileReader input = new TsRandomAccessLocalFileReader(outputDataFile);
         TsFile readTsFile = new TsFile(input);
         String value1 = readTsFile.getProp("key1");
         Assert.assertEquals("value1", value1);
@@ -182,7 +170,7 @@ public class WriteTest {
         String[] strings;
         //add all measurement except the last one at before writing
         for (int i = 0; i < measurementArray.length() - 1; i++) {
-            innerWriter.addMeasurementByJson((JSONObject) measurementArray.get(i));
+            tsFileWriter.addMeasurementByJson((JSONObject) measurementArray.get(i));
         }
         while (true) {
             if (lineCount % stageSize == 0) {
@@ -194,25 +182,25 @@ public class WriteTest {
                     break;
             }
             if (lineCount == ROW_COUNT / 2)
-                innerWriter.addMeasurementByJson((JSONObject) measurementArray.get(measurementArray.length() - 1));
+                tsFileWriter.addMeasurementByJson((JSONObject) measurementArray.get(measurementArray.length() - 1));
             strings = getNextRecord(lineCount, stageState);
             for (String str : strings) {
                 TSRecord record = RecordUtils.parseSimpleTupleRecord(str, schema);
                 System.out.println(str);
-                innerWriter.write(record);
+                tsFileWriter.write(record);
             }
             lineCount++;
         }
         //test duplicate measurement adding
         JSONObject dupMeasure = (JSONObject) measurementArray.get(measurementArray.length() - 1);
         try {
-            innerWriter.addMeasurementByJson(dupMeasure);
+          tsFileWriter.addMeasurementByJson(dupMeasure);
         }catch (WriteProcessException e){
             assertEquals("given measurement has exists! "+
                     dupMeasure.getString(JsonFormatConstant.MEASUREMENT_UID), e.getMessage());
         }
         try {
-            innerWriter.close();
+            tsFileWriter.close();
         } catch (IOException e) {
             fail("close writer failed");
         }

@@ -97,7 +97,7 @@ public class TestHelper {
 
   public static TimeSeriesMetadata createSimpleTimeSeriesInTSF() {
     TimeSeriesMetadata timeSeries = new TimeSeriesMetadata(TimeSeriesMetadataTest.measurementUID,
-        TSDataType.FIXED_LEN_BYTE_ARRAY, TimeSeriesMetadataTest.deltaObjectType);
+        TSDataType.FIXED_LEN_BYTE_ARRAY);
     timeSeries.setFreqType(TSFreqType.SINGLE_FREQ);
     timeSeries.setTypeLength(TimeSeriesMetadataTest.typeLength);
     List<Integer> frequencies = new ArrayList<Integer>();
@@ -116,7 +116,7 @@ public class TestHelper {
 
   public static TimeSeries createSimpleTimeSeriesInThrift() {
     TimeSeries timeSeries = new TimeSeries(TimeSeriesMetadataTest.measurementUID,
-        DataType.TEXT, TimeSeriesMetadataTest.deltaObjectType);
+        DataType.TEXT, "");
     timeSeries.setFreq_type(FreqType.MULTI_FREQ);
     timeSeries.setType_length(TimeSeriesMetadataTest.typeLength);
     List<Integer> frequencies = new ArrayList<Integer>();

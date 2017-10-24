@@ -17,7 +17,6 @@ public class SchemaBuilder {
 
     public SchemaBuilder() {
         fileSchema = new FileSchema();
-        fileSchema.setDeltaType(SystemConstant.DEFAULT_DELTA_TYPE);
     }
 
     /**
@@ -31,12 +30,8 @@ public class SchemaBuilder {
      */
     public SchemaBuilder addSeries(String measurementId, TSDataType dataType, TSEncoding tsEncoding,
                                    Map<String, String> props) {
-        fileSchema.addSeries(measurementId, dataType);
-        fileSchema.addTimeSeriesMetadata(measurementId, dataType);
         MeasurementDescriptor md = new MeasurementDescriptor(measurementId, dataType, tsEncoding, props);
-        fileSchema.setDescriptor(measurementId, md);
-        int maxSize = md.getTimeEncoder().getOneItemMaxSize() + md.getValueEncoder().getOneItemMaxSize();
-        fileSchema.addCurrentRowMaxSize(maxSize);
+        fileSchema.registerMeasurement(md);
         return this;
     }
 
@@ -48,11 +43,7 @@ public class SchemaBuilder {
      * @return schema builder
      */
     public SchemaBuilder addSeries(MeasurementDescriptor descriptor) {
-        fileSchema.addSeries(descriptor.getMeasurementId(), descriptor.getType());
-        fileSchema.addTimeSeriesMetadata(descriptor.getMeasurementId(), descriptor.getType());
-        fileSchema.setDescriptor(descriptor.getMeasurementId(), descriptor);
-        int maxSize = descriptor.getTimeEncoder().getOneItemMaxSize() + descriptor.getValueEncoder().getOneItemMaxSize();
-        fileSchema.addCurrentRowMaxSize(maxSize);
+        fileSchema.registerMeasurement(descriptor);
         return this;
     }
 

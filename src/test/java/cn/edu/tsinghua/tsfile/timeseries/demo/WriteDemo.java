@@ -3,16 +3,14 @@ package cn.edu.tsinghua.tsfile.timeseries.demo;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.tsinghua.tsfile.common.utils.RandomAccessOutputStream;
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileWriter;
+import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils;
 import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
-import cn.edu.tsinghua.tsfile.timeseries.write.InternalRecordWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.TSRecordWriteSupport;
-import cn.edu.tsinghua.tsfile.timeseries.write.TSRecordWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.WriteSupport;
+import cn.edu.tsinghua.tsfile.timeseries.write.TsFileWriter;
+
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import org.json.JSONException;
@@ -36,7 +34,7 @@ import java.io.IOException;
  */
 public class WriteDemo {
     static final Logger LOG = LoggerFactory.getLogger(WriteDemo.class);
-    public static InternalRecordWriter<TSRecord> innerWriter;
+    public static TsFileWriter tsFileWriter;
     public static String inputDataFile;
     public static String outputDataFile;
     public static String errorOutputDataFile;
@@ -49,13 +47,9 @@ public class WriteDemo {
             file.delete();
         if (errorFile.exists())
             errorFile.delete();
-
         FileSchema schema = new FileSchema(jsonSchema);
-        WriteSupport<TSRecord> writeSupport = new TSRecordWriteSupport();
-        TSRandomAccessFileWriter outputStream = new RandomAccessOutputStream(file);
-        TSFileIOWriter tsfileWriter = new TSFileIOWriter(schema, outputStream);
         TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
-        innerWriter = new TSRecordWriter(conf, tsfileWriter, writeSupport, schema);
+        tsFileWriter = new TsFileWriter(file, schema, conf);
 
         // write to file
         try {
@@ -76,17 +70,17 @@ public class WriteDemo {
             if (lineCount % 1000000 == 0) {
                 endTime = System.currentTimeMillis();
                 LOG.info("write line:{},inner space consumer:{},use time:{}", lineCount,
-                        innerWriter.updateMemSizeForAllGroup(), endTime);
+                        tsFileWriter.calculateMemSizeForAllGroup(), endTime);
                 LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
             }
             // String str = in.nextLine();
             TSRecord record = RecordUtils.parseSimpleTupleRecord(line, schema);
-            innerWriter.write(record);
+            tsFileWriter.write(record);
             lineCount++;
         }
         endTime = System.currentTimeMillis();
         LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
-        innerWriter.close();
+        tsFileWriter.close();
         endTime = System.currentTimeMillis();
         LOG.info("write total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
         LOG.info("src file size:{}GB", FileUtils.getLocalFileByte(inputDataFile, FileUtils.Unit.GB));
