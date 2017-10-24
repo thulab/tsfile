@@ -24,17 +24,13 @@ import java.util.Map;
 public class QueryEngine {
     private static final Logger logger = LoggerFactory.getLogger(QueryEngine.class);
     private static int FETCH_SIZE = 20000;
-
-    private ITsRandomAccessFileReader raf;
     private RecordReader recordReader;
 
     public QueryEngine(ITsRandomAccessFileReader raf) throws IOException {
-        this.raf = raf;
         recordReader = new RecordReader(raf);
     }
 
     public QueryEngine(ITsRandomAccessFileReader raf, int fetchSize) throws IOException {
-        this.raf = raf;
         recordReader = new RecordReader(raf);
         FETCH_SIZE = fetchSize;
     }

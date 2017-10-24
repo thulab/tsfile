@@ -75,7 +75,7 @@ public class TsFile {
   /**
    * For Write
    *
-   * @param file
+   * @param output
    *          a TsFile
    * @param schemaJson
    *          the fileSchema of TsFile in type of JSON
@@ -94,7 +94,7 @@ public class TsFile {
   /**
    * For Write
    *
-   * @param file
+   * @param output
    *          a TsFile
    * @param schema
    *          the fileSchema of TsFile
@@ -198,28 +198,7 @@ public class TsFile {
     }
   }
 
-<<<<<<< HEAD
-    /**
-     * Get All information of column(s) for every deltaObject
-     *
-     * @return A set of ArrayList SeriesSchema stored in a HashMap separated by deltaObjectId
-     * @throws IOException thrown if fail to get all series schema
-     */
-    public Map<String, ArrayList<SeriesSchema>> getAllColumns() throws IOException {
-        checkStatus(READ);
-        return queryEngine.getAllSeriesSchemasGroupByDeltaObject();
-    }
 
-    /**
-     * Get RowGroupSize for every deltaObject
-     *
-     * @return HashMap
-     * @throws IOException thrown if fail to get row group count
-     */
-    public Map<String, Integer> getDeltaObjectRowGroupCount() throws IOException {
-        checkStatus(READ);
-        return queryEngine.getDeltaObjectRowGroupCount();
-=======
   public QueryDataSet query(List<Path> paths, FilterExpression timeFilter,
       FilterExpression valueFilter) throws IOException {
     checkStatus(READ);
@@ -231,27 +210,16 @@ public class TsFile {
 
     } else if (valueFilter != null) {
       valueFilter = FilterFactory.csAnd(valueFilter, valueFilter);
->>>>>>> master
     }
     return queryEngine.query(paths, timeFilter, null, valueFilter);
   }
 
-<<<<<<< HEAD
-    /**
-     * @return a map contains all DeltaObjects with type each.
-     * @throws IOException thrown if fail to get delta object type
-     */
-    public Map<String, String> getDeltaObjectTypes() throws IOException {
-        checkStatus(READ);
-        return queryEngine.getDeltaObjectTypes();
-    }
-=======
+
   public QueryDataSet query(List<Path> paths, FilterExpression timeFilter,
       FilterExpression valueFilter, Map<String, Long> params) throws IOException {
     checkStatus(READ);
     return queryEngine.query(paths, timeFilter, null, valueFilter, params);
   }
->>>>>>> master
 
   /**
    * Get All information of column(s) for every deltaObject.
@@ -260,7 +228,7 @@ public class TsFile {
    * @throws IOException
    *           thrown if fail to get all series schema
    */
-  public HashMap<String, ArrayList<SeriesSchema>> getAllColumns() throws IOException {
+  public Map<String, ArrayList<SeriesSchema>> getAllColumns() throws IOException {
     checkStatus(READ);
     return queryEngine.getAllSeriesSchemasGroupByDeltaObject();
   }
@@ -272,7 +240,7 @@ public class TsFile {
    * @throws IOException
    *           thrown if fail to get row group count
    */
-  public HashMap<String, Integer> getDeltaObjectRowGroupCount() throws IOException {
+  public Map<String, Integer> getDeltaObjectRowGroupCount() throws IOException {
     checkStatus(READ);
     return queryEngine.getDeltaObjectRowGroupCount();
   }
@@ -282,7 +250,7 @@ public class TsFile {
    * @throws IOException
    *           thrown if fail to get delta object type
    */
-  public HashMap<String, String> getDeltaObjectTypes() throws IOException {
+  public Map<String, String> getDeltaObjectTypes() throws IOException {
     checkStatus(READ);
     return queryEngine.getDeltaObjectTypes();
   }
