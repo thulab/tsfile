@@ -5,7 +5,7 @@ import cn.edu.tsinghua.tsfile.common.utils.Pair;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.PageException;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.series.ISeriesWriter;
 
 import java.io.ByteArrayInputStream;
@@ -47,7 +47,7 @@ public interface IPageWriter {
      * @param statistics the statistic information provided by series writer
      * @throws IOException exception in IO
      */
-    void writeToFileWriter(TSFileIOWriter writer, Statistics<?> statistics) throws IOException;
+    void writeToFileWriter(TsFileIOWriter writer, Statistics<?> statistics) throws IOException;
 
     /**
      * reset exist data in page for next stage

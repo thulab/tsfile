@@ -1,19 +1,18 @@
 package cn.edu.tsinghua.tsfile.timeseries;
 
-import cn.edu.tsinghua.tsfile.timeseries.basis.TsFile;
-import cn.edu.tsinghua.tsfile.common.utils.RandomAccessOutputStream;
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils;
-import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import cn.edu.tsinghua.tsfile.timeseries.basis.TsFile;
+import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils;
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 
 /**
  * Created by kangrong on 17/3/27.
@@ -39,8 +38,7 @@ public class TsFileTest {
         File outputFile = new File(outputFilePath);
         if(outputFile.exists())
             outputFile.delete();
-        TSRandomAccessFileWriter outputStream = new RandomAccessOutputStream(outputFile);
-        TsFile tsfile = new TsFile(outputStream, schemaObj);
+        TsFile tsfile = new TsFile(outputFile, schemaObj);
         //write
         BufferedReader br = new BufferedReader(new FileReader(inputCSV));
         long lineCount = 0;

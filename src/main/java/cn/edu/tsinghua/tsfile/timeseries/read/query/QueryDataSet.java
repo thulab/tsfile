@@ -106,7 +106,6 @@ public class QueryDataSet {
         for (int i = 0; i < size; i++) {
             if (i == 0) {
                 r.setDeltaObjectId(deltaObjectIds[i]);
-                r.setDeltaObjectType(cols[i].getDeltaObjectType());
             }
             Field f = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
 

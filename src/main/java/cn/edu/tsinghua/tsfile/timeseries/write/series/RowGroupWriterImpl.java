@@ -6,7 +6,7 @@ import cn.edu.tsinghua.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.NoMeasurementException;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.page.IPageWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.page.PageWriterImpl;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
@@ -56,7 +56,7 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
     }
 
     @Override
-    public List<Object> query(String measurementId) {
+    public List<Object> getDataInMemory(String measurementId) {
         if (dataSeriesWriters.get(measurementId) == null) {
             LOG.warn("The measurementId {} is not exist", measurementId);
             DynamicOneColumnData left = null;
@@ -70,7 +70,7 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
     }
 
     @Override
-    public void flushToFileWriter(TSFileIOWriter deltaFileWriter) throws IOException {
+    public void flushToFileWriter(TsFileIOWriter deltaFileWriter) throws IOException {
         LOG.debug("start flush delta object id:{}", deltaObjectId);
         for (ISeriesWriter seriesWriter : dataSeriesWriters.values()) {
             seriesWriter.writeToFileWriter(deltaFileWriter);

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryEngine;
 import cn.edu.tsinghua.tsfile.timeseries.read.qp.Path;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
@@ -20,7 +20,7 @@ import cn.edu.tsinghua.tsfile.timeseries.read.support.RowRecord;
 
 public class QueryEngineTest {
 	private QueryEngine engine;
-	TSRandomAccessFileReader raf;
+	ITsRandomAccessFileReader raf;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws InterruptedException, WriteProcessException, IOException {
@@ -30,7 +30,7 @@ public class QueryEngineTest {
 	@Before
 	public void prepare() throws IOException, InterruptedException, WriteProcessException {
 		String fileName = "src/test/resources/perTestOutputData.ksn";
-		raf = new LocalFileInput(fileName);
+		raf = new TsRandomAccessLocalFileReader(fileName);
 		engine = new QueryEngine(raf, 10);
 
 

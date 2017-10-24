@@ -11,7 +11,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 
-import cn.edu.tsinghua.tsfile.common.utils.RandomAccessOutputStream;
+import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class RowGroupMetaDataTest {
     if (file.exists())
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
-    RandomAccessOutputStream out = new RandomAccessOutputStream(file, "rw");
+    TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
     ReadWriteThriftFormatUtils.write(metaData.convertToThrift(), out.getOutputStream());
 
     out.close();

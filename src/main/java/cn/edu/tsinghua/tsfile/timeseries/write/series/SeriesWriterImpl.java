@@ -10,7 +10,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.PageException;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TSFileIOWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.page.IPageWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -261,7 +261,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
     }
 
     @Override
-    public void writeToFileWriter(TSFileIOWriter tsfileWriter) throws IOException {
+    public void writeToFileWriter(TsFileIOWriter tsfileWriter) throws IOException {
         if (valueCount > 0) {
             writePage();
         }

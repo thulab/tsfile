@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.read;
 
-import cn.edu.tsinghua.tsfile.common.utils.TSRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
@@ -22,27 +22,28 @@ public class RowGroupReader {
 
     protected static final Logger logger = LoggerFactory.getLogger(RowGroupReader.class);
     public HashMap<String, TSDataType> seriesDataTypeMap;
+    /**
+     * measurement->values
+     */
     protected HashMap<String, ValueReader> valueReaders = new HashMap<>();
     protected String deltaObjectUID;
 
-    protected ArrayList<String> sids;
-    protected String deltaObjectType;
+    protected ArrayList<String> measurementIds;
     protected long totalByteSize;
 
-    protected TSRandomAccessFileReader raf;
+    protected ITsRandomAccessFileReader raf;
 
-    public RowGroupReader(RowGroupMetaData rowGroupMetaData, TSRandomAccessFileReader raf) {
+    public RowGroupReader(RowGroupMetaData rowGroupMetaData, ITsRandomAccessFileReader raf) {
         logger.debug("init a new RowGroupReader..");
         seriesDataTypeMap = new HashMap<>();
         deltaObjectUID = rowGroupMetaData.getDeltaObjectUID();
-        sids = new ArrayList<>();
-        deltaObjectType = rowGroupMetaData.getDeltaObjectType();
+        measurementIds = new ArrayList<>();
         this.totalByteSize = rowGroupMetaData.getTotalByteSize();
         this.raf = raf;
 
         for (TimeSeriesChunkMetaData tscMetaData : rowGroupMetaData.getTimeSeriesChunkMetaDataList()) {
             if (tscMetaData.getVInTimeSeriesChunkMetaData() != null) {
-                sids.add(tscMetaData.getProperties().getMeasurementUID());
+                measurementIds.add(tscMetaData.getProperties().getMeasurementUID());
                 seriesDataTypeMap.put(tscMetaData.getProperties().getMeasurementUID(),
                         tscMetaData.getVInTimeSeriesChunkMetaData().getDataType());
 
@@ -65,9 +66,7 @@ public class RowGroupReader {
         return timeRes;
     }
 
-    public String getDeltaObjectType() {
-        return this.deltaObjectType;
-    }
+
 
     public TSDataType getDataTypeBySeriesName(String name) {
         return this.seriesDataTypeMap.get(name);
@@ -121,11 +120,11 @@ public class RowGroupReader {
         this.valueReaders = valueReaders;
     }
 
-    public TSRandomAccessFileReader getRaf() {
+    public ITsRandomAccessFileReader getRaf() {
         return raf;
     }
 
-    public void setRaf(TSRandomAccessFileReader raf) {
+    public void setRaf(ITsRandomAccessFileReader raf) {
         this.raf = raf;
     }
 }

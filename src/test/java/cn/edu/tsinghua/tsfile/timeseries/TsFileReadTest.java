@@ -4,7 +4,7 @@ import cn.edu.tsinghua.tsfile.timeseries.basis.TsFile;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.filterseries.FilterSeriesType;
-import cn.edu.tsinghua.tsfile.timeseries.read.LocalFileInput;
+import cn.edu.tsinghua.tsfile.timeseries.read.TsRandomAccessLocalFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.qp.Path;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryDataSet;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
@@ -18,7 +18,7 @@ public class TsFileReadTest {
         String path = "src/test/resources/test.ts";
 
         // read example : no filter
-        LocalFileInput input = new LocalFileInput(path);
+        TsRandomAccessLocalFileReader input = new TsRandomAccessLocalFileReader(path);
         TsFile readTsFile = new TsFile(input);
         ArrayList<Path> paths = new ArrayList<>();
         paths.add(new Path("device_1.sensor_1"));
@@ -33,7 +33,7 @@ public class TsFileReadTest {
         // time filter : 4 <= time < 10
         FilterExpression timeFilter = FilterFactory.and(FilterFactory.gtEq(FilterFactory.timeFilterSeries(), 4L, true)
                 , FilterFactory.ltEq(FilterFactory.timeFilterSeries(), 10L, false));
-        input = new LocalFileInput(path);
+        input = new TsRandomAccessLocalFileReader(path);
         readTsFile = new TsFile(input);
         paths = new ArrayList<>();
         paths.add(new Path("device_1.sensor_1"));
@@ -47,7 +47,7 @@ public class TsFileReadTest {
 
         // value filter : device_1.sensor_2 < 20
         FilterExpression valueFilter = FilterFactory.ltEq(FilterFactory.intFilterSeries("device_1", "sensor_2", FilterSeriesType.VALUE_FILTER), 20, false);
-        input = new LocalFileInput(path);
+        input = new TsRandomAccessLocalFileReader(path);
         readTsFile = new TsFile(input);
         paths = new ArrayList<>();
         paths.add(new Path("device_1.sensor_1"));
@@ -62,7 +62,7 @@ public class TsFileReadTest {
         // time filter : 4 <= time < 10, value filter : device_1.sensor_2 > 20
         timeFilter = FilterFactory.and(FilterFactory.gtEq(FilterFactory.timeFilterSeries(), 4L, true), FilterFactory.ltEq(FilterFactory.timeFilterSeries(), 10L, false));
         valueFilter = FilterFactory.gtEq(FilterFactory.intFilterSeries("device_1", "sensor_3", FilterSeriesType.VALUE_FILTER), 21, true);
-        input = new LocalFileInput(path);
+        input = new TsRandomAccessLocalFileReader(path);
         readTsFile = new TsFile(input);
         paths = new ArrayList<>();
         paths.add(new Path("device_1.sensor_1"));

@@ -19,11 +19,6 @@ public class TimeSeriesMetadata implements IConverter<TimeSeries> {
 
     private String measurementUID;
 
-    /**
-     * which schema/group does the delta object belongs to
-     */
-    private String deltaObjectType;
-
     private TSDataType type;
 
     /**
@@ -46,17 +41,16 @@ public class TimeSeriesMetadata implements IConverter<TimeSeries> {
     public TimeSeriesMetadata() {
     }
 
-    public TimeSeriesMetadata(String measurementUID, TSDataType dataType, String deltaObjectType) {
+    public TimeSeriesMetadata(String measurementUID, TSDataType dataType) {
         this.measurementUID = measurementUID;
         this.type = dataType;
-        this.deltaObjectType = deltaObjectType;
     }
 
     @Override
     public TimeSeries convertToThrift() {
         try {
             TimeSeries timeSeriesInThrift = new TimeSeries(measurementUID,
-                    type == null ? null : DataType.valueOf(type.toString()), deltaObjectType);
+                    type == null ? null : DataType.valueOf(type.toString()), "");//FIXME remove deltaType from TimeSeries.java
             timeSeriesInThrift.setType_length(typeLength);
             timeSeriesInThrift.setFreq_type(freqType == null ? null : FreqType.valueOf(freqType.toString()));
             timeSeriesInThrift.setFrequencies(frequencies);
@@ -77,7 +71,6 @@ public class TimeSeriesMetadata implements IConverter<TimeSeries> {
             measurementUID = timeSeriesInThrift.getMeasurement_uid();
             type = timeSeriesInThrift.getType() == null ? null
                     : TSDataType.valueOf(timeSeriesInThrift.getType().toString());
-            deltaObjectType = timeSeriesInThrift.getDelta_object_type();
             typeLength = timeSeriesInThrift.getType_length();
             freqType = timeSeriesInThrift.getFreq_type() == null ? null
                     : TSFreqType.valueOf(timeSeriesInThrift.getFreq_type().toString());
@@ -97,14 +90,6 @@ public class TimeSeriesMetadata implements IConverter<TimeSeries> {
 
     public void setMeasurementUID(String measurementUID) {
         this.measurementUID = measurementUID;
-    }
-
-    public String getDeltaObjectType() {
-        return deltaObjectType;
-    }
-
-    public void setDeltaObjectType(String deltaObjectType) {
-        this.deltaObjectType = deltaObjectType;
     }
 
     public int getTypeLength() {

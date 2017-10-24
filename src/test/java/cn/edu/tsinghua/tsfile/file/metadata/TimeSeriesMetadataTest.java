@@ -3,24 +3,24 @@ package cn.edu.tsinghua.tsfile.file.metadata;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
+import org.junit.Test;
+
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.format.DataType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
+import cn.edu.tsinghua.tsfile.format.DataType;
 import cn.edu.tsinghua.tsfile.format.FreqType;
 import cn.edu.tsinghua.tsfile.format.TimeSeries;
-import org.junit.Test;
 
 public class TimeSeriesMetadataTest {
   public static final String measurementUID = "sensor01";
-  public static final String deltaObjectType = "dev1";
   public static final int typeLength = 1024;
 
   @Test
   public void testConvertToThrift() {
     for (TSDataType dataType : TSDataType.values()) {
       TimeSeriesMetadata timeSeries =
-          new TimeSeriesMetadata(measurementUID, dataType, deltaObjectType);
+          new TimeSeriesMetadata(measurementUID, dataType);
       Utils.isTimeSeriesEqual(timeSeries, timeSeries.convertToThrift());
 
       for (TSFreqType freqType : TSFreqType.values()) {
@@ -48,7 +48,7 @@ public class TimeSeriesMetadataTest {
   @Test
   public void testConvertToTSF() {
     for (DataType dataType : DataType.values()) {
-      TimeSeries timeSeries = new TimeSeries(measurementUID, dataType, deltaObjectType);
+      TimeSeries timeSeries = new TimeSeries(measurementUID, dataType, "");
       TimeSeriesMetadata tsTimeSeries = new TimeSeriesMetadata();
       tsTimeSeries.convertToTSF(timeSeries);
       Utils.isTimeSeriesEqual(tsTimeSeries, timeSeries);

@@ -19,12 +19,10 @@ import java.util.List;
 public class RowRecord {
     public long timestamp;
     public String deltaObjectId;
-    public String deltaObjectType;
     public List<Field> fields;
 
     public RowRecord(long timestamp, String deltaObjectId, String deltaObjectType) {
         this.timestamp = timestamp;
-        this.deltaObjectType = deltaObjectType;
         this.deltaObjectId = deltaObjectId;
         this.fields = new ArrayList<Field>();
     }
@@ -37,13 +35,6 @@ public class RowRecord {
         return deltaObjectId;
     }
 
-    public String getDeltaObjectType() {
-        return deltaObjectType;
-    }
-
-    public void setDeltaObjectType(String deltaObjecttype) {
-        this.deltaObjectType = deltaObjecttype;
-    }
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;

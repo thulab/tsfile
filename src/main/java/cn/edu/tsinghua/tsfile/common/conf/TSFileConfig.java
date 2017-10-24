@@ -133,8 +133,10 @@ public class TSFileConfig {
      * The default grow size of class DynamicOneColumnData
      */
     public static int dynamicDataSize = 1000;
-
-    public TSFileConfig() {
+    /**
+     * only can be used by TsFileDescriptor
+     */
+    protected TSFileConfig() {
 
     }
 }
