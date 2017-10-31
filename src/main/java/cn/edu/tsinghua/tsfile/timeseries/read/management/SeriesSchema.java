@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.tsfile.timeseries.read.metadata;
+package cn.edu.tsinghua.tsfile.timeseries.read.management;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
@@ -6,10 +6,11 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import java.util.HashMap;
 
 /**
- * @author Jinrui Zhang
  * This class define a schema for one time series.
  * This schema includes three main parameters which represent the {@code name},the {@code dataType} and
  * the {@code encoding} type for this time series. Some other arguments are put in {@code args}
+ *
+ * @author Jinrui Zhang
  */
 public class SeriesSchema {
     public String name;

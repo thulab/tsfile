@@ -17,7 +17,7 @@ import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
-import cn.edu.tsinghua.tsfile.timeseries.read.metadata.SeriesSchema;
+import cn.edu.tsinghua.tsfile.timeseries.read.management.SeriesSchema;
 import cn.edu.tsinghua.tsfile.timeseries.read.qp.Path;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryDataSet;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryEngine;
@@ -75,7 +75,7 @@ public class TsFile {
   /**
    * For Write
    *
-   * @param file
+   * @param output
    *          a TsFile
    * @param schemaJson
    *          the fileSchema of TsFile in type of JSON
@@ -94,7 +94,7 @@ public class TsFile {
   /**
    * For Write
    *
-   * @param file
+   * @param output
    *          a TsFile
    * @param schema
    *          the fileSchema of TsFile
@@ -198,6 +198,7 @@ public class TsFile {
     }
   }
 
+
   public QueryDataSet query(List<Path> paths, FilterExpression timeFilter,
       FilterExpression valueFilter) throws IOException {
     checkStatus(READ);
@@ -213,6 +214,7 @@ public class TsFile {
     return queryEngine.query(paths, timeFilter, null, valueFilter);
   }
 
+
   public QueryDataSet query(List<Path> paths, FilterExpression timeFilter,
       FilterExpression valueFilter, Map<String, Long> params) throws IOException {
     checkStatus(READ);
@@ -226,7 +228,7 @@ public class TsFile {
    * @throws IOException
    *           thrown if fail to get all series schema
    */
-  public HashMap<String, ArrayList<SeriesSchema>> getAllColumns() throws IOException {
+  public Map<String, ArrayList<SeriesSchema>> getAllColumns() throws IOException {
     checkStatus(READ);
     return queryEngine.getAllSeriesSchemasGroupByDeltaObject();
   }
@@ -238,7 +240,7 @@ public class TsFile {
    * @throws IOException
    *           thrown if fail to get row group count
    */
-  public HashMap<String, Integer> getDeltaObjectRowGroupCount() throws IOException {
+  public Map<String, Integer> getDeltaObjectRowGroupCount() throws IOException {
     checkStatus(READ);
     return queryEngine.getDeltaObjectRowGroupCount();
   }
@@ -248,7 +250,7 @@ public class TsFile {
    * @throws IOException
    *           thrown if fail to get delta object type
    */
-  public HashMap<String, String> getDeltaObjectTypes() throws IOException {
+  public Map<String, String> getDeltaObjectTypes() throws IOException {
     checkStatus(READ);
     return queryEngine.getDeltaObjectTypes();
   }

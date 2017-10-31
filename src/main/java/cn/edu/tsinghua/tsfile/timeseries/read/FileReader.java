@@ -4,6 +4,7 @@ import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TSFileMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.converter.TSFileMetaDataConverter;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 
@@ -15,92 +16,82 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * This class is used to read <code>TSFileMetaData</code>} and construct
+ * file level reader which contains the information of <code>RowGroupReader</code>.
+ *
  * @author Jinrui Zhang
- * This class is used to read {@code TSFileMetaData} and construct
- * file level reader which contains the information of
- * rowgroupreader.
  */
 public class FileReader {
-    public static final int FOOTER_LENGTH = 4;
-    public static final int MAGIC_LENGTH = TsFileIOWriter.magicStringBytes.length;
-    private TSFileMetaData fileMetaData;
-    private ByteArrayInputStream bais;
-    private ITsRandomAccessFileReader raf;
-    private ArrayList<RowGroupReader> rowGroupReaderList;
+
+    private static final int FOOTER_LENGTH = 4;
+    private static final int MAGIC_LENGTH = TsFileIOWriter.magicStringBytes.length;
     /**
-     * deltaObject->rowGroup list
+     * If the file has many rowgroups and series,
+     * the storage of <code>fileMetaData</code> may be large.
      */
-    private HashMap<String, ArrayList<RowGroupReader>> rowGroupReadersMap;
+    private TSFileMetaData fileMetaData;
+    private ITsRandomAccessFileReader randomAccessFileReader;
+    /**
+     * TODO rowGroupReaderList could be removed.
+     */
+    private List<RowGroupReader> rowGroupReaderList;
+    private Map<String, List<RowGroupReader>> rowGroupReaderMap;
 
     public FileReader(ITsRandomAccessFileReader raf) throws IOException {
-        this.raf = raf;
+        this.randomAccessFileReader = raf;
         init();
     }
 
     public FileReader(ITsRandomAccessFileReader raf, List<RowGroupMetaData> rowGroupMetaDataList) {
-        this.raf = raf;
+        this.randomAccessFileReader = raf;
         initFromRowGroupMetadataList(rowGroupMetaDataList);
     }
 
     /**
-     * FileReader initialize, constructing fileMetaData and rowGroupReaders
+     * <code>FileReader</code> initialization, construct <code>fileMetaData</code>
+     * <code>rowGroupReaderList</code>, and <code>rowGroupReaderMap</code>.
      *
-     * @throws IOException cannot init
+     * @throws IOException file read error
      */
     private void init() throws IOException {
-        long l = raf.length();
-        raf.seek(l - MAGIC_LENGTH - FOOTER_LENGTH);
-        int fileMetaDataLength = raf.readInt();
-
-        raf.seek(l - MAGIC_LENGTH - FOOTER_LENGTH - fileMetaDataLength);
+        long l = randomAccessFileReader.length();
+        randomAccessFileReader.seek(l - MAGIC_LENGTH - FOOTER_LENGTH);
+        int fileMetaDataLength = randomAccessFileReader.readInt();
+        randomAccessFileReader.seek(l - MAGIC_LENGTH - FOOTER_LENGTH - fileMetaDataLength);
         byte[] buf = new byte[fileMetaDataLength];
-        raf.read(buf, 0, buf.length);//FIXME  is this a potential bug?
-        bais = new ByteArrayInputStream(buf);
+        randomAccessFileReader.read(buf, 0, buf.length);//FIXME  is this a potential bug?
 
-        this.fileMetaData = new TSFileMetaDataConverter()
-                .toTSFileMetadata(ReadWriteThriftFormatUtils.readFileMetaData(bais));
+        ByteArrayInputStream bais = new ByteArrayInputStream(buf);
+        this.fileMetaData = new TSFileMetaDataConverter().toTSFileMetadata(ReadWriteThriftFormatUtils.readFileMetaData(bais));
 
         rowGroupReaderList = new ArrayList<>();
-        rowGroupReadersMap = new HashMap<>();
+        rowGroupReaderMap = new HashMap<>();
         initFromRowGroupMetadataList(fileMetaData.getRowGroups());
     }
 
     private void initFromRowGroupMetadataList(List<RowGroupMetaData> rowGroupMetadataList) {
         rowGroupReaderList = new ArrayList<>();
-        rowGroupReadersMap = new HashMap<>();
+        rowGroupReaderMap = new HashMap<>();
         for (RowGroupMetaData rowGroupMetaData : rowGroupMetadataList) {
             String key = rowGroupMetaData.getDeltaObjectUID();
-            RowGroupReader rowGroupReader = new RowGroupReader(rowGroupMetaData, raf);
+            RowGroupReader rowGroupReader = new RowGroupReader(rowGroupMetaData, randomAccessFileReader);
             rowGroupReaderList.add(rowGroupReader);
-            if (!rowGroupReadersMap.containsKey(key)) {
+            if (!rowGroupReaderMap.containsKey(key)) {
                 ArrayList<RowGroupReader> rowGroupReaderList = new ArrayList<>();
                 rowGroupReaderList.add(rowGroupReader);
-                rowGroupReadersMap.put(key, rowGroupReaderList);
+                rowGroupReaderMap.put(key, rowGroupReaderList);
             } else {
-                rowGroupReadersMap.get(key).add(rowGroupReader);
+                rowGroupReaderMap.get(key).add(rowGroupReader);
             }
         }
     }
 
-    public ArrayList<RowGroupReader> getOneRowGroupReader(String deltaObjectUID) {
-        return this.rowGroupReadersMap.get(deltaObjectUID);
+    public Map<String, List<RowGroupReader>> getRowGroupReaderMap() {
+        return this.rowGroupReaderMap;
     }
 
-    public HashMap<String, ArrayList<RowGroupReader>> getRowGroupReadersMap() {
-        return this.rowGroupReadersMap;
-    }
-
-    public ArrayList<RowGroupReader> getRowGroupReaderList() {
+    public List<RowGroupReader> getRowGroupReaderList() {
         return this.rowGroupReaderList;
-    }
-
-    /**
-     * @param deltaObjectUID delta object id
-     * @param index          from 0 to n-1
-     * @return reader
-     */
-    public RowGroupReader getRowGroupReader(String deltaObjectUID, int index) {
-        return this.rowGroupReadersMap.get(deltaObjectUID).get(index);
     }
 
     public Map<String, String> getProps() {
@@ -111,14 +102,23 @@ public class FileReader {
         return fileMetaData.getProp(key);
     }
 
-    /**
-     * @return the footer of the file
-     */
-    public TSFileMetaData getFileMetadata() {
-        return this.fileMetaData;
+    public List<RowGroupReader> getRowGroupReaderListByDeltaObject(String deltaObjectUID) {
+        List<RowGroupReader> ret = rowGroupReaderMap.get(deltaObjectUID);
+        if (ret == null) {
+            return new ArrayList<>();
+        }
+        return ret;
+    }
+
+    public TSDataType getDataTypeBySeriesName(String deltaObject, String measurement) {
+        List<RowGroupReader> rgrList = getRowGroupReaderMap().get(deltaObject);
+        if (rgrList == null || rgrList.size() == 0) {
+            return null;
+        }
+        return rgrList.get(0).getDataTypeBySeriesName(measurement);
     }
 
     public void close() throws IOException {
-        this.raf.close();
+        this.randomAccessFileReader.close();
     }
 }

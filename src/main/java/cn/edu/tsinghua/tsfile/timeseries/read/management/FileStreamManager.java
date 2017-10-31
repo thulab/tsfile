@@ -29,11 +29,11 @@ public class FileStreamManager {
         return FileStreamManagerHolder.INSTANCE;
     }
 
-    public ITsRandomAccessFileReader getLocalRandomAcessFileReader(String path) throws FileNotFoundException {
+    public ITsRandomAccessFileReader getLocalRandomAccessFileReader(String path) throws FileNotFoundException {
         return new TsRandomAccessLocalFileReader(path);
     }
 
-    public void closeLocalRandomAcessFileReader(TsRandomAccessLocalFileReader localFileInput) throws IOException {
+    public void closeLocalRandomAccessFileReader(TsRandomAccessLocalFileReader localFileInput) throws IOException {
         localFileInput.close();
     }
 

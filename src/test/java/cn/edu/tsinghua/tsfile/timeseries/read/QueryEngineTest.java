@@ -177,7 +177,7 @@ public class QueryEngineTest {
 			}
 			System.out.printf("\n");
 		}
-		//Output values
+		// output values
 		RowRecord r;
 
 		while ((r = res.getNextRecord()) != null) {

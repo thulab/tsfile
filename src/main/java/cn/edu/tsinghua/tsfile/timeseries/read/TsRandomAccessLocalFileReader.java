@@ -55,13 +55,6 @@ public class TsRandomAccessLocalFileReader implements ITsRandomAccessFileReader 
     return raf.readInt();
   }
 
-  /**
-   * use {@code FileStreamManager} to manage all LocalFileInput
-   */
-  public void closeFromManager() {
-    FileStreamManager.getInstance().close(this);
-  }
-
   @Override
   public void close() throws IOException {
     raf.close();

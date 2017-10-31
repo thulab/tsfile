@@ -10,10 +10,6 @@ public class QueryConfig {
     private String valueFilter;
     private QueryType queryType;
 
-    public QueryConfig() {
-        this.selectColumns = new ArrayList<>();
-    }
-
     /**
      * Construct a queryConfig for QUERY_WITHOUT_FILTER
      *
@@ -87,7 +83,7 @@ public class QueryConfig {
         return freqFilter;
     }
 
-    public void setFreqFilter(String freqFilter) {
+    private void setFreqFilter(String freqFilter) {
         this.freqFilter = freqFilter;
     }
 
@@ -95,7 +91,7 @@ public class QueryConfig {
         return valueFilter;
     }
 
-    public void setValueFilter(String valueFilter) {
+    private void setValueFilter(String valueFilter) {
         this.valueFilter = valueFilter;
     }
 
