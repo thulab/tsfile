@@ -20,9 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * TSFileIOWriter is used to construct metadata and write data stored in memory to output stream.
@@ -173,7 +171,7 @@ public class TsFileIOWriter {
   }
 
   /**
-   * write {@linkplain TSFileMetaData TSFileMetaData} to output stream and close it.
+   * write {@linkplain TsFileMetaData TSFileMetaData} to output stream and close it.
    *
    * @throws IOException
    *           if I/O error occurs
@@ -181,7 +179,56 @@ public class TsFileIOWriter {
   public void endFile(FileSchema schema) throws IOException {
     List<TimeSeriesMetadata> timeSeriesList = schema.getTimeSeriesMetadatas();
     LOG.debug("get time series list:{}", timeSeriesList);
-    TsFileMetaData tsfileMetadata = new TsFileMetaData(rowGroupMetaDatas, timeSeriesList,
+    //clustering rowGroupMetadata and build the range
+
+    Map<String, TsDeltaObject> tsDeltaObjectMap = new HashMap<>();
+    String current_deltaobject;
+    TsRowGroupBlockMetaData current_tsRowGroupBlockMetaData;
+
+    LinkedHashMap<String, TsRowGroupBlockMetaData> tsRowGroupBlockMetaDataMap = new LinkedHashMap<>();
+    for (RowGroupMetaData rowGroupMetaData : rowGroupMetaDatas){
+      current_deltaobject = rowGroupMetaData.getDeltaObjectID();
+      if (tsRowGroupBlockMetaDataMap.containsKey(current_deltaobject)) {
+        tsRowGroupBlockMetaDataMap.put(current_deltaobject, new TsRowGroupBlockMetaData());
+      }
+      tsRowGroupBlockMetaDataMap.get(current_deltaobject).addRowGroupMetaData(rowGroupMetaData);
+    }
+    Iterator<Map.Entry<String, TsRowGroupBlockMetaData>> iterator = tsRowGroupBlockMetaDataMap.entrySet().iterator();
+    long offset = out.getPos();
+    /** size of RowGroupMetadataBlock in byte **/
+    int metadataBlockSize;
+
+    /** start time for a delta object **/
+    long startTime;
+
+    /** end time for a delta object **/
+    long endTime;
+
+    while (iterator.hasNext()) {
+      startTime = Long.MAX_VALUE;
+      endTime = Long.MIN_VALUE;
+      metadataBlockSize = 0;
+
+      Map.Entry<String, TsRowGroupBlockMetaData> entry = iterator.next();
+      current_deltaobject = entry.getKey();
+      current_tsRowGroupBlockMetaData = entry.getValue();
+
+      for (RowGroupMetaData rowGroupMetaData : current_tsRowGroupBlockMetaData.getRowGroups()) {
+        metadataBlockSize += rowGroupMetaData.getTotalByteSize();
+        for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : rowGroupMetaData.getTimeSeriesChunkMetaDataList()) {
+          startTime = Long.min(startTime, timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getStartTime());
+          endTime = Long.max(endTime, timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getEndTime());
+        }
+      }
+      //flush tsRowGroupBlockMetaDatas in order
+      ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(current_tsRowGroupBlockMetaData.convertToThrift(),
+              out.getOutputStream());
+      TsDeltaObject tsDeltaObject = new TsDeltaObject(offset, metadataBlockSize, startTime, endTime);
+      tsDeltaObjectMap.put(current_deltaobject, tsDeltaObject);
+      offset = out.getPos();
+    }
+
+    TsFileMetaData tsfileMetadata = new TsFileMetaData(tsDeltaObjectMap, timeSeriesList,
         TSFileDescriptor.getInstance().getConfig().currentVersion);
     Map<String, String> props = schema.getProps();
     tsfileMetadata.setProps(props);
@@ -201,7 +248,7 @@ public class TsFileIOWriter {
     return out.getPos();
   }
 
-  private void serializeTsFileMetadata(TSFileMetaData footer) throws IOException {
+  private void serializeTsFileMetadata(TsFileMetaData footer) throws IOException {
     long footerIndex = out.getPos();
     LOG.debug("serialize the footer,file pos:{}", footerIndex);
     TsFileMetaDataConverter metadataConverter = new TsFileMetaDataConverter();
