@@ -17,8 +17,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TsFileMetadtaBigTest {
-	private static int deviceNum = 300;
+public class RowGroupBlockMetadtaBigTest {
+	private static int deviceNum = 100;
 	private static int sensorNum = 1000;
 	private static String PATH = "target/test-big.ksn";
 	public static final String DELTA_OBJECT_UID = "delta-3312";
@@ -67,7 +67,7 @@ public class TsFileMetadtaBigTest {
 		if (file.exists())
 			file.delete();
 		TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-		ReadWriteThriftFormatUtils.write(metaDataInThrift, out.getOutputStream());
+		ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(metaDataInThrift, out.getOutputStream());
 		out.close();
 		System.out.println("3: write to File" + (System.currentTimeMillis() - startTime)+"ms");
 
@@ -76,8 +76,9 @@ public class TsFileMetadtaBigTest {
 		fis.close();
 		
 		FileInputStream fis2 = new FileInputStream(new File(PATH));
-
-		RowGroupBlockMetaData metaDataInThrift2 = ReadWriteThriftFormatUtils.read(fis2, new RowGroupBlockMetaData());
+		startTime = System.currentTimeMillis();
+		RowGroupBlockMetaData metaDataInThrift2 = ReadWriteThriftFormatUtils.readRowGroupBlockMetaData(fis2);
+		System.out.println("4: read from File" + (System.currentTimeMillis() - startTime)+"ms");
 	    Utils.isRowGroupBlockMetadataEqual(metaData, metaDataInThrift2);
 	    System.out.println("-------------End Metadata big data test------------");
 	}

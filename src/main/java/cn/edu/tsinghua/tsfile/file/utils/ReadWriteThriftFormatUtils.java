@@ -9,6 +9,7 @@ import cn.edu.tsinghua.tsfile.format.Encoding;
 import cn.edu.tsinghua.tsfile.format.FileMetaData;
 import cn.edu.tsinghua.tsfile.format.PageHeader;
 import cn.edu.tsinghua.tsfile.format.PageType;
+import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.thrift.TBase;
@@ -55,6 +56,26 @@ public class ReadWriteThriftFormatUtils {
      */
     public static FileMetaData readFileMetaData(InputStream from) throws IOException {
         return read(from, new FileMetaData());
+    }
+    
+    public static void writeRowGroupBlockMetadata(RowGroupBlockMetaData metadata, OutputStream to) throws IOException{
+    		try {
+    			metadata.write(protocol(to));
+        } catch (TException e) {
+            LOGGER.error("tsfile-file Utils: can not write {}", metadata, e);
+            throw new IOException(e);
+        }
+    }
+    
+    public static RowGroupBlockMetaData readRowGroupBlockMetaData(InputStream from) throws IOException{
+	    	RowGroupBlockMetaData metaData = new RowGroupBlockMetaData();
+	    	try {
+	    		metaData.read(protocol(from));	
+	    		return metaData;
+		} catch (Exception e) {
+			LOGGER.error("tsfile-file Utils: can not read {}", metaData, e);
+            throw new IOException(e);
+		}
     }
 
     /**
