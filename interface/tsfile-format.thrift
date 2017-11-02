@@ -55,58 +55,6 @@ struct Digest {
    4: optional i64 distinct_count;
 }
 
-/**
- * Schema definition of a time-series. Logically, a time-series could be
- * regarded as a list of timestamp-value pairs.
- */
-struct TimeSeries {
-  1: required string measurement_uid;
-
-  /** Data type for this time series. */
-  2: required DataType type;
-
-  /** If type is FIXED_LEN_BYTE_ARRAY, this is the byte length of the values.
-   * Otherwise, if specified, this is the maximum bit length to store any of the values.
-   * (e.g. a low cardinality INT timeseries could have this set to 32).  Note that this is
-   * in the schema, and therefore fixed for the entire file.
-   */
-  3: optional i32 type_length;
-
-  /** Frequency type of the measurement that generates this time series data.
-   * This field is reserved for optimization storage and access.
-   * Currently, it is not used.
-   */
-  4: optional FreqType freq_type;
-
-  /** Frequency values of the measurement that generates this time series data.
-   * Note that a measurement may have multiple frequency values.
-   */
-  5: optional list<i32> frequencies;
-
-  /** When the schema is the result of a conversion from another model,
-   * converted_type is used to record the original type to help with cross conversion.
-   */
-  6: optional ConvertedType converted_type;
-
-  /** Used when this timeseries contains decimal data.
-   * See the DECIMAL converted type for more details.
-   */
-  7: optional i32 scale;
-  8: optional i32 precision;
-
-  /** When the original schema supports field ids, this will save the
-   * original field id in the TSFile schema
-   */
-  9: optional i32 field_id;
-
-  /** If values for data consist of enum values, metadata will store all possible
-   * values in time series
-   */
-  10: optional list<string> enum_values;
-
-  11: required string delta_object_type;
-
-}
 
 /**
  * Encodings supported by TSFile.  Not all encodings are valid for all types.
@@ -359,7 +307,7 @@ struct TimeSeriesChunkMetaData {
 struct RowGroupMetaData {
   1: required list<TimeSeriesChunkMetaData> tsc_metadata;
 
-  2: required string delta_object_uid;
+  2: required string delta_object_id;
 
   /** Total byte size of all the uncompressed time series data in this row group **/
   3: required i64 total_byte_size;
@@ -373,6 +321,82 @@ struct RowGroupMetaData {
   6: required string delta_object_type;
 }
 
+struct RowGroupBlockMetaData {
+  1: required list<RowGroupMetaData> row_groups_metadata;
+
+  2: required string delta_object_id;
+}
+
+/**
+ * Description for a delta object
+ */
+struct DeltaObject {
+  /** start position of RowGroupMetadataBlock in file **/
+  1: required i64 offset;
+
+  /** size of RowGroupMetadataBlock in byte **/
+  2: required i32 metadata_block_size;
+
+  /** start time **/
+  3: required i64 start_time;
+  
+  /** end time **/
+  4: required i64 end_time;
+}
+
+/**
+ * Schema definition of a time-series. Logically, a time-series could be
+ * regarded as a list of timestamp-value pairs.
+ */
+struct TimeSeries {
+  1: required string measurement_uid;
+
+  /** Data type for this time series. */
+  2: required DataType type;
+
+  /** If type is FIXED_LEN_BYTE_ARRAY, this is the byte length of the values.
+   * Otherwise, if specified, this is the maximum bit length to store any of the values.
+   * (e.g. a low cardinality INT timeseries could have this set to 32).  Note that this is
+   * in the schema, and therefore fixed for the entire file.
+   */
+  3: optional i32 type_length;
+
+  /** Frequency type of the measurement that generates this time series data.
+   * This field is reserved for optimization storage and access.
+   * Currently, it is not used.
+   */
+  4: optional FreqType freq_type;
+
+  /** Frequency values of the measurement that generates this time series data.
+   * Note that a measurement may have multiple frequency values.
+   */
+  5: optional list<i32> frequencies;
+
+  /** When the schema is the result of a conversion from another model,
+   * converted_type is used to record the original type to help with cross conversion.
+   */
+  6: optional ConvertedType converted_type;
+
+  /** Used when this timeseries contains decimal data.
+   * See the DECIMAL converted type for more details.
+   */
+  7: optional i32 scale;
+  8: optional i32 precision;
+
+  /** When the original schema supports field ids, this will save the
+   * original field id in the TSFile schema
+   */
+  9: optional i32 field_id;
+
+  /** If values for data consist of enum values, metadata will store all possible
+   * values in time series
+   */
+  10: optional list<string> enum_values;
+
+  11: required string delta_object_type;
+
+}
+
 /**
  * Description for file metadata
  */
@@ -380,27 +404,23 @@ struct FileMetaData {
   /** Version of this file **/
   1: required i32 version;
 
-  /** TSFile schema for this file.  This schema contains metadata for all the time series.
-   * The schema is represented as a list. **/
-  2: required list<TimeSeries> timeseries_list;
-
-  /** Maximum number of rows in this file **/
-  3: required i64 max_num_rows;
-
-  /** Row groups in this file **/
-  4: required list<RowGroupMetaData> row_groups;
+  /** Map stores all delta object name and their info **/
+  2: required map<string, DeltaObject> delta_object_map;
+  
+  /** TsFile schema for this file.  This schema contains metadata for all the time series. The schema is represented as a list. **/
+  3: required list<TimeSeries> timeseries_list;
 
   /** Optional json metadata **/
-  5: optional list<string> json_metadata;
+  4: optional list<string> json_metadata;
 
   /** String for application that wrote this file.  This should be in the format
    * <Application> version <App Version> (build <App Build Hash>).
    * e.g. tsfile version 1.0 (build SHA-1_hash_code)
    **/
-  6: optional string created_by;
+  5: optional string created_by;
  
   /**
    * User specified properties *
   */
-  7: optional map<string, string> properties;
+  6: optional map<string, string> properties;
 }

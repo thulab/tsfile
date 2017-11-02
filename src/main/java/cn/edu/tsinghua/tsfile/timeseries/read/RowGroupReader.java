@@ -33,7 +33,7 @@ public class RowGroupReader {
     public RowGroupReader(RowGroupMetaData rowGroupMetaData, ITsRandomAccessFileReader raf) {
         logger.debug("init a new RowGroupReader..");
         seriesDataTypeMap = new HashMap<>();
-        deltaObjectUID = rowGroupMetaData.getDeltaObjectUID();
+        deltaObjectUID = rowGroupMetaData.getDeltaObjectID();
         measurementIds = new ArrayList<>();
         this.totalByteSize = rowGroupMetaData.getTotalByteSize();
         this.raf = raf;

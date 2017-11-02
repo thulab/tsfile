@@ -8,24 +8,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.file.metadata.converter.TSFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.tsinghua.tsfile.format.FileMetaData;
+import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TsFileMetadtaBigTest {
-	private static int deviceNum = 30000;
-	private static int sensorNum = 10;
+	private static int deviceNum = 300;
+	private static int sensorNum = 1000;
 	private static String PATH = "target/test-big.ksn";
-	private TSFileMetaDataConverter converter;
+	public static final String DELTA_OBJECT_UID = "delta-3312";
 
 	@Before
 	public void setUp() throws Exception {
-		converter = new TSFileMetaDataConverter();
 	}
 
 	@After
@@ -48,27 +47,27 @@ public class TsFileMetadtaBigTest {
 
 	@Test
 	public void test() throws IOException {
-		System.out.println("-------------Start FileMetadata big data test------------");
+		System.out.println("-------------Start Metadata big data test------------");
 		long startTime = System.currentTimeMillis();
 		List<RowGroupMetaData> rowGroupMetaDatas = new ArrayList<>();
 		for (int i = 0; i < deviceNum; i++) {
 			rowGroupMetaDatas.add(createSimpleRowGroupMetaDataInTSF());
 		}
-		TSFileMetaData tsFileMetaData = new TSFileMetaData(rowGroupMetaDatas, new ArrayList<>(), 1);
-		System.out.println("1: create Tsfile Metadata " + (System.currentTimeMillis() - startTime)+"ms");
+		TsRowGroupBlockMetaData metaData = new TsRowGroupBlockMetaData(rowGroupMetaDatas, DELTA_OBJECT_UID);
+		System.out.println("1: create Metadata " + (System.currentTimeMillis() - startTime)+"ms");
 
 		startTime = System.currentTimeMillis();
-		FileMetaData fileMetaData = converter.toThriftFileMetadata(tsFileMetaData);
+		RowGroupBlockMetaData metaDataInThrift = metaData.convertToThrift();
 		System.out.println("2: covernet to Thrift " + (System.currentTimeMillis() - startTime)+"ms");
 
-		Utils.isFileMetaDataEqual(tsFileMetaData, fileMetaData);
+		Utils.isRowGroupBlockMetadataEqual(metaData, metaDataInThrift);
 		
 		startTime = System.currentTimeMillis();
 		File file = new File(PATH);
 		if (file.exists())
 			file.delete();
 		TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-		ReadWriteThriftFormatUtils.writeFileMetaData(fileMetaData, out.getOutputStream());
+		ReadWriteThriftFormatUtils.write(metaDataInThrift, out.getOutputStream());
 		out.close();
 		System.out.println("3: write to File" + (System.currentTimeMillis() - startTime)+"ms");
 
@@ -78,13 +77,12 @@ public class TsFileMetadtaBigTest {
 		
 		FileInputStream fis2 = new FileInputStream(new File(PATH));
 
-	    FileMetaData fileMetaData2 =
-	        ReadWriteThriftFormatUtils.readFileMetaData(fis2);
-	    Utils.isFileMetaDataEqual(tsFileMetaData, fileMetaData2);
-	    System.out.println("-------------End FileMetadata big data test------------");
+		RowGroupBlockMetaData metaDataInThrift2 = ReadWriteThriftFormatUtils.read(fis2, new RowGroupBlockMetaData());
+	    Utils.isRowGroupBlockMetadataEqual(metaData, metaDataInThrift2);
+	    System.out.println("-------------End Metadata big data test------------");
 	}
 
-	public static void main(String[] args) throws IOException {
+//	public static void main(String[] args) throws IOException {
 		// long startTime = System.currentTimeMillis();
 		// File file = new File(PATH);
 		// RandomAccessOutputStream outputStream = new
@@ -99,6 +97,6 @@ public class TsFileMetadtaBigTest {
 		//
 		// if (file.exists())
 		// file.delete();
-	}
+//	}
 
 }

@@ -14,7 +14,7 @@ import java.util.List;
 public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.format.RowGroupMetaData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RowGroupMetaData.class);
 
-    private String deltaObjectUID;
+    private String deltaObjectID;
 
     /**
      * Number of rows in this row group
@@ -42,9 +42,9 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
         timeSeriesChunkMetaDataList = new ArrayList<TimeSeriesChunkMetaData>();
     }
 
-    public RowGroupMetaData(String deltaObjectUID, long numOfRows, long totalByteSize,
+    public RowGroupMetaData(String deltaObjectID, long numOfRows, long totalByteSize,
                             List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList, String deltaObjectType) {
-        this.deltaObjectUID = deltaObjectUID;
+        this.deltaObjectID = deltaObjectID;
         this.numOfRows = numOfRows;
         this.totalByteSize = totalByteSize;
         this.timeSeriesChunkMetaDataList = timeSeriesChunkMetaDataList;
@@ -80,7 +80,7 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
             }
             cn.edu.tsinghua.tsfile.format.RowGroupMetaData metaDataInThrift =
                     new cn.edu.tsinghua.tsfile.format.RowGroupMetaData(timeSeriesChunkMetaDataListInThrift,
-                            deltaObjectUID, totalByteSize, numOfRows, deltaObjectType);
+                    		deltaObjectID, totalByteSize, numOfRows, deltaObjectType);
             metaDataInThrift.setFile_path(path);
             return metaDataInThrift;
         } catch (Exception e) {
@@ -95,7 +95,7 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
     @Override
     public void convertToTSF(cn.edu.tsinghua.tsfile.format.RowGroupMetaData metaDataInThrift) {
         try {
-            deltaObjectUID = metaDataInThrift.getDelta_object_uid();
+            deltaObjectID = metaDataInThrift.getDelta_object_id();
             numOfRows = metaDataInThrift.getMax_num_rows();
             totalByteSize = metaDataInThrift.getTotal_byte_size();
             path = metaDataInThrift.getFile_path();
@@ -126,8 +126,8 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
     @Override
     public String toString() {
         return String.format(
-                "RowGroupMetaData{ delta object uid: %s, number of rows: %d, total byte size: %d, time series chunk list: %s }",
-                deltaObjectUID, numOfRows, totalByteSize, timeSeriesChunkMetaDataList);
+                "RowGroupMetaData{ delta object id: %s, number of rows: %d, total byte size: %d, time series chunk list: %s }",
+                deltaObjectID, numOfRows, totalByteSize, timeSeriesChunkMetaDataList);
     }
 
     public long getNumOfRows() {
@@ -154,12 +154,12 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
         this.path = path;
     }
 
-    public String getDeltaObjectUID() {
-        return deltaObjectUID;
+    public String getDeltaObjectID() {
+        return deltaObjectID;
     }
 
-    public void setDeltaObjectUID(String deltaObjectUID) {
-        this.deltaObjectUID = deltaObjectUID;
+    public void setDeltaObjectID(String deltaObjectUID) {
+        this.deltaObjectID = deltaObjectUID;
     }
 
     public List<TimeSeriesChunkMetaData> getTimeSeriesChunkMetaDataList() {

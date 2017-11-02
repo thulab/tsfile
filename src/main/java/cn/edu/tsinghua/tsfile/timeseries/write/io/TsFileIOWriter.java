@@ -6,7 +6,7 @@ import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.file.metadata.*;
-import cn.edu.tsinghua.tsfile.file.metadata.converter.TSFileMetaDataConverter;
+import cn.edu.tsinghua.tsfile.file.metadata.converter.TsFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
@@ -32,7 +32,7 @@ import java.util.Map;
 public class TsFileIOWriter {
   public static final String MAGIC_STRING = "TsFilev0.0.1";
   public static final byte[] magicStringBytes;
-  public static final TSFileMetaDataConverter metadataConverter = new TSFileMetaDataConverter();
+  public static final TsFileMetaDataConverter metadataConverter = new TsFileMetaDataConverter();
   private static final Logger LOG = LoggerFactory.getLogger(TsFileIOWriter.class);
 
   static {
@@ -150,7 +150,7 @@ public class TsFileIOWriter {
     byte[] min = statistics.getMinBytes();
 
     VInTimeSeriesChunkMetaData v = new VInTimeSeriesChunkMetaData(tsDataType);
-    TSDigest tsDigest = new TSDigest(ByteBuffer.wrap(max, 0, max.length),
+    TsDigest tsDigest = new TsDigest(ByteBuffer.wrap(max, 0, max.length),
         ByteBuffer.wrap(min, 0, min.length));
     v.setDigest(tsDigest);
     descriptor.setDataValues(v);
@@ -181,7 +181,7 @@ public class TsFileIOWriter {
   public void endFile(FileSchema schema) throws IOException {
     List<TimeSeriesMetadata> timeSeriesList = schema.getTimeSeriesMetadatas();
     LOG.debug("get time series list:{}", timeSeriesList);
-    TSFileMetaData tsfileMetadata = new TSFileMetaData(rowGroupMetaDatas, timeSeriesList,
+    TsFileMetaData tsfileMetadata = new TsFileMetaData(rowGroupMetaDatas, timeSeriesList,
         TSFileDescriptor.getInstance().getConfig().currentVersion);
     Map<String, String> props = schema.getProps();
     tsfileMetadata.setProps(props);
@@ -204,7 +204,7 @@ public class TsFileIOWriter {
   private void serializeTsFileMetadata(TSFileMetaData footer) throws IOException {
     long footerIndex = out.getPos();
     LOG.debug("serialize the footer,file pos:{}", footerIndex);
-    TSFileMetaDataConverter metadataConverter = new TSFileMetaDataConverter();
+    TsFileMetaDataConverter metadataConverter = new TsFileMetaDataConverter();
     ReadWriteThriftFormatUtils.writeFileMetaData(metadataConverter.toThriftFileMetadata(footer),
         out.getOutputStream());
     LOG.debug("serialize the footer finished, file pos:{}", out.getPos());

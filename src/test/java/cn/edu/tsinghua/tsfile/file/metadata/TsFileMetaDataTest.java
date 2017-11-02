@@ -10,31 +10,47 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.TSFileMetaDataConverter;
+import cn.edu.tsinghua.tsfile.file.metadata.converter.TsFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 import cn.edu.tsinghua.tsfile.format.TimeSeries;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
+import cn.edu.tsinghua.tsfile.format.DeltaObject;
 import cn.edu.tsinghua.tsfile.format.FileMetaData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TSFileMetaDataTest {
-  private TSFileMetaDataConverter converter = new TSFileMetaDataConverter();
+public class TsFileMetaDataTest {
+  private TsFileMetaDataConverter converter = new TsFileMetaDataConverter();
   final String PATH = "target/output1.ksn";
+  final int VERSION = 123;
 
   public static Map<String, String> properties = new HashMap<>();
+  public static Map<String, TsDeltaObject> tsDeltaObjectMap = new HashMap<>();
+  public static Map<String, DeltaObject> deltaObjectMap = new HashMap<>();
   static {
       properties.put("s1", "sensor1");
       properties.put("s2", "sensor2");
       properties.put("s3", "sensor3");
   }
   
+  static {
+	  tsDeltaObjectMap.put("d1", new TsDeltaObject(123, 456, 789, 901));
+	  tsDeltaObjectMap.put("d2", new TsDeltaObject(123, 456, 789, 901));
+	  tsDeltaObjectMap.put("d3", new TsDeltaObject(123, 456, 789, 901));
+  }
+  
+  static {
+	  deltaObjectMap.put("d1", new DeltaObject(123, 456, 789, 901));
+	  deltaObjectMap.put("d2", new DeltaObject(123, 456, 789, 901));
+	  deltaObjectMap.put("d3", new DeltaObject(123, 456, 789, 901));
+  }
+  
   @Before
   public void setUp() throws Exception {
-    converter = new TSFileMetaDataConverter();
+    converter = new TsFileMetaDataConverter();
   }
 
   @After
@@ -46,8 +62,7 @@ public class TSFileMetaDataTest {
 
   @Test
   public void testWriteFileMetaData() throws IOException {
-    TSFileMetaData tsfMetaData = new TSFileMetaData(null, null, 0);
-    tsfMetaData.addRowGroupMetaData(TestHelper.createSimpleRowGroupMetaDataInTSF());
+    TsFileMetaData tsfMetaData = new TsFileMetaData(tsDeltaObjectMap, null, VERSION);
     tsfMetaData.addTimeSeriesMetaData(TestHelper.createSimpleTimeSeriesInTSF());
     tsfMetaData.addTimeSeriesMetaData(TestHelper.createSimpleTimeSeriesInTSF());
     tsfMetaData.setCreatedBy("tsf");
@@ -79,7 +94,7 @@ public class TSFileMetaDataTest {
 
   @Test
   public void testCreateFileMetaDataInThrift() throws UnsupportedEncodingException {
-    TSFileMetaData tsfMetaData = new TSFileMetaData(null, null, 12);
+    TsFileMetaData tsfMetaData = new TsFileMetaData(tsDeltaObjectMap, null, VERSION);
     Utils.isFileMetaDataEqual(tsfMetaData, converter.toThriftFileMetadata(tsfMetaData));
 
     tsfMetaData.setCreatedBy("tsf");
@@ -94,15 +109,7 @@ public class TSFileMetaDataTest {
 
     tsfMetaData.setProps(properties);
     Utils.isFileMetaDataEqual(tsfMetaData, converter.toThriftFileMetadata(tsfMetaData));
-    
-    tsfMetaData.setRowGroups(new ArrayList<RowGroupMetaData>());
-    Utils.isFileMetaDataEqual(tsfMetaData, converter.toThriftFileMetadata(tsfMetaData));
-    tsfMetaData.addRowGroupMetaData(TestHelper.createSimpleRowGroupMetaDataInTSF());
-    Utils.isFileMetaDataEqual(tsfMetaData, converter.toThriftFileMetadata(tsfMetaData));
-    tsfMetaData.addRowGroupMetaData(TestHelper.createSimpleRowGroupMetaDataInTSF());
-    Utils.isFileMetaDataEqual(tsfMetaData, converter.toThriftFileMetadata(tsfMetaData));
-
-
+   
     tsfMetaData.setTimeSeriesList(new ArrayList<TimeSeriesMetadata>());
     Utils.isFileMetaDataEqual(tsfMetaData, converter.toThriftFileMetadata(tsfMetaData));
 
@@ -114,42 +121,42 @@ public class TSFileMetaDataTest {
 
   @Test
   public void testCreateTSFMetadata() throws UnsupportedEncodingException {
-    FileMetaData fileMetaData = new FileMetaData(21, null, 0, null);
-    Utils.isFileMetaDataEqual(converter.toTSFileMetadata(fileMetaData), fileMetaData);
+    FileMetaData fileMetaData = new FileMetaData(VERSION, deltaObjectMap, null);
+    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
 
     List<String> jsonMetaData = new ArrayList<String>();
     fileMetaData.setJson_metadata(jsonMetaData);
-    Utils.isFileMetaDataEqual(converter.toTSFileMetadata(fileMetaData), fileMetaData);
+    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
     jsonMetaData.add("fsdfsfsd");
     jsonMetaData.add("424fd");
     fileMetaData.setJson_metadata(jsonMetaData);
-    Utils.isFileMetaDataEqual(converter.toTSFileMetadata(fileMetaData), fileMetaData);
+    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
 
     fileMetaData.setTimeseries_list(new ArrayList<TimeSeries>());
-    Utils.isFileMetaDataEqual(converter.toTSFileMetadata(fileMetaData), fileMetaData);
+    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
 
     fileMetaData.setProperties(properties);
-    Utils.isFileMetaDataEqual(converter.toTSFileMetadata(fileMetaData), fileMetaData);
+    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
     
     fileMetaData.getTimeseries_list().add(TestHelper.createSimpleTimeSeriesInThrift());
-    Utils.isFileMetaDataEqual(converter.toTSFileMetadata(fileMetaData), fileMetaData);
+    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
     fileMetaData.getTimeseries_list().add(TestHelper.createSimpleTimeSeriesInThrift());
-    Utils.isFileMetaDataEqual(converter.toTSFileMetadata(fileMetaData), fileMetaData);
+    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
 
-    fileMetaData.setRow_groups(new ArrayList<cn.edu.tsinghua.tsfile.format.RowGroupMetaData>());
-    Utils.isFileMetaDataEqual(converter.toTSFileMetadata(fileMetaData), fileMetaData);
-
-    cn.edu.tsinghua.tsfile.format.RowGroupMetaData rowGroupMetaData1 =
-        TestHelper.createSimpleRowGroupMetaDataInThrift();
-    fileMetaData.max_num_rows += rowGroupMetaData1.getMax_num_rows();
-    fileMetaData.getRow_groups().add(rowGroupMetaData1);
-    Utils.isFileMetaDataEqual(converter.toTSFileMetadata(fileMetaData), fileMetaData);
-
-    cn.edu.tsinghua.tsfile.format.RowGroupMetaData rowGroupMetaData2 =
-        TestHelper.createSimpleRowGroupMetaDataInThrift();
-    fileMetaData.max_num_rows += rowGroupMetaData2.getMax_num_rows();
-    fileMetaData.getRow_groups().add(rowGroupMetaData2);
-    Utils.isFileMetaDataEqual(converter.toTSFileMetadata(fileMetaData), fileMetaData);
+//    fileMetaData.setRow_groups(new ArrayList<cn.edu.tsinghua.tsfile.format.RowGroupMetaData>());
+//    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
+//
+//    cn.edu.tsinghua.tsfile.format.RowGroupMetaData rowGroupMetaData1 =
+//        TestHelper.createSimpleRowGroupMetaDataInThrift();
+//    fileMetaData.max_num_rows += rowGroupMetaData1.getMax_num_rows();
+//    fileMetaData.getRow_groups().add(rowGroupMetaData1);
+//    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
+//
+//    cn.edu.tsinghua.tsfile.format.RowGroupMetaData rowGroupMetaData2 =
+//        TestHelper.createSimpleRowGroupMetaDataInThrift();
+//    fileMetaData.max_num_rows += rowGroupMetaData2.getMax_num_rows();
+//    fileMetaData.getRow_groups().add(rowGroupMetaData2);
+    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
   }
 
 }

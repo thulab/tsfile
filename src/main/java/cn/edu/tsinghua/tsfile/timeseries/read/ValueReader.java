@@ -6,7 +6,7 @@ import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
 import cn.edu.tsinghua.tsfile.encoding.decoder.DeltaBinaryDecoder;
-import cn.edu.tsinghua.tsfile.file.metadata.TSDigest;
+import cn.edu.tsinghua.tsfile.file.metadata.TsDigest;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.format.Digest;
@@ -42,7 +42,7 @@ public class ValueReader {
     protected long fileOffset = -1;
     protected long totalSize = -1;
     protected TSDataType dataType;
-    protected TSDigest digest;
+    protected TsDigest digest;
     protected ITsRandomAccessFileReader raf;
     protected List<String> enumValues;
     protected CompressionTypeName compressionTypeName;
@@ -57,7 +57,7 @@ public class ValueReader {
      * @param dataType  Data type of this column
      * @param digest    Digest for this column.
      */
-    protected ValueReader(long offset, long totalSize, TSDataType dataType, TSDigest digest) {
+    protected ValueReader(long offset, long totalSize, TSDataType dataType, TsDigest digest) {
         this.timeDecoder = new DeltaBinaryDecoder.LongDeltaDecoder();
         this.fileOffset = offset;
         this.totalSize = totalSize;
@@ -67,7 +67,7 @@ public class ValueReader {
         this.digest = digest;
     }
 
-    public ValueReader(long offset, long totalSize, TSDataType dataType, TSDigest digest, ITsRandomAccessFileReader raf,
+    public ValueReader(long offset, long totalSize, TSDataType dataType, TsDigest digest, ITsRandomAccessFileReader raf,
                        CompressionTypeName compressionTypeName) {
         this(offset, totalSize, dataType, digest);
         this.compressionTypeName = compressionTypeName;
@@ -84,7 +84,7 @@ public class ValueReader {
      * @param compressionTypeName CompressionType used for this column
      * @param rowNums             Total of rows for this column
      */
-    public ValueReader(long offset, long totalSize, TSDataType dataType, TSDigest digest, ITsRandomAccessFileReader raf,
+    public ValueReader(long offset, long totalSize, TSDataType dataType, TsDigest digest, ITsRandomAccessFileReader raf,
                        List<String> enumValues, CompressionTypeName compressionTypeName, long rowNums) {
         this(offset, totalSize, dataType, digest, raf, compressionTypeName);
         this.enumValues = enumValues;
@@ -159,7 +159,7 @@ public class ValueReader {
         if (valueFilter == null) {
             return true;
         }
-        TSDigest digest = getDigest();
+        TsDigest digest = getDigest();
         DigestForFilter digestFF = null;
 
         if (getDataType() == TSDataType.ENUMS) {
@@ -637,7 +637,7 @@ public class ValueReader {
         return this.totalSize;
     }
 
-    public TSDigest getDigest() {
+    public TsDigest getDigest() {
         return this.digest;
     }
 
