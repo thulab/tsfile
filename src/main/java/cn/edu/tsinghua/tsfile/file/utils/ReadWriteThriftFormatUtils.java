@@ -59,23 +59,11 @@ public class ReadWriteThriftFormatUtils {
     }
     
     public static void writeRowGroupBlockMetadata(RowGroupBlockMetaData metadata, OutputStream to) throws IOException{
-    		try {
-    			metadata.write(protocol(to));
-        } catch (TException e) {
-            LOGGER.error("tsfile-file Utils: can not write {}", metadata, e);
-            throw new IOException(e);
-        }
+    	write(metadata, to);
     }
     
     public static RowGroupBlockMetaData readRowGroupBlockMetaData(InputStream from) throws IOException{
-	    	RowGroupBlockMetaData metaData = new RowGroupBlockMetaData();
-	    	try {
-	    		metaData.read(protocol(from));	
-	    		return metaData;
-		} catch (Exception e) {
-			LOGGER.error("tsfile-file Utils: can not read {}", metaData, e);
-            throw new IOException(e);
-		}
+    	return read(from, new RowGroupBlockMetaData());
     }
 
     /**
