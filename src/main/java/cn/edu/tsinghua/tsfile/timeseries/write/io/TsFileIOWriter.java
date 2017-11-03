@@ -194,7 +194,8 @@ public class TsFileIOWriter {
       tsRowGroupBlockMetaDataMap.get(current_deltaobject).addRowGroupMetaData(rowGroupMetaData);
     }
     Iterator<Map.Entry<String, TsRowGroupBlockMetaData>> iterator = tsRowGroupBlockMetaDataMap.entrySet().iterator();
-    long offset = out.getPos();
+    long offset;
+    long offset_index;
     /** size of RowGroupMetadataBlock in byte **/
     int metadataBlockSize;
 
@@ -220,12 +221,13 @@ public class TsFileIOWriter {
           endTime = Long.max(endTime, timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getEndTime());
         }
       }
+      offset_index = out.getPos();
       //flush tsRowGroupBlockMetaDatas in order
       ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(current_tsRowGroupBlockMetaData.convertToThrift(),
               out.getOutputStream());
-      TsDeltaObject tsDeltaObject = new TsDeltaObject(offset, metadataBlockSize, startTime, endTime);
-      tsDeltaObjectMap.put(current_deltaobject, tsDeltaObject);
       offset = out.getPos();
+      TsDeltaObject tsDeltaObject = new TsDeltaObject(offset, (int)(offset-offset_index), startTime, endTime);
+      tsDeltaObjectMap.put(current_deltaobject, tsDeltaObject);
     }
 
     TsFileMetaData tsfileMetadata = new TsFileMetaData(tsDeltaObjectMap, timeSeriesList,
