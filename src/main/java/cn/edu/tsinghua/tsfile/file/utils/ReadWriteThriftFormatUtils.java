@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.utils;
 
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.tsinghua.tsfile.format.DataPageHeader;
@@ -22,6 +23,7 @@ import org.apache.thrift.transport.TIOStreamTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -64,6 +66,15 @@ public class ReadWriteThriftFormatUtils {
     
     public static RowGroupBlockMetaData readRowGroupBlockMetaData(InputStream from) throws IOException{
     	return read(from, new RowGroupBlockMetaData());
+    }
+
+    public static RowGroupBlockMetaData readRowGroupBlockMetaData(ITsRandomAccessFileReader reader, long offset, int size) throws IOException {
+        reader.seek(offset);
+        byte[] buf = new byte[size];
+        reader.read(buf, 0, buf.length);
+        ByteArrayInputStream bais = new ByteArrayInputStream(buf);
+
+        return readRowGroupBlockMetaData(bais);
     }
 
     /**
