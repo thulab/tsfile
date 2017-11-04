@@ -35,7 +35,7 @@ public class FileReader {
     private ITsRandomAccessFileReader randomAccessFileReader;
 
     private Map<String, List<RowGroupReader>> rowGroupReaderMap;
-    // TODO： do we need to manage RowGroupReaders across files?
+    // TODO: do we need to manage RowGroupReaders across files?
     private LinkedList<String> rowGroupReaderLRUList;
 
     /**
@@ -189,5 +189,15 @@ public class FileReader {
             }
         }
         this.rowGroupReaderLRUList.addLast(deltaObjUID);
+    }
+
+    @Deprecated
+    // only used for compatibility
+    public List<RowGroupReader> getRowGroupReaderList(){
+        ArrayList<RowGroupReader> ret = new ArrayList<>();
+        for(Map.Entry<String, List<RowGroupReader>> entry : this.rowGroupReaderMap.entrySet()) {
+            ret.addAll(entry.getValue());
+        }
+        return ret;
     }
 }
