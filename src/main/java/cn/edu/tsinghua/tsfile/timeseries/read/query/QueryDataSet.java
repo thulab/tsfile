@@ -15,21 +15,31 @@ public class QueryDataSet {
     private static final Logger LOG = LoggerFactory.getLogger(QueryDataSet.class);
     private static final char PATH_SPLITTER = '.';
 
-    /** Time Generator for Cross Query when using batching read **/
+    /**
+     * Time Generator for Cross Query when using batching read
+     **/
     public CrossQueryTimeGenerator timeQueryDataSet;
     public LinkedHashMap<String, DynamicOneColumnData> mapRet;
     protected BatchReadRecordGenerator batchReaderRetGenerator;
 
-    /** special for save time values when processing cross getIndex **/
+    /**
+     * special for save time values when processing cross getIndex
+     **/
     protected PriorityQueue<Long> heap;
 
-    /** the content of cols equals to mapRet **/
+    /**
+     * the content of cols equals to mapRet
+     **/
     protected DynamicOneColumnData[] cols;
 
-    /** timeIdxs[i] stores the index of cols[i] **/
+    /**
+     * timeIdxs[i] stores the index of cols[i]
+     **/
     protected int[] timeIdxs;
 
-    /** emptyTimeIdxs[i] stores the empty time index of cols[i] **/
+    /**
+     * emptyTimeIdxs[i] stores the empty time index of cols[i]
+     **/
     protected int[] emptyTimeIdxs;
 
     protected String[] deltaObjectIds;
@@ -120,6 +130,9 @@ public class QueryDataSet {
 
         RowRecord record = new RowRecord(minTime, null, null);
         for (int i = 0; i < size; i++) {
+            if (i == 0) {
+                record.setDeltaObjectId(deltaObjectIds[i]);
+            }
             Field field = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
             if (timeIdxs[i] < cols[i].timeLength && minTime == cols[i].getTime(timeIdxs[i])) {
                 field.setNull(false);
@@ -135,9 +148,9 @@ public class QueryDataSet {
                 if (nextTime != Long.MAX_VALUE) {
                     heapPut(nextTime);
                 }
-            } else if (emptyTimeIdxs[i] < cols[i].emptyTimeLength && minTime == cols[i].getEmptyTime(emptyTimeIdxs[i])){
+            } else if (emptyTimeIdxs[i] < cols[i].emptyTimeLength && minTime == cols[i].getEmptyTime(emptyTimeIdxs[i])) {
                 field.setNull(true);
-                emptyTimeIdxs[i] ++;
+                emptyTimeIdxs[i]++;
                 long nextTime = Long.MAX_VALUE;
                 if (emptyTimeIdxs[i] < cols[i].emptyTimeLength) {
                     nextTime = cols[i].getEmptyTime(emptyTimeIdxs[i]);
