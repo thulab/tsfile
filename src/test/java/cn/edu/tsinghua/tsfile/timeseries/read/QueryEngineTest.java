@@ -9,7 +9,7 @@ import java.util.List;
 
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryEngine;
-import cn.edu.tsinghua.tsfile.timeseries.read.qp.Path;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryConfig;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryDataSet;

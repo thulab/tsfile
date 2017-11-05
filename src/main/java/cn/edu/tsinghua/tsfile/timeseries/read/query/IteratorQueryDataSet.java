@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.read.query;
 
-import cn.edu.tsinghua.tsfile.timeseries.read.qp.Path;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Field;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.RowRecord;
 import org.slf4j.Logger;

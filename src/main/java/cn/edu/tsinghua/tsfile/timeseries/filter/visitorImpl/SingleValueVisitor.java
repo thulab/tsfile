@@ -32,7 +32,7 @@ public class SingleValueVisitor<V extends Comparable<V>> implements FilterVisito
         this.ssfilter = filter;
     }
 
-    public Boolean satisfy(V value, SingleSeriesFilterExpression filter) {
+    private Boolean satisfy(V value, SingleSeriesFilterExpression filter) {
         this.value = value;
         return filter.accept(this);
     }

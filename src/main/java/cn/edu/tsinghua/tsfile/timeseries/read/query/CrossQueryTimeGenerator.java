@@ -88,7 +88,7 @@ public abstract class CrossQueryTimeGenerator {
             if (v == -1) {
                 break;
             }
-            if ((timeFilter == null) || (timeFilter != null && timeFilterVisitor.satisfy(v, timeFilter))) {
+            if ((timeFilter == null) || (timeFilter != null && timeFilterVisitor.satisfyObject(v, timeFilter))) {
                 res[cnt] = v;
                 cnt++;
             }

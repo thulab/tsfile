@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.read.qp;
 
+import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

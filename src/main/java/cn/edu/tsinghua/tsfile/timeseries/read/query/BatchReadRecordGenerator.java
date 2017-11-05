@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.read.query;
 
 import cn.edu.tsinghua.tsfile.common.exception.ProcessorException;
-import cn.edu.tsinghua.tsfile.timeseries.read.qp.Path;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 
 import java.io.IOException;
 import java.util.HashMap;
