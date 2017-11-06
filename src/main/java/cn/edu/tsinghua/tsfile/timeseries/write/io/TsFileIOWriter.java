@@ -188,8 +188,10 @@ public class TsFileIOWriter {
     LinkedHashMap<String, TsRowGroupBlockMetaData> tsRowGroupBlockMetaDataMap = new LinkedHashMap<>();
     for (RowGroupMetaData rowGroupMetaData : rowGroupMetaDatas){
       current_deltaobject = rowGroupMetaData.getDeltaObjectID();
-      if (tsRowGroupBlockMetaDataMap.containsKey(current_deltaobject)) {
-        tsRowGroupBlockMetaDataMap.put(current_deltaobject, new TsRowGroupBlockMetaData());
+      if (!tsRowGroupBlockMetaDataMap.containsKey(current_deltaobject)) {
+        TsRowGroupBlockMetaData tsRowGroupBlockMetaData = new TsRowGroupBlockMetaData();
+        tsRowGroupBlockMetaData.setDeltaObjectID(current_deltaobject);
+        tsRowGroupBlockMetaDataMap.put(current_deltaobject, tsRowGroupBlockMetaData);
       }
       tsRowGroupBlockMetaDataMap.get(current_deltaobject).addRowGroupMetaData(rowGroupMetaData);
     }
@@ -208,14 +210,12 @@ public class TsFileIOWriter {
     while (iterator.hasNext()) {
       startTime = Long.MAX_VALUE;
       endTime = Long.MIN_VALUE;
-      metadataBlockSize = 0;
 
       Map.Entry<String, TsRowGroupBlockMetaData> entry = iterator.next();
       current_deltaobject = entry.getKey();
       current_tsRowGroupBlockMetaData = entry.getValue();
 
       for (RowGroupMetaData rowGroupMetaData : current_tsRowGroupBlockMetaData.getRowGroups()) {
-        metadataBlockSize += rowGroupMetaData.getTotalByteSize();
         for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : rowGroupMetaData.getTimeSeriesChunkMetaDataList()) {
           startTime = Long.min(startTime, timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getStartTime());
           endTime = Long.max(endTime, timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getEndTime());
