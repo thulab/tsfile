@@ -48,7 +48,6 @@ public class TsFileMetaData implements IConverter<FileMetaData> {
     }
 
     /**
-     * @param rowGroupMetadataList - rowGroup level metadata
      * @param timeSeriesList       - time series info list
      * @param currentVersion       - current version
      */
@@ -231,4 +230,12 @@ public class TsFileMetaData implements IConverter<FileMetaData> {
 	public void setDeltaObjectMap(Map<String, TsDeltaObject> deltaObjectMap) {
 		this.deltaObjectMap = deltaObjectMap;
 	}
+
+	public boolean containsDeltaObject(String DeltaObjUID) {
+        return this.deltaObjectMap.containsKey(DeltaObjUID);
+    }
+
+    public TsDeltaObject getDeltaObject(String DeltaObjUID) {
+        return this.deltaObjectMap.get(DeltaObjUID);
+    }
 }

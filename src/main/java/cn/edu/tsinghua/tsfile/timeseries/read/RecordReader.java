@@ -229,7 +229,7 @@ public class RecordReader {
         return rowGroupReader.getValueReaders().get(measurementId).getValuesForGivenValues(timeRet);
     }
 
-    public boolean isEnumsColumn(String deltaObjectUID, String sid) {
+    public boolean isEnumsColumn(String deltaObjectUID, String sid) throws IOException {
         List<RowGroupReader> rowGroupReaderList = fileReader.getRowGroupReaderListByDeltaObject(deltaObjectUID);
         for (RowGroupReader rowGroupReader : rowGroupReaderList) {
             if (rowGroupReader.getValueReaderForSpecificMeasurement(sid) == null) {
