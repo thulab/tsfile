@@ -18,9 +18,17 @@ public class QueryDataSet {
     /**
      * Time Generator for Cross Query when using batching read
      **/
-    public CrossQueryTimeGenerator timeQueryDataSet;
+    public CrossQueryTimeGenerator crossQueryTimeGenerator;
+
+    /**
+     * mapRet.key stores the query path, mapRet.value stores the query result of mapRet.key
+     **/
     public LinkedHashMap<String, DynamicOneColumnData> mapRet;
-    protected BatchReadRecordGenerator batchReaderRetGenerator;
+
+    /**
+     * generator used for batch read
+     **/
+    protected BatchReadRecordGenerator batchReadGenerator;
 
     /**
      * special for save time values when processing cross getIndex
@@ -44,7 +52,6 @@ public class QueryDataSet {
 
     protected String[] deltaObjectIds;
     protected String[] measurementIds;
-
     protected HashMap<Long, Integer> timeMap; // timestamp occurs time
     protected int size;
     protected boolean ifInit = false;
@@ -217,12 +224,12 @@ public class QueryDataSet {
         }
     }
 
-    public BatchReadRecordGenerator getBatchReaderRetGenerator() {
-        return batchReaderRetGenerator;
+    public BatchReadRecordGenerator getBatchReadGenerator() {
+        return batchReadGenerator;
     }
 
-    public void setBatchReaderRetGenerator(BatchReadRecordGenerator batchReaderRetGenerator) {
-        this.batchReaderRetGenerator = batchReaderRetGenerator;
+    public void setBatchReadGenerator(BatchReadRecordGenerator batchReadGenerator) {
+        this.batchReadGenerator = batchReadGenerator;
     }
 
     public Map<String, Object> getDeltaMap() {

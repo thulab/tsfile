@@ -191,13 +191,7 @@ public abstract class CrossQueryTimeGenerator {
     }
 
     /**
-     * valueFilterNumber parameter is mainly used for TsFileDB.
-     * Because of the exist of <code>RecordReaderCache</code>, 
-     * we must know the occur position of the SingleSeriesFilter in CrossSeriesFilterExpression.
-     */
-
-    /**
-     * valueFilterNumber parameter is mainly used for TsFileDB.
+     * valueFilterNumber parameter is mainly used for IoTDB.
      * Because of the exist of <code>RecordReaderCache</code>,
      * we must know the occur position of the SingleSeriesFilter in CrossSeriesFilterExpression.
      *

@@ -20,7 +20,7 @@ public abstract class CrossQueryIteratorDataSet extends QueryDataSet {
     private boolean hasReadAll;
 
     public CrossQueryIteratorDataSet(CrossQueryTimeGenerator timeGenerator) throws IOException {
-        this.timeQueryDataSet = timeGenerator;
+        this.crossQueryTimeGenerator = timeGenerator;
         mapRet = new LinkedHashMap<>();
         hasReadAll = getMoreRecords();
         size = mapRet.size();

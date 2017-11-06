@@ -204,7 +204,7 @@ public class QueryEngine {
             @Override
             public boolean getMoreRecords() throws IOException {
                 try {
-                    long[] timeRet = timeQueryDataSet.generateTimes();
+                    long[] timeRet = crossQueryTimeGenerator.generateTimes();
                     if (timeRet.length == 0) {
                         return true;
                     }
@@ -237,7 +237,7 @@ public class QueryEngine {
             @Override
             public boolean getMoreRecords() throws IOException {
                 try {
-                    long[] timeRet = timeQueryDataSet.generateTimes();
+                    long[] timeRet = crossQueryTimeGenerator.generateTimes();
                     if (timeRet.length == 0) {
                         return true;
                     }
