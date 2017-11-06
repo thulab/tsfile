@@ -131,6 +131,16 @@ public class LongFilterVerifier extends FilterVerifier implements FilterVisitor<
         return union(visit(or.getLeft()), visit(or.getRight()));
     }
 
+    @Override
+    public LongInterval visit(NoFilter noFilter) {
+        LongInterval ans = new LongInterval();
+        ans.v[0] = Long.MIN_VALUE;
+        ans.flag[0] = true;
+        ans.v[1] = Long.MAX_VALUE;
+        ans.flag[1] = true;
+        return ans;
+    }
+
     private LongInterval intersection(LongInterval left, LongInterval right) {
         LongInterval ans = new LongInterval();
         LongInterval partResult = new LongInterval();

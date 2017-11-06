@@ -65,4 +65,9 @@ public class OverflowTimeFilter implements FilterVisitor<Boolean> {
         return satisfy(or.getLeft(), startTime, endTime) || satisfy(or.getRight(), startTime, endTime);
     }
 
+    @Override
+    public Boolean visit(NoFilter noFilter) {
+        return true;
+    }
+
 }
