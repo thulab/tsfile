@@ -89,21 +89,12 @@ public class FileReader {
      *         or NULL if such deltaObject doesn't exist in this file
      */
     public List<RowGroupReader> getRowGroupReaderListByDeltaObject(String deltaObjectUID) throws IOException {
-        List<RowGroupReader> ret = rowGroupReaderMap.get(deltaObjectUID);
-        if (ret == null) {
-            // check if this file do have this delta_obj
-            if(!this.fileMetaData.containsDeltaObject(deltaObjectUID)) {
-                return null;
-            } else {
-                initRowGroupReaders(deltaObjectUID);
-                ret = rowGroupReaderMap.get(deltaObjectUID);
-            }
-        }
-        updateLRU(deltaObjectUID);
-        return ret;
+        loadDeltaObj(deltaObjectUID);
+        return this.rowGroupReaderMap.get(deltaObjectUID);
     }
 
-    public TSDataType getDataTypeBySeriesName(String deltaObject, String measurement) {
+    public TSDataType getDataTypeBySeriesName(String deltaObject, String measurement) throws IOException {
+        loadDeltaObj(deltaObject);
         List<RowGroupReader> rgrList = getRowGroupReaderMap().get(deltaObject);
         if (rgrList == null || rgrList.size() == 0) {
             return null;
@@ -140,6 +131,8 @@ public class FileReader {
      * @throws IOException
      */
     private void initRowGroupReaders(TsDeltaObject deltaObj) throws IOException {
+        if(deltaObj == null)
+            return;
         // read metadata block and use its RowGroupMetadata list to construct RowGroupReaders
         TsRowGroupBlockMetaData blockMeta = new TsRowGroupBlockMetaData();
         blockMeta.convertToTSF(ReadWriteThriftFormatUtils.readRowGroupBlockMetaData(this.randomAccessFileReader,
@@ -152,6 +145,8 @@ public class FileReader {
      * @param groupList
      */
     private void initRowGroupReaders(List<RowGroupMetaData> groupList) {
+        if(groupList == null)
+            return;
         // TODO: advice: parallel the process to speed up
         for(RowGroupMetaData meta : groupList) {
             // the passed raf should be new rafs to realize parallelism
@@ -199,5 +194,22 @@ public class FileReader {
             ret.addAll(entry.getValue());
         }
         return ret;
+    }
+
+    /**
+     * This method prefetch metadata of a DeltaObject for methods like checkSeries,
+     * if the DeltaObject is not in memory.
+     * @param deltaObjUID
+     */
+    public void loadDeltaObj(String deltaObjUID) throws IOException {
+        // check if this file do have this delta_obj
+        if(!this.fileMetaData.containsDeltaObject(deltaObjUID)) {
+            return;
+        }
+        List<RowGroupReader> ret = rowGroupReaderMap.get(deltaObjUID);
+        if (ret == null) {
+            initRowGroupReaders(deltaObjUID);
+        }
+        updateLRU(deltaObjUID);
     }
 }

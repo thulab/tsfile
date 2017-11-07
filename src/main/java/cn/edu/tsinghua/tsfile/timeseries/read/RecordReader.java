@@ -321,7 +321,12 @@ public class RecordReader {
     }
 
     public FilterSeries<?> getColumnByMeasurementName(String deltaObject, String measurement) {
-        TSDataType type = fileReader.getDataTypeBySeriesName(deltaObject, measurement);
+        TSDataType type = null;
+        try {
+            type = fileReader.getDataTypeBySeriesName(deltaObject, measurement);
+        } catch (IOException e) {
+            logger.error("get column failed {}",e.getMessage());
+        }
         if (type == TSDataType.INT32) {
             return FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER);
         } else if (type == TSDataType.INT64) {
@@ -340,6 +345,7 @@ public class RecordReader {
     }
 
     private void checkSeries(String deltaObject, String measurement) throws IOException {
+        this.fileReader.loadDeltaObj(deltaObject);
         if (seriesSchemaMap == null) {
             seriesSchemaMap = new HashMap<>();
             Map<String, ArrayList<SeriesSchema>> seriesSchemaListMap = getAllSeriesSchemasGroupByDeltaObject();
