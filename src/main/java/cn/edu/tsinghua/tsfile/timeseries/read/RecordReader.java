@@ -132,7 +132,6 @@ public class RecordReader {
                 break;
             }
         }
-
         return res;
     }
 

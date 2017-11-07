@@ -122,4 +122,8 @@ public class RowGroupReader {
     public void setRaf(ITsRandomAccessFileReader raf) {
         this.raf = raf;
     }
+
+    public boolean containsMeasurement(String measurementID) {
+        return this.valueReaders.containsKey(measurementID);
+    }
 }

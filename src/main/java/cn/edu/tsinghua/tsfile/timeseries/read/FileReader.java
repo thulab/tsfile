@@ -9,12 +9,14 @@ import cn.edu.tsinghua.tsfile.file.metadata.converter.TsFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 
 /**
  * This class is used to read <code>TSFileMetaData</code>} and construct
@@ -23,10 +25,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Jinrui Zhang
  */
 public class FileReader {
+    private static final Logger logger = LoggerFactory.getLogger(FileReader.class);
 
     private static final int FOOTER_LENGTH = 4;
     private static final int MAGIC_LENGTH = TsFileIOWriter.magicStringBytes.length;
-    private static final int LRU_LENGTH = 1000;  // TODO: get this from a configuration
+    private static final int LRU_LENGTH = 1000000;  // TODO: get this from a configuration
     /**
      * If the file has many rowgroups and series,
      * the storage of <code>fileMetaData</code> may be large.
@@ -70,7 +73,17 @@ public class FileReader {
         rowGroupReaderMap = new HashMap<>();
     }
 
+    /**
+     * Do not use this method for potential risks of LRU cache overflow.
+     * @return
+     */
+    @Deprecated
     public Map<String, List<RowGroupReader>> getRowGroupReaderMap() {
+        try {
+            loadAllDeltaObj();
+        } catch (IOException e) {
+            logger.error("cannot get all RowGroupReaders because {}", e.getMessage());
+        }
         return this.rowGroupReaderMap;
     }
 
@@ -116,6 +129,9 @@ public class FileReader {
      * @throws IOException
      */
     private void initRowGroupReaders(String deltaObjUID) throws IOException {
+        // avoid duplicates
+        if(this.rowGroupReaderMap.containsKey(deltaObjUID))
+            return;
         this.rwLock.writeLock().lock();
         try {
             TsDeltaObject deltaObj = this.fileMetaData.getDeltaObject(deltaObjUID);
@@ -142,6 +158,7 @@ public class FileReader {
 
     /**
      * Core method, construct RowGroupReader for every RowGroup in given list, thread-unsafe.
+     * The caller should avoid adding duplicate readers.
      * @param groupList
      */
     private void initRowGroupReaders(List<RowGroupMetaData> groupList) {
@@ -211,5 +228,30 @@ public class FileReader {
             initRowGroupReaders(deltaObjUID);
         }
         updateLRU(deltaObjUID);
+    }
+
+    private void loadAllDeltaObj() throws IOException {
+        Collection<String> deltaObjects = fileMetaData.getDeltaObjectMap().keySet();
+        for(String deltaObject : deltaObjects) {
+            initRowGroupReaders(deltaObject);
+        }
+    }
+
+    public boolean containsDeltaObj(String deltaObjUID) {
+        return this.fileMetaData.containsDeltaObject(deltaObjUID);
+    }
+
+    public boolean containsSeries(String deltaObjUID, String measurementID) throws IOException {
+        if(!this.containsDeltaObj(deltaObjUID)) {
+            return false;
+        } else {
+            this.loadDeltaObj(deltaObjUID);
+            List<RowGroupReader> readers = rowGroupReaderMap.get(deltaObjUID);
+            for(RowGroupReader reader : readers) {
+                if(reader.containsMeasurement(measurementID))
+                    return true;
+            }
+        }
+        return false;
     }
 }
