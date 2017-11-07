@@ -29,7 +29,7 @@ public class FileReader {
 
     private static final int FOOTER_LENGTH = 4;
     private static final int MAGIC_LENGTH = TsFileIOWriter.magicStringBytes.length;
-    private static final int LRU_LENGTH = 1000;  // TODO: get this from a configuration
+    private static final int LRU_LENGTH = 1000000;  // TODO: get this from a configuration
     /**
      * If the file has many rowgroups and series,
      * the storage of <code>fileMetaData</code> may be large.
@@ -73,6 +73,11 @@ public class FileReader {
         rowGroupReaderMap = new HashMap<>();
     }
 
+    /**
+     * Do not use this method for potential risks of LRU cache overflow.
+     * @return
+     */
+    @Deprecated
     public Map<String, List<RowGroupReader>> getRowGroupReaderMap() {
         try {
             loadAllDeltaObj();
@@ -230,5 +235,23 @@ public class FileReader {
         for(String deltaObject : deltaObjects) {
             initRowGroupReaders(deltaObject);
         }
+    }
+
+    public boolean containsDeltaObj(String deltaObjUID) {
+        return this.fileMetaData.containsDeltaObject(deltaObjUID);
+    }
+
+    public boolean containsSeries(String deltaObjUID, String measurementID) throws IOException {
+        if(!this.containsDeltaObj(deltaObjUID)) {
+            return false;
+        } else {
+            this.loadDeltaObj(deltaObjUID);
+            List<RowGroupReader> readers = rowGroupReaderMap.get(deltaObjUID);
+            for(RowGroupReader reader : readers) {
+                if(reader.containsMeasurement(measurementID))
+                    return true;
+            }
+        }
+        return false;
     }
 }
