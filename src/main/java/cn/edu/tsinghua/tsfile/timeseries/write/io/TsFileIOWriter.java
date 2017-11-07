@@ -226,7 +226,7 @@ public class TsFileIOWriter {
       ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(current_tsRowGroupBlockMetaData.convertToThrift(),
               out.getOutputStream());
       offset = out.getPos();
-      TsDeltaObject tsDeltaObject = new TsDeltaObject(offset, (int)(offset-offset_index), startTime, endTime);
+      TsDeltaObject tsDeltaObject = new TsDeltaObject(offset_index, (int)(offset-offset_index), startTime, endTime);
       tsDeltaObjectMap.put(current_deltaobject, tsDeltaObject);
     }
 
