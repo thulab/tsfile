@@ -35,11 +35,8 @@ public class DynamicOneColumnData {
 
     public boolean hasEmptyTime;
     public int emptyTimeArrayIdx;
-    private int curEmptyTimeIdx;
+    public int curEmptyTimeIdx;
     public int emptyTimeLength;
-    private int emptyValueArrayIdx;
-    private int curEmptyValueIdx;
-    public int emptyValueLength;
 
     public ArrayList<long[]> timeRet;
     public ArrayList<long[]> emptyTimeRet;
@@ -150,6 +147,7 @@ public class DynamicOneColumnData {
             this.emptyTimeRet.add(new long[CAPACITY]);
             emptyTimeArrayIdx++;
             curEmptyTimeIdx = 0;
+            // System.out.println(v + "-" + emptyTimeLength + " - " +emptyTimeArrayIdx);
         }
         (emptyTimeRet.get(emptyTimeArrayIdx))[curEmptyTimeIdx++] = v;
         emptyTimeLength++;
@@ -594,6 +592,25 @@ public class DynamicOneColumnData {
                 size -= CAPACITY;
             }
             curValueIdx = CAPACITY - size;
+        }
+    }
+
+    /**
+     * Remove the last empty time.
+     */
+    public void removeLastEmptyTime() {
+        emptyTimeLength -= 1;
+        curEmptyTimeIdx -= 1;
+
+        // curEmptyTimeIdx will never == -1
+        if (curEmptyTimeIdx == 0) {
+            if (emptyTimeArrayIdx == 0) {
+                curEmptyTimeIdx = 0;
+            } else {
+                curEmptyTimeIdx = CAPACITY;
+                emptyTimeRet.remove(emptyTimeArrayIdx);
+                emptyTimeArrayIdx -= 1;
+            }
         }
     }
 
