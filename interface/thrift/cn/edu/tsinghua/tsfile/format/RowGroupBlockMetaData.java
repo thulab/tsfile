@@ -435,6 +435,7 @@ public class RowGroupBlockMetaData implements org.apache.thrift.TBase<RowGroupBl
         if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
           break;
         }
+
         switch (schemeField.id) {
           case 1: // ROW_GROUPS_METADATA
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {

@@ -9,12 +9,14 @@ import cn.edu.tsinghua.tsfile.file.metadata.converter.TsFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 
 /**
  * This class is used to read <code>TSFileMetaData</code>} and construct
@@ -23,6 +25,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Jinrui Zhang
  */
 public class FileReader {
+    private static final Logger logger = LoggerFactory.getLogger(FileReader.class);
 
     private static final int FOOTER_LENGTH = 4;
     private static final int MAGIC_LENGTH = TsFileIOWriter.magicStringBytes.length;
@@ -71,6 +74,11 @@ public class FileReader {
     }
 
     public Map<String, List<RowGroupReader>> getRowGroupReaderMap() {
+        try {
+            loadAllDeltaObj();
+        } catch (IOException e) {
+            logger.error("cannot get all RowGroupReaders because {}", e.getMessage());
+        }
         return this.rowGroupReaderMap;
     }
 
@@ -116,6 +124,9 @@ public class FileReader {
      * @throws IOException
      */
     private void initRowGroupReaders(String deltaObjUID) throws IOException {
+        // avoid duplicates
+        if(this.rowGroupReaderMap.containsKey(deltaObjUID))
+            return;
         this.rwLock.writeLock().lock();
         try {
             TsDeltaObject deltaObj = this.fileMetaData.getDeltaObject(deltaObjUID);
@@ -142,6 +153,7 @@ public class FileReader {
 
     /**
      * Core method, construct RowGroupReader for every RowGroup in given list, thread-unsafe.
+     * The caller should avoid adding duplicate readers.
      * @param groupList
      */
     private void initRowGroupReaders(List<RowGroupMetaData> groupList) {
@@ -211,5 +223,12 @@ public class FileReader {
             initRowGroupReaders(deltaObjUID);
         }
         updateLRU(deltaObjUID);
+    }
+
+    private void loadAllDeltaObj() throws IOException {
+        Collection<String> deltaObjects = fileMetaData.getDeltaObjectMap().keySet();
+        for(String deltaObject : deltaObjects) {
+            initRowGroupReaders(deltaObject);
+        }
     }
 }
