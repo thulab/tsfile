@@ -15,7 +15,7 @@ import org.junit.Test;
 
 public class RowGroupBlockMetadtaTimeTest {
     private static int deviceNum = 20;
-    private static int sensorNum = 500;
+    private static int sensorNum = 50;
     private static String PATH = "target/test-big.ksn";
     public static final String DELTA_OBJECT_UID = "delta-3312";
 
@@ -41,20 +41,22 @@ public class RowGroupBlockMetadtaTimeTest {
         return metaData;
     }
 
-    @Test
+    //@Test
     public void test1() throws IOException {
         System.out.println();
         test_one_io(10);
         test_one_io(50);
         test_one_io(100);
+        test_one_io(10000);
     }
 
-    @Test
+    //@Test
     public void test2() throws IOException {
         System.out.println();
         test_multi_io(10);
         test_multi_io(50);
         test_multi_io(100);
+        test_multi_io(10000);
     }
 
     public void test_multi_io(int delta_object_num) throws IOException {
