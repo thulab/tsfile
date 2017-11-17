@@ -132,6 +132,16 @@ public class FloatFilterVerifier extends FilterVerifier implements FilterVisitor
         return union(visit(or.getLeft()), visit(or.getRight()));
     }
 
+    @Override
+    public FloatInterval visit(NoFilter noFilter) {
+        FloatInterval ans = new FloatInterval();
+        ans.v[0] = Float.MIN_VALUE;
+        ans.flag[0] = true;
+        ans.v[1] = Float.MAX_VALUE;
+        ans.flag[1] = true;
+        return ans;
+    }
+
     public FloatInterval intersection(FloatInterval left, FloatInterval right) {
         FloatInterval ans = new FloatInterval();
         FloatInterval partResult = new FloatInterval();

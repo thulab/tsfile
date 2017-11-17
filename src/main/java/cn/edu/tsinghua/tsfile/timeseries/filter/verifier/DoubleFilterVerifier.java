@@ -132,6 +132,16 @@ public class DoubleFilterVerifier extends FilterVerifier implements FilterVisito
         return union(visit(or.getLeft()), visit(or.getRight()));
     }
 
+    @Override
+    public DoubleInterval visit(NoFilter noFilter) {
+        DoubleInterval ans = new DoubleInterval();
+        ans.v[0] = Double.MIN_VALUE;
+        ans.flag[0] = true;
+        ans.v[1] = Double.MAX_VALUE;
+        ans.flag[1] = true;
+        return ans;
+    }
+
     private DoubleInterval intersection(DoubleInterval left, DoubleInterval right) {
         DoubleInterval ans = new DoubleInterval();
         DoubleInterval partResult = new DoubleInterval();

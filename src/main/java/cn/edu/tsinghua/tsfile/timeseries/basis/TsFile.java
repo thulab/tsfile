@@ -3,7 +3,6 @@ package cn.edu.tsinghua.tsfile.timeseries.basis;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +17,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.read.management.SeriesSchema;
-import cn.edu.tsinghua.tsfile.timeseries.read.qp.Path;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryDataSet;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryEngine;
 import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;

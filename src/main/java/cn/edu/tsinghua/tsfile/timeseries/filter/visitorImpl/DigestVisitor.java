@@ -120,4 +120,9 @@ public class DigestVisitor implements FilterVisitor<Boolean> {
         return satisfy(digest, or.getLeft()) || satisfy(digest, or.getRight());
     }
 
+    @Override
+    public Boolean visit(NoFilter noFilter) {
+        return true;
+    }
+
 }

@@ -57,6 +57,11 @@ public class InvertExpressionVisitor implements FilterVisitor<FilterExpression> 
     }
 
     @Override
+    public FilterExpression visit(NoFilter noFilter) {
+        return null;
+    }
+
+    @Override
     public SingleSeriesFilterExpression visit(Not not) {
         return not.getFilterExpression();
     }

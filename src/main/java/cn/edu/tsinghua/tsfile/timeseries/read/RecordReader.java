@@ -163,7 +163,7 @@ public class RecordReader {
             i = res.getRowGroupIndex();
         }
         for (; i < idxs.size(); i++) {
-            logger.info("GetValuesUseFilter and idxs. RowGroupIndex is :" + idxs.get(i));
+            logger.info("GetValuesUseFilter and timeIdxs. RowGroupIndex is :" + idxs.get(i));
             int idx = idxs.get(i);
             RowGroupReader rowGroupReader = rowGroupReaderList.get(idx);
             if (!deltaObjectUID.equals(rowGroupReader.getDeltaObjectUID())) {
