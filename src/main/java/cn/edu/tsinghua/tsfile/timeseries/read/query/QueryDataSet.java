@@ -1,7 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.read.query;
 
 import cn.edu.tsinghua.tsfile.common.exception.UnSupportedDataTypeException;
-import cn.edu.tsinghua.tsfile.timeseries.read.qp.Path;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Field;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.RowRecord;
 import org.slf4j.Logger;
@@ -12,27 +11,52 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-
 public class QueryDataSet {
     private static final Logger LOG = LoggerFactory.getLogger(QueryDataSet.class);
     private static final char PATH_SPLITTER = '.';
 
-    // Time Generator for Cross Query when using batching read
-    public CrossQueryTimeGenerator timeQueryDataSet;
-    public LinkedHashMap<String, DynamicOneColumnData> mapRet;
-    protected BatchReadRecordGenerator batchReaderRetGenerator;
+    /**
+     * Time Generator for Cross Query when using batching read
+     **/
+    public CrossQueryTimeGenerator crossQueryTimeGenerator;
 
-    protected PriorityQueue<Long> heap; // special for save time values when processing cross getIndex
-    protected DynamicOneColumnData[] cols; // the content of cols equals to mapRet
-    protected int[] idxs; // idxs[i] stores the curIdx of cols[i]
+    /**
+     * mapRet.key stores the query path, mapRet.value stores the query result of mapRet.key
+     **/
+    public LinkedHashMap<String, DynamicOneColumnData> mapRet;
+
+    /**
+     * generator used for batch read
+     **/
+    protected BatchReadRecordGenerator batchReadGenerator;
+
+    /**
+     * special for save time values when processing cross getIndex
+     **/
+    protected PriorityQueue<Long> heap;
+
+    /**
+     * the content of cols equals to mapRet
+     **/
+    protected DynamicOneColumnData[] cols;
+
+    /**
+     * timeIdxs[i] stores the index of cols[i]
+     **/
+    protected int[] timeIdxs;
+
+    /**
+     * emptyTimeIdxs[i] stores the empty time index of cols[i]
+     **/
+    protected int[] emptyTimeIdxs;
+
     protected String[] deltaObjectIds;
     protected String[] measurementIds;
-
     protected HashMap<Long, Integer> timeMap; // timestamp occurs time
     protected int size;
     protected boolean ifInit = false;
     protected RowRecord currentRecord = null;
-    private Map<String, Object> deltaMap; // this variable is used for TsFileDb
+    private Map<String, Object> deltaMap; // this variable is used for IoTDb
 
     public QueryDataSet() {
         mapRet = new LinkedHashMap<>();
@@ -46,7 +70,8 @@ public class QueryDataSet {
             cols = new DynamicOneColumnData[size];
             deltaObjectIds = new String[size];
             measurementIds = new String[size];
-            idxs = new int[size];
+            timeIdxs = new int[size];
+            emptyTimeIdxs = new int[size];
             timeMap = new HashMap<>();
         } else {
             LOG.error("QueryDataSet init row record occurs error! the size of ret is 0.");
@@ -58,10 +83,18 @@ public class QueryDataSet {
             cols[i] = mapRet.get(key);
             deltaObjectIds[i] = key.substring(0, key.lastIndexOf(PATH_SPLITTER));
             measurementIds[i] = key.substring(key.lastIndexOf(PATH_SPLITTER) + 1);
-            idxs[i] = 0;
+            timeIdxs[i] = 0;
+            emptyTimeIdxs[i] = 0;
 
-            if (cols[i] != null && (cols[i].valueLength > 0 || cols[i].timeLength > 0)) {
-                heapPut(cols[i].getTime(0));
+            if (cols[i] != null && (cols[i].valueLength > 0 || cols[i].timeLength > 0 || cols[i].emptyTimeLength > 0)) {
+                long minTime = Long.MAX_VALUE;
+                if (cols[i].timeLength > 0) {
+                    minTime = cols[i].getTime(0);
+                }
+                if (cols[i].emptyTimeLength > 0) {
+                    minTime = Math.min(minTime, cols[i].getEmptyTime(0));
+                }
+                heapPut(minTime);
             }
             i++;
         }
@@ -102,28 +135,45 @@ public class QueryDataSet {
             return null;
         }
 
-        RowRecord r = new RowRecord(minTime, null, null);
+        RowRecord record = new RowRecord(minTime, null, null);
         for (int i = 0; i < size; i++) {
             if (i == 0) {
-                r.setDeltaObjectId(deltaObjectIds[i]);
+                record.setDeltaObjectId(deltaObjectIds[i]);
             }
-            Field f = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
-
-            if (idxs[i] < cols[i].valueLength && minTime == cols[i].getTime(idxs[i])) {
-                // f = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
-                f.setNull(false);
-                putValueToField(cols[i], idxs[i], f);
-                idxs[i]++;
-                if (idxs[i] < cols[i].valueLength) {
-                    heapPut(cols[i].getTime(idxs[i]));
+            Field field = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
+            if (timeIdxs[i] < cols[i].timeLength && minTime == cols[i].getTime(timeIdxs[i])) {
+                field.setNull(false);
+                putValueToField(cols[i], timeIdxs[i], field);
+                timeIdxs[i]++;
+                long nextTime = Long.MAX_VALUE;
+                if (timeIdxs[i] < cols[i].timeLength) {
+                    nextTime = cols[i].getTime(timeIdxs[i]);
+                }
+                if (emptyTimeIdxs[i] < cols[i].emptyTimeLength) {
+                    nextTime = Math.min(nextTime, cols[i].getEmptyTime(emptyTimeIdxs[i]));
+                }
+                if (nextTime != Long.MAX_VALUE) {
+                    heapPut(nextTime);
+                }
+            } else if (emptyTimeIdxs[i] < cols[i].emptyTimeLength && minTime == cols[i].getEmptyTime(emptyTimeIdxs[i])) {
+                field.setNull(true);
+                emptyTimeIdxs[i]++;
+                long nextTime = Long.MAX_VALUE;
+                if (emptyTimeIdxs[i] < cols[i].emptyTimeLength) {
+                    nextTime = cols[i].getEmptyTime(emptyTimeIdxs[i]);
+                }
+                if (timeIdxs[i] < cols[i].timeLength) {
+                    nextTime = Math.min(nextTime, cols[i].getTime(timeIdxs[i]));
+                }
+                if (nextTime != Long.MAX_VALUE) {
+                    heapPut(nextTime);
                 }
             } else {
-                // f = new Field(cols[i].dataType, measurementIds[i]);
-                f.setNull(true);
+                field.setNull(true);
             }
-            r.addField(f);
+            record.addField(field);
         }
-        return r;
+        return record;
     }
 
     public boolean next() {
@@ -174,12 +224,12 @@ public class QueryDataSet {
         }
     }
 
-    public BatchReadRecordGenerator getBatchReaderRetGenerator() {
-        return batchReaderRetGenerator;
+    public BatchReadRecordGenerator getBatchReadGenerator() {
+        return batchReadGenerator;
     }
 
-    public void setBatchReaderRetGenerator(BatchReadRecordGenerator batchReaderRetGenerator) {
-        this.batchReaderRetGenerator = batchReaderRetGenerator;
+    public void setBatchReadGenerator(BatchReadRecordGenerator batchReadGenerator) {
+        this.batchReadGenerator = batchReadGenerator;
     }
 
     public Map<String, Object> getDeltaMap() {

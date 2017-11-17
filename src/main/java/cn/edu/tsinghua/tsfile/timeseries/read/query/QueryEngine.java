@@ -12,7 +12,7 @@ import cn.edu.tsinghua.tsfile.timeseries.read.TsRandomAccessLocalFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.RecordReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.RowGroupReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.management.SeriesSchema;
-import cn.edu.tsinghua.tsfile.timeseries.read.qp.Path;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -204,7 +204,7 @@ public class QueryEngine {
             @Override
             public boolean getMoreRecords() throws IOException {
                 try {
-                    long[] timeRet = timeQueryDataSet.generateTimes();
+                    long[] timeRet = crossQueryTimeGenerator.generateTimes();
                     if (timeRet.length == 0) {
                         return true;
                     }
@@ -237,7 +237,7 @@ public class QueryEngine {
             @Override
             public boolean getMoreRecords() throws IOException {
                 try {
-                    long[] timeRet = timeQueryDataSet.generateTimes();
+                    long[] timeRet = crossQueryTimeGenerator.generateTimes();
                     if (timeRet.length == 0) {
                         return true;
                     }

@@ -50,6 +50,11 @@ public class ConvertExpressionVisitor implements FilterVisitor<FilterExpression>
     }
 
     @Override
+    public FilterExpression visit(NoFilter noFilter) {
+        return noFilter;
+    }
+
+    @Override
     public FilterExpression visit(Not not) {
         return invertor.invert(not.getFilterExpression());
     }

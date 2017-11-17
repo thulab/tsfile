@@ -33,7 +33,13 @@ public class DynamicOneColumnData {
     private int curValueIdx;     // the index of current ArrayList in valueRet
     public int valueLength;  // the insert value number of valueRet
 
-    public ArrayList<long[]> timeRet = null;
+    public boolean hasEmptyTime;
+    public int emptyTimeArrayIdx;
+    public int curEmptyTimeIdx;
+    public int emptyTimeLength;
+
+    public ArrayList<long[]> timeRet;
+    public ArrayList<long[]> emptyTimeRet;
     public ArrayList<boolean[]> booleanRet;
     public ArrayList<int[]> intRet;
     public ArrayList<long[]> longRet;
@@ -60,10 +66,15 @@ public class DynamicOneColumnData {
      * @param recordTime whether to record time value for this DynamicOneColumnData
      */
     public DynamicOneColumnData(TSDataType type, boolean recordTime) {
-        init(type, recordTime);
+        init(type, recordTime, false);
     }
 
-    public void init(TSDataType type, boolean recordTime) {
+    public DynamicOneColumnData(TSDataType type, boolean recordTime, boolean hasEmptyTime) {
+        this.hasEmptyTime = hasEmptyTime;
+        init(type, recordTime, hasEmptyTime);
+    }
+
+    public void init(TSDataType type, boolean recordTime, boolean hasEmptyTime) {
         this.dataType = type;
         this.valueArrayIdx = 0;
         this.curValueIdx = 0;
@@ -77,6 +88,14 @@ public class DynamicOneColumnData {
             timeArrayIdx = 0;
             curTimeIdx = 0;
             timeLength = 0;
+        }
+
+        if (hasEmptyTime) {
+            emptyTimeRet = new ArrayList<>();
+            emptyTimeRet.add(new long[CAPACITY]);
+            emptyTimeArrayIdx = 0;
+            curEmptyTimeIdx = 0;
+            emptyTimeLength = 0;
         }
 
         switch (dataType) {
@@ -121,6 +140,17 @@ public class DynamicOneColumnData {
         }
         (timeRet.get(timeArrayIdx))[curTimeIdx++] = v;
         timeLength++;
+    }
+
+    public void putEmptyTime(long v) {
+        if (curEmptyTimeIdx == CAPACITY) {
+            this.emptyTimeRet.add(new long[CAPACITY]);
+            emptyTimeArrayIdx++;
+            curEmptyTimeIdx = 0;
+            // System.out.println(v + "-" + emptyTimeLength + " - " +emptyTimeArrayIdx);
+        }
+        (emptyTimeRet.get(emptyTimeArrayIdx))[curEmptyTimeIdx++] = v;
+        emptyTimeLength++;
     }
 
     /**
@@ -271,6 +301,15 @@ public class DynamicOneColumnData {
         }
     }
 
+    private void rangeCheckForEmptyTime(int idx) {
+        if (idx < 0) {
+            throw new IndexOutOfBoundsException("Index is negative: " + idx);
+        }
+        if (idx >= emptyTimeLength) {
+            throw new IndexOutOfBoundsException("Index : " + idx + ". Length : " + valueLength);
+        }
+    }
+
     public boolean getBoolean(int idx) {
         rangeCheck(idx);
         return this.booleanRet.get(idx / CAPACITY)[idx % CAPACITY];
@@ -338,6 +377,11 @@ public class DynamicOneColumnData {
     public void setTime(int idx, long v) {
         rangeCheckForTime(idx);
         this.timeRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
+    }
+
+    public long getEmptyTime(int idx) {
+        rangeCheckForEmptyTime(idx);
+        return this.emptyTimeRet.get(idx / CAPACITY)[idx % CAPACITY];
     }
 
     public long[] getTimeAsArray() {
@@ -551,8 +595,27 @@ public class DynamicOneColumnData {
         }
     }
 
+    /**
+     * Remove the last empty time.
+     */
+    public void removeLastEmptyTime() {
+        emptyTimeLength -= 1;
+        curEmptyTimeIdx -= 1;
+
+        // curEmptyTimeIdx will never == -1
+        if (curEmptyTimeIdx == 0) {
+            if (emptyTimeArrayIdx == 0) {
+                curEmptyTimeIdx = 0;
+            } else {
+                curEmptyTimeIdx = CAPACITY;
+                emptyTimeRet.remove(emptyTimeArrayIdx);
+                emptyTimeArrayIdx -= 1;
+            }
+        }
+    }
+
     public void clearData() {
-        this.init(dataType, true);
+        this.init(dataType, true, hasEmptyTime);
     }
 
     public DynamicOneColumnData sub(int startPos) {

@@ -134,6 +134,16 @@ public class IntFilterVerifier extends FilterVerifier implements FilterVisitor<I
         return union(visit(or.getLeft()), visit(or.getRight()));
     }
 
+    @Override
+    public IntInterval visit(NoFilter noFilter) {
+        IntInterval ans = new IntInterval();
+        ans.v[0] = Integer.MIN_VALUE;
+        ans.flag[0] = true;
+        ans.v[1] = Integer.MAX_VALUE;
+        ans.flag[1] = true;
+        return ans;
+    }
+
     private IntInterval intersection(IntInterval left, IntInterval right) {
         IntInterval ans = new IntInterval();
         IntInterval partResult = new IntInterval();

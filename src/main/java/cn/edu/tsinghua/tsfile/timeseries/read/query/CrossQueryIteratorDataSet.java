@@ -20,7 +20,7 @@ public abstract class CrossQueryIteratorDataSet extends QueryDataSet {
     private boolean hasReadAll;
 
     public CrossQueryIteratorDataSet(CrossQueryTimeGenerator timeGenerator) throws IOException {
-        this.timeQueryDataSet = timeGenerator;
+        this.crossQueryTimeGenerator = timeGenerator;
         mapRet = new LinkedHashMap<>();
         hasReadAll = getMoreRecords();
         size = mapRet.size();
@@ -75,17 +75,17 @@ public abstract class CrossQueryIteratorDataSet extends QueryDataSet {
             Field f;
 
             //get more fields in columns i
-            if (idxs[i] < cols[i].valueLength) {
+            if (timeIdxs[i] < cols[i].valueLength) {
                 //Get more fields from file...
             }
 
-            if (idxs[i] < cols[i].valueLength && minTime == cols[i].getTime(idxs[i])) {
+            if (timeIdxs[i] < cols[i].valueLength && minTime == cols[i].getTime(timeIdxs[i])) {
                 f = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
                 f.setNull(false);
-                putValueToField(cols[i], idxs[i], f);
-                idxs[i]++;
-                if (idxs[i] < cols[i].valueLength) {
-                    heapPut(cols[i].getTime(idxs[i]));
+                putValueToField(cols[i], timeIdxs[i], f);
+                timeIdxs[i]++;
+                if (timeIdxs[i] < cols[i].valueLength) {
+                    heapPut(cols[i].getTime(timeIdxs[i]));
                 }
             } else {
                 f = new Field(cols[i].dataType, measurementIds[i]);

@@ -27,4 +27,5 @@ public interface FilterVisitor<R> {
 
     R visit(Or or);
 
+    R visit(NoFilter noFilter);
 }
