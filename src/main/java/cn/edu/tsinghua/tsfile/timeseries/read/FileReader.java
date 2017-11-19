@@ -42,8 +42,8 @@ public class FileReader {
     private LinkedList<String> rowGroupReaderLRUList;
 
     /**
-     *  Lock when initializing RowGroupReaders so that the same deltaObj will not be initialized more than once.
-    */
+     * Lock when initializing RowGroupReaders so that the same deltaObj will not be initialized more than once.
+     */
     private ReentrantReadWriteLock rwLock;
 
     public FileReader(ITsRandomAccessFileReader raf) throws IOException {
@@ -51,6 +51,19 @@ public class FileReader {
         this.rwLock = new ReentrantReadWriteLock();
         this.rowGroupReaderLRUList = new LinkedList<>();
         init();
+    }
+
+    /**
+     * Used for IoTDB compatibility
+     *
+     * @param reader
+     * @param rowGroupMetaDataList
+     */
+    public FileReader(ITsRandomAccessFileReader reader, List<RowGroupMetaData> rowGroupMetaDataList) {
+        this.randomAccessFileReader = reader;
+        this.rwLock = new ReentrantReadWriteLock();
+        this.rowGroupReaderLRUList = new LinkedList<>();
+        initFromRowGroupMetadataList(rowGroupMetaDataList);
     }
 
     /**
@@ -74,7 +87,23 @@ public class FileReader {
     }
 
     /**
+     * //TODO verify rightness
+     * Used for IoTDB compatibility
+     *
+     * @param rowGroupMetadataList
+     */
+    private void initFromRowGroupMetadataList(List<RowGroupMetaData> rowGroupMetadataList) {
+        rowGroupReaderMap = new HashMap<>();
+        for (RowGroupMetaData rowGroupMetaData : rowGroupMetadataList) {
+            String deltaObjectID = rowGroupMetaData.getDeltaObjectID();
+            updateLRU(deltaObjectID);
+        }
+        initRowGroupReaders(rowGroupMetadataList);
+    }
+
+    /**
      * Do not use this method for potential risks of LRU cache overflow.
+     *
      * @return
      */
     @Deprecated
@@ -95,11 +124,13 @@ public class FileReader {
         return fileMetaData.getProp(key);
     }
 
-    /** Get all readers that access every RowGroup belonging to deltaObjectUID within this file.
-     *  This method will try to init the readers if they are uninitialized(non-exist).
+    /**
+     * Get all readers that access every RowGroup belonging to deltaObjectUID within this file.
+     * This method will try to init the readers if they are uninitialized(non-exist).
+     *
      * @param deltaObjectUID name of the desired deltaObject
      * @return A list of RowGroupReaders specified by deltaObjectUID
-     *         or NULL if such deltaObject doesn't exist in this file
+     * or NULL if such deltaObject doesn't exist in this file
      */
     public List<RowGroupReader> getRowGroupReaderListByDeltaObject(String deltaObjectUID) throws IOException {
         loadDeltaObj(deltaObjectUID);
@@ -125,56 +156,59 @@ public class FileReader {
 
     /**
      * This method is thread-safe.
+     *
      * @param deltaObjUID
      * @throws IOException
      */
     private void initRowGroupReaders(String deltaObjUID) throws IOException {
         // avoid duplicates
-        if(this.rowGroupReaderMap.containsKey(deltaObjUID))
+        if (this.rowGroupReaderMap.containsKey(deltaObjUID))
             return;
         this.rwLock.writeLock().lock();
         try {
             TsDeltaObject deltaObj = this.fileMetaData.getDeltaObject(deltaObjUID);
             initRowGroupReaders(deltaObj);
         } finally {
-           this.rwLock.writeLock().unlock();
+            this.rwLock.writeLock().unlock();
         }
     }
 
     /**
      * This method is thread-unsafe, so the caller must ensure thread safety.
+     *
      * @param deltaObj TSDeltaObject that contains a list of RowGroupMetaData
      * @throws IOException
      */
     private void initRowGroupReaders(TsDeltaObject deltaObj) throws IOException {
-        if(deltaObj == null)
+        if (deltaObj == null)
             return;
         // read metadata block and use its RowGroupMetadata list to construct RowGroupReaders
         TsRowGroupBlockMetaData blockMeta = new TsRowGroupBlockMetaData();
         blockMeta.convertToTSF(ReadWriteThriftFormatUtils.readRowGroupBlockMetaData(this.randomAccessFileReader,
-                                            deltaObj.offset, deltaObj.metadataBlockSize));
+                deltaObj.offset, deltaObj.metadataBlockSize));
         initRowGroupReaders(blockMeta.getRowGroups());
     }
 
     /**
      * Core method, construct RowGroupReader for every RowGroup in given list, thread-unsafe.
      * The caller should avoid adding duplicate readers.
+     *
      * @param groupList
      */
     private void initRowGroupReaders(List<RowGroupMetaData> groupList) {
-        if(groupList == null)
+        if (groupList == null)
             return;
         // TODO: advice: parallel the process to speed up
-        for(RowGroupMetaData meta : groupList) {
+        for (RowGroupMetaData meta : groupList) {
             // the passed raf should be new rafs to realize parallelism
             RowGroupReader reader = new RowGroupReader(meta, this.randomAccessFileReader);
 
             List<RowGroupReader> readerList = this.rowGroupReaderMap.get(meta.getDeltaObjectID());
-            if(readerList == null) {
+            if (readerList == null) {
                 readerList = new ArrayList<>();
                 rowGroupReaderMap.put(meta.getDeltaObjectID(), readerList);
             }
-           readerList.add(reader);
+            readerList.add(reader);
         }
     }
 
@@ -186,16 +220,17 @@ public class FileReader {
      * Add a deltaObj by its name to the tail of the LRU list. If the deltaObj already exists,
      * remove it. When adding a new item, check if the volume exceeds, if so, remove the head of
      * list and responding RowGroupReaders.
+     *
      * @param deltaObjUID
      */
     private void updateLRU(String deltaObjUID) {
         int idx = this.rowGroupReaderLRUList.indexOf(deltaObjUID);
-        if(idx != -1) {
+        if (idx != -1) {
             // not a new item
             this.rowGroupReaderLRUList.remove(idx);
         } else {
             // a new item
-            if(this.rowGroupReaderLRUList.size() > this.LRU_LENGTH){
+            if (this.rowGroupReaderLRUList.size() > this.LRU_LENGTH) {
                 String removedDeltaObj = this.rowGroupReaderLRUList.removeFirst();
                 this.rowGroupReaderMap.remove(removedDeltaObj);
             }
@@ -205,9 +240,9 @@ public class FileReader {
 
     @Deprecated
     // only used for compatibility
-    public List<RowGroupReader> getRowGroupReaderList(){
+    public List<RowGroupReader> getRowGroupReaderList() {
         ArrayList<RowGroupReader> ret = new ArrayList<>();
-        for(Map.Entry<String, List<RowGroupReader>> entry : this.rowGroupReaderMap.entrySet()) {
+        for (Map.Entry<String, List<RowGroupReader>> entry : this.rowGroupReaderMap.entrySet()) {
             ret.addAll(entry.getValue());
         }
         return ret;
@@ -216,11 +251,12 @@ public class FileReader {
     /**
      * This method prefetch metadata of a DeltaObject for methods like checkSeries,
      * if the DeltaObject is not in memory.
+     *
      * @param deltaObjUID
      */
     public void loadDeltaObj(String deltaObjUID) throws IOException {
         // check if this file do have this delta_obj
-        if(!this.fileMetaData.containsDeltaObject(deltaObjUID)) {
+        if (!this.fileMetaData.containsDeltaObject(deltaObjUID)) {
             return;
         }
         List<RowGroupReader> ret = rowGroupReaderMap.get(deltaObjUID);
@@ -232,7 +268,7 @@ public class FileReader {
 
     private void loadAllDeltaObj() throws IOException {
         Collection<String> deltaObjects = fileMetaData.getDeltaObjectMap().keySet();
-        for(String deltaObject : deltaObjects) {
+        for (String deltaObject : deltaObjects) {
             initRowGroupReaders(deltaObject);
         }
     }
@@ -242,13 +278,13 @@ public class FileReader {
     }
 
     public boolean containsSeries(String deltaObjUID, String measurementID) throws IOException {
-        if(!this.containsDeltaObj(deltaObjUID)) {
+        if (!this.containsDeltaObj(deltaObjUID)) {
             return false;
         } else {
             this.loadDeltaObj(deltaObjUID);
             List<RowGroupReader> readers = rowGroupReaderMap.get(deltaObjUID);
-            for(RowGroupReader reader : readers) {
-                if(reader.containsMeasurement(measurementID))
+            for (RowGroupReader reader : readers) {
+                if (reader.containsMeasurement(measurementID))
                     return true;
             }
         }

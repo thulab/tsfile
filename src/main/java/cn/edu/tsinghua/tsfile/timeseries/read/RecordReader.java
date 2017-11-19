@@ -26,7 +26,7 @@ public class RecordReader {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordReader.class);
     private FileReader fileReader;
-    private HashMap<String, HashMap<String, SeriesSchema>> seriesSchemaMap;
+    private Map<String, Map<String, SeriesSchema>> seriesSchemaMap;
 
     public RecordReader(ITsRandomAccessFileReader raf) throws IOException {
         this.fileReader = new FileReader(raf);
