@@ -324,7 +324,7 @@ struct RowGroupMetaData {
 struct RowGroupBlockMetaData {
   1: required list<RowGroupMetaData> row_groups_metadata;
 
-  2: required string delta_object_id;
+  2: optional string delta_object_id;
 }
 
 /**

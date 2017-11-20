@@ -74,7 +74,8 @@ public class RowGroupBlockMetadtaTimeTest {
             for (int j = 0; j < deviceNum; j++) {
                 rowGroupMetaDatas.add(createSimpleRowGroupMetaDataInTSF(delta_object_id));
             }
-            TsRowGroupBlockMetaData tsRowGroupBlockMetaData = new TsRowGroupBlockMetaData(rowGroupMetaDatas, delta_object_id);
+            TsRowGroupBlockMetaData tsRowGroupBlockMetaData = new TsRowGroupBlockMetaData(rowGroupMetaDatas);
+            tsRowGroupBlockMetaData.setDeltaObjectID(delta_object_id);
             tsRowGroupBlockMetaDataMap.put(delta_object_id, tsRowGroupBlockMetaData);
         }
 
@@ -127,7 +128,8 @@ public class RowGroupBlockMetadtaTimeTest {
                 rowGroupMetaDatas.add(createSimpleRowGroupMetaDataInTSF(delta_object_id));
             }
         }
-        TsRowGroupBlockMetaData tsRowGroupBlockMetaData = new TsRowGroupBlockMetaData(rowGroupMetaDatas, delta_object_id);
+        TsRowGroupBlockMetaData tsRowGroupBlockMetaData = new TsRowGroupBlockMetaData(rowGroupMetaDatas);
+        tsRowGroupBlockMetaData.setDeltaObjectID(delta_object_id);
         System.out.println("1: create Metadata " + (System.currentTimeMillis() - startTime)+"ms");
         File file = new File(PATH);
         if (file.exists())

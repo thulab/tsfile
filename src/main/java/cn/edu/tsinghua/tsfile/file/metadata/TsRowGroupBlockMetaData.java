@@ -18,9 +18,8 @@ public class TsRowGroupBlockMetaData implements IConverter<RowGroupBlockMetaData
     		rowGroupMetadataList = new ArrayList<>();
     }
     
-    public TsRowGroupBlockMetaData(List<RowGroupMetaData> rowGroupMetadataList, String deltaObjectID){
+    public TsRowGroupBlockMetaData(List<RowGroupMetaData> rowGroupMetadataList){
     		this.rowGroupMetadataList = rowGroupMetadataList;
-    		this.deltaObjectID = deltaObjectID;
     }
     
     /**
@@ -54,7 +53,9 @@ public class TsRowGroupBlockMetaData implements IConverter<RowGroupBlockMetaData
                 rowGroupMetaDataListInThrift.add(rowGroupMetaData.convertToThrift());
             }
         }
-        return new RowGroupBlockMetaData(rowGroupMetaDataListInThrift, deltaObjectID);
+        RowGroupBlockMetaData rowGroupBlockMetaData= new RowGroupBlockMetaData(rowGroupMetaDataListInThrift);
+        rowGroupBlockMetaData.setDelta_object_id(deltaObjectID);
+        return rowGroupBlockMetaData;
 	}
 
 	@Override
