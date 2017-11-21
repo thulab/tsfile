@@ -19,7 +19,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 /**
- * This class is used to read <code>TSFileMetaData</code>} and construct
+ * This class is used to read <code>TSFileMetaData</code> and construct
  * file level reader which contains the information of <code>RowGroupReader</code>.
  *
  * @author Jinrui Zhang
@@ -108,6 +108,10 @@ public class FileReader {
      */
     @Deprecated
     public Map<String, List<RowGroupReader>> getRowGroupReaderMap() {
+        if (this.fileMetaData == null) {
+            return rowGroupReaderMap;
+        }
+
         try {
             loadAllDeltaObj();
         } catch (IOException e) {
@@ -290,4 +294,9 @@ public class FileReader {
         }
         return false;
     }
+
+    public TsFileMetaData getFileMetaData() {
+        return this.fileMetaData;
+    }
+
 }

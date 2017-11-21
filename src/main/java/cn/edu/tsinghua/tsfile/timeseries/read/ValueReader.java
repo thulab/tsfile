@@ -34,22 +34,22 @@ import java.util.List;
  */
 public class ValueReader {
 
-    protected static final Logger log = LoggerFactory.getLogger(ValueReader.class);
+    private static final Logger log = LoggerFactory.getLogger(ValueReader.class);
 
-    protected Decoder decoder;
-    protected Decoder timeDecoder;
-    protected Decoder freqDecoder;
-    protected long fileOffset = -1;
-    protected long totalSize = -1;
-    protected TSDataType dataType;
-    protected TsDigest digest;
-    protected ITsRandomAccessFileReader raf;
-    protected List<String> enumValues;
-    protected CompressionTypeName compressionTypeName;
-    protected long rowNums;
+    public Decoder decoder;
+    public Decoder timeDecoder;
+    public Decoder freqDecoder;
+    public long fileOffset = -1;
+    public long totalSize = -1;
+    public TSDataType dataType;
+    public TsDigest digest;
+    public ITsRandomAccessFileReader raf;
+    public List<String> enumValues;
+    public CompressionTypeName compressionTypeName;
+    public long rowNums;
 
     // save the mainFrequency of this page
-    protected List<float[]> mainFrequency = null;
+    public List<float[]> mainFrequency = null;
 
     /**
      * @param offset    Offset for current column in file.
@@ -57,7 +57,7 @@ public class ValueReader {
      * @param dataType  Data type of this column
      * @param digest    Digest for this column.
      */
-    protected ValueReader(long offset, long totalSize, TSDataType dataType, TsDigest digest) {
+    public ValueReader(long offset, long totalSize, TSDataType dataType, TsDigest digest) {
         this.timeDecoder = new DeltaBinaryDecoder.LongDeltaDecoder();
         this.fileOffset = offset;
         this.totalSize = totalSize;
@@ -100,7 +100,7 @@ public class ValueReader {
      * @return common timestamp
      * @throws IOException cannot init time value
      */
-    protected long[] initTimeValue(InputStream page, int size, boolean skip) throws IOException {
+    public long[] initTimeValue(InputStream page, int size, boolean skip) throws IOException {
         long[] res = null;
         int idx = 0;
 
@@ -122,7 +122,7 @@ public class ValueReader {
         return res;
     }
 
-    private ByteArrayInputStream initBAIS() throws IOException {
+    public ByteArrayInputStream initBAIS() throws IOException {
         int length = (int) this.totalSize;
         byte[] buf = new byte[length];
         int readSize = 0;
@@ -137,7 +137,7 @@ public class ValueReader {
         return bais;
     }
 
-    private ByteArrayInputStream initBAISForOnePage(long pageOffset) throws IOException {
+    public ByteArrayInputStream initBAISForOnePage(long pageOffset) throws IOException {
         int length = (int) (this.totalSize - (pageOffset - fileOffset));
         byte[] buf = new byte[length];
         int readSize = 0;
@@ -154,7 +154,7 @@ public class ValueReader {
      * //TODO what about timeFilters?
      * Judge whether current column is satisfied for given filters
      */
-    private boolean columnSatisfied(SingleSeriesFilterExpression valueFilter, SingleSeriesFilterExpression timeFilter,
+    public boolean columnSatisfied(SingleSeriesFilterExpression valueFilter, SingleSeriesFilterExpression timeFilter,
                                     SingleSeriesFilterExpression freqFilter) {
         if (valueFilter == null) {
             return true;
@@ -185,7 +185,7 @@ public class ValueReader {
      * Judge whether current page is satisfied for given filters according to
      * the digests of this page
      */
-    private boolean pageSatisfied(DigestForFilter timeDigestFF, DigestForFilter valueDigestFF,
+    public boolean pageSatisfied(DigestForFilter timeDigestFF, DigestForFilter valueDigestFF,
                                   SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression valueFilter, SingleSeriesFilterExpression freqFilter) {
         DigestVisitor digestVisitor = new DigestVisitor();
         if ((valueFilter == null && timeFilter == null)
@@ -207,7 +207,7 @@ public class ValueReader {
         return readOneColumnUseFilter(res, fetchSize, null, null, null);
     }
 
-    protected SingleValueVisitor<?> getSingleValueVisitorByDataType(TSDataType type, SingleSeriesFilterExpression filter) {
+    public SingleValueVisitor<?> getSingleValueVisitorByDataType(TSDataType type, SingleSeriesFilterExpression filter) {
         switch (type) {
             case INT32:
                 return new SingleValueVisitor<Integer>(filter);
