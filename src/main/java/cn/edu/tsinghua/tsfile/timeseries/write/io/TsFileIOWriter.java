@@ -175,8 +175,8 @@ public class TsFileIOWriter {
   /**
    * write {@linkplain TSFileMetaData TSFileMetaData} to output stream and close it.
    *
-   * @throws IOException
-   *           if I/O error occurs
+   * @param schema FileSchema
+   * @throws IOException if I/O error occurs
    */
   public void endFile(FileSchema schema) throws IOException {
     List<TimeSeriesMetadata> timeSeriesList = schema.getTimeSeriesMetadatas();
@@ -215,7 +215,7 @@ public class TsFileIOWriter {
   /**
    * fill in output stream to complete row group threshold.
    * @param diff how many bytes that will be filled.
-   * @throws IOException if diff > Integer.max_value
+   * @throws IOException if diff is greater than Integer.max_value
    */
   public void fillInRowGroup(long diff) throws IOException {
     if (diff <= Integer.MAX_VALUE) {

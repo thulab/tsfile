@@ -141,7 +141,7 @@ public class TsFileWriter {
    * @param record
    *          - a record responding a line
    * @return - whether the record has been added into RecordWriter legally
-   * @throws WriteProcessException
+   * @throws WriteProcessException exception
    */
   protected boolean checkIsDeltaExist(TSRecord record) throws WriteProcessException {
     if (!schema.hasDeltaObject(record.deltaObjectId)) {
@@ -190,10 +190,10 @@ public class TsFileWriter {
   /**
    * <b>Note that</b>, before calling this method, all {@code IRowGroupWriter} instance existing in
    * {@code groupWriters} have been reset for next writing stage, thus we don't add new
-   * {@code IRowGroupWriter} if its deltaObjecyId has existed.
+   * {@code IRowGroupWriter} if its deltaObjectId has existed.
    *
-   * @param record
-   *          - delta object to be add
+   * @param record TSRecord
+   * @throws WriteProcessException - delta object to be add
    */
   protected void addGroupToInternalRecordWriter(TSRecord record) throws WriteProcessException {
     IRowGroupWriter groupWriter;

@@ -131,7 +131,7 @@ public class Path {
      *
      * @param src    to be added.
      * @param prefix the newly prefix
-     * @return
+     * @return <code>Path</code>
      */
     public static Path addPrefixPath(Path src, Path prefix) {
         return addPrefixPath(src, prefix.fullPath);

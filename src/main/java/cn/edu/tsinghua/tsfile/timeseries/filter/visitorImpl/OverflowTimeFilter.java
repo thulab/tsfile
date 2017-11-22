@@ -21,7 +21,6 @@ public class OverflowTimeFilter implements FilterVisitor<Boolean> {
 
     @Override
     public <T extends Comparable<T>> Boolean visit(Eq<T> eq) {
-
         return (Long) eq.getValue() >= startTime && (Long) eq.getValue() <= endTime;
 
     }
