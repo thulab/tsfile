@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.read;
 
+import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
@@ -10,6 +11,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.TsDigest;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.format.Digest;
+import cn.edu.tsinghua.tsfile.format.Encoding;
 import cn.edu.tsinghua.tsfile.format.PageHeader;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.utils.DigestForFilter;
@@ -25,6 +27,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
+
+import static cn.edu.tsinghua.tsfile.format.Encoding.*;
 
 /**
  * @author Jinrui Zhang
@@ -58,7 +62,9 @@ public class ValueReader {
      * @param digest    Digest for this column.
      */
     public ValueReader(long offset, long totalSize, TSDataType dataType, TsDigest digest) {
-        this.timeDecoder = new DeltaBinaryDecoder.LongDeltaDecoder();
+        Encoding timeEncoding = getEncodingByString(TSFileDescriptor.getInstance().getConfig().timeSeriesEncoder);
+        this.timeDecoder = Decoder.getDecoderByType(timeEncoding, TSDataType.INT64);
+        // this.timeDecoder = new DeltaBinaryDecoder.LongDeltaDecoder();
         this.fileOffset = offset;
         this.totalSize = totalSize;
 
@@ -667,5 +673,40 @@ public class ValueReader {
 
     public void setEnumValues(List<String> enumValues) {
         this.enumValues = enumValues;
+    }
+
+    private Encoding getEncodingByString(String encoding) {
+        switch (encoding) {
+            case "PLAIN":
+                return PLAIN;
+            case "PLAIN_DICTIONARY":
+                return PLAIN_DICTIONARY;
+            case "RLE":
+                return RLE;
+            case "DELTA_BINARY_PACKED":
+                return DELTA_BINARY_PACKED;
+            case "DELTA_LENGTH_BYTE_ARRAY":
+                return DELTA_LENGTH_BYTE_ARRAY;
+            case "DELTA_BYTE_ARRAY":
+                return DELTA_BYTE_ARRAY;
+            case "RLE_DICTIONARY":
+                return RLE_DICTIONARY;
+            case "DIFF":
+                return DIFF;
+            case "TS_2DIFF":
+                return TS_2DIFF;
+            case "BITMAP":
+                return BITMAP;
+            case "PLA":
+                return PLA;
+            case "SDT":
+                return SDT;
+            case "DFT":
+                return DFT;
+            case "GORILLA":
+                return GORILLA;
+            default:
+                return null;
+        }
     }
 }
