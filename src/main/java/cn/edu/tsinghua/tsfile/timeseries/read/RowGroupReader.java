@@ -131,4 +131,8 @@ public class RowGroupReader {
     public boolean containsMeasurement(String measurementID) {
         return this.valueReaders.containsKey(measurementID);
     }
+
+    public void close() throws IOException {
+        this.raf.close();
+    }
 }
