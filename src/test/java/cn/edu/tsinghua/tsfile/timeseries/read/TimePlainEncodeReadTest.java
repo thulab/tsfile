@@ -1,23 +1,23 @@
 package cn.edu.tsinghua.tsfile.timeseries.read;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
-
+import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryConfig;
+import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryDataSet;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryEngine;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Field;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.RowRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryDataSet;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryConfig;
+import java.io.IOException;
 
-public class ReadTest {
+import static org.junit.Assert.assertEquals;
+
+public class TimePlainEncodeReadTest {
 
 	private static String fileName = "src/test/resources/perTestOutputData.ksn";
 	private static TsRandomAccessLocalFileReader inputFile;
@@ -62,6 +62,7 @@ public class ReadTest {
 
 	@Before
 	public void prepare() throws IOException, InterruptedException, WriteProcessException {
+		TSFileDescriptor.getInstance().getConfig().timeSeriesEncoder = "PLAIN";
 		ReadPerf.generateFile();
 	}
 
