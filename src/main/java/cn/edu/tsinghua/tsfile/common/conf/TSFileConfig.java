@@ -40,7 +40,7 @@ public class TSFileConfig {
      * Encoder of time series, TsFile supports TS_2DIFF, PLAIN and RLE(run-length encoding)
      * Default value is TS_2DIFF
      */
-    public String timeSeriesEncoder = "TS_2DIFF";
+    public String timeSeriesEncoder = "PLAIN";
     /**
      * Encoder of value series. default value is RLE.
      * For int, long, float, double data type, TsFile also supports TS_2DIFF and RLE(run-length encoding)

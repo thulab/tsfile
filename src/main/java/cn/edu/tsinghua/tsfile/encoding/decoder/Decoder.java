@@ -22,6 +22,7 @@ public abstract class Decoder {
     }
 
     public static Decoder getDecoderByType(Encoding type, TSDataType dataType) {
+        // PLA and DFT encoding are not supported in current version
         if (type == Encoding.PLAIN) {
             return new PlainDecoder(EndianType.LITTLE_ENDIAN);
         } else if (type == Encoding.RLE && dataType == TSDataType.BOOLEAN) {
@@ -42,15 +43,7 @@ public abstract class Decoder {
             return new SinglePrecisionDecoder();
         } else if (type == Encoding.GORILLA && dataType == TSDataType.DOUBLE) {
             return new DoublePrecisionDecoder();
-        }
-
-        // PLA and DFT encoding are not supported in current version
-        // } else if (type == Encoding.PLA) {
-        // return new LinearFitDecoder(TSEncoding.PLA);
-        // } else if (type == Encoding.SDT) {
-        // return new LinearFitDecoder(TSEncoding.SDT);
-
-        else {
+        } else {
             throw new TSFileDecodingException("Decoder not found:" + type + " , DataType is :" + dataType);
         }
     }

@@ -28,8 +28,8 @@ import java.util.List;
 
 /**
  * @author Jinrui Zhang
- * This class is mainly used to read one column of data in
- * RowGroup. It provides a number of different methods to read data
+ * This class is mainly used to read one column of data in RowGroup.
+ * It provides a number of different methods to read data
  * in different ways.
  */
 public class ValueReader {
