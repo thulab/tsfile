@@ -9,7 +9,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.*;
  *
  * @author CGF
  */
-public class OverflowTimeFilter implements FilterVisitor<Boolean> {
+public class IntervalTimeFilter implements FilterVisitor<Boolean> {
 
     private Long startTime, endTime;
 
@@ -27,25 +27,27 @@ public class OverflowTimeFilter implements FilterVisitor<Boolean> {
 
     @Override
     public <T extends Comparable<T>> Boolean visit(NotEq<T> notEq) {
-        return (Long) notEq.getValue() < startTime || (Long) notEq.getValue() > endTime;
+        if (startTime.equals(endTime) && (notEq.getValue()).equals(startTime)) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public <T extends Comparable<T>> Boolean visit(LtEq<T> ltEq) {
-
         if (ltEq.getIfEq()) {
-            return (Long) ltEq.getValue() > startTime;
-        } else {
             return (Long) ltEq.getValue() >= startTime;
+        } else {
+            return (Long) ltEq.getValue() > startTime;
         }
     }
 
     @Override
     public <T extends Comparable<T>> Boolean visit(GtEq<T> gtEq) {
         if (gtEq.getIfEq()) {
-            return (Long) gtEq.getValue() < endTime;
-        } else {
             return (Long) gtEq.getValue() <= endTime;
+        } else {
+            return (Long) gtEq.getValue() < endTime;
         }
     }
 
