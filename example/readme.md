@@ -1,6 +1,6 @@
 # Function
 ```
-The example is to show how to write and read a TsFile File..
+The example is to show how to write and read a TsFile File.
 ```
 # Usage
 ## Dependencies with Maven
@@ -31,8 +31,6 @@ The example is to show how to write and read a TsFile File..
 
 ```
   The program is to show how to read TsFile.
-  You can set the parameter of threadsNum to make sure the number of consumer threads:(for example: "5")
-  > private final static int threadsNum = 5;
 ```
 
 ### Notice 
