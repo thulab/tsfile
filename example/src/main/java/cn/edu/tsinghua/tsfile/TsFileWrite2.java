@@ -14,7 +14,7 @@ public class TsFileWrite2 {
 
 	public static void main(String args[]) {
 		try {
-			TsFileWriter tsFileWriter = new TsFileWriter(new File("test1.ts"));
+			TsFileWriter tsFileWriter = new TsFileWriter(new File("test.ts"));
 
 			// add measurements
 			tsFileWriter.addMeasurement(new MeasurementDescriptor("cpu_utility", TSDataType.FLOAT, TSEncoding.TS_2DIFF));

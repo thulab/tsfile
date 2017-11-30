@@ -15,7 +15,7 @@ public class TsFileWrite1 {
 
 	public static void main(String args[]) {
 		try {
-			String path = "F:\\university\\学\\毕设\\postBack\\test.ts";
+			String path = "test.ts";
 			String s = "{\n" +
 	                "    \"schema\": [\n" +
 	                "        {\n" +
