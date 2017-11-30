@@ -182,22 +182,22 @@ public class TsFileIOWriter {
     //clustering rowGroupMetadata and build the range
 
     Map<String, TsDeltaObject> tsDeltaObjectMap = new HashMap<>();
-    String current_deltaobject;
-    TsRowGroupBlockMetaData current_tsRowGroupBlockMetaData;
+    String currentDeltaObject;
+    TsRowGroupBlockMetaData currentTsRowGroupBlockMetaData;
 
     LinkedHashMap<String, TsRowGroupBlockMetaData> tsRowGroupBlockMetaDataMap = new LinkedHashMap<>();
     for (RowGroupMetaData rowGroupMetaData : rowGroupMetaDatas){
-      current_deltaobject = rowGroupMetaData.getDeltaObjectID();
-      if (!tsRowGroupBlockMetaDataMap.containsKey(current_deltaobject)) {
+      currentDeltaObject = rowGroupMetaData.getDeltaObjectID();
+      if (!tsRowGroupBlockMetaDataMap.containsKey(currentDeltaObject)) {
         TsRowGroupBlockMetaData tsRowGroupBlockMetaData = new TsRowGroupBlockMetaData();
-        tsRowGroupBlockMetaData.setDeltaObjectID(current_deltaobject);
-        tsRowGroupBlockMetaDataMap.put(current_deltaobject, tsRowGroupBlockMetaData);
+        tsRowGroupBlockMetaData.setDeltaObjectID(currentDeltaObject);
+        tsRowGroupBlockMetaDataMap.put(currentDeltaObject, tsRowGroupBlockMetaData);
       }
-      tsRowGroupBlockMetaDataMap.get(current_deltaobject).addRowGroupMetaData(rowGroupMetaData);
+      tsRowGroupBlockMetaDataMap.get(currentDeltaObject).addRowGroupMetaData(rowGroupMetaData);
     }
     Iterator<Map.Entry<String, TsRowGroupBlockMetaData>> iterator = tsRowGroupBlockMetaDataMap.entrySet().iterator();
     long offset;
-    long offset_index;
+    long offsetIndex;
     /** size of RowGroupMetadataBlock in byte **/
     int metadataBlockSize;
 
@@ -212,28 +212,28 @@ public class TsFileIOWriter {
       endTime = Long.MIN_VALUE;
 
       Map.Entry<String, TsRowGroupBlockMetaData> entry = iterator.next();
-      current_deltaobject = entry.getKey();
-      current_tsRowGroupBlockMetaData = entry.getValue();
+      currentDeltaObject = entry.getKey();
+      currentTsRowGroupBlockMetaData = entry.getValue();
 
-      for (RowGroupMetaData rowGroupMetaData : current_tsRowGroupBlockMetaData.getRowGroups()) {
+      for (RowGroupMetaData rowGroupMetaData : currentTsRowGroupBlockMetaData.getRowGroups()) {
         for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : rowGroupMetaData.getTimeSeriesChunkMetaDataList()) {
           startTime = Long.min(startTime, timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getStartTime());
           endTime = Long.max(endTime, timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getEndTime());
         }
       }
-      offset_index = out.getPos();
+      offsetIndex = out.getPos();
       //flush tsRowGroupBlockMetaDatas in order
-      ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(current_tsRowGroupBlockMetaData.convertToThrift(),
+      ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(currentTsRowGroupBlockMetaData.convertToThrift(),
               out.getOutputStream());
       offset = out.getPos();
-      TsDeltaObject tsDeltaObject = new TsDeltaObject(offset_index, (int)(offset-offset_index), startTime, endTime);
-      tsDeltaObjectMap.put(current_deltaobject, tsDeltaObject);
+      TsDeltaObject tsDeltaObject = new TsDeltaObject(offsetIndex, (int)(offset-offsetIndex), startTime, endTime);
+      tsDeltaObjectMap.put(currentDeltaObject, tsDeltaObject);
     }
 
-    TsFileMetaData tsfileMetadata = new TsFileMetaData(tsDeltaObjectMap, timeSeriesList, TSFileConfig.currentVersion);
+    TsFileMetaData tsFileMetaData = new TsFileMetaData(tsDeltaObjectMap, timeSeriesList, TSFileConfig.currentVersion);
     Map<String, String> props = schema.getProps();
-    tsfileMetadata.setProps(props);
-    serializeTsFileMetadata(tsfileMetadata);
+    tsFileMetaData.setProps(props);
+    serializeTsFileMetadata(tsFileMetaData);
     out.close();
     LOG.info("output stream is closed");
   }
