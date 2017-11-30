@@ -26,7 +26,7 @@ public class RecordReader {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordReader.class);
     private FileReader fileReader;
-    private HashMap<String, HashMap<String, SeriesSchema>> seriesSchemaMap;
+    private Map<String, Map<String, SeriesSchema>> seriesSchemaMap;
 
     public RecordReader(ITsRandomAccessFileReader raf) throws IOException {
         this.fileReader = new FileReader(raf);
@@ -132,7 +132,6 @@ public class RecordReader {
                 break;
             }
         }
-
         return res;
     }
 
@@ -229,7 +228,7 @@ public class RecordReader {
         return rowGroupReader.getValueReaders().get(measurementId).getValuesForGivenValues(timeRet);
     }
 
-    public boolean isEnumsColumn(String deltaObjectUID, String sid) {
+    public boolean isEnumsColumn(String deltaObjectUID, String sid) throws IOException {
         List<RowGroupReader> rowGroupReaderList = fileReader.getRowGroupReaderListByDeltaObject(deltaObjectUID);
         for (RowGroupReader rowGroupReader : rowGroupReaderList) {
             if (rowGroupReader.getValueReaderForSpecificMeasurement(sid) == null) {
@@ -321,7 +320,12 @@ public class RecordReader {
     }
 
     public FilterSeries<?> getColumnByMeasurementName(String deltaObject, String measurement) {
-        TSDataType type = fileReader.getDataTypeBySeriesName(deltaObject, measurement);
+        TSDataType type = null;
+        try {
+            type = fileReader.getDataTypeBySeriesName(deltaObject, measurement);
+        } catch (IOException e) {
+            logger.error("get column failed {}",e.getMessage());
+        }
         if (type == TSDataType.INT32) {
             return FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER);
         } else if (type == TSDataType.INT64) {
@@ -340,6 +344,7 @@ public class RecordReader {
     }
 
     private void checkSeries(String deltaObject, String measurement) throws IOException {
+        this.fileReader.loadDeltaObj(deltaObject);
         if (seriesSchemaMap == null) {
             seriesSchemaMap = new HashMap<>();
             Map<String, ArrayList<SeriesSchema>> seriesSchemaListMap = getAllSeriesSchemasGroupByDeltaObject();

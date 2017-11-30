@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.common.utils.Pair;
 import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
+import cn.edu.tsinghua.tsfile.format.DeltaObject;
 import cn.edu.tsinghua.tsfile.format.FileMetaData;
 import cn.edu.tsinghua.tsfile.format.TimeSeries;
 import org.slf4j.Logger;
@@ -12,13 +12,10 @@ import java.util.*;
 /**
  * TSFileMetaData collects all metadata info and saves in its data structure
  */
-public class TSFileMetaData implements IConverter<FileMetaData> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TSFileMetaData.class);
+public class TsFileMetaData implements IConverter<FileMetaData> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TsFileMetaData.class);
 
-    /**
-     * Row groups in this file
-     */
-    private List<RowGroupMetaData> rowGroupMetadataList;
+    private Map<String, TsDeltaObject> deltaObjectMap;
 
     /**
      * TSFile schema for this file. This schema contains metadata for all the time series. The schema
@@ -47,31 +44,18 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
      */
     private Map<String, String> props;
 
-    public TSFileMetaData() {
+    public TsFileMetaData() {
     }
 
     /**
-     * @param rowGroupMetadataList - rowGroup level metadata
      * @param timeSeriesList       - time series info list
      * @param currentVersion       - current version
      */
-    public TSFileMetaData(List<RowGroupMetaData> rowGroupMetadataList, List<TimeSeriesMetadata> timeSeriesList,
-                          int currentVersion) {
-        props = new HashMap<>();
-        this.rowGroupMetadataList = rowGroupMetadataList;
+    public TsFileMetaData(Map<String, TsDeltaObject> deltaObjectMap, List<TimeSeriesMetadata> timeSeriesList, int currentVersion) {
+        this.props = new HashMap<>();
+        this.deltaObjectMap = deltaObjectMap;
         this.timeSeriesList = timeSeriesList;
         this.currentVersion = currentVersion;
-    }
-
-    /**
-     * add row group metadata to rowGroups. THREAD NOT SAFE
-     * @param rowGroup - row group metadata to add
-     */
-    public void addRowGroupMetaData(RowGroupMetaData rowGroup) {
-        if (rowGroupMetadataList == null) {
-            rowGroupMetadataList = new ArrayList<RowGroupMetaData>();
-        }
-        rowGroupMetadataList.add(rowGroup);
     }
 
     /**
@@ -85,36 +69,27 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
         timeSeriesList.add(timeSeries);
     }
 
-    /**
-     * get all delta object uid and their types
-     *
-     * @return set of {@code Pair<delta-object-uid, delta-object-type>}
-     */
-    public Set<Pair<String, String>> getAllDeltaObjects() {
-        // Pair<delta-object-uid, delta-object-type>
-        Set<Pair<String, String>> deltaObjectSet = new HashSet<Pair<String, String>>();
-        if (rowGroupMetadataList != null) {
-            for (RowGroupMetaData rowGroup : rowGroupMetadataList) {
-                deltaObjectSet.add(
-                        new Pair<String, String>(rowGroup.getDeltaObjectUID(), rowGroup.getDeltaObjectType()));
-            }
-        }
-        return deltaObjectSet;
-    }
+//    /**
+//     * get all delta object uid and their types
+//     *
+//     * @return set of {@code Pair<delta-object-uid, delta-object-type>}
+//     */
+//    public Set<Pair<String, String>> getAllDeltaObjects() {
+//        // Pair<delta-object-uid, delta-object-type>
+//        Set<Pair<String, String>> deltaObjectSet = new HashSet<Pair<String, String>>();
+//        if (rowGroupMetadataList != null) {
+//            for (RowGroupMetaData rowGroup : rowGroupMetadataList) {
+//                deltaObjectSet.add(
+//                        new Pair<String, String>(rowGroup.getDeltaObjectUID(), rowGroup.getDeltaObjectType()));
+//            }
+//        }
+//        return deltaObjectSet;
+//    }
 
     @Override
     public String toString() {
-        return String.format(
-                "TSFMetaData { RowGroupsMetaData: %s, timeSeries list %s, current version %d }", rowGroupMetadataList,
+        return String.format("TSFMetaData { DeltaOjectMap: %s, timeSeries list %s, current version %d }", deltaObjectMap,
                 timeSeriesList, currentVersion);
-    }
-
-    public List<RowGroupMetaData> getRowGroups() {
-        return rowGroupMetadataList;
-    }
-
-    public void setRowGroups(List<RowGroupMetaData> rowGroupMetadataList) {
-        this.rowGroupMetadataList = rowGroupMetadataList;
     }
 
     /**
@@ -134,26 +109,23 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
                 }
             }
 
-            long numOfRows = 0;
-            List<cn.edu.tsinghua.tsfile.format.RowGroupMetaData> rowGroupMetaDataListInThrift = null;
-            if (rowGroupMetadataList != null) {
-                rowGroupMetaDataListInThrift =
-                        new ArrayList<cn.edu.tsinghua.tsfile.format.RowGroupMetaData>();
-                for (RowGroupMetaData rowGroupMetaData : rowGroupMetadataList) {
-                    numOfRows += rowGroupMetaData.getNumOfRows();
-                    rowGroupMetaDataListInThrift.add(rowGroupMetaData.convertToThrift());
-                }
+            Map<String, DeltaObject> deltaObjectMapInThrift = null;
+            if( deltaObjectMap != null){
+            		deltaObjectMapInThrift = new HashMap<>();
+            		for(Map.Entry<String, TsDeltaObject> entry : deltaObjectMap.entrySet()){
+            			TsDeltaObject object = entry.getValue();
+            			deltaObjectMapInThrift.put(entry.getKey(), new DeltaObject(object.offset, 
+            					object.metadataBlockSize, object.startTime, object.endTime));
+            		}
             }
-            FileMetaData metaDataInThrift = new FileMetaData(currentVersion, timeSeriesListInThrift, numOfRows,
-                    rowGroupMetaDataListInThrift);
+
+            FileMetaData metaDataInThrift = new FileMetaData(currentVersion, deltaObjectMapInThrift, timeSeriesListInThrift);
             metaDataInThrift.setCreated_by(createdBy);
             metaDataInThrift.setJson_metadata(jsonMetaData);
             metaDataInThrift.setProperties(props);
             return metaDataInThrift;
         } catch (Exception e) {
-            LOGGER.error(
-                    "tsfile-file TSFileMetaData: failed to convert file metadata from TSFile to thrift, content is {}",
-                    this, e);
+            LOGGER.error("TsFileMetaData: failed to convert file metadata from TSFile to thrift, content is {}", this, e);
             throw e;
         }
     }
@@ -177,26 +149,23 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
                 }
             }
 
-            List<cn.edu.tsinghua.tsfile.format.RowGroupMetaData> rowGroupMetaDataListInThrift =
-                    metadataInThrift.getRow_groups();
-            if (rowGroupMetaDataListInThrift == null) {
-                rowGroupMetadataList = null;
+            if(metadataInThrift.getDelta_object_map() == null){
+            		deltaObjectMap = null;
             } else {
-                rowGroupMetadataList = new ArrayList<RowGroupMetaData>();
-                for (cn.edu.tsinghua.tsfile.format.RowGroupMetaData rowGroupMetaDataInThrift : rowGroupMetaDataListInThrift) {
-                    RowGroupMetaData rowGroupMetaDataInTSFile = new RowGroupMetaData();
-                    rowGroupMetaDataInTSFile.convertToTSF(rowGroupMetaDataInThrift);
-                    rowGroupMetadataList.add(rowGroupMetaDataInTSFile);
-                }
+            		deltaObjectMap = new HashMap<>();
+            		for (Map.Entry<String, DeltaObject> entry : metadataInThrift.getDelta_object_map().entrySet()){
+            			DeltaObject object = entry.getValue();
+            			deltaObjectMap.put(entry.getKey(), new TsDeltaObject(object.getOffset(), 
+            					object.getMetadata_block_size(), object.getStart_time(),  object.getEnd_time()));
+            		}
             }
+            
             currentVersion = metadataInThrift.getVersion();
             createdBy = metadataInThrift.getCreated_by();
             jsonMetaData = metadataInThrift.getJson_metadata();
             props = metadataInThrift.getProperties();
         } catch (Exception e) {
-            LOGGER.error(
-                    "tsfile-file TSFileMetaData: failed to convert file metadata from thrift to TSFile, content is {}",
-                    metadataInThrift, e);
+            LOGGER.error("TsFileMetaData: failed to convert file metadata from thrift to TSFile, content is {}",metadataInThrift, e);
             throw e;
         }
 
@@ -252,5 +221,21 @@ public class TSFileMetaData implements IConverter<FileMetaData> {
             return props.get(key);
         else
             return null;
+    }
+
+	public Map<String, TsDeltaObject> getDeltaObjectMap() {
+		return deltaObjectMap;
+	}
+
+	public void setDeltaObjectMap(Map<String, TsDeltaObject> deltaObjectMap) {
+		this.deltaObjectMap = deltaObjectMap;
+	}
+
+	public boolean containsDeltaObject(String DeltaObjUID) {
+        return this.deltaObjectMap.containsKey(DeltaObjUID);
+    }
+
+    public TsDeltaObject getDeltaObject(String DeltaObjUID) {
+        return this.deltaObjectMap.get(DeltaObjUID);
     }
 }

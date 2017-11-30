@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.metadata.converter;
 
-import cn.edu.tsinghua.tsfile.file.metadata.TSFileMetaData;
+import cn.edu.tsinghua.tsfile.file.metadata.TsFileMetaData;
 import cn.edu.tsinghua.tsfile.format.FileMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,22 +8,21 @@ import org.slf4j.LoggerFactory;
 /**
  * converter for file metadata
  */
-public class TSFileMetaDataConverter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TSFileMetaDataConverter.class);
+public class TsFileMetaDataConverter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TsFileMetaDataConverter.class);
 
     /**
      * convert tsfile format file matadata to thrift format file matadata
      *
-     * @param fileMetadataInTSFile file metadata in tsfile format
+     * @param fileMetadataInTsFile file metadata in tsfile format
      * @return file metadata in thrift format
      */
-    public FileMetaData toThriftFileMetadata(TSFileMetaData fileMetadataInTSFile) {
+    public FileMetaData toThriftFileMetadata(TsFileMetaData fileMetadataInTsFile) {
         try {
-            return fileMetadataInTSFile.convertToThrift();
+            return fileMetadataInTsFile.convertToThrift();
         } catch (Exception e) {
-            LOGGER.error(
-                    "tsfile-file TSFileMetaDataConverter: failed to convert metadata from TSFile to thrift, content is {}",
-                    fileMetadataInTSFile, e);
+            LOGGER.error("TsFileMetaDataConverter: failed to convert metadata from TsFile to thrift, content is {}",
+                    fileMetadataInTsFile, e);
         }
         return null;
     }
@@ -34,13 +33,12 @@ public class TSFileMetaDataConverter {
      * @param fileMetaDataInThrift file metadata in thrift format
      * @return file metadata in tsfile format
      */
-    public TSFileMetaData toTSFileMetadata(FileMetaData fileMetaDataInThrift) {
-        TSFileMetaData fileMetaDataInTSFile = new TSFileMetaData();
+    public TsFileMetaData toTsFileMetadata(FileMetaData fileMetaDataInThrift) {
+        TsFileMetaData fileMetaDataInTSFile = new TsFileMetaData();
         try {
             fileMetaDataInTSFile.convertToTSF(fileMetaDataInThrift);
         } catch (Exception e) {
-            LOGGER.error(
-                    "tsfile-file TSFileMetaDataConverter: failed to convert metadata from thrift to TSFile, content is {}",
+            LOGGER.error("TsFileMetaDataConverter: failed to convert metadata from thrift to TSFile, content is {}",
                     fileMetaDataInThrift, e);
         }
         return fileMetaDataInTSFile;

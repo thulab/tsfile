@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 /**
  * For more information, see Digest in cn.edu.thu.tsfile.format package
  */
-public class TSDigest implements IConverter<Digest> {
+public class TsDigest implements IConverter<Digest> {
     /**
      * Instead of long/double, we use ByteBuffer as type of max and min to improve versatility of
      * digest. Therefore, statistics of data whose type is int, long, double or flaot can be stored in digest.
@@ -16,10 +16,10 @@ public class TSDigest implements IConverter<Digest> {
     public ByteBuffer max;
     public ByteBuffer min;
 
-    public TSDigest() {
+    public TsDigest() {
     }
 
-    public TSDigest(ByteBuffer max, ByteBuffer min) {
+    public TsDigest(ByteBuffer max, ByteBuffer min) {
         this.max = max;
         this.min = min;
     }
