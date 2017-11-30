@@ -17,7 +17,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RowGroupBlockMetadtaBigTest {
+public class RowGroupBlockMetadataBigTest {
 	private static int deviceNum = 100;
 	private static int sensorNum = 1000;
 	private static String PATH = "target/test-big.ksn";

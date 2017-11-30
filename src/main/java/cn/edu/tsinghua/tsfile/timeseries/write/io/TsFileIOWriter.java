@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.io;
 
-import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
+import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
@@ -28,13 +28,13 @@ import java.util.*;
  * @author kangrong
  */
 public class TsFileIOWriter {
-  public static final String MAGIC_STRING = "TsFilev0.0.1";
+  
   public static final byte[] magicStringBytes;
   public static final TsFileMetaDataConverter metadataConverter = new TsFileMetaDataConverter();
   private static final Logger LOG = LoggerFactory.getLogger(TsFileIOWriter.class);
 
   static {
-    magicStringBytes = BytesUtils.StringToBytes(MAGIC_STRING);
+    magicStringBytes = BytesUtils.StringToBytes(TSFileConfig.MAGIC_STRING);
   }
 
   private final ITsRandomAccessFileWriter out;
@@ -230,8 +230,7 @@ public class TsFileIOWriter {
       tsDeltaObjectMap.put(current_deltaobject, tsDeltaObject);
     }
 
-    TsFileMetaData tsfileMetadata = new TsFileMetaData(tsDeltaObjectMap, timeSeriesList,
-        TSFileDescriptor.getInstance().getConfig().currentVersion);
+    TsFileMetaData tsfileMetadata = new TsFileMetaData(tsDeltaObjectMap, timeSeriesList, TSFileConfig.currentVersion);
     Map<String, String> props = schema.getProps();
     tsfileMetadata.setProps(props);
     serializeTsFileMetadata(tsfileMetadata);
