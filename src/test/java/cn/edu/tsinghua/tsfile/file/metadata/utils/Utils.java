@@ -5,7 +5,8 @@ import static org.junit.Assert.*;
 import java.util.List;
 import java.util.Map;
 
-import cn.edu.tsinghua.tsfile.file.metadata.TSFileMetaData;
+import cn.edu.tsinghua.tsfile.file.metadata.TsFileMetaData;
+import cn.edu.tsinghua.tsfile.file.metadata.TsRowGroupBlockMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TInTimeSeriesChunkMetaData;
@@ -14,7 +15,10 @@ import cn.edu.tsinghua.tsfile.format.TimeSeries;
 import cn.edu.tsinghua.tsfile.format.ValueInTimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesMetadata;
+import cn.edu.tsinghua.tsfile.file.metadata.TsDeltaObject;
+import cn.edu.tsinghua.tsfile.format.DeltaObject;
 import cn.edu.tsinghua.tsfile.format.FileMetaData;
+import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
 
 public class Utils {
   public static void isListEqual(List<?> listA, List<?> listB, String name) {
@@ -114,6 +118,15 @@ public class Utils {
           timeInTimeSeriesChunkMetaData.getEnum_values(), "data values");
     }
   }
+  
+  public static void isDeltaObjectEqual(TsDeltaObject deltaObjectInTSF, DeltaObject deltaObjectInTHrift){
+	  if(Utils.isTwoObjectsNotNULL(deltaObjectInTSF, deltaObjectInTHrift, "Delta object")){
+		  assertTrue(deltaObjectInTSF.offset == deltaObjectInTHrift.getOffset());
+		  assertTrue(deltaObjectInTSF.metadataBlockSize == deltaObjectInTHrift.getMetadata_block_size());
+		  assertTrue(deltaObjectInTSF.startTime == deltaObjectInTHrift.getStart_time());
+		  assertTrue(deltaObjectInTSF.endTime == deltaObjectInTHrift.getEnd_time());
+	  }
+  }
 
   public static void isVSeriesChunkMetadataEqual(VInTimeSeriesChunkMetaData vSeriesMetaData,
       ValueInTimeSeriesChunkMetaData valueInTimeSeriesChunkMetaData) {
@@ -181,8 +194,8 @@ public class Utils {
       cn.edu.tsinghua.tsfile.format.RowGroupMetaData rowGroupMetaDataInThrift) {
     if (Utils.isTwoObjectsNotNULL(rowGroupMetaDataInTSF, rowGroupMetaDataInThrift,
         "RowGroupMetaData")) {
-      assertTrue(rowGroupMetaDataInTSF.getDeltaObjectUID()
-          .equals(rowGroupMetaDataInThrift.getDelta_object_uid()));
+      assertTrue(rowGroupMetaDataInTSF.getDeltaObjectID()
+          .equals(rowGroupMetaDataInThrift.getDelta_object_id()));
       assertTrue(rowGroupMetaDataInTSF.getDeltaObjectType()
           .equals(rowGroupMetaDataInThrift.getDelta_object_type()));
       assertTrue(rowGroupMetaDataInTSF.getTotalByteSize() == rowGroupMetaDataInThrift
@@ -212,47 +225,50 @@ public class Utils {
     }
   }
 
-  public static void isFileMetaDataEqual(TSFileMetaData fileMetaDataInTSF,
-      FileMetaData fileMetaDataInThrift) {
-    if (Utils.isTwoObjectsNotNULL(fileMetaDataInTSF, fileMetaDataInThrift, "File MetaData")) {
-
-      Utils.isTimeSeriesListEqual(fileMetaDataInTSF.getTimeSeriesList(),
-          fileMetaDataInThrift.getTimeseries_list());
-      Utils.isListEqual(fileMetaDataInTSF.getJsonMetaData(),
-          fileMetaDataInThrift.getJson_metadata(), "json metadata");
-      
-      if(Utils.isTwoObjectsNotNULL(fileMetaDataInTSF.getProps(), fileMetaDataInThrift.getProperties(), "user specified properties")){
-	  Map<String, String> proTSF = fileMetaDataInTSF.getProps();
-	  Map<String, String> proThrift = fileMetaDataInThrift.getProperties();
-	  if(proThrift.size() != proTSF.size()){
-	      fail("File metadata user specified properties size not equal");
+  public static void isRowGroupBlockMetadataEqual(TsRowGroupBlockMetaData rowGroupBlockMetaDataInTSF, RowGroupBlockMetaData rowGroupBlockMetaDataInThrift){
+	  if(Utils.isTwoObjectsNotNULL(rowGroupBlockMetaDataInTSF, rowGroupBlockMetaDataInThrift, "RowGroupBlockMetaData")){
+	      if (Utils.isTwoObjectsNotNULL(rowGroupBlockMetaDataInTSF.getRowGroups(), rowGroupBlockMetaDataInThrift.getRow_groups_metadata(), "Row Group List")) {
+	            List<RowGroupMetaData> listTSF = rowGroupBlockMetaDataInTSF.getRowGroups();
+	            List<cn.edu.tsinghua.tsfile.format.RowGroupMetaData> listThrift = rowGroupBlockMetaDataInThrift.getRow_groups_metadata();
+	            if (listTSF.size() != listThrift.size()) {
+	              fail("TimeSeriesGroupMetaData List size is different");
+	            }
+//	            long maxNumRows = 0;
+	            for (int i = 0; i < listTSF.size(); i++) {
+	              Utils.isRowGroupMetaDataEqual(listTSF.get(i), listThrift.get(i));
+//	              maxNumRows += listTSF.get(i).getNumOfRows();
+	            }
+	            Utils.isStringSame(rowGroupBlockMetaDataInTSF.getDeltaObjectID(), rowGroupBlockMetaDataInThrift.getDelta_object_id(), "delta object id");
+	          }
 	  }
-	  for(Map.Entry<String, String> entry : proTSF.entrySet()){
-	      if(!proThrift.containsKey(entry.getKey())){
-		  fail("File metadata user specified properties content not same for key"+entry.getKey());
-	      }
-	      Utils.isStringSame(entry.getValue(), proThrift.get(entry.getKey()), "File metadata user specified properties content not same for value"+entry.getValue());
-	  }
-      }
-
-      if (Utils.isTwoObjectsNotNULL(fileMetaDataInTSF.getRowGroups(), fileMetaDataInThrift.getRow_groups(),
-          "Row Group List")) {
-        List<RowGroupMetaData> listTSF = fileMetaDataInTSF.getRowGroups();
-        List<cn.edu.tsinghua.tsfile.format.RowGroupMetaData> listThrift =
-            fileMetaDataInThrift.getRow_groups();
-
-        if (listTSF.size() != listThrift.size()) {
-          fail("TimeSeriesGroupMetaData List size is different");
-        }
-        long maxNumRows = 0;
-        for (int i = 0; i < listTSF.size(); i++) {
-          Utils.isRowGroupMetaDataEqual(listTSF.get(i), listThrift.get(i));
-          maxNumRows += listTSF.get(i).getNumOfRows();
-        }
-        assertTrue(maxNumRows == fileMetaDataInThrift.getMax_num_rows());
-      }
-    }
   }
+  
+	public static void isFileMetaDataEqual(TsFileMetaData fileMetaDataInTSF, FileMetaData fileMetaDataInThrift) {
+		if (Utils.isTwoObjectsNotNULL(fileMetaDataInTSF, fileMetaDataInThrift, "File MetaData")) {
+
+			Utils.isTimeSeriesListEqual(fileMetaDataInTSF.getTimeSeriesList(),
+					fileMetaDataInThrift.getTimeseries_list());
+			Utils.isListEqual(fileMetaDataInTSF.getJsonMetaData(), fileMetaDataInThrift.getJson_metadata(),
+					"json metadata");
+
+			if (Utils.isTwoObjectsNotNULL(fileMetaDataInTSF.getProps(), fileMetaDataInThrift.getProperties(),
+					"user specified properties")) {
+				Map<String, String> proTSF = fileMetaDataInTSF.getProps();
+				Map<String, String> proThrift = fileMetaDataInThrift.getProperties();
+				if (proThrift.size() != proTSF.size()) {
+					fail("File metadata user specified properties size not equal");
+				}
+				for (Map.Entry<String, String> entry : proTSF.entrySet()) {
+					if (!proThrift.containsKey(entry.getKey())) {
+						fail("File metadata user specified properties content not same for key" + entry.getKey());
+					}
+					Utils.isStringSame(entry.getValue(), proThrift.get(entry.getKey()),
+							"File metadata user specified properties content not same for value" + entry.getValue());
+				}
+			}
+
+		}
+	}
 
 //  public static void write(TBase<?, ?> tbase, OutputStream to) throws IOException {
 //    try {

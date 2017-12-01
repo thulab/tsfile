@@ -106,9 +106,9 @@ public class TSFileConfig {
     public int pageCheckSizeThreshold = 100;
 
     /**
-     * Current version is 0
+     * Current version is 3
      */
-    public int currentVersion = 0;
+    public static int currentVersion = 3;
 
     /**
      * Query page data while writing tsfile
@@ -133,6 +133,8 @@ public class TSFileConfig {
      * The default grow size of class DynamicOneColumnData
      */
     public static int dynamicDataSize = 1000;
+    
+    public static final String MAGIC_STRING = "TsFilev0.3.0";
     /**
      * only can be used by TsFileDescriptor
      */

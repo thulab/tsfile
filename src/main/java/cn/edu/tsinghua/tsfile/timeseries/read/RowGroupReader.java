@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Jinrui Zhang
@@ -21,19 +22,23 @@ import java.util.List;
 public class RowGroupReader {
 
     protected static final Logger logger = LoggerFactory.getLogger(RowGroupReader.class);
-    public HashMap<String, TSDataType> seriesDataTypeMap;
-    protected HashMap<String, ValueReader> valueReaders = new HashMap<>();
+    public Map<String, TSDataType> seriesDataTypeMap;
+    protected Map<String, ValueReader> valueReaders = new HashMap<>();
     protected String deltaObjectUID;
 
-    private ArrayList<String> measurementIds;
+    private List<String> measurementIds;
     private long totalByteSize;
 
     protected ITsRandomAccessFileReader raf;
 
+    public RowGroupReader() {
+
+    }
+
     public RowGroupReader(RowGroupMetaData rowGroupMetaData, ITsRandomAccessFileReader raf) {
         logger.debug("init a new RowGroupReader..");
         seriesDataTypeMap = new HashMap<>();
-        deltaObjectUID = rowGroupMetaData.getDeltaObjectUID();
+        deltaObjectUID = rowGroupMetaData.getDeltaObjectID();
         measurementIds = new ArrayList<>();
         this.totalByteSize = rowGroupMetaData.getTotalByteSize();
         this.raf = raf;
@@ -80,7 +85,7 @@ public class RowGroupReader {
      * @return DynamicOneColumnData
      * @throws IOException exception in IO
      */
-    public DynamicOneColumnData readValueUseTimeValue(String measurementId, long[] timeRet) throws IOException {
+    public DynamicOneColumnData readValueUseTimestamps(String measurementId, long[] timeRet) throws IOException {
         return valueReaders.get(measurementId).getValuesForGivenValues(timeRet);
     }
 
@@ -107,7 +112,7 @@ public class RowGroupReader {
         this.totalByteSize = totalByteSize;
     }
 
-    public HashMap<String, ValueReader> getValueReaders() {
+    public Map<String, ValueReader> getValueReaders() {
         return valueReaders;
     }
 
@@ -121,5 +126,13 @@ public class RowGroupReader {
 
     public void setRaf(ITsRandomAccessFileReader raf) {
         this.raf = raf;
+    }
+
+    public boolean containsMeasurement(String measurementID) {
+        return this.valueReaders.containsKey(measurementID);
+    }
+
+    public void close() throws IOException {
+        this.raf.close();
     }
 }

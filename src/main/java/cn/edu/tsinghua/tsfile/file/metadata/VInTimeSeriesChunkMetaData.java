@@ -18,7 +18,7 @@ public class VInTimeSeriesChunkMetaData implements IConverter<ValueInTimeSeriesC
 
     private TSDataType dataType;
 
-    private TSDigest digest;
+    private TsDigest digest;
     private int maxError;
 
     /**
@@ -61,7 +61,7 @@ public class VInTimeSeriesChunkMetaData implements IConverter<ValueInTimeSeriesC
             if (vTimeSeriesChunkMetaDataInThrift.getDigest() == null) {
                 this.digest = null;
             } else {
-                this.digest = new TSDigest();
+                this.digest = new TsDigest();
                 this.digest.convertToTSF(vTimeSeriesChunkMetaDataInThrift.getDigest());
             }
         } catch (Exception e) {
@@ -87,11 +87,11 @@ public class VInTimeSeriesChunkMetaData implements IConverter<ValueInTimeSeriesC
         this.dataType = dataType;
     }
 
-    public TSDigest getDigest() {
+    public TsDigest getDigest() {
         return digest;
     }
 
-    public void setDigest(TSDigest digest) {
+    public void setDigest(TsDigest digest) {
         this.digest = digest;
     }
 

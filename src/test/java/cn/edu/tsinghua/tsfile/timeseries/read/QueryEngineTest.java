@@ -70,8 +70,8 @@ public class QueryEngineTest {
 			int count = output(res, true);
 			assertEquals(20, count);
 		} catch (IOException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		}
 	}
 
