@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.edu.tsinghua</groupId>
     <artifactId>tsfile</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
     <packaging>jar</packaging>
 
     <name>TsFile</name>
@@ -57,7 +57,7 @@
         <connection>scm:git:git://github.com/thulab/tsfile.git</connection>
         <developerConnection>scm:git:ssh://github.com:thulab/tsfile.git</developerConnection>
         <url>http://github.com/thulab/tsfile/tree/master</url>
-      <tag>v0.2.0</tag>
+      <tag>v0.3.1</tag>
     </scm>
 
     <distributionManagement>
