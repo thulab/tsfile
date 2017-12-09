@@ -12,6 +12,8 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
  * @author CGF
  */
 public class FloatFilterVerifier extends FilterVerifier implements FilterVisitor<FloatInterval> {
+    private Float FLOAT_MIN_VALUE = -Float.MAX_VALUE;
+    
     private ConvertExpressionVisitor convertor = new ConvertExpressionVisitor();
 
     @Override
@@ -33,12 +35,12 @@ public class FloatFilterVerifier extends FilterVerifier implements FilterVisitor
     @Override
     public <T extends Comparable<T>> FloatInterval visit(NotEq<T> notEq) {
         FloatInterval ans = new FloatInterval();
-        ans.v[0] = Float.MIN_VALUE;
+        ans.v[0] = FLOAT_MIN_VALUE;
         ans.v[1] = ((Float) notEq.getValue()).floatValue();
         ans.v[2] = ((Float) notEq.getValue()).floatValue();
         ans.v[3] = Float.MAX_VALUE;
 
-        if ((Float) notEq.getValue() == Float.MIN_VALUE) {
+        if ((Float) notEq.getValue() == FLOAT_MIN_VALUE) {
             ans.flag[0] = false;
             ans.flag[1] = false;
             ans.flag[2] = false;
@@ -70,11 +72,11 @@ public class FloatFilterVerifier extends FilterVerifier implements FilterVisitor
             ans.flag[1] = false;
         }
 
-        if (ans.v[1] == Float.MIN_VALUE && ans.flag[1] == false)
+        if (ans.v[1] == FLOAT_MIN_VALUE && ans.flag[1] == false)
             ans.flag[0] = false;
         else
             ans.flag[0] = true;
-        ans.v[0] = Float.MIN_VALUE;
+        ans.v[0] = FLOAT_MIN_VALUE;
 
         ans.count = 2;
         return ans;
@@ -135,7 +137,7 @@ public class FloatFilterVerifier extends FilterVerifier implements FilterVisitor
     @Override
     public FloatInterval visit(NoFilter noFilter) {
         FloatInterval ans = new FloatInterval();
-        ans.v[0] = Float.MIN_VALUE;
+        ans.v[0] = FLOAT_MIN_VALUE;
         ans.flag[0] = true;
         ans.v[1] = Float.MAX_VALUE;
         ans.flag[1] = true;

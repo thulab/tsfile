@@ -14,6 +14,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.SingleValueVisitor;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.GtEq;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.Or;
 import cn.edu.tsinghua.tsfile.timeseries.filter.verifier.FloatFilterVerifier;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +41,16 @@ public class FilterVerifierFloatTest {
     @Test
     public void ltEqTest() {
         LtEq<Float> ltEq = FilterFactory.ltEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 45.0f, true);
-        FloatInterval x= (FloatInterval) new FloatFilterVerifier().getInterval(ltEq);
+        FloatInterval x = (FloatInterval) new FloatFilterVerifier().getInterval(ltEq);
         assertEquals(x.count, 2);
-        assertEquals(x.v[0], Float.MIN_VALUE, float_min_delta);
+        assertEquals(x.v[0], -Float.MAX_VALUE, float_min_delta);
         assertEquals(x.v[1], 45.0f, float_min_delta);
+
+        ltEq = FilterFactory.ltEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), -45.0f, true);
+        SingleValueVisitor<Float> visitor = new SingleValueVisitor<>(ltEq);
+        Assert.assertTrue(visitor.verify(-46.0f));
+        Assert.assertFalse(visitor.verify(-40.0f));
+        Assert.assertFalse(visitor.verify(70.0f));
     }
     
     @Test
@@ -109,7 +116,7 @@ public class FilterVerifierFloatTest {
         FloatInterval ans = (FloatInterval) new FloatFilterVerifier().getInterval(notEq);
         
         assertEquals(ans.count, 4);
-        assertEquals(ans.v[0], Float.MIN_VALUE, float_min_delta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[0], -Float.MAX_VALUE, float_min_delta); assertEquals(ans.flag[0], true);
         assertEquals(ans.v[1], 1000.0f, float_min_delta); assertEquals(ans.flag[1], false);
         assertEquals(ans.v[2], 1000.0f, float_min_delta); assertEquals(ans.flag[2], false);
         assertEquals(ans.v[3], Float.MAX_VALUE, float_min_delta); assertEquals(ans.flag[3], true);
@@ -140,8 +147,8 @@ public class FilterVerifierFloatTest {
         
         Or orCombine = (Or) FilterFactory.or(and1, or2);
         FloatInterval ans = (FloatInterval) new FloatFilterVerifier().getInterval(orCombine);
-        System.out.println(ans);
-        LOG.info("or Test output");
+        // System.out.println(ans);
+        // LOG.info("or Test output");
         
         // answer may have overlap, but is right
         SingleValueVisitor<Float> vistor = new SingleValueVisitor<>(orCombine);
@@ -248,14 +255,14 @@ public class FilterVerifierFloatTest {
         Or or1 = (Or) FilterFactory.or(gtEq1, ltEq1);
         ans = (FloatInterval) new FloatFilterVerifier().getInterval(or1);
         assertEquals(ans.count, 4);
-        assertEquals(ans.v[0], Float.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[0], -Float.MAX_VALUE, theta); assertEquals(ans.flag[0], true);
         assertEquals(ans.v[1], 2L, theta); assertEquals(ans.flag[1], false);
         assertEquals(ans.v[2], 2L, theta); assertEquals(ans.flag[2], false);
         assertEquals(ans.v[3], Float.MAX_VALUE, theta); assertEquals(ans.flag[3], true);
         or1 = (Or) FilterFactory.or(ltEq1, gtEq1);
         ans = (FloatInterval) new FloatFilterVerifier().getInterval(or1);
         assertEquals(ans.count, 4);
-        assertEquals(ans.v[0], Float.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[0], -Float.MAX_VALUE, theta); assertEquals(ans.flag[0], true);
         assertEquals(ans.v[1], 2L, theta); assertEquals(ans.flag[1], false);
         assertEquals(ans.v[2], 2L, theta); assertEquals(ans.flag[2], false);
         assertEquals(ans.v[3], Float.MAX_VALUE, theta); assertEquals(ans.flag[3], true);
@@ -265,12 +272,12 @@ public class FilterVerifierFloatTest {
         or1 = (Or) FilterFactory.or(gtEq1, ltEq1);
         ans = (FloatInterval) new FloatFilterVerifier().getInterval(or1);
         assertEquals(ans.count, 2);
-        assertEquals(ans.v[0], Float.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[0], -Float.MAX_VALUE, theta); assertEquals(ans.flag[0], true);
         assertEquals(ans.v[1], Float.MAX_VALUE, theta); assertEquals(ans.flag[1], true);
         or1 = (Or) FilterFactory.or(ltEq1, gtEq1);
         ans = (FloatInterval) new FloatFilterVerifier().getInterval(or1);
         assertEquals(ans.count, 2);
-        assertEquals(ans.v[0], Float.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[0], -Float.MAX_VALUE, theta); assertEquals(ans.flag[0], true);
         assertEquals(ans.v[1], Float.MAX_VALUE, theta); assertEquals(ans.flag[1], true);
 
         gtEq1 = FilterFactory.gtEq(FilterFactory.floatFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2.0f, false);
@@ -278,12 +285,12 @@ public class FilterVerifierFloatTest {
         or1 = (Or) FilterFactory.or(gtEq1, ltEq1);
         ans = (FloatInterval) new FloatFilterVerifier().getInterval(or1);
         assertEquals(ans.count, 2);
-        assertEquals(ans.v[0], Float.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[0], -Float.MAX_VALUE, theta); assertEquals(ans.flag[0], true);
         assertEquals(ans.v[1], Float.MAX_VALUE, theta); assertEquals(ans.flag[1], true);
         or1 = (Or) FilterFactory.or(ltEq1, gtEq1);
         ans = (FloatInterval) new FloatFilterVerifier().getInterval(or1);
         assertEquals(ans.count, 2);
-        assertEquals(ans.v[0], Float.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[0], -Float.MAX_VALUE, theta); assertEquals(ans.flag[0], true);
         assertEquals(ans.v[1], Float.MAX_VALUE, theta); assertEquals(ans.flag[1], true);
     }
     

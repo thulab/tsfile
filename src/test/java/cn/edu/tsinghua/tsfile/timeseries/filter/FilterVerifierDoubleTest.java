@@ -10,6 +10,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.GtEq;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.Or;
 import cn.edu.tsinghua.tsfile.timeseries.filter.utils.DoubleInterval;
 import cn.edu.tsinghua.tsfile.timeseries.filter.verifier.DoubleFilterVerifier;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +50,14 @@ public class FilterVerifierDoubleTest {
                 FilterFactory.doubleFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 45.0, true);
         DoubleInterval x = (DoubleInterval) new DoubleFilterVerifier().getInterval(ltEq);
         assertEquals(x.count, 2);
-        assertEquals(x.v[0], Double.MIN_VALUE, double_min_delta);
+        assertEquals(x.v[0], -Double.MAX_VALUE, double_min_delta);
         assertEquals(x.v[1], 45.0f, double_min_delta);
+
+        ltEq = FilterFactory.ltEq(FilterFactory.doubleFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), -45.0, true);
+        SingleValueVisitor<Float> visitor = new SingleValueVisitor<>(ltEq);
+        Assert.assertTrue(visitor.verify(-46.0));
+        Assert.assertFalse(visitor.verify(-40.0));
+        Assert.assertFalse(visitor.verify(70.0));
     }
 
     @Test
@@ -136,7 +143,7 @@ public class FilterVerifierDoubleTest {
         DoubleInterval ans = (DoubleInterval) new DoubleFilterVerifier().getInterval(notEq);
 
         assertEquals(ans.count, 4);
-        assertEquals(ans.v[0], Double.MIN_VALUE, double_min_delta);
+        assertEquals(ans.v[0], -Double.MAX_VALUE, double_min_delta);
         assertEquals(ans.flag[0], true);
         assertEquals(ans.v[1], 1000.0f, double_min_delta);
         assertEquals(ans.flag[1], false);
@@ -371,14 +378,14 @@ public class FilterVerifierDoubleTest {
         Or or1 = (Or) FilterFactory.or(gtEq1, ltEq1);
         ans = (DoubleInterval) new DoubleFilterVerifier().getInterval(or1);
         assertEquals(ans.count, 4);
-        assertEquals(ans.v[0], Double.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[0], -Double.MAX_VALUE, theta); assertEquals(ans.flag[0], true);
         assertEquals(ans.v[1], 2L, theta); assertEquals(ans.flag[1], false);
         assertEquals(ans.v[2], 2L, theta); assertEquals(ans.flag[2], false);
         assertEquals(ans.v[3], Double.MAX_VALUE, theta); assertEquals(ans.flag[3], true);
         or1 = (Or) FilterFactory.or(ltEq1, gtEq1);
         ans = (DoubleInterval) new DoubleFilterVerifier().getInterval(or1);
         assertEquals(ans.count, 4);
-        assertEquals(ans.v[0], Double.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[0], -Double.MAX_VALUE, theta); assertEquals(ans.flag[0], true);
         assertEquals(ans.v[1], 2L, theta); assertEquals(ans.flag[1], false);
         assertEquals(ans.v[2], 2L, theta); assertEquals(ans.flag[2], false);
         assertEquals(ans.v[3], Double.MAX_VALUE, theta); assertEquals(ans.flag[3], true);
@@ -388,12 +395,12 @@ public class FilterVerifierDoubleTest {
         or1 = (Or) FilterFactory.or(gtEq1, ltEq1);
         ans = (DoubleInterval) new DoubleFilterVerifier().getInterval(or1);
         assertEquals(ans.count, 2);
-        assertEquals(ans.v[0], Double.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[0], -Double.MAX_VALUE, theta); assertEquals(ans.flag[0], true);
         assertEquals(ans.v[1], Double.MAX_VALUE, theta); assertEquals(ans.flag[1], true);
         or1 = (Or) FilterFactory.or(ltEq1, gtEq1);
         ans = (DoubleInterval) new DoubleFilterVerifier().getInterval(or1);
         assertEquals(ans.count, 2);
-        assertEquals(ans.v[0], Double.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[0], -Double.MAX_VALUE, theta); assertEquals(ans.flag[0], true);
         assertEquals(ans.v[1], Double.MAX_VALUE, theta); assertEquals(ans.flag[1], true);
 
         gtEq1 = FilterFactory.gtEq(FilterFactory.doubleFilterSeries(deltaObjectUID, measurementUID, FilterSeriesType.VALUE_FILTER), 2.0, false);
@@ -401,12 +408,12 @@ public class FilterVerifierDoubleTest {
         or1 = (Or) FilterFactory.or(gtEq1, ltEq1);
         ans = (DoubleInterval) new DoubleFilterVerifier().getInterval(or1);
         assertEquals(ans.count, 2);
-        assertEquals(ans.v[0], Double.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[0], -Double.MAX_VALUE, theta); assertEquals(ans.flag[0], true);
         assertEquals(ans.v[1], Double.MAX_VALUE, theta); assertEquals(ans.flag[1], true);
         or1 = (Or) FilterFactory.or(ltEq1, gtEq1);
         ans = (DoubleInterval) new DoubleFilterVerifier().getInterval(or1);
         assertEquals(ans.count, 2);
-        assertEquals(ans.v[0], Double.MIN_VALUE, theta); assertEquals(ans.flag[0], true);
+        assertEquals(ans.v[0], -Double.MAX_VALUE, theta); assertEquals(ans.flag[0], true);
         assertEquals(ans.v[1], Double.MAX_VALUE, theta); assertEquals(ans.flag[1], true);
     }
     

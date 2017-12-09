@@ -12,6 +12,8 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
  * @author CGF
  */
 public class DoubleFilterVerifier extends FilterVerifier implements FilterVisitor<DoubleInterval> {
+    private Double DOUBLE_MIN_VALUE = -Double.MAX_VALUE;
+
     private ConvertExpressionVisitor convertor = new ConvertExpressionVisitor();
 
     @Override
@@ -33,12 +35,12 @@ public class DoubleFilterVerifier extends FilterVerifier implements FilterVisito
     @Override
     public <T extends Comparable<T>> DoubleInterval visit(NotEq<T> notEq) {
         DoubleInterval ans = new DoubleInterval();
-        ans.v[0] = Double.MIN_VALUE;
+        ans.v[0] = DOUBLE_MIN_VALUE;
         ans.v[1] = ((Double) notEq.getValue()).doubleValue();
         ans.v[2] = ((Double) notEq.getValue()).doubleValue();
         ans.v[3] = Double.MAX_VALUE;
 
-        if ((Double) notEq.getValue() == Double.MIN_VALUE) {
+        if ((Double) notEq.getValue() == DOUBLE_MIN_VALUE) {
             ans.flag[0] = false;
             ans.flag[1] = false;
             ans.flag[2] = false;
@@ -70,11 +72,11 @@ public class DoubleFilterVerifier extends FilterVerifier implements FilterVisito
             ans.flag[1] = false;
         }
 
-        if (ans.v[1] == Double.MIN_VALUE && !ans.flag[1])
+        if (ans.v[1] == DOUBLE_MIN_VALUE && !ans.flag[1])
             ans.flag[0] = false;
         else
             ans.flag[0] = true;
-        ans.v[0] = Double.MIN_VALUE;
+        ans.v[0] = DOUBLE_MIN_VALUE;
 
         ans.count = 2;
         return ans;
@@ -135,7 +137,7 @@ public class DoubleFilterVerifier extends FilterVerifier implements FilterVisito
     @Override
     public DoubleInterval visit(NoFilter noFilter) {
         DoubleInterval ans = new DoubleInterval();
-        ans.v[0] = Double.MIN_VALUE;
+        ans.v[0] = DOUBLE_MIN_VALUE;
         ans.flag[0] = true;
         ans.v[1] = Double.MAX_VALUE;
         ans.flag[1] = true;
