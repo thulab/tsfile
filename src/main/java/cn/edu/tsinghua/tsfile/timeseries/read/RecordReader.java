@@ -13,10 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class implements several read methods which can read data in different ways.<br>
@@ -241,22 +238,22 @@ public class RecordReader {
         return false;
     }
 
-    public ArrayList<SeriesSchema> getAllSeriesSchema() {
-        HashMap<String, Integer> seriesMap = new HashMap<>();
-        ArrayList<SeriesSchema> res = new ArrayList<>();
+    public List<SeriesSchema> getAllSeriesSchema() throws IOException {
+        Set<String> seriesSet = new HashSet<>();
+        List<SeriesSchema> seriesSchemas = new ArrayList<>();
         List<RowGroupReader> rowGroupReaders = fileReader.getRowGroupReaderList();
-        for (RowGroupReader rgr : rowGroupReaders) {
-            for (String measurement : rgr.seriesDataTypeMap.keySet()) {
-                if (!seriesMap.containsKey(measurement)) {
-                    res.add(new SeriesSchema(measurement, rgr.seriesDataTypeMap.get(measurement), null));
-                    seriesMap.put(measurement, 1);
+        for (RowGroupReader reader : rowGroupReaders) {
+            for (String measurement : reader.seriesDataTypeMap.keySet()) {
+                if (!seriesSet.contains(measurement)) {
+                    seriesSchemas.add(new SeriesSchema(measurement, reader.seriesDataTypeMap.get(measurement), null));
+                    seriesSet.add(measurement);
                 }
             }
         }
-        return res;
+        return seriesSchemas;
     }
 
-    public ArrayList<String> getAllDeltaObjects() {
+    public ArrayList<String> getAllDeltaObjects() throws IOException {
         ArrayList<String> res = new ArrayList<>();
         HashMap<String, Integer> deltaObjectMap = new HashMap<>();
         List<RowGroupReader> rowGroupReaders = fileReader.getRowGroupReaderList();
@@ -308,7 +305,7 @@ public class RecordReader {
         return res;
     }
 
-    public ArrayList<Long> getRowGroupPosList() {
+    public ArrayList<Long> getRowGroupPosList() throws IOException {
         ArrayList<Long> res = new ArrayList<>();
         long startPos = 0;
         for (RowGroupReader rowGroupReader : fileReader.getRowGroupReaderList()) {
@@ -364,7 +361,7 @@ public class RecordReader {
         throw new IOException("Series is not exist in current file: " + deltaObject + "#" + measurement);
     }
 
-    public List<RowGroupReader> getAllRowGroupReaders() {
+    public List<RowGroupReader> getAllRowGroupReaders() throws IOException {
         return fileReader.getRowGroupReaderList();
     }
 

@@ -283,20 +283,20 @@ public class QueryEngine {
         return col != null;
     }
 
-    public ArrayList<String> getAllDeltaObject() {
+    public ArrayList<String> getAllDeltaObject() throws IOException {
         return recordReader.getAllDeltaObjects();
     }
 
-    public ArrayList<SeriesSchema> getAllSeriesSchema() {
+    public List<SeriesSchema> getAllSeriesSchema() throws IOException {
         return recordReader.getAllSeriesSchema();
     }
 
     // Start - Methods for spark reading
-    public ArrayList<Long> getRowGroupPosList() {
+    public ArrayList<Long> getRowGroupPosList() throws IOException {
         return recordReader.getRowGroupPosList();
     }
 
-    public ArrayList<Integer> calSpecificRowGroupByPartition(long start, long end) {
+    public ArrayList<Integer> calSpecificRowGroupByPartition(long start, long end) throws IOException {
         ArrayList<Long> rowGroupsPosList = getRowGroupPosList();
         ArrayList<Integer> res = new ArrayList<>();
         long curStartPos = 0L;
@@ -311,7 +311,7 @@ public class QueryEngine {
         return res;
     }
 
-    public ArrayList<String> getAllDeltaObjectUIDByPartition(long start, long end) {
+    public ArrayList<String> getAllDeltaObjectUIDByPartition(long start, long end) throws IOException {
         ArrayList<Long> rowGroupsPosList = getRowGroupPosList();
         List<RowGroupReader> rgrs = recordReader.getAllRowGroupReaders();
         ArrayList<String> res = new ArrayList<>();
