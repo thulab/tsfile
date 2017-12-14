@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.io;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
+import cn.edu.tsinghua.tsfile.common.constant.StatisticConstant;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
@@ -125,12 +126,18 @@ public class TsFileIOWriter {
                 TSChunkType.VALUE, out.getPos(), compressionCodecName);
         TInTimeSeriesChunkMetaData t = new TInTimeSeriesChunkMetaData(tsDataType, minTime, maxTime);
         currentChunkMetaData.setTInTimeSeriesChunkMetaData(t);
-        byte[] max = statistics.getMaxBytes();
-        byte[] min = statistics.getMinBytes();
 
         VInTimeSeriesChunkMetaData v = new VInTimeSeriesChunkMetaData(tsDataType);
-        TsDigest tsDigest = new TsDigest(ByteBuffer.wrap(max, 0, max.length),
-                ByteBuffer.wrap(min, 0, min.length));
+        TsDigest tsDigest = new TsDigest();
+        Map<String, String> statisticsMap = new HashMap<>();
+        // TODO add your statistics
+        statisticsMap.put(StatisticConstant.MAX_VALUE,statistics.getMax().toString());
+        statisticsMap.put(StatisticConstant.MIN_VALUE,statistics.getMin().toString());
+        statisticsMap.put(StatisticConstant.FIRST,statistics.getFirst().toString());
+        statisticsMap.put(StatisticConstant.SUM,String.valueOf(statistics.getSum()));
+        
+        tsDigest.setStatistics(statisticsMap);
+        
         v.setDigest(tsDigest);
         descriptor.setDataValues(v);
         currentChunkMetaData.setVInTimeSeriesChunkMetaData(v);

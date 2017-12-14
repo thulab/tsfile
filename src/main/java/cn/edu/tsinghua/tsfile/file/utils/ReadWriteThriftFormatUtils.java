@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.utils;
 
+import cn.edu.tsinghua.tsfile.common.constant.StatisticConstant;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
@@ -112,8 +113,10 @@ public class ReadWriteThriftFormatUtils {
             Map<String, String> statisticsMap = new HashMap<>();
             
             // TODO add your statistics
-            statisticsMap.put("MAX_VALUE", );
-            //
+            statisticsMap.put(StatisticConstant.MAX_VALUE,statistics.getMax().toString());
+            statisticsMap.put(StatisticConstant.MIN_VALUE,statistics.getMin().toString());
+            statisticsMap.put(StatisticConstant.FIRST,statistics.getFirst().toString());
+            statisticsMap.put(StatisticConstant.SUM,String.valueOf(statistics.getSum()));
             
             digest.setStatistics(statisticsMap);
             pageHeader.getData_page_header().setDigest(digest);
