@@ -54,8 +54,7 @@ public class RowGroupReader {
                         tscMetaData.getVInTimeSeriesChunkMetaData().getDataType(),
                         tscMetaData.getVInTimeSeriesChunkMetaData().getDigest(), this.raf,
                         tscMetaData.getVInTimeSeriesChunkMetaData().getEnumValues(),
-                        tscMetaData.getProperties().getCompression(), tscMetaData.getNumRows(),
-                        tscMetaData.getTInTimeSeriesChunkMetaData().getStartTime(), tscMetaData.getTInTimeSeriesChunkMetaData().getEndTime());
+                        tscMetaData.getProperties().getCompression(), tscMetaData.getNumRows());
                 valueReaders.put(tscMetaData.getProperties().getMeasurementUID(), si);
             }
         }
