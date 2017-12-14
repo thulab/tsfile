@@ -27,6 +27,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * ConverterUtils is a utility class. It provide conversion between tsfile and thrift metadata
@@ -107,8 +109,13 @@ public class ReadWriteThriftFormatUtils {
                 Encoding.valueOf(encoding.toString()), max_timestamp, min_timestamp));
         if (!statistics.isEmpty()) {
             Digest digest = new Digest();
-            digest.setMax(statistics.getMaxBytes());
-            digest.setMin(statistics.getMinBytes());
+            Map<String, String> statisticsMap = new HashMap<>();
+            
+            // TODO add your statistics
+            statisticsMap.put("MAX_VALUE", );
+            //
+            
+            digest.setStatistics(statisticsMap);
             pageHeader.getData_page_header().setDigest(digest);
         }
         return pageHeader;

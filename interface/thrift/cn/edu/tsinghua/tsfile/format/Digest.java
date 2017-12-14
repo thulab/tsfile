@@ -39,10 +39,9 @@ import org.slf4j.LoggerFactory;
 public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, java.io.Serializable, Cloneable, Comparable<Digest> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Digest");
 
-  private static final org.apache.thrift.protocol.TField MAX_FIELD_DESC = new org.apache.thrift.protocol.TField("max", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("min", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField NULL_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("null_count", org.apache.thrift.protocol.TType.I64, (short)3);
-  private static final org.apache.thrift.protocol.TField DISTINCT_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("distinct_count", org.apache.thrift.protocol.TType.I64, (short)4);
+  private static final org.apache.thrift.protocol.TField STATISTICS_FIELD_DESC = new org.apache.thrift.protocol.TField("statistics", org.apache.thrift.protocol.TType.MAP, (short)1);
+  private static final org.apache.thrift.protocol.TField NULL_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("null_count", org.apache.thrift.protocol.TType.I64, (short)2);
+  private static final org.apache.thrift.protocol.TField DISTINCT_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("distinct_count", org.apache.thrift.protocol.TType.I64, (short)3);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -51,10 +50,9 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
   }
 
   /**
-   * min and max value of the timeseries, encoded in PLAIN encoding
+   * Statistics of timeseries, eg. min and max value, sum value
    */
-  public ByteBuffer max; // optional
-  public ByteBuffer min; // optional
+  public Map<String,String> statistics; // optional
   /**
    * count of null value in the timeseries
    */
@@ -67,18 +65,17 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     /**
-     * min and max value of the timeseries, encoded in PLAIN encoding
+     * Statistics of timeseries, eg. min and max value, sum value
      */
-    MAX((short)1, "max"),
-    MIN((short)2, "min"),
+    STATISTICS((short)1, "statistics"),
     /**
      * count of null value in the timeseries
      */
-    NULL_COUNT((short)3, "null_count"),
+    NULL_COUNT((short)2, "null_count"),
     /**
      * count of distinct values occurring
      */
-    DISTINCT_COUNT((short)4, "distinct_count");
+    DISTINCT_COUNT((short)3, "distinct_count");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -93,13 +90,11 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // MAX
-          return MAX;
-        case 2: // MIN
-          return MIN;
-        case 3: // NULL_COUNT
+        case 1: // STATISTICS
+          return STATISTICS;
+        case 2: // NULL_COUNT
           return NULL_COUNT;
-        case 4: // DISTINCT_COUNT
+        case 3: // DISTINCT_COUNT
           return DISTINCT_COUNT;
         default:
           return null;
@@ -144,14 +139,14 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
   private static final int __NULL_COUNT_ISSET_ID = 0;
   private static final int __DISTINCT_COUNT_ISSET_ID = 1;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.MAX,_Fields.MIN,_Fields.NULL_COUNT,_Fields.DISTINCT_COUNT};
+  private _Fields optionals[] = {_Fields.STATISTICS,_Fields.NULL_COUNT,_Fields.DISTINCT_COUNT};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.MAX, new org.apache.thrift.meta_data.FieldMetaData("max", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
-    tmpMap.put(_Fields.MIN, new org.apache.thrift.meta_data.FieldMetaData("min", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
+    tmpMap.put(_Fields.STATISTICS, new org.apache.thrift.meta_data.FieldMetaData("statistics", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.MapMetaData(org.apache.thrift.protocol.TType.MAP, 
+            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING), 
+            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
     tmpMap.put(_Fields.NULL_COUNT, new org.apache.thrift.meta_data.FieldMetaData("null_count", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.DISTINCT_COUNT, new org.apache.thrift.meta_data.FieldMetaData("distinct_count", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -168,13 +163,9 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
    */
   public Digest(Digest other) {
     __isset_bitfield = other.__isset_bitfield;
-    if (other.isSetMax()) {
-      this.max = org.apache.thrift.TBaseHelper.copyBinary(other.max);
-;
-    }
-    if (other.isSetMin()) {
-      this.min = org.apache.thrift.TBaseHelper.copyBinary(other.min);
-;
+    if (other.isSetStatistics()) {
+      Map<String,String> __this__statistics = new HashMap<String,String>(other.statistics);
+      this.statistics = __this__statistics;
     }
     this.null_count = other.null_count;
     this.distinct_count = other.distinct_count;
@@ -186,85 +177,51 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
 
   @Override
   public void clear() {
-    this.max = null;
-    this.min = null;
+    this.statistics = null;
     setNull_countIsSet(false);
     this.null_count = 0;
     setDistinct_countIsSet(false);
     this.distinct_count = 0;
   }
 
-  /**
-   * min and max value of the timeseries, encoded in PLAIN encoding
-   */
-  public byte[] getMax() {
-    setMax(org.apache.thrift.TBaseHelper.rightSize(max));
-    return max == null ? null : max.array();
+  public int getStatisticsSize() {
+    return (this.statistics == null) ? 0 : this.statistics.size();
   }
 
-  public ByteBuffer bufferForMax() {
-    return max;
-  }
-
-  /**
-   * min and max value of the timeseries, encoded in PLAIN encoding
-   */
-  public Digest setMax(byte[] max) {
-    setMax(max == null ? (ByteBuffer)null : ByteBuffer.wrap(max));
-    return this;
-  }
-
-  public Digest setMax(ByteBuffer max) {
-    this.max = max;
-    return this;
-  }
-
-  public void unsetMax() {
-    this.max = null;
-  }
-
-  /** Returns true if field max is set (has been assigned a value) and false otherwise */
-  public boolean isSetMax() {
-    return this.max != null;
-  }
-
-  public void setMaxIsSet(boolean value) {
-    if (!value) {
-      this.max = null;
+  public void putToStatistics(String key, String val) {
+    if (this.statistics == null) {
+      this.statistics = new HashMap<String,String>();
     }
+    this.statistics.put(key, val);
   }
 
-  public byte[] getMin() {
-    setMin(org.apache.thrift.TBaseHelper.rightSize(min));
-    return min == null ? null : min.array();
+  /**
+   * Statistics of timeseries, eg. min and max value, sum value
+   */
+  public Map<String,String> getStatistics() {
+    return this.statistics;
   }
 
-  public ByteBuffer bufferForMin() {
-    return min;
-  }
-
-  public Digest setMin(byte[] min) {
-    setMin(min == null ? (ByteBuffer)null : ByteBuffer.wrap(min));
+  /**
+   * Statistics of timeseries, eg. min and max value, sum value
+   */
+  public Digest setStatistics(Map<String,String> statistics) {
+    this.statistics = statistics;
     return this;
   }
 
-  public Digest setMin(ByteBuffer min) {
-    this.min = min;
-    return this;
+  public void unsetStatistics() {
+    this.statistics = null;
   }
 
-  public void unsetMin() {
-    this.min = null;
+  /** Returns true if field statistics is set (has been assigned a value) and false otherwise */
+  public boolean isSetStatistics() {
+    return this.statistics != null;
   }
 
-  /** Returns true if field min is set (has been assigned a value) and false otherwise */
-  public boolean isSetMin() {
-    return this.min != null;
-  }
-
-  public void setMinIsSet(boolean value) {
+  public void setStatisticsIsSet(boolean value) {
     if (!value) {
-      this.min = null;
+      this.statistics = null;
     }
   }
 
@@ -328,19 +285,11 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case MAX:
+    case STATISTICS:
       if (value == null) {
-        unsetMax();
+        unsetStatistics();
       } else {
-        setMax((ByteBuffer)value);
-      }
-      break;
-
-    case MIN:
-      if (value == null) {
-        unsetMin();
-      } else {
-        setMin((ByteBuffer)value);
+        setStatistics((Map<String,String>)value);
       }
       break;
 
@@ -365,11 +314,8 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case MAX:
-      return getMax();
-
-    case MIN:
-      return getMin();
+    case STATISTICS:
+      return getStatistics();
 
     case NULL_COUNT:
       return Long.valueOf(getNull_count());
@@ -388,10 +334,8 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
     }
 
     switch (field) {
-    case MAX:
-      return isSetMax();
-    case MIN:
-      return isSetMin();
+    case STATISTICS:
+      return isSetStatistics();
     case NULL_COUNT:
       return isSetNull_count();
     case DISTINCT_COUNT:
@@ -413,21 +357,12 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
     if (that == null)
       return false;
 
-    boolean this_present_max = true && this.isSetMax();
-    boolean that_present_max = true && that.isSetMax();
-    if (this_present_max || that_present_max) {
-      if (!(this_present_max && that_present_max))
+    boolean this_present_statistics = true && this.isSetStatistics();
+    boolean that_present_statistics = true && that.isSetStatistics();
+    if (this_present_statistics || that_present_statistics) {
+      if (!(this_present_statistics && that_present_statistics))
         return false;
-      if (!this.max.equals(that.max))
-        return false;
-    }
-
-    boolean this_present_min = true && this.isSetMin();
-    boolean that_present_min = true && that.isSetMin();
-    if (this_present_min || that_present_min) {
-      if (!(this_present_min && that_present_min))
-        return false;
-      if (!this.min.equals(that.min))
+      if (!this.statistics.equals(that.statistics))
         return false;
     }
 
@@ -465,22 +400,12 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
 
     int lastComparison = 0;
 
-    lastComparison = Boolean.valueOf(isSetMax()).compareTo(other.isSetMax());
+    lastComparison = Boolean.valueOf(isSetStatistics()).compareTo(other.isSetStatistics());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetMax()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.max, other.max);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetMin()).compareTo(other.isSetMin());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetMin()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.min, other.min);
+    if (isSetStatistics()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.statistics, other.statistics);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -525,22 +450,12 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
     StringBuilder sb = new StringBuilder("Digest(");
     boolean first = true;
 
-    if (isSetMax()) {
-      sb.append("max:");
-      if (this.max == null) {
+    if (isSetStatistics()) {
+      sb.append("statistics:");
+      if (this.statistics == null) {
         sb.append("null");
       } else {
-        org.apache.thrift.TBaseHelper.toString(this.max, sb);
-      }
-      first = false;
-    }
-    if (isSetMin()) {
-      if (!first) sb.append(", ");
-      sb.append("min:");
-      if (this.min == null) {
-        sb.append("null");
-      } else {
-        org.apache.thrift.TBaseHelper.toString(this.min, sb);
+        sb.append(this.statistics);
       }
       first = false;
     }
@@ -601,23 +516,27 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
           break;
         }
         switch (schemeField.id) {
-          case 1: // MAX
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.max = iprot.readBinary();
-              struct.setMaxIsSet(true);
+          case 1: // STATISTICS
+            if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
+              {
+                org.apache.thrift.protocol.TMap _map0 = iprot.readMapBegin();
+                struct.statistics = new HashMap<String,String>(2*_map0.size);
+                for (int _i1 = 0; _i1 < _map0.size; ++_i1)
+                {
+                  String _key2;
+                  String _val3;
+                  _key2 = iprot.readString();
+                  _val3 = iprot.readString();
+                  struct.statistics.put(_key2, _val3);
+                }
+                iprot.readMapEnd();
+              }
+              struct.setStatisticsIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // MIN
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.min = iprot.readBinary();
-              struct.setMinIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 3: // NULL_COUNT
+          case 2: // NULL_COUNT
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.null_count = iprot.readI64();
               struct.setNull_countIsSet(true);
@@ -625,7 +544,7 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // DISTINCT_COUNT
+          case 3: // DISTINCT_COUNT
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.distinct_count = iprot.readI64();
               struct.setDistinct_countIsSet(true);
@@ -648,17 +567,18 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      if (struct.max != null) {
-        if (struct.isSetMax()) {
-          oprot.writeFieldBegin(MAX_FIELD_DESC);
-          oprot.writeBinary(struct.max);
-          oprot.writeFieldEnd();
-        }
-      }
-      if (struct.min != null) {
-        if (struct.isSetMin()) {
-          oprot.writeFieldBegin(MIN_FIELD_DESC);
-          oprot.writeBinary(struct.min);
+      if (struct.statistics != null) {
+        if (struct.isSetStatistics()) {
+          oprot.writeFieldBegin(STATISTICS_FIELD_DESC);
+          {
+            oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRING, struct.statistics.size()));
+            for (Map.Entry<String, String> _iter4 : struct.statistics.entrySet())
+            {
+              oprot.writeString(_iter4.getKey());
+              oprot.writeString(_iter4.getValue());
+            }
+            oprot.writeMapEnd();
+          }
           oprot.writeFieldEnd();
         }
       }
@@ -690,24 +610,25 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
     public void write(org.apache.thrift.protocol.TProtocol prot, Digest struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetMax()) {
+      if (struct.isSetStatistics()) {
         optionals.set(0);
       }
-      if (struct.isSetMin()) {
+      if (struct.isSetNull_count()) {
         optionals.set(1);
       }
-      if (struct.isSetNull_count()) {
+      if (struct.isSetDistinct_count()) {
         optionals.set(2);
       }
-      if (struct.isSetDistinct_count()) {
-        optionals.set(3);
-      }
-      oprot.writeBitSet(optionals, 4);
-      if (struct.isSetMax()) {
-        oprot.writeBinary(struct.max);
-      }
-      if (struct.isSetMin()) {
-        oprot.writeBinary(struct.min);
+      oprot.writeBitSet(optionals, 3);
+      if (struct.isSetStatistics()) {
+        {
+          oprot.writeI32(struct.statistics.size());
+          for (Map.Entry<String, String> _iter5 : struct.statistics.entrySet())
+          {
+            oprot.writeString(_iter5.getKey());
+            oprot.writeString(_iter5.getValue());
+          }
+        }
       }
       if (struct.isSetNull_count()) {
         oprot.writeI64(struct.null_count);
@@ -720,20 +641,27 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Digest struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(4);
+      BitSet incoming = iprot.readBitSet(3);
       if (incoming.get(0)) {
-        struct.max = iprot.readBinary();
-        struct.setMaxIsSet(true);
+        {
+          org.apache.thrift.protocol.TMap _map6 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.statistics = new HashMap<String,String>(2*_map6.size);
+          for (int _i7 = 0; _i7 < _map6.size; ++_i7)
+          {
+            String _key8;
+            String _val9;
+            _key8 = iprot.readString();
+            _val9 = iprot.readString();
+            struct.statistics.put(_key8, _val9);
+          }
+        }
+        struct.setStatisticsIsSet(true);
       }
       if (incoming.get(1)) {
-        struct.min = iprot.readBinary();
-        struct.setMinIsSet(true);
-      }
-      if (incoming.get(2)) {
         struct.null_count = iprot.readI64();
         struct.setNull_countIsSet(true);
       }
-      if (incoming.get(3)) {
+      if (incoming.get(2)) {
         struct.distinct_count = iprot.readI64();
         struct.setDistinct_countIsSet(true);
       }
