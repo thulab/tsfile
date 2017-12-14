@@ -78,7 +78,7 @@ public class FileReader {
         int fileMetaDataLength = randomAccessFileReader.readInt();
         randomAccessFileReader.seek(l - MAGIC_LENGTH - FOOTER_LENGTH - fileMetaDataLength);
         byte[] buf = new byte[fileMetaDataLength];
-        randomAccessFileReader.read(buf, 0, buf.length);//FIXME  is this a potential bug?
+        randomAccessFileReader.read(buf, 0, buf.length);//FIXE  is this a potential bug?M0
 
         ByteArrayInputStream bais = new ByteArrayInputStream(buf);
         this.fileMetaData = new TsFileMetaDataConverter().toTsFileMetadata(ReadWriteThriftFormatUtils.readFileMetaData(bais));

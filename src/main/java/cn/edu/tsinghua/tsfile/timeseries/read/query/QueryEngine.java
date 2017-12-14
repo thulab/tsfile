@@ -109,7 +109,8 @@ public class QueryEngine {
         return queryWithSpecificRowGroups(paths, timeFilter, freqFilter, valueFilter, idxs);
     }
 
-    private QueryDataSet queryWithSpecificRowGroups(List<Path> paths, FilterExpression timeFilter, FilterExpression freqFilter
+    //Used by tsfile-hadoop-connector, do not delete
+    public QueryDataSet queryWithSpecificRowGroups(List<Path> paths, FilterExpression timeFilter, FilterExpression freqFilter
             , FilterExpression valueFilter, ArrayList<Integer> rowGroupIndexList) throws IOException {
         if (timeFilter == null && freqFilter == null && valueFilter == null) {
             return queryWithoutFilter(paths, rowGroupIndexList);
