@@ -58,6 +58,10 @@ public abstract class Statistics<T> {
     abstract public T getMin();
 
     abstract public T getMax();
+    
+    abstract public T getFirst();
+    
+    abstract public double getSum();
 
     /**
      * merge parameter to this statistic. Including
@@ -72,7 +76,7 @@ public abstract class Statistics<T> {
         }
         if (this.getClass() == stats.getClass()) {
             if (!stats.isEmpty) {
-                mergeStatisticsMinMax(stats);
+            	mergeStatisticsValue(stats);
                 isEmpty = false;
             }
         } else {
@@ -83,7 +87,7 @@ public abstract class Statistics<T> {
         }
     }
 
-    abstract protected void mergeStatisticsMinMax(Statistics<?> stats);
+    abstract protected void mergeStatisticsValue(Statistics<?> stats);
 
     public boolean isEmpty() {
         return isEmpty;
@@ -134,4 +138,8 @@ public abstract class Statistics<T> {
     abstract public byte[] getMaxBytes();
 
     abstract public byte[] getMinBytes();
+    
+    abstract public byte[] getFirstBytes();
+    
+    abstract public byte[] getSumBytes();
 }
