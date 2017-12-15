@@ -78,4 +78,9 @@ public class NoStatistics extends Statistics<Long> {
 	public byte[] getSumBytes() {
 		return new byte[0];
 	}
+
+	@Override
+	public void updateStats(long min, long max) {
+		throw new UnsupportedOperationException();
+	}
 }

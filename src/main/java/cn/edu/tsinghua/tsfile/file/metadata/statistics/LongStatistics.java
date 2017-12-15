@@ -103,4 +103,14 @@ public class LongStatistics extends Statistics<Long> {
 		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + "]";
 	}
 
+	@Override
+	public void updateStats(long minValue, long maxValue) {
+		if (minValue < min) {
+			min = minValue;
+		}
+		if (maxValue > max) {
+			max = maxValue;
+		}
+	}
+
 }

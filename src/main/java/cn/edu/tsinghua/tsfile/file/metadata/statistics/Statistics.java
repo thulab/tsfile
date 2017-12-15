@@ -112,9 +112,10 @@ public abstract class Statistics<T> {
      * @param min min timestamp
      * @param max max timestamp
      */
-    public void updateStats(long min, long max) {
-        throw new UnsupportedOperationException();
+    public void updateStats(long min, long max){
+    	throw new UnsupportedOperationException();
     }
+        
 
     public void updateStats(float value) {
         throw new UnsupportedOperationException();

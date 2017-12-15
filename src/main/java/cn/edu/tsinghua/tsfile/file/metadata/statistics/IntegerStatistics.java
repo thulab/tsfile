@@ -103,5 +103,4 @@ public class IntegerStatistics extends Statistics<Integer> {
 	public String toString() {
 		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + "]";
 	}
-
 }
