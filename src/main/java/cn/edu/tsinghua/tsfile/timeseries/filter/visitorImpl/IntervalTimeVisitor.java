@@ -9,7 +9,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.*;
  *
  * @author CGF
  */
-public class IntervalTimeFilter implements FilterVisitor<Boolean> {
+public class IntervalTimeVisitor implements FilterVisitor<Boolean> {
 
     private Long startTime, endTime;
 

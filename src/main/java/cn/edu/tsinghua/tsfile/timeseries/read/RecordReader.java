@@ -142,15 +142,6 @@ public class RecordReader {
         return getValuesUseFilter(res, fetchSize, deltaObjectUID, measurementUID, null, null, valueFilter, idxs);
     }
 
-    private DynamicOneColumnData getValuesUseFilter(DynamicOneColumnData res, int fetchSize,
-                                                    RowGroupReader rowGroupReader, String measurementId, SingleSeriesFilterExpression timeFilter,
-                                                    SingleSeriesFilterExpression freqFilter, SingleSeriesFilterExpression valueFilter) throws IOException {
-
-        res = rowGroupReader.getValueReaders().get(measurementId).readOneColumnUseFilter(res, fetchSize, timeFilter,
-                freqFilter, valueFilter);
-        return res;
-    }
-
     public DynamicOneColumnData getValuesUseFilter(DynamicOneColumnData res, int fetchSize, String deltaObjectUID,
                                                    String measurementId, SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
                                                    SingleSeriesFilterExpression valueFilter, ArrayList<Integer> idxs) throws IOException {
@@ -179,6 +170,15 @@ public class RecordReader {
                 break;
             }
         }
+        return res;
+    }
+
+    private DynamicOneColumnData getValuesUseFilter(DynamicOneColumnData res, int fetchSize,
+                                                    RowGroupReader rowGroupReader, String measurementId, SingleSeriesFilterExpression timeFilter,
+                                                    SingleSeriesFilterExpression freqFilter, SingleSeriesFilterExpression valueFilter) throws IOException {
+
+        res = rowGroupReader.getValueReaders().get(measurementId).readOneColumnUseFilter(res, fetchSize, timeFilter,
+                freqFilter, valueFilter);
         return res;
     }
 
