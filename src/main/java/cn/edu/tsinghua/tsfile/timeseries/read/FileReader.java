@@ -299,4 +299,32 @@ public class FileReader {
         return this.fileMetaData;
     }
 
+    public List<RowGroupMetaData> getSortedRowGroupMetaDataList() throws IOException{
+        List<RowGroupMetaData> rowGroupMetaDataList = new ArrayList<>();
+        Collection<String> deltaObjects = fileMetaData.getDeltaObjectMap().keySet();
+        for (String deltaObjectID : deltaObjects) {
+            this.rwLock.writeLock().lock();
+            try {
+                TsDeltaObject deltaObj = this.fileMetaData.getDeltaObject(deltaObjectID);
+                TsRowGroupBlockMetaData blockMeta = new TsRowGroupBlockMetaData();
+                blockMeta.convertToTSF(ReadWriteThriftFormatUtils.readRowGroupBlockMetaData(this.randomAccessFileReader,
+                        deltaObj.offset, deltaObj.metadataBlockSize));
+                rowGroupMetaDataList.addAll(blockMeta.getRowGroups());
+            } finally {
+                this.rwLock.writeLock().unlock();
+            }
+        }
+
+        Comparator<RowGroupMetaData> comparator = new Comparator<RowGroupMetaData>() {
+            @Override
+            public int compare(RowGroupMetaData o1, RowGroupMetaData o2) {
+
+                return Long.signum(o1.getMetaDatas().get(0).getProperties().getFileOffset() - o2.getMetaDatas().get(0).getProperties().getFileOffset());
+            }
+
+        };
+        rowGroupMetaDataList.sort(comparator);
+        return rowGroupMetaDataList;
+    }
+
 }
