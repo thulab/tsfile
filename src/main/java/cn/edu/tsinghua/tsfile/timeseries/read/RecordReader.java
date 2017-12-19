@@ -2,6 +2,7 @@ package cn.edu.tsinghua.tsfile.timeseries.read;
 
 import cn.edu.tsinghua.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
@@ -30,6 +31,11 @@ public class RecordReader {
 
     public RecordReader(ITsRandomAccessFileReader raf) throws IOException {
         this.fileReader = new FileReader(raf);
+    }
+
+    //for hadoop-connector
+    public RecordReader(ITsRandomAccessFileReader raf, List<RowGroupMetaData> rowGroupMetaDataList) throws IOException {
+        this.fileReader = new FileReader(raf, rowGroupMetaDataList);
     }
 
     /**

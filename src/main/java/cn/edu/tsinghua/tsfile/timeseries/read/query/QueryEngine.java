@@ -3,6 +3,7 @@ package cn.edu.tsinghua.tsfile.timeseries.read.query;
 import cn.edu.tsinghua.tsfile.common.constant.QueryConstant;
 import cn.edu.tsinghua.tsfile.common.exception.ProcessorException;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
@@ -23,8 +24,8 @@ import java.util.Map;
 
 public class QueryEngine {
     private static final Logger logger = LoggerFactory.getLogger(QueryEngine.class);
-    private static int FETCH_SIZE = 20000;
-    private RecordReader recordReader;
+    protected static int FETCH_SIZE = 20000;
+    protected RecordReader recordReader;
 
     public QueryEngine(ITsRandomAccessFileReader raf) throws IOException {
         recordReader = new RecordReader(raf);
@@ -33,6 +34,11 @@ public class QueryEngine {
     public QueryEngine(ITsRandomAccessFileReader raf, int fetchSize) throws IOException {
         recordReader = new RecordReader(raf);
         FETCH_SIZE = fetchSize;
+    }
+
+    //for hadoop-connector
+    public QueryEngine(ITsRandomAccessFileReader raf, List<RowGroupMetaData> rowGroupMetaDataList) throws IOException {
+        recordReader = new RecordReader(raf, rowGroupMetaDataList);
     }
 
     public static QueryDataSet query(QueryConfig config, String fileName) throws IOException {
@@ -109,8 +115,7 @@ public class QueryEngine {
         return queryWithSpecificRowGroups(paths, timeFilter, freqFilter, valueFilter, idxs);
     }
 
-    //Used by tsfile-hadoop-connector, do not delete
-    public QueryDataSet queryWithSpecificRowGroups(List<Path> paths, FilterExpression timeFilter, FilterExpression freqFilter
+    private QueryDataSet queryWithSpecificRowGroups(List<Path> paths, FilterExpression timeFilter, FilterExpression freqFilter
             , FilterExpression valueFilter, ArrayList<Integer> rowGroupIndexList) throws IOException {
         if (timeFilter == null && freqFilter == null && valueFilter == null) {
             return queryWithoutFilter(paths, rowGroupIndexList);
