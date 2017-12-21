@@ -186,6 +186,10 @@ public class QueryDataSet {
     }
 
     public RowRecord getCurrentRecord() {
+        if (!ifInit) {
+            initForRecord();
+            ifInit = true;
+        }
         return currentRecord;
     }
 
