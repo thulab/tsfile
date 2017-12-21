@@ -27,27 +27,27 @@ public class HadoopQueryEngine extends QueryEngine {
         this.rowGroupMetaDataList = rowGroupMetaDataList;
     }
 
-    private void initDeviceIdList(List<String> deviceIdList) {
+    private List<String> initDeviceIdList() {
         Set<String> deviceIdSet = new HashSet<>();
         for (RowGroupMetaData rowGroupMetaData : rowGroupMetaDataList) {
             deviceIdSet.add(rowGroupMetaData.getDeltaObjectID());
         }
-        deviceIdList = new ArrayList<>(deviceIdSet);
+        return new ArrayList<>(deviceIdSet);
     }
 
-    private void initSensorIdList(List<String> sensorIdList){
+    private List<String> initSensorIdList(){
         Set<String> sensorIdSet = new HashSet<>();
         for(RowGroupMetaData rowGroupMetaData : rowGroupMetaDataList) {
             for(TimeSeriesChunkMetaData timeSeriesChunkMetaData : rowGroupMetaData.getTimeSeriesChunkMetaDataList()){
                 sensorIdSet.add(timeSeriesChunkMetaData.getProperties().getMeasurementUID());
             }
         }
-        sensorIdList = new ArrayList<>(sensorIdSet);
+        return new ArrayList<>(sensorIdSet);
     }
 
     public QueryDataSet queryWithSpecificRowGroups(List<String> deviceIdList, List<String> sensorIdList, FilterExpression timeFilter, FilterExpression freqFilter, FilterExpression valueFilter) throws IOException{
-        if(deviceIdList == null)initDeviceIdList(deviceIdList);
-        if(sensorIdList == null)initSensorIdList(sensorIdList);
+        if(deviceIdList == null)deviceIdList = initDeviceIdList();
+        if(sensorIdList == null)sensorIdList = initSensorIdList();
 
         List<Path> paths = new ArrayList<>();
         for(String deviceId : deviceIdList){

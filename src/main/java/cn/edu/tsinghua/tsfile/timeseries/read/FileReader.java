@@ -59,11 +59,12 @@ public class FileReader {
      * @param reader
      * @param rowGroupMetaDataList
      */
-    public FileReader(ITsRandomAccessFileReader reader, List<RowGroupMetaData> rowGroupMetaDataList) {
+    public FileReader(ITsRandomAccessFileReader reader, List<RowGroupMetaData> rowGroupMetaDataList) throws IOException {
         this.randomAccessFileReader = reader;
         this.rwLock = new ReentrantReadWriteLock();
         this.rowGroupReaderLRUList = new LinkedList<>();
         initFromRowGroupMetadataList(rowGroupMetaDataList);
+        init();
     }
 
     /**
