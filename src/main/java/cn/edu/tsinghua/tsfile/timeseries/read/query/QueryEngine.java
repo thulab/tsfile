@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 public class QueryEngine {
-    private static final Logger logger = LoggerFactory.getLogger(QueryEngine.class);
+    protected static final Logger logger = LoggerFactory.getLogger(QueryEngine.class);
     protected static int FETCH_SIZE = 20000;
     protected RecordReader recordReader;
 
