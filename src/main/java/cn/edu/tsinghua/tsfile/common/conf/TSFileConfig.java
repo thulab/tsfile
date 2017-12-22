@@ -55,7 +55,7 @@ public class TSFileConfig {
      */
     public int rleBitWidth = 8;
     public final int RLE_MIN_REPEATED_NUM = 8;
-    public final int RLE_MAX_REPEATED_NUM = 0x7FFFFF;
+    public final int RLE_MAX_REPEATED_NUM = 0x7FFF;
     public final int RLE_MAX_BIT_PACKED_NUM = 63;
     
     // Gorilla encoding configuration
