@@ -249,10 +249,8 @@ public class TsFileIOWriter {
     public void fillInRowGroup(long diff) throws IOException {
         if (diff <= 0) {
             LOG.info("write too much blank byte array.");
-        } else if(diff<=Integer.MAX_VALUE){
-        	out.write(new byte[(int) diff]);
         } else {
-            throw new IOException("write too much blank byte array!array size:" + diff);
+        	out.write(new byte[(int) diff]);
         }
     }
 
