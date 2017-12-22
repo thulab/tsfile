@@ -78,7 +78,6 @@ public class IntRleDecoderTest {
 			}
 			hybridCount += 2;
 		}
-		
 		hybridWidth = ReadWriteStreamUtils.getIntMaxBitWidth(hybridList);
 	}
 
@@ -86,6 +85,19 @@ public class IntRleDecoderTest {
 	public void tearDown() throws Exception {
 	}
 	
+	@Test
+	public void testRleReadBigInt() throws IOException{
+		List<Integer> list = new ArrayList<>();
+		for(int i = 7000000; i < 10000000;i++){
+			list.add(i);
+		}
+		int width = ReadWriteStreamUtils.getIntMaxBitWidth(list);
+		testLength(list,width,false,1);
+		for(int i = 1;i < 10;i++){
+			testLength(list,width,false,i);
+		}
+	}
+
 	@Test
 	public void testRleReadInt() throws IOException{
 		for(int i = 1;i < 10;i++){
