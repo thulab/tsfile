@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.format.DeltaObject;
 import cn.edu.tsinghua.tsfile.format.FileMetaData;
 import cn.edu.tsinghua.tsfile.format.TimeSeries;
@@ -237,5 +238,27 @@ public class TsFileMetaData implements IConverter<FileMetaData> {
 
     public TsDeltaObject getDeltaObject(String DeltaObjUID) {
         return this.deltaObjectMap.get(DeltaObjUID);
+    }
+
+    //For Tsfile-Spark-Connector
+    public boolean containsMeasurement(String measurement) {
+        for(TimeSeriesMetadata ts: timeSeriesList ){
+            if(ts.getMeasurementUID().equals(measurement)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //For Tsfile-Spark-Connector
+    public TSDataType getType(String measurement) {
+        for(TimeSeriesMetadata ts: timeSeriesList ){
+            if(ts.getMeasurementUID().equals(measurement)) {
+                return ts.getType();
+            }
+        }
+        //TODO IOException
+        //Actually, Tsfile-Spark-Connector won't call this method if timeSeriesList doesn't contain 'measurement'
+        return TSDataType.INT32;
     }
 }

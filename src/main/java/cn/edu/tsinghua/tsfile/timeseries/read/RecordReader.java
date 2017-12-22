@@ -2,6 +2,7 @@ package cn.edu.tsinghua.tsfile.timeseries.read;
 
 import cn.edu.tsinghua.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesMetadata;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
@@ -49,6 +50,18 @@ public class RecordReader {
         }
         for (; i < rowGroupReaderList.size(); i++) {
             RowGroupReader rowGroupReader = rowGroupReaderList.get(i);
+
+            // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
+            // begin
+            if(rowGroupReader.getValueReaders().get(measurementUID) == null) {
+                if (res == null) {
+                    TSDataType type = fileReader.getFileMetaData().getType(measurementUID);
+                    res = new DynamicOneColumnData(type);
+                }
+                return res;
+            }
+            // end
+
             res = getValueInOneColumn(res, fetchSize, rowGroupReader, measurementUID);
             if (res.valueLength >= fetchSize) {
                 res.hasReadAll = false;
@@ -92,6 +105,18 @@ public class RecordReader {
                 rowGroupSkipCount++;
                 continue;
             }
+
+            // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
+            // begin
+            if(rowGroupReader.getValueReaders().get(measurementId) == null) {
+                if (res == null) {
+                    TSDataType type = fileReader.getFileMetaData().getType(measurementId);
+                    res = new DynamicOneColumnData(type);
+                }
+                return res;
+            }
+            // end
+
             res = rowGroupReader.getValueReaders().get(measurementId).readOneColumn(res, fetchSize);
             for (int k = 0; k < rowGroupSkipCount; k++) {
                 res.plusRowGroupIndexAndInitPageOffset();
@@ -123,6 +148,18 @@ public class RecordReader {
         List<RowGroupReader> rowGroupReaderList = fileReader.getRowGroupReaderListByDeltaObject(deltaObjectUID);
         for (; i < rowGroupReaderList.size(); i++) {
             RowGroupReader rowGroupReader = rowGroupReaderList.get(i);
+
+            // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
+            // begin
+            if(rowGroupReader.getValueReaders().get(measurementId) == null) {
+                if (res == null) {
+                    TSDataType type = fileReader.getFileMetaData().getType(measurementId);
+                    res = new DynamicOneColumnData(type);
+                }
+                return res;
+            }
+            // end
+
             res = getValuesUseFilter(res, fetchSize, rowGroupReader, measurementId, timeFilter, freqFilter, valueFilter);
             if (res.valueLength >= fetchSize) {
                 res.hasReadAll = false;
@@ -167,6 +204,18 @@ public class RecordReader {
                 rowGroupSkipCount++;
                 continue;
             }
+
+            // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
+            // begin
+            if(rowGroupReader.getValueReaders().get(measurementId) == null) {
+                if (res == null) {
+                    TSDataType type = fileReader.getFileMetaData().getType(measurementId);
+                    res = new DynamicOneColumnData(type);
+                }
+                return res;
+            }
+            // end
+
             res = getValuesUseFilter(res, fetchSize, rowGroupReader, measurementId, timeFilter, freqFilter, valueFilter);
             for (int k = 0; k < rowGroupSkipCount; k++) {
                 res.plusRowGroupIndexAndInitPageOffset();
@@ -186,6 +235,18 @@ public class RecordReader {
         List<RowGroupReader> rowGroupReaderList = fileReader.getRowGroupReaderListByDeltaObject(deltaObjectUID);
         for (int i = 0; i < rowGroupReaderList.size(); i++) {
             RowGroupReader rowGroupReader = rowGroupReaderList.get(i);
+
+            // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
+            // begin
+            if(rowGroupReader.getValueReaders().get(measurementId) == null) {
+                if (res == null) {
+                    TSDataType type = fileReader.getFileMetaData().getType(measurementId);
+                    res = new DynamicOneColumnData(type);
+                }
+                return res;
+            }
+            // end
+
             if (i == 0) {
                 res = getValuesUseTimestamps(rowGroupReader, measurementId, timestamps);
             } else {
@@ -209,6 +270,18 @@ public class RecordReader {
             if (!deltaObjectUID.equals(rowGroupReader.getDeltaObjectUID())) {
                 continue;
             }
+
+            // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
+            // begin
+            if(rowGroupReader.getValueReaders().get(measurementId) == null) {
+                if (res == null) {
+                    TSDataType type = fileReader.getFileMetaData().getType(measurementId);
+                    res = new DynamicOneColumnData(type);
+                }
+                return res;
+            }
+            // end
+
             if (!init) {
                 res = getValuesUseTimestamps(rowGroupReader, measurementId, timeRet);
                 init = true;
@@ -238,17 +311,12 @@ public class RecordReader {
         return false;
     }
 
+    //For Tsfile-Spark-Connector
     public List<SeriesSchema> getAllSeriesSchema() throws IOException {
-        Set<String> seriesSet = new HashSet<>();
+        List<TimeSeriesMetadata> tslist = this.fileReader.getFileMetaData().getTimeSeriesList();
         List<SeriesSchema> seriesSchemas = new ArrayList<>();
-        List<RowGroupReader> rowGroupReaders = fileReader.getRowGroupReaderList();
-        for (RowGroupReader reader : rowGroupReaders) {
-            for (String measurement : reader.seriesDataTypeMap.keySet()) {
-                if (!seriesSet.contains(measurement)) {
-                    seriesSchemas.add(new SeriesSchema(measurement, reader.seriesDataTypeMap.get(measurement), null));
-                    seriesSet.add(measurement);
-                }
-            }
+        for(TimeSeriesMetadata ts: tslist ) {
+            seriesSchemas.add(new SeriesSchema(ts.getMeasurementUID(), ts.getType(), null));
         }
         return seriesSchemas;
     }
@@ -318,11 +386,10 @@ public class RecordReader {
 
     public FilterSeries<?> getColumnByMeasurementName(String deltaObject, String measurement) {
         TSDataType type = null;
-        try {
-            type = fileReader.getDataTypeBySeriesName(deltaObject, measurement);
-        } catch (IOException e) {
-            logger.error("get column failed {}",e.getMessage());
-        }
+
+        //modified for Tsfile-Spark-Connector
+        type = this.fileReader.getFileMetaData().getType(measurement);
+
         if (type == TSDataType.INT32) {
             return FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER);
         } else if (type == TSDataType.INT64) {
@@ -340,25 +407,12 @@ public class RecordReader {
         }
     }
 
+    // modified for Tsfile-Spark-Connector
     private void checkSeries(String deltaObject, String measurement) throws IOException {
         this.fileReader.loadDeltaObj(deltaObject);
-        if (seriesSchemaMap == null) {
-            seriesSchemaMap = new HashMap<>();
-            Map<String, ArrayList<SeriesSchema>> seriesSchemaListMap = getAllSeriesSchemasGroupByDeltaObject();
-            for (String key : seriesSchemaListMap.keySet()) {
-                HashMap<String, SeriesSchema> tmap = new HashMap<>();
-                for (SeriesSchema ss : seriesSchemaListMap.get(key)) {
-                    tmap.put(ss.name, ss);
-                }
-                seriesSchemaMap.put(key, tmap);
-            }
+        if(!fileReader.containsDeltaObj(deltaObject) || !fileReader.getFileMetaData().containsMeasurement(measurement)) {
+            throw new IOException("Series is not exist in current file: " + deltaObject + "#" + measurement);
         }
-        if (seriesSchemaMap.containsKey(deltaObject)) {
-            if (seriesSchemaMap.get(deltaObject).containsKey(measurement)) {
-                return;
-            }
-        }
-        throw new IOException("Series is not exist in current file: " + deltaObject + "#" + measurement);
     }
 
     public List<RowGroupReader> getAllRowGroupReaders() throws IOException {
