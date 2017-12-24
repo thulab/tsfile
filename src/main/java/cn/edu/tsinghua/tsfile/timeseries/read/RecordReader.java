@@ -38,6 +38,7 @@ public class RecordReader {
         this.fileReader = new FileReader(raf, rowGroupMetaDataList);
     }
 
+    //modified by hadoop
     /**
      * Read one path without filter.
      *
@@ -50,7 +51,11 @@ public class RecordReader {
      */
     public DynamicOneColumnData getValueInOneColumn(DynamicOneColumnData res, int fetchSize
             , String deltaObjectUID, String measurementUID) throws IOException {
-        checkSeries(deltaObjectUID, measurementUID);
+        try {
+            checkSeries(deltaObjectUID, measurementUID);
+        }catch(IOException ex){
+            return null;
+        }
         List<RowGroupReader> rowGroupReaderList = fileReader.getRowGroupReaderListByDeltaObject(deltaObjectUID);
         int i = 0;
         if (res != null) {
