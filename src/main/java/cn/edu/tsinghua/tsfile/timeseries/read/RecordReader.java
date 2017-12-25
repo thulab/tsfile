@@ -51,12 +51,9 @@ public class RecordReader {
         for (; i < rowGroupReaderList.size(); i++) {
             RowGroupReader rowGroupReader = rowGroupReaderList.get(i);
 
-            // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
-            // begin
             if(rowGroupReader.getValueReaders().get(measurementUID) == null) {
                 return alignColumn(measurementUID);
             }
-            // end
 
             res = getValueInOneColumn(res, fetchSize, rowGroupReader, measurementUID);
             if (res.valueLength >= fetchSize) {
@@ -102,12 +99,9 @@ public class RecordReader {
                 continue;
             }
 
-            // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
-            // begin
             if(rowGroupReader.getValueReaders().get(measurementId) == null) {
                 return alignColumn(measurementId);
             }
-            // end
 
             res = rowGroupReader.getValueReaders().get(measurementId).readOneColumn(res, fetchSize);
             for (int k = 0; k < rowGroupSkipCount; k++) {
@@ -141,12 +135,9 @@ public class RecordReader {
         for (; i < rowGroupReaderList.size(); i++) {
             RowGroupReader rowGroupReader = rowGroupReaderList.get(i);
 
-            // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
-            // begin
             if(rowGroupReader.getValueReaders().get(measurementId) == null) {
                 return alignColumn(measurementId);
             }
-            // end
 
             res = getValuesUseFilter(res, fetchSize, rowGroupReader, measurementId, timeFilter, freqFilter, valueFilter);
             if (res.valueLength >= fetchSize) {
@@ -193,12 +184,9 @@ public class RecordReader {
                 continue;
             }
 
-            // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
-            // begin
             if(rowGroupReader.getValueReaders().get(measurementId) == null) {
                 return alignColumn(measurementId);
             }
-            // end
 
             res = getValuesUseFilter(res, fetchSize, rowGroupReader, measurementId, timeFilter, freqFilter, valueFilter);
             for (int k = 0; k < rowGroupSkipCount; k++) {
@@ -220,12 +208,9 @@ public class RecordReader {
         for (int i = 0; i < rowGroupReaderList.size(); i++) {
             RowGroupReader rowGroupReader = rowGroupReaderList.get(i);
 
-            // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
-            // begin
             if(rowGroupReader.getValueReaders().get(measurementId) == null) {
                 return alignColumn(measurementId);
             }
-            // end
 
             if (i == 0) {
                 res = getValuesUseTimestamps(rowGroupReader, measurementId, timestamps);
@@ -251,12 +236,9 @@ public class RecordReader {
                 continue;
             }
 
-            // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
-            // begin
             if(rowGroupReader.getValueReaders().get(measurementId) == null) {
                 return alignColumn(measurementId);
             }
-            // end
 
             if (!init) {
                 res = getValuesUseTimestamps(rowGroupReader, measurementId, timeRet);
@@ -391,6 +373,12 @@ public class RecordReader {
         }
     }
 
+    // corresponding with the modification of method 'checkSeries'
+    private DynamicOneColumnData alignColumn(String measurementId) throws IOException{
+        TSDataType type = fileReader.getFileMetaData().getType(measurementId);
+        return new DynamicOneColumnData(type);
+    }
+
     public List<RowGroupReader> getAllRowGroupReaders() throws IOException {
         return fileReader.getRowGroupReaderList();
     }
@@ -405,11 +393,6 @@ public class RecordReader {
 
     public void close() throws IOException {
         fileReader.close();
-    }
-
-    private DynamicOneColumnData alignColumn(String measurementId) throws IOException{
-        TSDataType type = fileReader.getFileMetaData().getType(measurementId);
-        return new DynamicOneColumnData(type);
     }
 
 
