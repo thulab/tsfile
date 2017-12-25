@@ -54,11 +54,7 @@ public class RecordReader {
             // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
             // begin
             if(rowGroupReader.getValueReaders().get(measurementUID) == null) {
-                if (res == null) {
-                    TSDataType type = fileReader.getFileMetaData().getType(measurementUID);
-                    res = new DynamicOneColumnData(type);
-                }
-                return res;
+                return alignColumn(measurementUID);
             }
             // end
 
@@ -109,11 +105,7 @@ public class RecordReader {
             // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
             // begin
             if(rowGroupReader.getValueReaders().get(measurementId) == null) {
-                if (res == null) {
-                    TSDataType type = fileReader.getFileMetaData().getType(measurementId);
-                    res = new DynamicOneColumnData(type);
-                }
-                return res;
+                return alignColumn(measurementId);
             }
             // end
 
@@ -152,11 +144,7 @@ public class RecordReader {
             // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
             // begin
             if(rowGroupReader.getValueReaders().get(measurementId) == null) {
-                if (res == null) {
-                    TSDataType type = fileReader.getFileMetaData().getType(measurementId);
-                    res = new DynamicOneColumnData(type);
-                }
-                return res;
+                return alignColumn(measurementId);
             }
             // end
 
@@ -208,11 +196,7 @@ public class RecordReader {
             // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
             // begin
             if(rowGroupReader.getValueReaders().get(measurementId) == null) {
-                if (res == null) {
-                    TSDataType type = fileReader.getFileMetaData().getType(measurementId);
-                    res = new DynamicOneColumnData(type);
-                }
-                return res;
+                return alignColumn(measurementId);
             }
             // end
 
@@ -239,11 +223,7 @@ public class RecordReader {
             // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
             // begin
             if(rowGroupReader.getValueReaders().get(measurementId) == null) {
-                if (res == null) {
-                    TSDataType type = fileReader.getFileMetaData().getType(measurementId);
-                    res = new DynamicOneColumnData(type);
-                }
-                return res;
+                return alignColumn(measurementId);
             }
             // end
 
@@ -274,11 +254,7 @@ public class RecordReader {
             // add the paragraph below for Tsfile-Spark-Connector, corresponding with the modification of 'checkSeries' function
             // begin
             if(rowGroupReader.getValueReaders().get(measurementId) == null) {
-                if (res == null) {
-                    TSDataType type = fileReader.getFileMetaData().getType(measurementId);
-                    res = new DynamicOneColumnData(type);
-                }
-                return res;
+                return alignColumn(measurementId);
             }
             // end
 
@@ -384,7 +360,7 @@ public class RecordReader {
         return res;
     }
 
-    public FilterSeries<?> getColumnByMeasurementName(String deltaObject, String measurement) {
+    public FilterSeries<?> getColumnByMeasurementName(String deltaObject, String measurement) throws IOException {
         TSDataType type = null;
 
         //modified for Tsfile-Spark-Connector
@@ -411,7 +387,7 @@ public class RecordReader {
     private void checkSeries(String deltaObject, String measurement) throws IOException {
         this.fileReader.loadDeltaObj(deltaObject);
         if(!fileReader.containsDeltaObj(deltaObject) || !fileReader.getFileMetaData().containsMeasurement(measurement)) {
-            throw new IOException("Series is not exist in current file: " + deltaObject + "#" + measurement);
+            throw new IOException("Series "+ deltaObject + "#" + measurement + " does not exist in the current file.");
         }
     }
 
@@ -430,4 +406,11 @@ public class RecordReader {
     public void close() throws IOException {
         fileReader.close();
     }
+
+    private DynamicOneColumnData alignColumn(String measurementId) throws IOException{
+        TSDataType type = fileReader.getFileMetaData().getType(measurementId);
+        return new DynamicOneColumnData(type);
+    }
+
+
 }

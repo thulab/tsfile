@@ -8,6 +8,7 @@ import cn.edu.tsinghua.tsfile.format.TimeSeries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -251,14 +252,12 @@ public class TsFileMetaData implements IConverter<FileMetaData> {
     }
 
     //For Tsfile-Spark-Connector
-    public TSDataType getType(String measurement) {
+    public TSDataType getType(String measurement) throws IOException{
         for(TimeSeriesMetadata ts: timeSeriesList ){
             if(ts.getMeasurementUID().equals(measurement)) {
                 return ts.getType();
             }
         }
-        //TODO IOException
-        //Actually, Tsfile-Spark-Connector won't call this method if timeSeriesList doesn't contain 'measurement'
-        return TSDataType.INT32;
+        throw new IOException("Measurement " + measurement + " does not exist in the current file.");
     }
 }
