@@ -54,7 +54,10 @@ public class RecordReader {
         try {
             checkSeries(deltaObjectUID, measurementUID);
         }catch(IOException ex){
-            return null;
+            if(res == null)res = new DynamicOneColumnData();
+            res.dataType = fileReader.getDataTypeBySeriesName(deltaObjectUID, measurementUID);
+            return res;
+//            fileReader.getFileMetaData().getJsonMetaData();
         }
         List<RowGroupReader> rowGroupReaderList = fileReader.getRowGroupReaderListByDeltaObject(deltaObjectUID);
         int i = 0;
@@ -69,6 +72,8 @@ public class RecordReader {
                 break;
             }
         }
+//        if(i >= rowGroupReaderList.size())return res;
+//        res = getValueInOneColumn(res, fetchSize, rowGroupReaderList.get(i), measurementUID);
         return res;
     }
 
