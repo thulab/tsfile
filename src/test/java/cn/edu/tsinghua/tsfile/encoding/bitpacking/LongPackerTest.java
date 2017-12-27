@@ -95,4 +95,22 @@ public class LongPackerTest {
 			assertEquals(readArray[i], v);
 		}
 	}
+
+	@Test
+	public void test2(){
+		for(int width = 4;width < 63; width++){
+			long[] arr = new long[8];
+			long[] res = new long[8];
+			for(int i = 0; i < 8; i++){
+				arr[i] = i;
+			}
+			LongPacker packer = new LongPacker(width);
+			byte[] buf = new byte[width];
+			packer.pack8Values(arr, 0, buf);
+			packer.unpack8Values(buf, 0, res);
+			for(int i = 0; i < 8; i++){
+				assertEquals(arr[i], res[i]);
+			}
+		}
+	}
 }

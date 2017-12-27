@@ -6,7 +6,6 @@ import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
-import cn.edu.tsinghua.tsfile.encoding.decoder.DeltaBinaryDecoder;
 import cn.edu.tsinghua.tsfile.file.metadata.TsDigest;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
@@ -16,6 +15,7 @@ import cn.edu.tsinghua.tsfile.format.PageHeader;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.utils.DigestForFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.DigestVisitor;
+import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.IntervalTimeVisitor;
 import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.SingleValueVisitor;
 import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.SingleValueVisitorFactory;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.DynamicOneColumnData;
@@ -38,7 +38,7 @@ import static cn.edu.tsinghua.tsfile.format.Encoding.*;
  */
 public class ValueReader {
 
-    private static final Logger log = LoggerFactory.getLogger(ValueReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ValueReader.class);
 
     public Decoder decoder;
     public Decoder timeDecoder;
@@ -51,6 +51,7 @@ public class ValueReader {
     public List<String> enumValues;
     public CompressionTypeName compressionTypeName;
     public long rowNums;
+    private long startTime, endTime;
 
     // save the mainFrequency of this page
     public List<float[]> mainFrequency = null;
@@ -91,10 +92,12 @@ public class ValueReader {
      * @param rowNums             Total of rows for this column
      */
     public ValueReader(long offset, long totalSize, TSDataType dataType, TsDigest digest, ITsRandomAccessFileReader raf,
-                       List<String> enumValues, CompressionTypeName compressionTypeName, long rowNums) {
+                       List<String> enumValues, CompressionTypeName compressionTypeName, long rowNums, long startTime, long endTime) {
         this(offset, totalSize, dataType, digest, raf, compressionTypeName);
         this.enumValues = enumValues;
         this.rowNums = rowNums;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
     /**
@@ -160,28 +163,31 @@ public class ValueReader {
      * //TODO what about timeFilters?
      * Judge whether current column is satisfied for given filters
      */
-    public boolean columnSatisfied(SingleSeriesFilterExpression valueFilter, SingleSeriesFilterExpression timeFilter,
-                                    SingleSeriesFilterExpression freqFilter) {
-        if (valueFilter == null) {
-            return true;
-        }
-        TsDigest digest = getDigest();
-        DigestForFilter digestFF = null;
+    public boolean columnSatisfied(SingleSeriesFilterExpression valueFilter, SingleSeriesFilterExpression freqFilter,
+                                    SingleSeriesFilterExpression timeFilter) {
+        TsDigest digest = null;
+        DigestForFilter valueDigest = null;
 
-        if (getDataType() == TSDataType.ENUMS) {
-            byte[] minValue = new byte[digest.min.remaining()];
-            digest.min.get(minValue);
-            String minString = enumValues.get(BytesUtils.bytesToInt(minValue) - 1);
-            byte[] maxValue = new byte[digest.max.remaining()];
-            digest.max.get(maxValue);
-            String maxString = enumValues.get(BytesUtils.bytesToInt(maxValue) - 1);
-            digestFF = new DigestForFilter(ByteBuffer.wrap(BytesUtils.StringToBytes(minString)), ByteBuffer.wrap(BytesUtils.StringToBytes(maxString)), TSDataType.TEXT);
-        } else {
-            digestFF = new DigestForFilter(digest.min, digest.max, getDataType());
+        if (valueFilter != null) {
+            digest = getDigest();
+            if (getDataType() == TSDataType.ENUMS) {
+                byte[] minValue = new byte[digest.min.remaining()];
+                digest.min.get(minValue);
+                String minString = enumValues.get(BytesUtils.bytesToInt(minValue) - 1);
+                byte[] maxValue = new byte[digest.max.remaining()];
+                digest.max.get(maxValue);
+                String maxString = enumValues.get(BytesUtils.bytesToInt(maxValue) - 1);
+                valueDigest = new DigestForFilter(ByteBuffer.wrap(BytesUtils.StringToBytes(minString)), ByteBuffer.wrap(BytesUtils.StringToBytes(maxString)), TSDataType.TEXT);
+            } else {
+                valueDigest = new DigestForFilter(digest.min, digest.max, getDataType());
+            }
         }
-        log.debug("Column Digest min and max is: " + digestFF.getMinValue() + " --- " + digestFF.getMaxValue());
-        DigestVisitor digestVisitor = new DigestVisitor();
-        if (digestVisitor.satisfy(digestFF, valueFilter)) {
+
+        DigestVisitor valueVisitor = new DigestVisitor();
+        IntervalTimeVisitor timeVisitor = new IntervalTimeVisitor();
+        if ((valueFilter == null || valueVisitor.satisfy(valueDigest, valueFilter))
+            && (timeFilter == null || timeVisitor.satisfy(timeFilter, startTime, endTime))) {
+            LOG.debug(String.format("current series is satisfy the time filter and value filter, start time : %s, end time : %s", startTime, endTime));
             return true;
         }
         return false;
@@ -256,8 +262,8 @@ public class ValueReader {
             res.pageOffset = this.fileOffset;
             res.leftSize = this.totalSize;
         }
-        // That res.pageOffset is -1 represents reading from the start of
-        // current column.
+
+        // that res.pageOffset is -1 represents reading from the start ofcurrent column.
         if (res.pageOffset == -1) {
             res.pageOffset = this.fileOffset;
         }
@@ -265,8 +271,8 @@ public class ValueReader {
         // record the length of res before reading
         int currentLength = res.valueLength;
 
-        if (columnSatisfied(valueFilter, timeFilter, freqFilter)) {
-            log.debug("ValueFilter satisfied Or ValueFilter is null. [ValueFilter] is: " + valueFilter);
+        if (columnSatisfied(valueFilter, freqFilter, timeFilter)) {
+            LOG.debug("ValueFilter satisfied Or ValueFilter is null. [ValueFilter] is: " + valueFilter);
 
             // Initialize the bis according to the offset in last read.
             ByteArrayInputStream bis = initBAISForOnePage(res.pageOffset);
@@ -276,7 +282,7 @@ public class ValueReader {
                 int lastAvailable = bis.available();
 
                 pageCount++;
-                log.debug("read page " + pageCount);
+                LOG.debug("read page " + pageCount);
                 PageHeader pageHeader = pageReader.getNextPageHeader();
 
                 // construct valueFilter
@@ -303,7 +309,7 @@ public class ValueReader {
 
                 if (pageSatisfied(timeDigestFF, valueDigestFF, timeFilter, valueFilter, freqFilter)) {
 
-                    log.debug("page " + pageCount + " satisfied filter");
+                    LOG.debug("page " + pageCount + " satisfied filter");
 
                     InputStream page = pageReader.getNextPage();
 
@@ -319,12 +325,9 @@ public class ValueReader {
                                 while (decoder.hasNext(page)) {
                                     boolean v = decoder.readBoolean(page);
                                     if ((valueFilter == null && timeFilter == null)
-                                            || (valueFilter != null && timeFilter == null
-                                            && valueVisitor.satisfyObject(v, valueFilter))
-                                            || (valueFilter == null && timeFilter != null
-                                            && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))
-                                            || (valueFilter != null && timeFilter != null
-                                            && valueVisitor.satisfyObject(v, valueFilter)
+                                            || (valueFilter != null && timeFilter == null && valueVisitor.satisfyObject(v, valueFilter))
+                                            || (valueFilter == null && timeFilter != null && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))
+                                            || (valueFilter != null && timeFilter != null && valueVisitor.satisfyObject(v, valueFilter)
                                             && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))) {
                                         res.putBoolean(v);
                                         res.putTime(timeValues[timeIdx]);
@@ -336,12 +339,9 @@ public class ValueReader {
                                 while (decoder.hasNext(page)) {
                                     int v = decoder.readInt(page);
                                     if ((valueFilter == null && timeFilter == null)
-                                            || (valueFilter != null && timeFilter == null
-                                            && valueVisitor.satisfyObject(v, valueFilter))
-                                            || (valueFilter == null && timeFilter != null
-                                            && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))
-                                            || (valueFilter != null && timeFilter != null
-                                            && valueVisitor.satisfyObject(v, valueFilter)
+                                            || (valueFilter != null && timeFilter == null && valueVisitor.satisfyObject(v, valueFilter))
+                                            || (valueFilter == null && timeFilter != null && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))
+                                            || (valueFilter != null && timeFilter != null && valueVisitor.satisfyObject(v, valueFilter)
                                             && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))) {
                                         res.putInt(v);
                                         res.putTime(timeValues[timeIdx]);
@@ -353,12 +353,9 @@ public class ValueReader {
                                 while (decoder.hasNext(page)) {
                                     long v = decoder.readLong(page);
                                     if ((valueFilter == null && timeFilter == null)
-                                            || (valueFilter != null && timeFilter == null
-                                            && valueVisitor.satisfyObject(v, valueFilter))
-                                            || (valueFilter == null && timeFilter != null
-                                            && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))
-                                            || (valueFilter != null && timeFilter != null
-                                            && valueVisitor.satisfyObject(v, valueFilter)
+                                            || (valueFilter != null && timeFilter == null && valueVisitor.satisfyObject(v, valueFilter))
+                                            || (valueFilter == null && timeFilter != null && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))
+                                            || (valueFilter != null && timeFilter != null && valueVisitor.satisfyObject(v, valueFilter)
                                             && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))) {
                                         res.putLong(v);
                                         res.putTime(timeValues[timeIdx]);
@@ -370,12 +367,9 @@ public class ValueReader {
                                 while (decoder.hasNext(page)) {
                                     float v = decoder.readFloat(page);
                                     if ((valueFilter == null && timeFilter == null)
-                                            || (valueFilter != null && timeFilter == null
-                                            && valueVisitor.satisfyObject(v, valueFilter))
-                                            || (valueFilter == null && timeFilter != null
-                                            && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))
-                                            || (valueFilter != null && timeFilter != null
-                                            && valueVisitor.satisfyObject(v, valueFilter)
+                                            || (valueFilter != null && timeFilter == null && valueVisitor.satisfyObject(v, valueFilter))
+                                            || (valueFilter == null && timeFilter != null && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))
+                                            || (valueFilter != null && timeFilter != null && valueVisitor.satisfyObject(v, valueFilter)
                                             && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))) {
                                         res.putFloat(v);
                                         res.putTime(timeValues[timeIdx]);
@@ -387,12 +381,9 @@ public class ValueReader {
                                 while (decoder.hasNext(page)) {
                                     double v = decoder.readDouble(page);
                                     if ((valueFilter == null && timeFilter == null)
-                                            || (valueFilter != null && timeFilter == null
-                                            && valueVisitor.satisfyObject(v, valueFilter))
-                                            || (valueFilter == null && timeFilter != null
-                                            && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))
-                                            || (valueFilter != null && timeFilter != null
-                                            && valueVisitor.satisfyObject(v, valueFilter)
+                                            || (valueFilter != null && timeFilter == null && valueVisitor.satisfyObject(v, valueFilter))
+                                            || (valueFilter == null && timeFilter != null && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))
+                                            || (valueFilter != null && timeFilter != null && valueVisitor.satisfyObject(v, valueFilter)
                                             && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))) {
                                         res.putDouble(v);
                                         res.putTime(timeValues[timeIdx]);
@@ -404,12 +395,9 @@ public class ValueReader {
                                 while (decoder.hasNext(page)) {
                                     Binary v = decoder.readBinary(page);
                                     if ((valueFilter == null && timeFilter == null)
-                                            || (valueFilter != null && timeFilter == null
-                                            && valueVisitor.satisfyObject(v, valueFilter))
-                                            || (valueFilter == null && timeFilter != null
-                                            && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))
-                                            || (valueFilter != null && timeFilter != null
-                                            && valueVisitor.satisfyObject(v, valueFilter)
+                                            || (valueFilter != null && timeFilter == null && valueVisitor.satisfyObject(v, valueFilter))
+                                            || (valueFilter == null && timeFilter != null && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))
+                                            || (valueFilter != null && timeFilter != null && valueVisitor.satisfyObject(v, valueFilter)
                                             && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))) {
                                         res.putBinary(v);
                                         res.putTime(timeValues[timeIdx]);
@@ -421,12 +409,9 @@ public class ValueReader {
                                 while (decoder.hasNext(page)) {
                                     int v = decoder.readInt(page) - 1;
                                     if ((valueFilter == null && timeFilter == null)
-                                            || (valueFilter != null && timeFilter == null
-                                            && valueVisitor.satisfyObject(enumValues.get(v), valueFilter))
-                                            || (valueFilter == null && timeFilter != null
-                                            && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))
-                                            || (valueFilter != null && timeFilter != null
-                                            && valueVisitor.satisfyObject(enumValues.get(v), valueFilter)
+                                            || (valueFilter != null && timeFilter == null && valueVisitor.satisfyObject(enumValues.get(v), valueFilter))
+                                            || (valueFilter == null && timeFilter != null && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))
+                                            || (valueFilter != null && timeFilter != null && valueVisitor.satisfyObject(enumValues.get(v), valueFilter)
                                             && timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter))) {
                                         res.putBinary(Binary.valueOf(enumValues.get(v)));
                                         res.putTime(timeValues[timeIdx]);
@@ -481,7 +466,7 @@ public class ValueReader {
 
         while (timeIdx < timestamps.length && pageReader.hasNextPage()) {
             pageCount++;
-            log.debug("read page " + pageCount);
+            LOG.debug("read page " + pageCount);
             PageHeader pageHeader = pageReader.getNextPageHeader();
 
             long timeMaxv = pageHeader.data_page_header.getMax_timestamp();
@@ -673,6 +658,14 @@ public class ValueReader {
 
     public void setEnumValues(List<String> enumValues) {
         this.enumValues = enumValues;
+    }
+
+    public long getStartTime() {
+        return this.startTime;
+    }
+
+    public long getEndTime() {
+        return this.endTime;
     }
 
     private Encoding getEncodingByString(String encoding) {
