@@ -165,24 +165,6 @@ public class ValueReader {
      * //TODO what about timeFilters?
      * Judge whether current column is satisfied for given filters
      */
-<<<<<<< HEAD
-    public boolean columnSatisfied(SingleSeriesFilterExpression valueFilter, SingleSeriesFilterExpression timeFilter,
-                                    SingleSeriesFilterExpression freqFilter) {
-        if (valueFilter == null) {
-            return true;
-        }
-        TsDigest digest = getDigest();
-        DigestForFilter digestFF = null;
-
-        if (getDataType() == TSDataType.ENUMS) {
-            String minString = enumValues.get(Integer.parseInt(digest.getStatistics().get(StatisticConstant.MIN_VALUE)) - 1);
-            String maxString = enumValues.get(Integer.parseInt(digest.getStatistics().get(StatisticConstant.MAX_VALUE)) - 1);
-            digestFF = new DigestForFilter(ByteBuffer.wrap(BytesUtils.StringToBytes(minString)), ByteBuffer.wrap(BytesUtils.StringToBytes(maxString)), TSDataType.TEXT);
-        } else {
-            digestFF = new StrDigestForFilter(digest.getStatistics().get(StatisticConstant.MIN_VALUE)
-                            , digest.getStatistics().get(StatisticConstant.MAX_VALUE)
-                            , getDataType());
-=======
     public boolean columnSatisfied(SingleSeriesFilterExpression valueFilter, SingleSeriesFilterExpression freqFilter,
                                     SingleSeriesFilterExpression timeFilter) {
         TsDigest digest = null;
@@ -191,17 +173,14 @@ public class ValueReader {
         if (valueFilter != null) {
             digest = getDigest();
             if (getDataType() == TSDataType.ENUMS) {
-                byte[] minValue = new byte[digest.min.remaining()];
-                digest.min.get(minValue);
-                String minString = enumValues.get(BytesUtils.bytesToInt(minValue) - 1);
-                byte[] maxValue = new byte[digest.max.remaining()];
-                digest.max.get(maxValue);
-                String maxString = enumValues.get(BytesUtils.bytesToInt(maxValue) - 1);
+                String minString = enumValues.get(Integer.parseInt(digest.getStatistics().get(StatisticConstant.MIN_VALUE)) - 1);
+                String maxString = enumValues.get(Integer.parseInt(digest.getStatistics().get(StatisticConstant.MAX_VALUE)) - 1);
                 valueDigest = new DigestForFilter(ByteBuffer.wrap(BytesUtils.StringToBytes(minString)), ByteBuffer.wrap(BytesUtils.StringToBytes(maxString)), TSDataType.TEXT);
             } else {
-                valueDigest = new DigestForFilter(digest.min, digest.max, getDataType());
+                valueDigest = new StrDigestForFilter(digest.getStatistics().get(StatisticConstant.MIN_VALUE)
+                        , digest.getStatistics().get(StatisticConstant.MAX_VALUE)
+                        , getDataType());
             }
->>>>>>> origin/master
         }
 
         DigestVisitor valueVisitor = new DigestVisitor();
