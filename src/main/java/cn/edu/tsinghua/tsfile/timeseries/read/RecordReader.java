@@ -66,8 +66,6 @@ public class RecordReader {
                 break;
             }
         }
-        if(i >= rowGroupReaderList.size())return res;
-        res = getValueInOneColumn(res, fetchSize, rowGroupReaderList.get(i), measurementUID);
         return res;
     }
 
