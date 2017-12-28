@@ -141,6 +141,10 @@ public class FileReader {
         return this.rowGroupReaderMap.get(deltaObjectUID);
     }
 
+    public List<RowGroupReader> getRowGroupReaderListByDeltaObjectByHadoop(String deltaObjectUID) throws IOException {
+        return this.rowGroupReaderMap.get(deltaObjectUID);
+    }
+
     public TSDataType getDataTypeBySeriesName(String deltaObject, String measurement) throws IOException {
         loadDeltaObj(deltaObject);
         List<RowGroupReader> rgrList = getRowGroupReaderMap().get(deltaObject);
