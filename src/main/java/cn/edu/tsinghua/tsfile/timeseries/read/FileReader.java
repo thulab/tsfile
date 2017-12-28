@@ -64,7 +64,6 @@ public class FileReader {
         this.rwLock = new ReentrantReadWriteLock();
         this.rowGroupReaderLRUList = new LinkedList<>();
         initFromRowGroupMetadataList(rowGroupMetaDataList);
-        init();
     }
 
     /**
@@ -79,7 +78,7 @@ public class FileReader {
         int fileMetaDataLength = randomAccessFileReader.readInt();
         randomAccessFileReader.seek(l - MAGIC_LENGTH - FOOTER_LENGTH - fileMetaDataLength);
         byte[] buf = new byte[fileMetaDataLength];
-        randomAccessFileReader.read(buf, 0, buf.length);//FIXE  is this a potential bug?M0
+        randomAccessFileReader.read(buf, 0, buf.length);//FIXME  is this a potential bug?
 
         ByteArrayInputStream bais = new ByteArrayInputStream(buf);
         this.fileMetaData = new TsFileMetaDataConverter().toTsFileMetadata(ReadWriteThriftFormatUtils.readFileMetaData(bais));
@@ -300,6 +299,7 @@ public class FileReader {
         return this.fileMetaData;
     }
 
+    //used by hadoop
     public List<RowGroupMetaData> getSortedRowGroupMetaDataList() throws IOException{
         List<RowGroupMetaData> rowGroupMetaDataList = new ArrayList<>();
         Collection<String> deltaObjects = fileMetaData.getDeltaObjectMap().keySet();

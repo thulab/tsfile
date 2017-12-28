@@ -72,7 +72,7 @@ public class HadoopQueryEngine extends QueryEngine {
         return new IteratorQueryDataSet(paths) {
             @Override
             public DynamicOneColumnData getMoreRecordsForOneColumn(Path p, DynamicOneColumnData res) throws IOException {
-                return recordReader.getValueInOneColumn(res, FETCH_SIZE, p.getDeltaObjectToString(), p.getMeasurementToString());
+                return recordReader.getValueInOneColumnWithoutException(res, FETCH_SIZE, p.getDeltaObjectToString(), p.getMeasurementToString());
             }
         };
     }

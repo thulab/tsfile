@@ -38,7 +38,6 @@ public class RecordReader {
         this.fileReader = new FileReader(raf, rowGroupMetaDataList);
     }
 
-    //modified by hadoop
     /**
      * Read one path without filter.
      *
@@ -50,6 +49,40 @@ public class RecordReader {
      * @throws IOException TsFile read error
      */
     public DynamicOneColumnData getValueInOneColumn(DynamicOneColumnData res, int fetchSize
+            , String deltaObjectUID, String measurementUID) throws IOException {
+
+        checkSeries(deltaObjectUID, measurementUID);
+
+        List<RowGroupReader> rowGroupReaderList = fileReader.getRowGroupReaderListByDeltaObject(deltaObjectUID);
+        int i = 0;
+        if (res != null) {
+            i = res.getRowGroupIndex();
+        }
+        for (; i < rowGroupReaderList.size(); i++) {
+            RowGroupReader rowGroupReader = rowGroupReaderList.get(i);
+            res = getValueInOneColumn(res, fetchSize, rowGroupReader, measurementUID);
+            if (res.valueLength >= fetchSize) {
+                res.hasReadAll = false;
+                break;
+            }
+        }
+        if(i >= rowGroupReaderList.size())return res;
+        res = getValueInOneColumn(res, fetchSize, rowGroupReaderList.get(i), measurementUID);
+        return res;
+    }
+
+    //used by hadoop
+    /**
+     * Read one path without filter.
+     *
+     * @param res the iterative result
+     * @param fetchSize fetch size
+     * @param deltaObjectUID delta object id
+     * @param measurementUID  measurement Id
+     * @return the result in means of DynamicOneColumnData
+     * @throws IOException TsFile read error
+     */
+    public DynamicOneColumnData getValueInOneColumnWithoutException(DynamicOneColumnData res, int fetchSize
             , String deltaObjectUID, String measurementUID) throws IOException {
         try {
             checkSeries(deltaObjectUID, measurementUID);
