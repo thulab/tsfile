@@ -36,7 +36,7 @@ public class RowGroupReader {
     }
 
     public RowGroupReader(RowGroupMetaData rowGroupMetaData, ITsRandomAccessFileReader raf) {
-        logger.debug("init a new RowGroupReader..");
+        logger.debug(String.format("init a new RowGroupReader, the deltaObjectId is %s", rowGroupMetaData.getDeltaObjectID()));
         seriesDataTypeMap = new HashMap<>();
         deltaObjectUID = rowGroupMetaData.getDeltaObjectID();
         measurementIds = new ArrayList<>();
