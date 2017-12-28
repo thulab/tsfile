@@ -8,7 +8,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.definition.filterseries.FilterSe
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.And;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.LtEq;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.NotEq;
-import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.IntervalTimeFilter;
+import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.IntervalTimeVisitor;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.GtEq;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.Not;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.Or;
@@ -21,9 +21,9 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.Eq;
  * @author CGF
  *
  */
-public class IntervalTimeFilterTest {
+public class IntervalTimeVisitorTest {
     
-    private static final IntervalTimeFilter filter = new IntervalTimeFilter();
+    private static final IntervalTimeVisitor filter = new IntervalTimeVisitor();
 	private static String deltaObjectUID = FilterTestConstant.deltaObjectUID;
 	private static String measurementUID = FilterTestConstant.measurementUID;
 	
