@@ -59,6 +59,7 @@ public class IntPacker {
             if (leftBit > 0) {
                 buffer |= (values[valueIdx] << (32 - leftBit));
                 leftSize -= leftBit;
+                leftBit = 0;
                 valueIdx++;
             }
 
