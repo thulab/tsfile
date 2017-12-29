@@ -10,7 +10,7 @@ import org.junit.Test;
  */
 public class DynamicOneColumnDataTest {
 
-    private static final int MAXN = 100005;
+    private static final int MAXN = 100;
 
     @Test
     public void testPutGetMethod() {
@@ -78,8 +78,8 @@ public class DynamicOneColumnDataTest {
             Assert.assertEquals(i + 1, data.getEmptyTime(i));
         }
         Assert.assertEquals(10001, data.emptyTimeLength);
-        Assert.assertEquals(10, data.emptyTimeArrayIdx);
-        Assert.assertEquals(1, data.curEmptyTimeIdx);
+        Assert.assertEquals(9, data.emptyTimeArrayIdx);
+        Assert.assertEquals(785, data.curEmptyTimeIdx);
 
         data.removeLastEmptyTime();
         data.removeLastEmptyTime();
@@ -89,7 +89,7 @@ public class DynamicOneColumnDataTest {
         }
         data.putEmptyTime(20000);
         Assert.assertEquals(9, data.emptyTimeArrayIdx);
-        Assert.assertEquals(1000, data.curEmptyTimeIdx);
+        Assert.assertEquals(784, data.curEmptyTimeIdx);
         // System.out.println(data.emptyTimeArrayIdx + " " + data.curEmptyTimeIdx);
         for (int i = 0; i < data.emptyTimeLength - 1; i++) {
             Assert.assertEquals(i + 1, data.getEmptyTime(i));
