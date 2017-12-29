@@ -59,7 +59,7 @@ public class FileReader {
      * @param reader
      * @param rowGroupMetaDataList
      */
-    public FileReader(ITsRandomAccessFileReader reader, List<RowGroupMetaData> rowGroupMetaDataList) {
+    public FileReader(ITsRandomAccessFileReader reader, List<RowGroupMetaData> rowGroupMetaDataList) throws IOException {
         this.randomAccessFileReader = reader;
         this.rwLock = new ReentrantReadWriteLock();
         this.rowGroupReaderLRUList = new LinkedList<>();
@@ -138,6 +138,10 @@ public class FileReader {
      */
     public List<RowGroupReader> getRowGroupReaderListByDeltaObject(String deltaObjectUID) throws IOException {
         loadDeltaObj(deltaObjectUID);
+        return this.rowGroupReaderMap.get(deltaObjectUID);
+    }
+
+    public List<RowGroupReader> getRowGroupReaderListByDeltaObjectByHadoop(String deltaObjectUID) throws IOException {
         return this.rowGroupReaderMap.get(deltaObjectUID);
     }
 
@@ -297,6 +301,35 @@ public class FileReader {
 
     public TsFileMetaData getFileMetaData() {
         return this.fileMetaData;
+    }
+
+    //used by hadoop
+    public List<RowGroupMetaData> getSortedRowGroupMetaDataList() throws IOException{
+        List<RowGroupMetaData> rowGroupMetaDataList = new ArrayList<>();
+        Collection<String> deltaObjects = fileMetaData.getDeltaObjectMap().keySet();
+        for (String deltaObjectID : deltaObjects) {
+            this.rwLock.writeLock().lock();
+            try {
+                TsDeltaObject deltaObj = this.fileMetaData.getDeltaObject(deltaObjectID);
+                TsRowGroupBlockMetaData blockMeta = new TsRowGroupBlockMetaData();
+                blockMeta.convertToTSF(ReadWriteThriftFormatUtils.readRowGroupBlockMetaData(this.randomAccessFileReader,
+                        deltaObj.offset, deltaObj.metadataBlockSize));
+                rowGroupMetaDataList.addAll(blockMeta.getRowGroups());
+            } finally {
+                this.rwLock.writeLock().unlock();
+            }
+        }
+
+        Comparator<RowGroupMetaData> comparator = new Comparator<RowGroupMetaData>() {
+            @Override
+            public int compare(RowGroupMetaData o1, RowGroupMetaData o2) {
+
+                return Long.signum(o1.getMetaDatas().get(0).getProperties().getFileOffset() - o2.getMetaDatas().get(0).getProperties().getFileOffset());
+            }
+
+        };
+        rowGroupMetaDataList.sort(comparator);
+        return rowGroupMetaDataList;
     }
 
 }

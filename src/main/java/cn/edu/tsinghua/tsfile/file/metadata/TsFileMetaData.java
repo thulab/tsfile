@@ -155,7 +155,7 @@ public class TsFileMetaData implements IConverter<FileMetaData> {
             		deltaObjectMap = new HashMap<>();
             		for (Map.Entry<String, DeltaObject> entry : metadataInThrift.getDelta_object_map().entrySet()){
             			DeltaObject object = entry.getValue();
-            			deltaObjectMap.put(entry.getKey(), new TsDeltaObject(object.getOffset(), 
+            			deltaObjectMap.put(entry.getKey(), new TsDeltaObject(object.getOffset(),
             					object.getMetadata_block_size(), object.getStart_time(),  object.getEnd_time()));
             		}
             }
