@@ -282,7 +282,7 @@ public class ValueReader {
                 int lastAvailable = bis.available();
 
                 pageCount++;
-                LOG.debug("read page " + pageCount);
+                LOG.debug("read one page using filter, the page count is {}", pageCount);
                 PageHeader pageHeader = pageReader.getNextPageHeader();
 
                 // construct valueFilter
@@ -464,7 +464,7 @@ public class ValueReader {
 
         while (timeIdx < timestamps.length && pageReader.hasNextPage()) {
             pageCount++;
-            LOG.debug("read page " + pageCount);
+            LOG.debug("read one page using common timestamps, the page count is {}", pageCount);
             PageHeader pageHeader = pageReader.getNextPageHeader();
 
             long timeMaxv = pageHeader.data_page_header.getMax_timestamp();

@@ -87,6 +87,7 @@ public class RowGroupReader {
      * @throws IOException exception in IO
      */
     public DynamicOneColumnData readValueUseTimestamps(String measurementId, long[] timeRet) throws IOException {
+        logger.debug("query {}.{} using common time, time length : {}", deltaObjectUID, measurementId, timeRet.length);
         return valueReaders.get(measurementId).getValuesForGivenValues(timeRet);
     }
 
