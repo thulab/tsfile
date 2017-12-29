@@ -41,7 +41,7 @@ public class NoStatistics extends Statistics<Long> {
     }
 
     @Override
-    protected void mergeStatisticsMinMax(Statistics<?> stats) {
+    protected void mergeStatisticsValue(Statistics<?> stats) {
     }
 
     @Override
@@ -58,4 +58,29 @@ public class NoStatistics extends Statistics<Long> {
     public String toString() {
         return "no stats";
     }
+
+	@Override
+	public Long getFirst() {
+		return null;
+	}
+
+	@Override
+	public double getSum() {
+		return 0;
+	}
+
+	@Override
+	public byte[] getFirstBytes() {
+		return new byte[0];
+	}
+
+	@Override
+	public byte[] getSumBytes() {
+		return new byte[0];
+	}
+
+	@Override
+	public void updateStats(long min, long max) {
+		throw new UnsupportedOperationException();
+	}
 }

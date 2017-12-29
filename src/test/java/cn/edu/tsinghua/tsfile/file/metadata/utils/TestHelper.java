@@ -1,9 +1,10 @@
 package cn.edu.tsinghua.tsfile.file.metadata.utils;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
@@ -71,8 +72,7 @@ public class TestHelper {
     metaData.setIndexPageOffset(TimeSeriesChunkMetaDataTest.INDEX_PAGE_OFFSET);
     metaData.setTInTimeSeriesChunkMetaData(TestHelper.createT2inTSF(TSDataType.BOOLEAN,
         TSFreqType.IRREGULAR_FREQ, null, TInTimeSeriesChunkMetaDataTest.startTime, TInTimeSeriesChunkMetaDataTest.endTime));
-    metaData.setVInTimeSeriesChunkMetaData(
-        TestHelper.createSimpleV2InTSF(TSDataType.BOOLEAN, new TsDigest(), VInTimeSeriesChunkMetaDataTest.maxString, VInTimeSeriesChunkMetaDataTest.minString));
+    metaData.setVInTimeSeriesChunkMetaData(TestHelper.createSimpleV2InTSF(TSDataType.BOOLEAN, new TsDigest()));
     return metaData;
   }
 
@@ -90,8 +90,7 @@ public class TestHelper {
     metaData.setIndex_page_offset(TimeSeriesChunkMetaDataTest.INDEX_PAGE_OFFSET);
     metaData.setTime_tsc(TestHelper.createT2inThrift(DataType.BOOLEAN, FreqType.IRREGULAR_FREQ,
         null, TInTimeSeriesChunkMetaDataTest.startTime, TInTimeSeriesChunkMetaDataTest.endTime));
-    metaData.setValue_tsc(
-        TestHelper.createSimpleV2InThrift(DataType.BOOLEAN, new Digest(), VInTimeSeriesChunkMetaDataTest.maxString, VInTimeSeriesChunkMetaDataTest.minString));
+    metaData.setValue_tsc(TestHelper.createSimpleV2InThrift(DataType.BOOLEAN, createSimpleDigest()));
     return metaData;
   }
 
@@ -233,8 +232,7 @@ public class TestHelper {
     for (TSDataType dataType : TSDataType.values()) {
       list.add(TestHelper.createSimpleV1InTSF(dataType, null));
       list.add(TestHelper.createSimpleV1InTSF(dataType, new TsDigest()));
-      list.add(TestHelper.createSimpleV2InTSF(dataType, new TsDigest(),
-          VInTimeSeriesChunkMetaDataTest.maxString, VInTimeSeriesChunkMetaDataTest.minString));
+      list.add(TestHelper.createSimpleV2InTSF(dataType, createSimpleTsDigest()));
     }
     return list;
   }
@@ -245,21 +243,16 @@ public class TestHelper {
     for (DataType dataType : DataType.values()) {
       list.add(TestHelper.createSimpleV1InThrift(dataType, null));
       list.add(TestHelper.createSimpleV1InThrift(dataType, new Digest()));
-      list.add(TestHelper.createSimpleV2InThrift(dataType, new Digest(),
-          VInTimeSeriesChunkMetaDataTest.maxString, VInTimeSeriesChunkMetaDataTest.minString));
+      list.add(TestHelper.createSimpleV2InThrift(dataType, createSimpleDigest()));
     }
     return list;
   }
 
   public static ValueInTimeSeriesChunkMetaData createSimpleV2InThrift(DataType dataType,
-      Digest digest, String maxString, String minString) throws UnsupportedEncodingException {
-    ByteBuffer max = ByteBuffer.wrap(maxString.getBytes("UTF-8"));
-    ByteBuffer min = ByteBuffer.wrap(minString.getBytes("UTF-8"));
+      Digest digest) throws UnsupportedEncodingException {
 
     ValueInTimeSeriesChunkMetaData metaData = new ValueInTimeSeriesChunkMetaData(dataType);
     metaData.setMax_error(VInTimeSeriesChunkMetaDataTest.MAX_ERROR);
-    digest.max = max;
-    digest.min = min;
     metaData.setDigest(digest);
 
     List<String> dataValues = new ArrayList<String>();
@@ -279,14 +272,9 @@ public class TestHelper {
     return metaData;
   }
 
-  public static VInTimeSeriesChunkMetaData createSimpleV2InTSF(TSDataType dataType, TsDigest digest,
-      String maxString, String minString) throws UnsupportedEncodingException {
+  public static VInTimeSeriesChunkMetaData createSimpleV2InTSF(TSDataType dataType, TsDigest digest) throws UnsupportedEncodingException {
     VInTimeSeriesChunkMetaData metaData = new VInTimeSeriesChunkMetaData(dataType);
     metaData.setMaxError(VInTimeSeriesChunkMetaDataTest.MAX_ERROR);
-    ByteBuffer max = ByteBuffer.wrap(maxString.getBytes("UTF-8"));
-    ByteBuffer min = ByteBuffer.wrap(minString.getBytes("UTF-8"));
-    digest.max = max;
-    digest.min = min;
     metaData.setDigest(digest);
 
     List<String> dataValues = new ArrayList<String>();
@@ -304,6 +292,26 @@ public class TestHelper {
     metaData.setMaxError(VInTimeSeriesChunkMetaDataTest.MAX_ERROR);
     metaData.setDigest(digest);
     return metaData;
+  }
+  
+  public static TsDigest createSimpleTsDigest() {
+	  TsDigest digest = new TsDigest();
+	  digest.addStatistics("max", "123");
+	  digest.addStatistics("min", "12");
+	  digest.addStatistics("sum", "123456789");
+	  digest.addStatistics("first", "1");
+	  return digest;
+  }
+  
+  public static Digest createSimpleDigest() {
+	  Digest digest = new Digest();
+	  Map<String, String> statistics = new HashMap<>();
+	  digest.setStatistics(statistics);
+	  digest.getStatistics().put("max", "123");
+	  digest.getStatistics().put("min", "12");
+	  digest.getStatistics().put("sum", "123456789");
+	  digest.getStatistics().put("first", "1");
+	  return digest;
   }
 
   public static List<String> getJSONArray() {

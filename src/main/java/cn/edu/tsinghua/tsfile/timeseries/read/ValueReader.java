@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.read;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
+import cn.edu.tsinghua.tsfile.common.constant.StatisticConstant;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
@@ -14,6 +15,7 @@ import cn.edu.tsinghua.tsfile.format.Encoding;
 import cn.edu.tsinghua.tsfile.format.PageHeader;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.utils.DigestForFilter;
+import cn.edu.tsinghua.tsfile.timeseries.filter.utils.StrDigestForFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.DigestVisitor;
 import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.IntervalTimeVisitor;
 import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.SingleValueVisitor;
@@ -171,15 +173,13 @@ public class ValueReader {
         if (valueFilter != null) {
             digest = getDigest();
             if (getDataType() == TSDataType.ENUMS) {
-                byte[] minValue = new byte[digest.min.remaining()];
-                digest.min.get(minValue);
-                String minString = enumValues.get(BytesUtils.bytesToInt(minValue) - 1);
-                byte[] maxValue = new byte[digest.max.remaining()];
-                digest.max.get(maxValue);
-                String maxString = enumValues.get(BytesUtils.bytesToInt(maxValue) - 1);
+                String minString = enumValues.get(Integer.parseInt(digest.getStatistics().get(StatisticConstant.MIN_VALUE)) - 1);
+                String maxString = enumValues.get(Integer.parseInt(digest.getStatistics().get(StatisticConstant.MAX_VALUE)) - 1);
                 valueDigest = new DigestForFilter(ByteBuffer.wrap(BytesUtils.StringToBytes(minString)), ByteBuffer.wrap(BytesUtils.StringToBytes(maxString)), TSDataType.TEXT);
             } else {
-                valueDigest = new DigestForFilter(digest.min, digest.max, getDataType());
+                valueDigest = new StrDigestForFilter(digest.getStatistics().get(StatisticConstant.MIN_VALUE)
+                        , digest.getStatistics().get(StatisticConstant.MAX_VALUE)
+                        , getDataType());
             }
         }
 
@@ -282,7 +282,7 @@ public class ValueReader {
                 int lastAvailable = bis.available();
 
                 pageCount++;
-                LOG.debug("read page " + pageCount);
+                LOG.debug("read one page using filter, the page count is {}", pageCount);
                 PageHeader pageHeader = pageReader.getNextPageHeader();
 
                 // construct valueFilter
@@ -290,15 +290,13 @@ public class ValueReader {
                 DigestForFilter valueDigestFF = null;
                 if (pageDigest != null) {
                     if (getDataType() == TSDataType.ENUMS) {
-                        byte[] minValue = new byte[pageDigest.min.remaining()];
-                        pageDigest.min.get(minValue);
-                        String minString = enumValues.get(BytesUtils.bytesToInt(minValue) - 1);
-                        byte[] maxValue = new byte[pageDigest.max.remaining()];
-                        pageDigest.max.get(maxValue);
-                        String maxString = enumValues.get(BytesUtils.bytesToInt(maxValue) - 1);
+                        String minString = enumValues.get(Integer.parseInt(pageDigest.getStatistics().get(StatisticConstant.MIN_VALUE)) - 1);
+                        String maxString = enumValues.get(Integer.parseInt(pageDigest.getStatistics().get(StatisticConstant.MAX_VALUE)) - 1);
                         valueDigestFF = new DigestForFilter(ByteBuffer.wrap(BytesUtils.StringToBytes(minString)), ByteBuffer.wrap(BytesUtils.StringToBytes(maxString)), TSDataType.TEXT);
                     } else {
-                        valueDigestFF = new DigestForFilter(pageDigest.min, pageDigest.max, getDataType());
+                        valueDigestFF = new StrDigestForFilter(pageDigest.getStatistics().get(StatisticConstant.MIN_VALUE)
+                                                            ,   pageDigest.getStatistics().get(StatisticConstant.MAX_VALUE),
+                                                                getDataType());
                     }
                 }
 
@@ -466,7 +464,7 @@ public class ValueReader {
 
         while (timeIdx < timestamps.length && pageReader.hasNextPage()) {
             pageCount++;
-            LOG.debug("read page " + pageCount);
+            LOG.debug("read one page using common timestamps, the page count is {}", pageCount);
             PageHeader pageHeader = pageReader.getNextPageHeader();
 
             long timeMaxv = pageHeader.data_page_header.getMax_timestamp();

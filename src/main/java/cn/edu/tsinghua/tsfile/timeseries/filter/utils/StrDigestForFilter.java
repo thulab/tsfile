@@ -8,28 +8,24 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import java.nio.ByteBuffer;
 
 /**
- * @author ZJR
- * class to construct digest.
+ * @author JT
+ * class to construct string digest.
  */
-public class DigestForFilter {
-
-    private ByteBuffer min = null;
-    private ByteBuffer max = null;
+public class StrDigestForFilter extends DigestForFilter{
+    private String min = null;
+    private String max = null;
     private TSDataType type;
 
-    public DigestForFilter() {
-
-    }
-
-    public DigestForFilter(ByteBuffer min, ByteBuffer max, TSDataType type) {
+    public StrDigestForFilter(String min, String max, TSDataType type) {
+        super();
         this.min = min;
         this.max = max;
         this.type = type;
     }
 
-    public DigestForFilter(long minv, long maxv) {
-        this.min = ByteBuffer.wrap(BytesUtils.longToBytes(minv));
-        this.max = ByteBuffer.wrap(BytesUtils.longToBytes(maxv));
+    public StrDigestForFilter(long minv, long maxv) {
+        this.min = String.valueOf(minv);
+        this.max = String.valueOf(maxv);
         this.type = TSDataType.INT64;
     }
 
@@ -37,17 +33,17 @@ public class DigestForFilter {
     public <T extends Comparable<T>> T getMinValue() {
         switch (type) {
             case INT32:
-                return (T) ((Integer) BytesUtils.bytesToInt(min.array()));
+                return (T) ((Integer) Integer.parseInt(min));
             case INT64:
-                return (T) ((Long) BytesUtils.bytesToLong(min.array()));
+                return (T) ((Long) Long.parseLong(min));
             case FLOAT:
-                return (T) ((Float) BytesUtils.bytesToFloat(min.array()));
+                return (T) ((Float) Float.parseFloat(min));
             case DOUBLE:
-                return (T) ((Double) BytesUtils.bytesToDouble(min.array()));
+                return (T) ((Double) Double.parseDouble(min));
             case TEXT:
-                return (T) new Binary(BytesUtils.bytesToString(min.array()));
+                return (T) new Binary(min);
             case BOOLEAN:
-                return (T) (Boolean) BytesUtils.bytesToBool(min.array());
+                return (T) ((Boolean) Boolean.parseBoolean(min));
             default:
                 throw new UnSupportFilterDataTypeException("DigestForFilter unsupported datatype : " + type.toString());
         }
@@ -57,17 +53,17 @@ public class DigestForFilter {
     public <T extends Comparable<T>> T getMaxValue() {
         switch (type) {
             case INT32:
-                return (T) ((Integer) BytesUtils.bytesToInt(max.array()));
+                return (T) ((Integer) Integer.parseInt(max));
             case INT64:
-                return (T) ((Long) BytesUtils.bytesToLong(max.array()));
+                return (T) ((Long) Long.parseLong(max));
             case FLOAT:
-                return (T) ((Float) BytesUtils.bytesToFloat(max.array()));
+                return (T) ((Float) Float.parseFloat(max));
             case DOUBLE:
-                return (T) ((Double) BytesUtils.bytesToDouble(max.array()));
+                return (T) ((Double) Double.parseDouble(max));
             case TEXT:
-                return (T) new Binary(BytesUtils.bytesToString(max.array()));
+                return (T) new Binary(max);
             case BOOLEAN:
-                return (T) (Boolean) BytesUtils.bytesToBool(max.array());
+                return (T) ((Boolean) Boolean.parseBoolean(max));
             default:
                 throw new UnSupportFilterDataTypeException("DigestForFilter unsupported datatype : " + type.toString());
         }
@@ -95,5 +91,4 @@ public class DigestForFilter {
     public TSDataType getType() {
         return type;
     }
-
 }

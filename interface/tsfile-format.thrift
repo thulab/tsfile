@@ -46,13 +46,12 @@ enum ConvertedType {
  * All fields are optional.
  */
 struct Digest {
-   /** min and max value of the timeseries, encoded in PLAIN encoding */
-   1: optional binary max;
-   2: optional binary min;
+   /** Statistics of timeseries, eg. min and max value, sum value */
+   1: optional map<string, string> statistics;
    /** count of null value in the timeseries */
-   3: optional i64 null_count;
+   2: optional i64 null_count;
    /** count of distinct values occurring */
-   4: optional i64 distinct_count;
+   3: optional i64 distinct_count;
 }
 
 
