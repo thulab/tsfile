@@ -277,7 +277,7 @@ public class QueryEngine {
         return recordReader.getDeltaObjectTypes();
     }
 
-    public boolean pathExist(Path path) {
+    public boolean pathExist(Path path) throws IOException{
         FilterSeries<?> col = recordReader.getColumnByMeasurementName(path.getDeltaObjectToString(), path.getMeasurementToString());
 
         return col != null;

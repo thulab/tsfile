@@ -19,7 +19,12 @@ public class TsFileWrite2 {
 
 	public static void main(String args[]) {
 		try {
-			TsFileWriter tsFileWriter = new TsFileWriter(new File("test.ts"));
+			String path = "test.ts";
+			File f = new File(path);
+			if(f.exists()) {
+				f.delete();
+			}
+			TsFileWriter tsFileWriter = new TsFileWriter(f);
 
 			// add measurements
 			tsFileWriter.addMeasurement(new MeasurementDescriptor("sensor_1", TSDataType.FLOAT, TSEncoding.RLE));

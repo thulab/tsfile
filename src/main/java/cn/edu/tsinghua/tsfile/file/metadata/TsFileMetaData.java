@@ -1,12 +1,14 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.format.DeltaObject;
 import cn.edu.tsinghua.tsfile.format.FileMetaData;
 import cn.edu.tsinghua.tsfile.format.TimeSeries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -237,5 +239,25 @@ public class TsFileMetaData implements IConverter<FileMetaData> {
 
     public TsDeltaObject getDeltaObject(String DeltaObjUID) {
         return this.deltaObjectMap.get(DeltaObjUID);
+    }
+
+    //For Tsfile-Spark-Connector
+    public boolean containsMeasurement(String measurement) {
+        for(TimeSeriesMetadata ts: timeSeriesList ){
+            if(ts.getMeasurementUID().equals(measurement)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //For Tsfile-Spark-Connector
+    public TSDataType getType(String measurement) throws IOException{
+        for(TimeSeriesMetadata ts: timeSeriesList ){
+            if(ts.getMeasurementUID().equals(measurement)) {
+                return ts.getType();
+            }
+        }
+        throw new IOException("Measurement " + measurement + " does not exist in the current file.");
     }
 }
