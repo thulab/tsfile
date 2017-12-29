@@ -15,6 +15,8 @@ public class IntegerStatisticsTest {
     assertEquals(false, intStats.isEmpty());
     assertEquals(2, (int) intStats.getMax());
     assertEquals(1, (int) intStats.getMin());
+    assertEquals(1, (int)intStats.getFirst());
+    assertEquals(3, (int)intStats.getSum());
   }
 
   @Test
@@ -32,9 +34,13 @@ public class IntegerStatisticsTest {
     assertEquals(false, intStats3.isEmpty());
     assertEquals(100, (int) intStats3.getMax());
     assertEquals(1, (int) intStats3.getMin());
-
+    assertEquals(1, (int)intStats3.getFirst());
+    assertEquals(1+100, (int)intStats3.getSum());
+    
     intStats3.mergeStatistics(intStats2);
     assertEquals(200, (int) intStats3.getMax());
     assertEquals(1, (int) intStats3.getMin());
+    assertEquals(1, (int)intStats3.getFirst());
+    assertEquals(101+200, (int)intStats3.getSum());
   }
 }

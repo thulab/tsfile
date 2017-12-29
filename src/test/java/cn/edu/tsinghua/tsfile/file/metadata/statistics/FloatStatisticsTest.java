@@ -16,6 +16,8 @@ public class FloatStatisticsTest {
     assertEquals(false, floatStats.isEmpty());
     assertEquals(2.32f, (double) floatStats.getMax(), maxError);
     assertEquals(1.34f, (double) floatStats.getMin(), maxError);
+    assertEquals(2.32f+1.34f, (double) floatStats.getSum(), maxError);
+    assertEquals(1.34f, (double) floatStats.getFirst(), maxError);
   }
 
   @Test
@@ -33,10 +35,14 @@ public class FloatStatisticsTest {
     assertEquals(false, floatStats3.isEmpty());
     assertEquals(100.13453f, (float) floatStats3.getMax(), maxError);
     assertEquals(1.34f, (float) floatStats3.getMin(), maxError);
+    assertEquals(100.13453f+1.34f, (float) floatStats3.getSum(), maxError);
+    assertEquals(1.34f, (float) floatStats3.getFirst(), maxError);
 
     floatStats3.mergeStatistics(floatStats2);
     assertEquals(200.435d, (float) floatStats3.getMax(), maxError);
     assertEquals(1.34d, (float) floatStats3.getMin(), maxError);
+    assertEquals(100.13453f+1.34f+200.435d, (float) floatStats3.getSum(), maxError);
+    assertEquals(1.34f, (float) floatStats3.getFirst(), maxError);
 
 
   }

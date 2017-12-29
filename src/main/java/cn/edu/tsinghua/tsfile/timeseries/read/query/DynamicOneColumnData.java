@@ -16,7 +16,10 @@ import java.util.ArrayList;
  */
 public class DynamicOneColumnData {
 
-    private static int CAPACITY = 1000;
+    private int TIME_CAPACITY = 1;
+    private int VALUE_CAPACITY = 1;
+    private int EMPTY_TIME_CAPACITY = 1;
+    private int CAPACITY_THRESHOLD = 1024;
 
     public int rowGroupIndex = 0;
     public long pageOffset = -1;
@@ -80,11 +83,11 @@ public class DynamicOneColumnData {
         this.curValueIdx = 0;
         this.valueLength = 0;
         this.curIdx = 0;
-        CAPACITY = TSFileConfig.dynamicDataSize;
+        CAPACITY_THRESHOLD = TSFileConfig.dynamicDataSize;
 
         if (recordTime) {
             timeRet = new ArrayList<>();
-            timeRet.add(new long[CAPACITY]);
+            timeRet.add(new long[TIME_CAPACITY]);
             timeArrayIdx = 0;
             curTimeIdx = 0;
             timeLength = 0;
@@ -92,7 +95,7 @@ public class DynamicOneColumnData {
 
         if (hasEmptyTime) {
             emptyTimeRet = new ArrayList<>();
-            emptyTimeRet.add(new long[CAPACITY]);
+            emptyTimeRet.add(new long[EMPTY_TIME_CAPACITY]);
             emptyTimeArrayIdx = 0;
             curEmptyTimeIdx = 0;
             emptyTimeLength = 0;
@@ -101,31 +104,31 @@ public class DynamicOneColumnData {
         switch (dataType) {
             case BOOLEAN:
                 booleanRet = new ArrayList<>();
-                booleanRet.add(new boolean[CAPACITY]);
+                booleanRet.add(new boolean[VALUE_CAPACITY]);
                 break;
             case INT32:
                 intRet = new ArrayList<>();
-                intRet.add(new int[CAPACITY]);
+                intRet.add(new int[VALUE_CAPACITY]);
                 break;
             case INT64:
                 longRet = new ArrayList<>();
-                longRet.add(new long[CAPACITY]);
+                longRet.add(new long[VALUE_CAPACITY]);
                 break;
             case FLOAT:
                 floatRet = new ArrayList<>();
-                floatRet.add(new float[CAPACITY]);
+                floatRet.add(new float[VALUE_CAPACITY]);
                 break;
             case DOUBLE:
                 doubleRet = new ArrayList<>();
-                doubleRet.add(new double[CAPACITY]);
+                doubleRet.add(new double[VALUE_CAPACITY]);
                 break;
             case TEXT:
                 binaryRet = new ArrayList<>();
-                binaryRet.add(new Binary[CAPACITY]);
+                binaryRet.add(new Binary[VALUE_CAPACITY]);
                 break;
             case ENUMS:
                 intRet = new ArrayList<>();
-                intRet.add(new int[CAPACITY]);
+                intRet.add(new int[VALUE_CAPACITY]);
                 break;
             default:
                 throw new UnSupportedDataTypeException(String.valueOf(dataType));
@@ -133,21 +136,34 @@ public class DynamicOneColumnData {
     }
 
     public void putTime(long v) {
-        if (curTimeIdx == CAPACITY) {
-            this.timeRet.add(new long[CAPACITY]);
-            timeArrayIdx++;
-            curTimeIdx = 0;
+        if (curTimeIdx == TIME_CAPACITY) {
+            if (TIME_CAPACITY >= CAPACITY_THRESHOLD) {
+                this.timeRet.add(new long[TIME_CAPACITY]);
+                timeArrayIdx++;
+                curTimeIdx = 0;
+            } else {
+                long[] newData = new long[TIME_CAPACITY * 2];
+                System.arraycopy(timeRet.get(0), 0, newData, 0, TIME_CAPACITY);
+                this.timeRet.set(0, newData);
+                TIME_CAPACITY = TIME_CAPACITY * 2;
+            }
         }
         (timeRet.get(timeArrayIdx))[curTimeIdx++] = v;
         timeLength++;
     }
 
     public void putEmptyTime(long v) {
-        if (curEmptyTimeIdx == CAPACITY) {
-            this.emptyTimeRet.add(new long[CAPACITY]);
-            emptyTimeArrayIdx++;
-            curEmptyTimeIdx = 0;
-            // System.out.println(v + "-" + emptyTimeLength + " - " +emptyTimeArrayIdx);
+        if (curEmptyTimeIdx == EMPTY_TIME_CAPACITY) {
+            if (EMPTY_TIME_CAPACITY >= CAPACITY_THRESHOLD) {
+                this.emptyTimeRet.add(new long[EMPTY_TIME_CAPACITY]);
+                emptyTimeArrayIdx++;
+                curEmptyTimeIdx = 0;
+            } else {
+                long[] newData = new long[EMPTY_TIME_CAPACITY * 2];
+                System.arraycopy(emptyTimeRet.get(0), 0, newData, 0, EMPTY_TIME_CAPACITY);
+                this.emptyTimeRet.set(0, newData);
+                EMPTY_TIME_CAPACITY = EMPTY_TIME_CAPACITY * 2;
+            }
         }
         (emptyTimeRet.get(emptyTimeArrayIdx))[curEmptyTimeIdx++] = v;
         emptyTimeLength++;
@@ -204,72 +220,114 @@ public class DynamicOneColumnData {
     }
 
     public void putBoolean(boolean v) {
-        if (curValueIdx == CAPACITY) {
-            if (this.booleanRet.size() <= valueArrayIdx + 1) {
-                this.booleanRet.add(new boolean[CAPACITY]);
+        if (curValueIdx == VALUE_CAPACITY) {
+            if (VALUE_CAPACITY >= CAPACITY_THRESHOLD) {
+                if (this.booleanRet.size() <= valueArrayIdx + 1) {
+                    this.booleanRet.add(new boolean[VALUE_CAPACITY]);
+                }
+                valueArrayIdx++;
+                curValueIdx = 0;
+            } else {
+                boolean[] newData = new boolean[VALUE_CAPACITY * 2];
+                System.arraycopy(booleanRet.get(0), 0, newData, 0, VALUE_CAPACITY);
+                this.booleanRet.set(0, newData);
+                VALUE_CAPACITY = VALUE_CAPACITY * 2;
             }
-            valueArrayIdx++;
-            curValueIdx = 0;
         }
         (this.booleanRet.get(valueArrayIdx))[curValueIdx++] = v;
         valueLength++;
     }
 
     public void putInt(int v) {
-        if (curValueIdx == CAPACITY) {
-            if (this.intRet.size() <= valueArrayIdx + 1) {
-                this.intRet.add(new int[CAPACITY]);
+        if (curValueIdx == VALUE_CAPACITY) {
+            if (VALUE_CAPACITY >= CAPACITY_THRESHOLD) {
+                if (this.intRet.size() <= valueArrayIdx + 1) {
+                    this.intRet.add(new int[VALUE_CAPACITY]);
+                }
+                valueArrayIdx++;
+                curValueIdx = 0;
+            } else {
+                int[] newData = new int[VALUE_CAPACITY * 2];
+                System.arraycopy(intRet.get(0), 0, newData, 0, VALUE_CAPACITY);
+                this.intRet.set(0, newData);
+                VALUE_CAPACITY = VALUE_CAPACITY * 2;
             }
-            valueArrayIdx++;
-            curValueIdx = 0;
         }
         (this.intRet.get(valueArrayIdx))[curValueIdx++] = v;
         valueLength++;
     }
 
     public void putLong(long v) {
-        if (curValueIdx == CAPACITY) {
-            if (this.longRet.size() <= valueArrayIdx + 1) {
-                this.longRet.add(new long[CAPACITY]);
+        if (curValueIdx == VALUE_CAPACITY) {
+            if (VALUE_CAPACITY >= CAPACITY_THRESHOLD) {
+                if (this.longRet.size() <= valueArrayIdx + 1) {
+                    this.longRet.add(new long[VALUE_CAPACITY]);
+                }
+                valueArrayIdx++;
+                curValueIdx = 0;
+            } else {
+                long[] newData = new long[VALUE_CAPACITY * 2];
+                System.arraycopy(longRet.get(0), 0, newData, 0, VALUE_CAPACITY);
+                this.longRet.set(0, newData);
+                VALUE_CAPACITY = VALUE_CAPACITY * 2;
             }
-            valueArrayIdx++;
-            curValueIdx = 0;
         }
         (this.longRet.get(valueArrayIdx))[curValueIdx++] = v;
         valueLength++;
     }
 
     public void putFloat(float v) {
-        if (curValueIdx == CAPACITY) {
-            if (this.floatRet.size() <= valueArrayIdx + 1) {
-                this.floatRet.add(new float[CAPACITY]);
+        if (curValueIdx == VALUE_CAPACITY) {
+            if (VALUE_CAPACITY >= CAPACITY_THRESHOLD) {
+                if (this.floatRet.size() <= valueArrayIdx + 1) {
+                    this.floatRet.add(new float[VALUE_CAPACITY]);
+                }
+                valueArrayIdx++;
+                curValueIdx = 0;
+            } else {
+                float[] newData = new float[VALUE_CAPACITY * 2];
+                System.arraycopy(floatRet.get(0), 0, newData, 0, VALUE_CAPACITY);
+                this.floatRet.set(0, newData);
+                VALUE_CAPACITY = VALUE_CAPACITY * 2;
             }
-            valueArrayIdx++;
-            curValueIdx = 0;
         }
         (this.floatRet.get(valueArrayIdx))[curValueIdx++] = v;
         valueLength++;
     }
 
     public void putDouble(double v) {
-        if (curValueIdx == CAPACITY) {
-            if (this.doubleRet.size() <= valueArrayIdx + 1) {
-                this.doubleRet.add(new double[CAPACITY]);
+        if (curValueIdx == VALUE_CAPACITY) {
+            if (VALUE_CAPACITY >= CAPACITY_THRESHOLD) {
+                if (this.doubleRet.size() <= valueArrayIdx + 1) {
+                    this.doubleRet.add(new double[VALUE_CAPACITY]);
+                }
+                valueArrayIdx++;
+                curValueIdx = 0;
+            } else {
+                double[] newData = new double[VALUE_CAPACITY * 2];
+                System.arraycopy(doubleRet.get(0), 0, newData, 0, VALUE_CAPACITY);
+                this.doubleRet.set(0, newData);
+                VALUE_CAPACITY = VALUE_CAPACITY * 2;
             }
-            valueArrayIdx++;
-            curValueIdx = 0;
         }
         (this.doubleRet.get(valueArrayIdx))[curValueIdx++] = v;
         valueLength++;
     }
 
     public void putBinary(Binary v) {
-        if (curValueIdx == CAPACITY) {
-            if (this.binaryRet.size() <= valueArrayIdx + 1) {
-                this.binaryRet.add(new Binary[CAPACITY]);
+        if (curValueIdx == VALUE_CAPACITY) {
+            if (VALUE_CAPACITY >= CAPACITY_THRESHOLD) {
+                if (this.binaryRet.size() <= valueArrayIdx + 1) {
+                    this.binaryRet.add(new Binary[VALUE_CAPACITY]);
+                }
+                valueArrayIdx++;
+                curValueIdx = 0;
+            } else {
+                Binary[] newData = new Binary[VALUE_CAPACITY * 2];
+                System.arraycopy(binaryRet.get(0), 0, newData, 0, VALUE_CAPACITY);
+                this.binaryRet.set(0, newData);
+                VALUE_CAPACITY = VALUE_CAPACITY * 2;
             }
-            valueArrayIdx++;
-            curValueIdx = 0;
         }
         (this.binaryRet.get(valueArrayIdx))[curValueIdx++] = v;
         valueLength++;
@@ -312,82 +370,82 @@ public class DynamicOneColumnData {
 
     public boolean getBoolean(int idx) {
         rangeCheck(idx);
-        return this.booleanRet.get(idx / CAPACITY)[idx % CAPACITY];
+        return this.booleanRet.get(idx / TIME_CAPACITY)[idx % TIME_CAPACITY];
     }
 
     public void setBoolean(int idx, boolean v) {
         rangeCheck(idx);
-        this.booleanRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
+        this.booleanRet.get(idx / TIME_CAPACITY)[idx % TIME_CAPACITY] = v;
     }
 
     public int getInt(int idx) {
         rangeCheck(idx);
-        return this.intRet.get(idx / CAPACITY)[idx % CAPACITY];
+        return this.intRet.get(idx / TIME_CAPACITY)[idx % TIME_CAPACITY];
     }
 
     public void setInt(int idx, int v) {
         rangeCheck(idx);
-        this.intRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
+        this.intRet.get(idx / TIME_CAPACITY)[idx % TIME_CAPACITY] = v;
     }
 
     public long getLong(int idx) {
         rangeCheck(idx);
-        return this.longRet.get(idx / CAPACITY)[idx % CAPACITY];
+        return this.longRet.get(idx / TIME_CAPACITY)[idx % TIME_CAPACITY];
     }
 
     public void setLong(int idx, long v) {
         rangeCheck(idx);
-        this.longRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
+        this.longRet.get(idx / TIME_CAPACITY)[idx % TIME_CAPACITY] = v;
     }
 
     public float getFloat(int idx) {
         rangeCheck(idx);
-        return this.floatRet.get(idx / CAPACITY)[idx % CAPACITY];
+        return this.floatRet.get(idx / TIME_CAPACITY)[idx % TIME_CAPACITY];
     }
 
     public void setFloat(int idx, float v) {
         rangeCheck(idx);
-        this.floatRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
+        this.floatRet.get(idx / TIME_CAPACITY)[idx % TIME_CAPACITY] = v;
     }
 
     public double getDouble(int idx) {
         rangeCheck(idx);
-        return this.doubleRet.get(idx / CAPACITY)[idx % CAPACITY];
+        return this.doubleRet.get(idx / TIME_CAPACITY)[idx % TIME_CAPACITY];
     }
 
     public void setDouble(int idx, double v) {
         rangeCheck(idx);
-        this.doubleRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
+        this.doubleRet.get(idx / TIME_CAPACITY)[idx % TIME_CAPACITY] = v;
     }
 
     public Binary getBinary(int idx) {
         rangeCheck(idx);
-        return this.binaryRet.get(idx / CAPACITY)[idx % CAPACITY];
+        return this.binaryRet.get(idx / TIME_CAPACITY)[idx % TIME_CAPACITY];
     }
 
     public void setBinary(int idx, Binary v) {
-        this.binaryRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
+        this.binaryRet.get(idx / TIME_CAPACITY)[idx % TIME_CAPACITY] = v;
     }
 
     public long getTime(int idx) {
         rangeCheckForTime(idx);
-        return this.timeRet.get(idx / CAPACITY)[idx % CAPACITY];
+        return this.timeRet.get(idx / TIME_CAPACITY)[idx % TIME_CAPACITY];
     }
 
     public void setTime(int idx, long v) {
         rangeCheckForTime(idx);
-        this.timeRet.get(idx / CAPACITY)[idx % CAPACITY] = v;
+        this.timeRet.get(idx / TIME_CAPACITY)[idx % TIME_CAPACITY] = v;
     }
 
     public long getEmptyTime(int idx) {
         rangeCheckForEmptyTime(idx);
-        return this.emptyTimeRet.get(idx / CAPACITY)[idx % CAPACITY];
+        return this.emptyTimeRet.get(idx / EMPTY_TIME_CAPACITY)[idx % EMPTY_TIME_CAPACITY];
     }
 
     public long[] getTimeAsArray() {
         long[] res = new long[timeLength];
         for (int i = 0; i < timeLength; i++) {
-            res[i] = timeRet.get(i / CAPACITY)[i % CAPACITY];
+            res[i] = timeRet.get(i / TIME_CAPACITY)[i % TIME_CAPACITY];
         }
         return res;
     }
@@ -558,8 +616,8 @@ public class DynamicOneColumnData {
             curTimeIdx -= size;
         } else {
             size -= curValueIdx;
-            size += CAPACITY;
-            while (size > CAPACITY) {
+            size += TIME_CAPACITY;
+            while (size > TIME_CAPACITY) {
                 switch (dataType) {
                     case BOOLEAN:
                         booleanRet.remove(valueArrayIdx);
@@ -589,9 +647,9 @@ public class DynamicOneColumnData {
                 timeRet.remove(timeArrayIdx);
                 timeArrayIdx--;
 
-                size -= CAPACITY;
+                size -= TIME_CAPACITY;
             }
-            curValueIdx = CAPACITY - size;
+            curValueIdx = TIME_CAPACITY - size;
         }
     }
 
@@ -607,7 +665,7 @@ public class DynamicOneColumnData {
             if (emptyTimeArrayIdx == 0) {
                 curEmptyTimeIdx = 0;
             } else {
-                curEmptyTimeIdx = CAPACITY;
+                curEmptyTimeIdx = EMPTY_TIME_CAPACITY;
                 emptyTimeRet.remove(emptyTimeArrayIdx);
                 emptyTimeArrayIdx -= 1;
             }

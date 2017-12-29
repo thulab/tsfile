@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.PriorityQueue;
 
 public class QueryDataSet {
-    private static final Logger LOG = LoggerFactory.getLogger(QueryDataSet.class);
-    private static final char PATH_SPLITTER = '.';
+    protected static final Logger LOG = LoggerFactory.getLogger(QueryDataSet.class);
+    protected static final char PATH_SPLITTER = '.';
 
     /**
      * Time Generator for Cross Query when using batching read
@@ -186,6 +186,10 @@ public class QueryDataSet {
     }
 
     public RowRecord getCurrentRecord() {
+        if (!ifInit) {
+            initForRecord();
+            ifInit = true;
+        }
         return currentRecord;
     }
 

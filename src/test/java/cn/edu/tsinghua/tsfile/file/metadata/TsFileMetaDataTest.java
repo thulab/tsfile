@@ -124,6 +124,9 @@ public class TsFileMetaDataTest {
     FileMetaData fileMetaData = new FileMetaData(VERSION, deltaObjectMap, null);
     Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
 
+    fileMetaData.setCreated_by("tsf");
+    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
+    
     List<String> jsonMetaData = new ArrayList<String>();
     fileMetaData.setJson_metadata(jsonMetaData);
     Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
@@ -132,31 +135,16 @@ public class TsFileMetaDataTest {
     fileMetaData.setJson_metadata(jsonMetaData);
     Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
 
-    fileMetaData.setTimeseries_list(new ArrayList<TimeSeries>());
-    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
-
     fileMetaData.setProperties(properties);
     Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
     
+    fileMetaData.setTimeseries_list(new ArrayList<TimeSeries>());
+    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
     fileMetaData.getTimeseries_list().add(TestHelper.createSimpleTimeSeriesInThrift());
     Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
     fileMetaData.getTimeseries_list().add(TestHelper.createSimpleTimeSeriesInThrift());
     Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
 
-//    fileMetaData.setRow_groups(new ArrayList<cn.edu.tsinghua.tsfile.format.RowGroupMetaData>());
-//    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
-//
-//    cn.edu.tsinghua.tsfile.format.RowGroupMetaData rowGroupMetaData1 =
-//        TestHelper.createSimpleRowGroupMetaDataInThrift();
-//    fileMetaData.max_num_rows += rowGroupMetaData1.getMax_num_rows();
-//    fileMetaData.getRow_groups().add(rowGroupMetaData1);
-//    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
-//
-//    cn.edu.tsinghua.tsfile.format.RowGroupMetaData rowGroupMetaData2 =
-//        TestHelper.createSimpleRowGroupMetaDataInThrift();
-//    fileMetaData.max_num_rows += rowGroupMetaData2.getMax_num_rows();
-//    fileMetaData.getRow_groups().add(rowGroupMetaData2);
-    Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
   }
 
 }

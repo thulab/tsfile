@@ -8,73 +8,98 @@ import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
  * @author kangrong
  */
 public class FloatStatistics extends Statistics<Float> {
-    private float max;
-    private float min;
+	private float max;
+	private float min;
+	private float first;
+	private double sum;
 
-    @Override
-    public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
-        max = BytesUtils.bytesToFloat(maxBytes);
-        min = BytesUtils.bytesToFloat(minBytes);
-    }
+	@Override
+	public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
+		max = BytesUtils.bytesToFloat(maxBytes);
+		min = BytesUtils.bytesToFloat(minBytes);
+	}
 
-    @Override
-    public void updateStats(float value) {
-        if (this.isEmpty) {
-            initializeStats(value, value);
-            isEmpty = false;
-        } else {
-            updateStats(value, value);
-        }
-    }
+	@Override
+	public void updateStats(float value) {
+		if (this.isEmpty) {
+			initializeStats(value, value, value, value);
+			isEmpty = false;
+		} else {
+			updateStats(value, value, value, value);
+		}
+	}
 
-    private void updateStats(float minValue, float maxValue) {
-        if (minValue < min) {
-            min = minValue;
-        }
-        if (maxValue > max) {
-            max = maxValue;
-        }
-    }
+	private void updateStats(float minValue, float maxValue, float firstValue, double sumValue) {
+		if (minValue < min) {
+			min = minValue;
+		}
+		if (maxValue > max) {
+			max = maxValue;
+		}
+		sum += sumValue;
+	}
 
-    @Override
-    public Float getMax() {
-        return max;
-    }
+	@Override
+	public Float getMax() {
+		return max;
+	}
 
-    @Override
-    public Float getMin() {
-        return min;
-    }
+	@Override
+	public Float getMin() {
+		return min;
+	}
 
-    @Override
-    protected void mergeStatisticsMinMax(Statistics<?> stats) {
-        FloatStatistics intStats = (FloatStatistics) stats;
-        if (isEmpty) {
-            initializeStats(intStats.getMin(), intStats.getMax());
-            isEmpty = false;
-        } else {
-            updateStats(intStats.getMin(), intStats.getMax());
-        }
+	@Override
+	public Float getFirst() {
+		return first;
+	}
 
-    }
+	@Override
+	public double getSum() {
+		return sum;
+	}
 
-    public void initializeStats(float min, float max) {
-        this.min = min;
-        this.max = max;
-    }
+	@Override
+	protected void mergeStatisticsValue(Statistics<?> stats) {
+		FloatStatistics floatStats = (FloatStatistics) stats;
+		if (isEmpty) {
+			initializeStats(floatStats.getMin(), floatStats.getMax(), floatStats.getFirst(), floatStats.getSum());
+			isEmpty = false;
+		} else {
+			updateStats(floatStats.getMin(), floatStats.getMax(), floatStats.getFirst(), floatStats.getSum());
+		}
 
-    @Override
-    public byte[] getMaxBytes() {
-        return BytesUtils.floatToBytes(max);
-    }
+	}
 
-    @Override
-    public byte[] getMinBytes() {
-        return BytesUtils.floatToBytes(min);
-    }
+	public void initializeStats(float min, float max, float first, double sum) {
+		this.min = min;
+		this.max = max;
+		this.first = first;
+		this.sum = sum;
+	}
 
-    @Override
-    public String toString() {
-        return "[max:" + max + ",min:" + min + "]";
-    }
+	@Override
+	public byte[] getMaxBytes() {
+		return BytesUtils.floatToBytes(max);
+	}
+
+	@Override
+	public byte[] getMinBytes() {
+		return BytesUtils.floatToBytes(min);
+	}
+
+	@Override
+	public byte[] getFirstBytes() {
+		return BytesUtils.floatToBytes(first);
+	}
+
+	@Override
+	public byte[] getSumBytes() {
+		return BytesUtils.doubleToBytes(sum);
+	}
+
+	@Override
+	public String toString() {
+		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + "]";
+	}
 }

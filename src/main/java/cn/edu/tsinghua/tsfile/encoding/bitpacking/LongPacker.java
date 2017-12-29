@@ -60,6 +60,7 @@ public class LongPacker {
             if (leftBit > 0) {
                 buffer |= (values[valueIdx] << (64 - leftBit));
                 leftSize -= leftBit;
+                leftBit = 0;
                 valueIdx++;
             }
 

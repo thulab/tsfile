@@ -10,74 +10,100 @@ import java.math.BigDecimal;
  * @author kangrong
  */
 public class BigDecimalStatistics extends Statistics<BigDecimal> {
-    private BigDecimal max;
-    private BigDecimal min;
+	private BigDecimal max;
+	private BigDecimal min;
+	private BigDecimal first;
+	private double sum;
 
+	@Override
+	public void updateStats(BigDecimal value) {
+		if (this.isEmpty) {
+			initializeStats(value, value, value, value.doubleValue());
+			isEmpty = false;
+		} else {
+			updateStats(value, value, value, value.doubleValue());
+		}
+	}
 
-    @Override
-    public void updateStats(BigDecimal value) {
-        if (this.isEmpty) {
-            initializeStats(value, value);
-            isEmpty = false;
-        } else {
-            updateStats(value, value);
-        }
-    }
+	private void updateStats(BigDecimal minValue, BigDecimal maxValue, BigDecimal firstValue, double sumValue) {
+		if (minValue.doubleValue() < min.doubleValue()) {
+			min = minValue;
+		}
+		if (maxValue.doubleValue() > max.doubleValue()) {
+			max = maxValue;
+		}
+		sum += sumValue;
+	}
 
-    private void updateStats(BigDecimal minValue, BigDecimal maxValue) {
-        if (minValue.doubleValue() < min.doubleValue()) {
-            min = minValue;
-        }
-        if (maxValue.doubleValue() > max.doubleValue()) {
-            max = maxValue;
-        }
-    }
+	@Override
+	public BigDecimal getMax() {
+		return max;
+	}
 
-    @Override
-    public BigDecimal getMax() {
-        return max;
-    }
+	@Override
+	public BigDecimal getMin() {
+		return min;
+	}
 
-    @Override
-    public BigDecimal getMin() {
-        return min;
-    }
+	@Override
+	public BigDecimal getFirst() {
+		return first;
+	}
 
-    @Override
-    protected void mergeStatisticsMinMax(Statistics<?> stats) {
-        BigDecimalStatistics intStats = (BigDecimalStatistics) stats;
-        if (this.isEmpty) {
-            initializeStats(intStats.getMin(), intStats.getMax());
-            isEmpty = false;
-        } else {
-            updateStats(intStats.getMin(), intStats.getMax());
-        }
+	@Override
+	public double getSum() {
+		return sum;
+	}
 
-    }
+	@Override
+	protected void mergeStatisticsValue(Statistics<?> stats) {
+		BigDecimalStatistics bigDecimalStats = (BigDecimalStatistics) stats;
+		if (this.isEmpty) {
+			initializeStats(bigDecimalStats.getMin(), bigDecimalStats.getMax(), bigDecimalStats.getFirst(),
+					bigDecimalStats.getSum());
+			isEmpty = false;
+		} else {
+			updateStats(bigDecimalStats.getMin(), bigDecimalStats.getMax(), bigDecimalStats.getFirst(),
+					bigDecimalStats.getSum());
+		}
 
-    public void initializeStats(BigDecimal min, BigDecimal max) {
-        this.min = min;
-        this.max = max;
-    }
+	}
 
-    @Override
-    public byte[] getMaxBytes() {
-        return BytesUtils.doubleToBytes(max.doubleValue());
-    }
+	public void initializeStats(BigDecimal min, BigDecimal max, BigDecimal first, double sum) {
+		this.min = min;
+		this.max = max;
+		this.first = first;
+		this.sum = sum;
+	}
 
-    @Override
-    public byte[] getMinBytes() {
-        return BytesUtils.doubleToBytes(min.doubleValue());
-    }
+	@Override
+	public byte[] getMaxBytes() {
+		return BytesUtils.doubleToBytes(max.doubleValue());
+	}
 
-    @Override
-    public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
-        max = new BigDecimal(BytesUtils.bytesToDouble(maxBytes));
-        min = new BigDecimal(BytesUtils.bytesToDouble(minBytes));
-    }
+	@Override
+	public byte[] getMinBytes() {
+		return BytesUtils.doubleToBytes(min.doubleValue());
+	}
 
-    @Override
-    public String toString() {
-        return "[max:" + max + ",min:" + min + "]";
-    }
+	@Override
+	public byte[] getFirstBytes() {
+		return BytesUtils.doubleToBytes(first.doubleValue());
+	}
+
+	@Override
+	public byte[] getSumBytes() {
+		return BytesUtils.doubleToBytes(sum);
+	}
+
+	@Override
+	public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
+		max = new BigDecimal(BytesUtils.bytesToDouble(maxBytes));
+		min = new BigDecimal(BytesUtils.bytesToDouble(minBytes));
+	}
+
+	@Override
+	public String toString() {
+		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + "]";
+	}
 }

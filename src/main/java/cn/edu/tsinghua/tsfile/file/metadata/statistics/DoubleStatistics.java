@@ -8,73 +8,99 @@ import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
  * @author kangrong
  */
 public class DoubleStatistics extends Statistics<Double> {
-    private double max;
-    private double min;
+	private double max;
+	private double min;
+	private double first;
+	private double sum;
 
-    @Override
-    public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
-        max = BytesUtils.bytesToDouble(maxBytes);
-        min = BytesUtils.bytesToDouble(minBytes);
-    }
+	@Override
+	public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
+		max = BytesUtils.bytesToDouble(maxBytes);
+		min = BytesUtils.bytesToDouble(minBytes);
+	}
 
-    @Override
-    public void updateStats(double value) {
-        if (this.isEmpty) {
-            initializeStats(value, value);
-            isEmpty = false;
-        } else {
-            updateStats(value, value);
-        }
-    }
+	@Override
+	public void updateStats(double value) {
+		if (this.isEmpty) {
+			initializeStats(value, value, value, value);
+			isEmpty = false;
+		} else {
+			updateStats(value, value, value, value);
+		}
+	}
 
-    private void updateStats(double minValue, double maxValue) {
-        if (minValue < min) {
-            min = minValue;
-        }
-        if (maxValue > max) {
-            max = maxValue;
-        }
-    }
+	private void updateStats(double minValue, double maxValue, double firstValue, double sumValue) {
+		if (minValue < min) {
+			min = minValue;
+		}
+		if (maxValue > max) {
+			max = maxValue;
+		}
+		sum += sumValue;
+	}
 
-    @Override
-    public Double getMax() {
-        return max;
-    }
+	@Override
+	public Double getMax() {
+		return max;
+	}
 
-    @Override
-    public Double getMin() {
-        return min;
-    }
+	@Override
+	public Double getMin() {
+		return min;
+	}
 
-    @Override
-    protected void mergeStatisticsMinMax(Statistics<?> stats) {
-        DoubleStatistics intStats = (DoubleStatistics) stats;
-        if (this.isEmpty) {
-            initializeStats(intStats.getMin(), intStats.getMax());
-            isEmpty = false;
-        } else {
-            updateStats(intStats.getMin(), intStats.getMax());
-        }
+	@Override
+	public Double getFirst() {
+		return first;
+	}
 
-    }
+	@Override
+	public double getSum() {
+		return sum;
+	}
 
-    public void initializeStats(double min, double max) {
-        this.min = min;
-        this.max = max;
-    }
+	@Override
+	protected void mergeStatisticsValue(Statistics<?> stats) {
+		DoubleStatistics doubleStats = (DoubleStatistics) stats;
+		if (this.isEmpty) {
+			initializeStats(doubleStats.getMin(), doubleStats.getMax(), doubleStats.getFirst(), doubleStats.getSum());
+			isEmpty = false;
+		} else {
+			updateStats(doubleStats.getMin(), doubleStats.getMax(), doubleStats.getFirst(), doubleStats.getSum());
+		}
 
-    @Override
-    public byte[] getMaxBytes() {
-        return BytesUtils.doubleToBytes(max);
-    }
+	}
 
-    @Override
-    public byte[] getMinBytes() {
-        return BytesUtils.doubleToBytes(min);
-    }
+	public void initializeStats(double min, double max, double first, double sum) {
+		this.min = min;
+		this.max = max;
+		this.first = first;
+		this.sum = sum;
+	}
 
-    @Override
-    public String toString() {
-        return "[max:" + max + ",min:" + min + "]";
-    }
+	@Override
+	public byte[] getMaxBytes() {
+		return BytesUtils.doubleToBytes(max);
+	}
+
+	@Override
+	public byte[] getMinBytes() {
+		return BytesUtils.doubleToBytes(min);
+	}
+
+	@Override
+	public byte[] getFirstBytes() {
+		return BytesUtils.doubleToBytes(first);
+	}
+
+	@Override
+	public byte[] getSumBytes() {
+		return BytesUtils.doubleToBytes(sum);
+	}
+
+	@Override
+	public String toString() {
+		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + "]";
+	}
+
 }

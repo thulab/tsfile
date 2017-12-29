@@ -7,10 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public abstract class IteratorQueryDataSet extends QueryDataSet {
     private static final Logger logger = LoggerFactory.getLogger(IteratorQueryDataSet.class);
@@ -36,14 +33,28 @@ public abstract class IteratorQueryDataSet extends QueryDataSet {
     public abstract DynamicOneColumnData getMoreRecordsForOneColumn(Path colName
             , DynamicOneColumnData res) throws IOException;
 
+    //modified by hadoop
     public void initForRecord() {
-        heap = new PriorityQueue<>(retMap.size());
+        size = retMap.size();
+        heap = new PriorityQueue<>(size);
 
+        if (size > 0) {
+            deltaObjectIds = new String[size];
+            measurementIds = new String[size];
+        } else {
+            LOG.error("QueryDataSet init row record occurs error! the size of ret is 0.");
+        }
+
+        int i = 0;
         for (Path p : retMap.keySet()) {
+            deltaObjectIds[i] = p.getDeltaObjectToString();
+            measurementIds[i] = p.getMeasurementToString();
+
             DynamicOneColumnData res = retMap.get(p);
             if (res != null && res.curIdx < res.valueLength) {
                 heapPut(res.getTime(res.curIdx));
             }
+            i++;
         }
     }
 
@@ -58,6 +69,7 @@ public abstract class IteratorQueryDataSet extends QueryDataSet {
         return false;
     }
 
+    //modified by hadoop
     public RowRecord getNextRecord() {
         if (!ifInit) {
             initForRecord();
@@ -94,7 +106,7 @@ public abstract class IteratorQueryDataSet extends QueryDataSet {
                     heapPut(res.getTime(res.curIdx));
                 }
             } else {
-                f = new Field(res.dataType, p.getMeasurementToString());
+                f = new Field(res.dataType, p.getDeltaObjectToString(), p.getMeasurementToString());
                 f.setNull(true);
             }
             r.addField(f);

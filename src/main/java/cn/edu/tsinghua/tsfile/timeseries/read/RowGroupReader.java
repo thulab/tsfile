@@ -36,7 +36,7 @@ public class RowGroupReader {
     }
 
     public RowGroupReader(RowGroupMetaData rowGroupMetaData, ITsRandomAccessFileReader raf) {
-        logger.debug("init a new RowGroupReader..");
+        logger.debug(String.format("init a new RowGroupReader, the deltaObjectId is %s", rowGroupMetaData.getDeltaObjectID()));
         seriesDataTypeMap = new HashMap<>();
         deltaObjectUID = rowGroupMetaData.getDeltaObjectID();
         measurementIds = new ArrayList<>();
@@ -54,7 +54,8 @@ public class RowGroupReader {
                         tscMetaData.getVInTimeSeriesChunkMetaData().getDataType(),
                         tscMetaData.getVInTimeSeriesChunkMetaData().getDigest(), this.raf,
                         tscMetaData.getVInTimeSeriesChunkMetaData().getEnumValues(),
-                        tscMetaData.getProperties().getCompression(), tscMetaData.getNumRows());
+                        tscMetaData.getProperties().getCompression(), tscMetaData.getNumRows(),
+                        tscMetaData.getTInTimeSeriesChunkMetaData().getStartTime(), tscMetaData.getTInTimeSeriesChunkMetaData().getEndTime());
                 valueReaders.put(tscMetaData.getProperties().getMeasurementUID(), si);
             }
         }
@@ -86,6 +87,7 @@ public class RowGroupReader {
      * @throws IOException exception in IO
      */
     public DynamicOneColumnData readValueUseTimestamps(String measurementId, long[] timeRet) throws IOException {
+        logger.debug("query {}.{} using common time, time length : {}", deltaObjectUID, measurementId, timeRet.length);
         return valueReaders.get(measurementId).getValuesForGivenValues(timeRet);
     }
 
