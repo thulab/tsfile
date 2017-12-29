@@ -247,9 +247,13 @@ public class FileReader {
     }
 
     @Deprecated
-    // only used for compatibility
-    public List<RowGroupReader> getRowGroupReaderList() {
-        ArrayList<RowGroupReader> ret = new ArrayList<>();
+    // only used for compatibility, such as spark
+    public List<RowGroupReader> getRowGroupReaderList() throws IOException {
+        if (this.rowGroupReaderMap == null || this.rowGroupReaderMap.size() == 0) {
+            loadAllDeltaObj();
+        }
+
+        List<RowGroupReader> ret = new ArrayList<>();
         for (Map.Entry<String, List<RowGroupReader>> entry : this.rowGroupReaderMap.entrySet()) {
             ret.addAll(entry.getValue());
         }

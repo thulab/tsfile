@@ -11,6 +11,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.CSOr;
 import cn.edu.tsinghua.tsfile.timeseries.read.RecordReader;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.filterseries.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class FilterUtils {
     private static final char PATH_SPLITER = '.';
 
     //exp-format:deltaObject,measurement,type,exp
-    public static SingleSeriesFilterExpression construct(String exp, RecordReader recordReader) {
+    public static SingleSeriesFilterExpression construct(String exp, RecordReader recordReader) throws IOException{
         if (exp == null || exp.equals("null")) {
             return null;
         }
@@ -35,7 +36,7 @@ public class FilterUtils {
     }
 
     public static SingleSeriesFilterExpression construct(String deltaObject, String measurement, String filterType,
-                                                         String exp, RecordReader recordReader) {
+                                                         String exp, RecordReader recordReader) throws IOException{
 
         if (exp.equals("null")) {
             return null;
@@ -214,7 +215,7 @@ public class FilterUtils {
         return filter;
     }
 
-    public static FilterExpression constructCrossFilter(String exp, RecordReader recordReader) {
+    public static FilterExpression constructCrossFilter(String exp, RecordReader recordReader) throws IOException {
         exp = exp.trim();
 
         if (exp.equals("null")) {

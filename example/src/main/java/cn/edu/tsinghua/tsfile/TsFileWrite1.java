@@ -42,8 +42,11 @@ public class TsFileWrite1 {
 	                "    \"row_group_size\": 134217728\n" +
 	                "}";
 			JSONObject schemaObject = new JSONObject(s);
-
-			TsRandomAccessFileWriter output = new TsRandomAccessFileWriter(new File(path));
+			File f = new File(path);
+			if(f.exists()) {
+				f.delete();
+			}
+			TsRandomAccessFileWriter output = new TsRandomAccessFileWriter(f);
 			TsFile tsFile = new TsFile(output, schemaObject);
 
 			//format : deltaObject_id, timestamp, <measurement_id, value>...

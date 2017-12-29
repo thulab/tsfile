@@ -283,7 +283,7 @@ public class TsFile {
    * @throws IOException
    *           thrown if fail to all series
    */
-  public ArrayList<SeriesSchema> getAllSeries() throws IOException {
+  public List<SeriesSchema> getAllSeries() throws IOException {
     checkStatus(READ);
     return queryEngine.getAllSeriesSchema();
   }
