@@ -15,6 +15,13 @@ public class LongFilterVerifier extends FilterVerifier implements FilterVisitor<
 
     @Override
     public LongInterval getInterval(SingleSeriesFilterExpression filter) {
+        if (filter == null) {
+            LongInterval ans = new LongInterval();
+            ans.addValueFlag(Long.MIN_VALUE, true);
+            ans.addValueFlag(Long.MAX_VALUE, true);
+            return ans;
+        }
+
         return filter.accept(this);
     }
 

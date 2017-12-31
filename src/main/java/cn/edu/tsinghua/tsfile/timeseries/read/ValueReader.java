@@ -185,8 +185,7 @@ public class ValueReader {
 
         DigestVisitor valueVisitor = new DigestVisitor();
         IntervalTimeVisitor timeVisitor = new IntervalTimeVisitor();
-        if ((valueFilter == null || valueVisitor.satisfy(valueDigest, valueFilter))
-            && (timeFilter == null || timeVisitor.satisfy(timeFilter, startTime, endTime))) {
+        if (valueVisitor.satisfy(valueDigest, valueFilter) && timeVisitor.satisfy(timeFilter, startTime, endTime)) {
             LOG.debug(String.format("current series is satisfy the time filter and value filter, start time : %s, end time : %s", startTime, endTime));
             return true;
         }
