@@ -14,6 +14,10 @@ public class IntervalTimeVisitor implements FilterVisitor<Boolean> {
     private Long startTime, endTime;
 
     public boolean satisfy(SingleSeriesFilterExpression timeFilter, Long s, Long e) {
+        if (timeFilter == null) {
+            return true;
+        }
+
         this.startTime = s;
         this.endTime = e;
         return timeFilter.accept(this);

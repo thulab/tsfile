@@ -18,6 +18,13 @@ public class IntFilterVerifier extends FilterVerifier implements FilterVisitor<I
 
     @Override
     public Interval getInterval(SingleSeriesFilterExpression filter) {
+        if (filter == null) {
+            IntInterval ans = new IntInterval();
+            ans.addValueFlag(Integer.MIN_VALUE, true);
+            ans.addValueFlag(Integer.MAX_VALUE, true);
+            return ans;
+        }
+
         return filter.accept(this);
     }
 

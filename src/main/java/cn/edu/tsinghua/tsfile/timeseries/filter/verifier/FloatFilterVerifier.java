@@ -18,6 +18,13 @@ public class FloatFilterVerifier extends FilterVerifier implements FilterVisitor
 
     @Override
     public Interval getInterval(SingleSeriesFilterExpression filter) {
+        if (filter == null) {
+            FloatInterval ans = new FloatInterval();
+            ans.addValueFlag(FLOAT_MIN_VALUE, true);
+            ans.addValueFlag(Float.MAX_VALUE, true);
+            return ans;
+        }
+
         return filter.accept(this);
     }
 

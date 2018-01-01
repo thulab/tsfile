@@ -32,6 +32,21 @@ public class SingleValueVisitor<V extends Comparable<V>> implements FilterVisito
         this.ssFilter = filter;
     }
 
+    /**
+     * This method exits a problem, the data type of value must accord with filter.
+     *
+     * @param value value to filter
+     * @param filter filter
+     * @return is satisfied
+     */
+    public Boolean satisfyObject(Object value, SingleSeriesFilterExpression filter) {
+        if (filter == null)
+            return true;
+
+        // The value type and filter type may not be consistent
+        return this.satisfy((V) value, filter);
+    }
+
     private Boolean satisfy(V value, SingleSeriesFilterExpression filter) {
         this.value = value;
         return filter.accept(this);
@@ -93,18 +108,6 @@ public class SingleValueVisitor<V extends Comparable<V>> implements FilterVisito
                 return true;
         }
         return false;
-    }
-
-    /**
-     * This method exits a problem, the data type of value must accord with filter.
-     *
-     * @param value value to filter
-     * @param filter filter
-     * @return is satisfied
-     */
-    public Boolean satisfyObject(Object value, SingleSeriesFilterExpression filter) {
-        // The value type and filter type may not be consistent
-        return this.satisfy((V) value, filter);
     }
 
     @Override

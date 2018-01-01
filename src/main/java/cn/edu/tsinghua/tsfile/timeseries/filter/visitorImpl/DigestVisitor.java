@@ -19,6 +19,9 @@ public class DigestVisitor implements FilterVisitor<Boolean> {
     private DigestForFilter digest;
 
     public Boolean satisfy(DigestForFilter digest, SingleSeriesFilterExpression expression) {
+        if (expression == null)
+            return true;
+
         this.digest = digest;
         return expression.accept(this);
     }

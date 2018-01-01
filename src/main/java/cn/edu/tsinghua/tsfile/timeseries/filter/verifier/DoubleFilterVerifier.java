@@ -18,6 +18,13 @@ public class DoubleFilterVerifier extends FilterVerifier implements FilterVisito
 
     @Override
     public Interval getInterval(SingleSeriesFilterExpression filter) {
+        if (filter == null) {
+            DoubleInterval ans = new DoubleInterval();
+            ans.addValueFlag(DOUBLE_MIN_VALUE, true);
+            ans.addValueFlag(Double.MAX_VALUE, true);
+            return ans;
+        }
+
         return filter.accept(this);
     }
 
