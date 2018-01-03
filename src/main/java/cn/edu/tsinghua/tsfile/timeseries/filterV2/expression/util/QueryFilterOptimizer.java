@@ -11,7 +11,6 @@ import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.QueryFilterFac
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.SeriesFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.factory.FilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesDescriptor;
 
 import java.util.List;
 
