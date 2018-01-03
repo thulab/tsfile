@@ -1,6 +1,5 @@
 package cn.edu.tsinghua.tsfile.timeseries.filterV2;
 
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.basic.Filter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.exception.QueryFilterOptimizationException;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.QueryFilter;
@@ -11,7 +10,6 @@ import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.util.QueryFilterOpt
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.util.QueryFilterPrinter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.factory.FilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesDescriptor;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
