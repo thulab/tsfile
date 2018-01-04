@@ -52,7 +52,7 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
   /**
    * Statistics of timeseries, eg. min and max value, sum value
    */
-  public Map<String,String> statistics; // optional
+  public Map<String,ByteBuffer> statistics; // optional
   /**
    * count of null value in the timeseries
    */
@@ -146,7 +146,7 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
     tmpMap.put(_Fields.STATISTICS, new org.apache.thrift.meta_data.FieldMetaData("statistics", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.MapMetaData(org.apache.thrift.protocol.TType.MAP, 
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING), 
-            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
+            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING            , true))));
     tmpMap.put(_Fields.NULL_COUNT, new org.apache.thrift.meta_data.FieldMetaData("null_count", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.DISTINCT_COUNT, new org.apache.thrift.meta_data.FieldMetaData("distinct_count", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -164,7 +164,7 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
   public Digest(Digest other) {
     __isset_bitfield = other.__isset_bitfield;
     if (other.isSetStatistics()) {
-      Map<String,String> __this__statistics = new HashMap<String,String>(other.statistics);
+      Map<String,ByteBuffer> __this__statistics = new HashMap<String,ByteBuffer>(other.statistics);
       this.statistics = __this__statistics;
     }
     this.null_count = other.null_count;
@@ -188,9 +188,9 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
     return (this.statistics == null) ? 0 : this.statistics.size();
   }
 
-  public void putToStatistics(String key, String val) {
+  public void putToStatistics(String key, ByteBuffer val) {
     if (this.statistics == null) {
-      this.statistics = new HashMap<String,String>();
+      this.statistics = new HashMap<String,ByteBuffer>();
     }
     this.statistics.put(key, val);
   }
@@ -198,14 +198,14 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
   /**
    * Statistics of timeseries, eg. min and max value, sum value
    */
-  public Map<String,String> getStatistics() {
+  public Map<String,ByteBuffer> getStatistics() {
     return this.statistics;
   }
 
   /**
    * Statistics of timeseries, eg. min and max value, sum value
    */
-  public Digest setStatistics(Map<String,String> statistics) {
+  public Digest setStatistics(Map<String,ByteBuffer> statistics) {
     this.statistics = statistics;
     return this;
   }
@@ -289,7 +289,7 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
       if (value == null) {
         unsetStatistics();
       } else {
-        setStatistics((Map<String,String>)value);
+        setStatistics((Map<String,ByteBuffer>)value);
       }
       break;
 
@@ -520,13 +520,13 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
             if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
               {
                 org.apache.thrift.protocol.TMap _map0 = iprot.readMapBegin();
-                struct.statistics = new HashMap<String,String>(2*_map0.size);
+                struct.statistics = new HashMap<String,ByteBuffer>(2*_map0.size);
                 for (int _i1 = 0; _i1 < _map0.size; ++_i1)
                 {
                   String _key2;
-                  String _val3;
+                  ByteBuffer _val3;
                   _key2 = iprot.readString();
-                  _val3 = iprot.readString();
+                  _val3 = iprot.readBinary();
                   struct.statistics.put(_key2, _val3);
                 }
                 iprot.readMapEnd();
@@ -572,10 +572,10 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
           oprot.writeFieldBegin(STATISTICS_FIELD_DESC);
           {
             oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRING, struct.statistics.size()));
-            for (Map.Entry<String, String> _iter4 : struct.statistics.entrySet())
+            for (Map.Entry<String, ByteBuffer> _iter4 : struct.statistics.entrySet())
             {
               oprot.writeString(_iter4.getKey());
-              oprot.writeString(_iter4.getValue());
+              oprot.writeBinary(_iter4.getValue());
             }
             oprot.writeMapEnd();
           }
@@ -623,10 +623,10 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
       if (struct.isSetStatistics()) {
         {
           oprot.writeI32(struct.statistics.size());
-          for (Map.Entry<String, String> _iter5 : struct.statistics.entrySet())
+          for (Map.Entry<String, ByteBuffer> _iter5 : struct.statistics.entrySet())
           {
             oprot.writeString(_iter5.getKey());
-            oprot.writeString(_iter5.getValue());
+            oprot.writeBinary(_iter5.getValue());
           }
         }
       }
@@ -645,13 +645,13 @@ public class Digest implements org.apache.thrift.TBase<Digest, Digest._Fields>, 
       if (incoming.get(0)) {
         {
           org.apache.thrift.protocol.TMap _map6 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.statistics = new HashMap<String,String>(2*_map6.size);
+          struct.statistics = new HashMap<String,ByteBuffer>(2*_map6.size);
           for (int _i7 = 0; _i7 < _map6.size; ++_i7)
           {
             String _key8;
-            String _val9;
+            ByteBuffer _val9;
             _key8 = iprot.readString();
-            _val9 = iprot.readString();
+            _val9 = iprot.readBinary();
             struct.statistics.put(_key8, _val9);
           }
         }

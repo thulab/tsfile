@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.file.metadata.utils;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaDataTest;
 import cn.edu.tsinghua.tsfile.file.metadata.TInTimeSeriesChunkMetaData;
@@ -31,6 +33,11 @@ import cn.edu.tsinghua.tsfile.format.TimeSeriesChunkType;
 import cn.edu.tsinghua.tsfile.format.ValueInTimeSeriesChunkMetaData;
 
 public class TestHelper {
+	private static final String MAX_VALUE = "321";
+	private static final String MIN_VALUE = "123";
+	private static final String SUM_VALUE = "321123";
+	private static final String FIRST_VALUE = "1";
+	private static final String LAST_VALUE = "222";
 
   public static RowGroupMetaData createSimpleRowGroupMetaDataInTSF()
       throws UnsupportedEncodingException {
@@ -296,21 +303,23 @@ public class TestHelper {
   
   public static TsDigest createSimpleTsDigest() {
 	  TsDigest digest = new TsDigest();
-	  digest.addStatistics("max", "123");
-	  digest.addStatistics("min", "12");
-	  digest.addStatistics("sum", "123456789");
-	  digest.addStatistics("first", "1");
+	  digest.addStatistics("max", ByteBuffer.wrap(BytesUtils.StringToBytes(MAX_VALUE)));
+	  digest.addStatistics("min", ByteBuffer.wrap(BytesUtils.StringToBytes(MIN_VALUE)));
+	  digest.addStatistics("sum", ByteBuffer.wrap(BytesUtils.StringToBytes(SUM_VALUE)));
+	  digest.addStatistics("first", ByteBuffer.wrap(BytesUtils.StringToBytes(FIRST_VALUE)));
+	  digest.addStatistics("last", ByteBuffer.wrap(BytesUtils.StringToBytes(LAST_VALUE)));
 	  return digest;
   }
   
   public static Digest createSimpleDigest() {
 	  Digest digest = new Digest();
-	  Map<String, String> statistics = new HashMap<>();
+	  Map<String, ByteBuffer> statistics = new HashMap<>();
 	  digest.setStatistics(statistics);
-	  digest.getStatistics().put("max", "123");
-	  digest.getStatistics().put("min", "12");
-	  digest.getStatistics().put("sum", "123456789");
-	  digest.getStatistics().put("first", "1");
+	  digest.getStatistics().put("max", ByteBuffer.wrap(BytesUtils.StringToBytes(MAX_VALUE)));
+	  digest.getStatistics().put("min", ByteBuffer.wrap(BytesUtils.StringToBytes(MIN_VALUE)));
+	  digest.getStatistics().put("sum", ByteBuffer.wrap(BytesUtils.StringToBytes(SUM_VALUE)));
+	  digest.getStatistics().put("first", ByteBuffer.wrap(BytesUtils.StringToBytes(FIRST_VALUE)));
+	  digest.getStatistics().put("last", ByteBuffer.wrap(BytesUtils.StringToBytes(LAST_VALUE)));
 	  return digest;
   }
 
