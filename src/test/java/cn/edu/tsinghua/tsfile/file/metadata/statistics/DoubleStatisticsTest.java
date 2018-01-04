@@ -18,6 +18,7 @@ public class DoubleStatisticsTest {
 		assertEquals(1.34d, (double) doubleStats.getMin(), maxError);
 		assertEquals(2.32d + 1.34d, (double) doubleStats.getSum(), maxError);
 		assertEquals(1.34d, (double) doubleStats.getFirst(), maxError);
+		assertEquals(2.32d, (double) doubleStats.getLast(), maxError);
 	}
 
 	@Test
@@ -37,12 +38,14 @@ public class DoubleStatisticsTest {
 		assertEquals(1.34d, (double) doubleStats3.getMin(), maxError);
 		assertEquals(100.13453d + 1.34d, (double) doubleStats3.getSum(), maxError);
 		assertEquals(1.34d, (double) doubleStats3.getFirst(), maxError);
+		assertEquals(100.13453d, (double) doubleStats3.getLast(), maxError);
 
 		doubleStats3.mergeStatistics(doubleStats2);
 		assertEquals(200.435d, (double) doubleStats3.getMax(), maxError);
 		assertEquals(1.34d, (double) doubleStats3.getMin(), maxError);
 		assertEquals(100.13453d + 1.34d + 200.435d, (double) doubleStats3.getSum(), maxError);
 		assertEquals(1.34d, (double) doubleStats3.getFirst(), maxError);
+		assertEquals(200.435d, (double) doubleStats3.getLast(), maxError);
 	}
 
 }

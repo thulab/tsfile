@@ -1,6 +1,8 @@
 package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 
 
+import javax.annotation.processing.SupportedSourceVersion;
+
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
 
 /**
@@ -68,6 +70,11 @@ public class NoStatistics extends Statistics<Long> {
 	public double getSum() {
 		return 0;
 	}
+	
+	@Override
+	public Long getLast(){
+		return null;
+	}
 
 	@Override
 	public byte[] getFirstBytes() {
@@ -76,6 +83,11 @@ public class NoStatistics extends Statistics<Long> {
 
 	@Override
 	public byte[] getSumBytes() {
+		return new byte[0];
+	}
+	
+	@Override
+	public byte[] getLastBytes(){
 		return new byte[0];
 	}
 

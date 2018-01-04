@@ -12,6 +12,7 @@ public class IntegerStatistics extends Statistics<Integer> {
 	private int min;
 	private int first;
 	private double sum;
+	private int last;
 
 	@Override
 	public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
@@ -22,15 +23,15 @@ public class IntegerStatistics extends Statistics<Integer> {
 	@Override
 	public void updateStats(int value) {
 		if (isEmpty) {
-			initializeStats(value, value, value, value);
+			initializeStats(value, value, value, value, value);
 			isEmpty = false;
 		} else {
-			updateStats(value, value, value, value);
+			updateStats(value, value, value, value, value);
 			isEmpty = false;
 		}
 	}
 
-	private void updateStats(int minValue, int maxValue, int firstValue, double sumValue) {
+	private void updateStats(int minValue, int maxValue, int firstValue, double sumValue, int lastValue) {
 		if (minValue < min) {
 			min = minValue;
 		}
@@ -38,6 +39,7 @@ public class IntegerStatistics extends Statistics<Integer> {
 			max = maxValue;
 		}
 		sum += sumValue;
+		this.last = lastValue;
 	}
 
 	@Override
@@ -61,22 +63,30 @@ public class IntegerStatistics extends Statistics<Integer> {
 	}
 
 	@Override
+	public Integer getLast() {
+		return last;
+	}
+
+	@Override
 	protected void mergeStatisticsValue(Statistics<?> stats) {
 		IntegerStatistics intStats = (IntegerStatistics) stats;
 		if (isEmpty) {
-			initializeStats(intStats.getMin(), intStats.getMax(), intStats.getFirst(), intStats.getSum());
+			initializeStats(intStats.getMin(), intStats.getMax(), intStats.getFirst(), intStats.getSum(),
+					intStats.getLast());
 			isEmpty = false;
 		} else {
-			updateStats(intStats.getMin(), intStats.getMax(), intStats.getFirst(), intStats.getSum());
+			updateStats(intStats.getMin(), intStats.getMax(), intStats.getFirst(), intStats.getSum(),
+					intStats.getLast());
 		}
 
 	}
 
-	private void initializeStats(int min, int max, int first, double sum) {
+	private void initializeStats(int min, int max, int first, double sum, int last) {
 		this.min = min;
 		this.max = max;
 		this.first = first;
 		this.sum = sum;
+		this.last = last;
 	}
 
 	@Override
@@ -100,7 +110,12 @@ public class IntegerStatistics extends Statistics<Integer> {
 	}
 
 	@Override
+	public byte[] getLastBytes() {
+		return BytesUtils.intToBytes(last);
+	}
+
+	@Override
 	public String toString() {
-		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + "]";
+		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + ",last:" + last + "]";
 	}
 }

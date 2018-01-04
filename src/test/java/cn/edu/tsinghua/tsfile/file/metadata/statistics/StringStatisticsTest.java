@@ -19,6 +19,7 @@ public class StringStatisticsTest {
 		assertEquals("aaa", binaryStats.getMin().getStringValue());
 		assertEquals(0, binaryStats.getSum(), maxError);
 		assertEquals("aaa", binaryStats.getFirst().getStringValue());
+		assertEquals("bbb", binaryStats.getLast().getStringValue());
 	}
 
 	@Test
@@ -38,11 +39,13 @@ public class StringStatisticsTest {
 		assertEquals("aaa", (String) stringStats3.getMin().getStringValue());
 		assertEquals(0, stringStats3.getSum(), maxError);
 		assertEquals("aaa", (String) stringStats3.getFirst().getStringValue());
+		assertEquals("ccc", stringStats3.getLast().getStringValue());
 
 		stringStats3.mergeStatistics(stringStats2);
 		assertEquals("ddd", (String) stringStats3.getMax().getStringValue());
 		assertEquals("aaa", (String) stringStats3.getMin().getStringValue());
 		assertEquals(0, stringStats3.getSum(), maxError);
 		assertEquals("aaa", (String) stringStats3.getFirst().getStringValue());
+		assertEquals("ddd", stringStats3.getLast().getStringValue());
 	}
 }

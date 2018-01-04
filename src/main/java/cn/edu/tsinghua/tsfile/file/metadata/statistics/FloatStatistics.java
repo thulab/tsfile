@@ -12,6 +12,7 @@ public class FloatStatistics extends Statistics<Float> {
 	private float min;
 	private float first;
 	private double sum;
+	private float last;
 
 	@Override
 	public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
@@ -22,14 +23,14 @@ public class FloatStatistics extends Statistics<Float> {
 	@Override
 	public void updateStats(float value) {
 		if (this.isEmpty) {
-			initializeStats(value, value, value, value);
+			initializeStats(value, value, value, value,value);
 			isEmpty = false;
 		} else {
-			updateStats(value, value, value, value);
+			updateStats(value, value, value, value,value);
 		}
 	}
 
-	private void updateStats(float minValue, float maxValue, float firstValue, double sumValue) {
+	private void updateStats(float minValue, float maxValue, float firstValue, double sumValue,float last) {
 		if (minValue < min) {
 			min = minValue;
 		}
@@ -37,6 +38,7 @@ public class FloatStatistics extends Statistics<Float> {
 			max = maxValue;
 		}
 		sum += sumValue;
+		this.last = last;
 	}
 
 	@Override
@@ -58,24 +60,30 @@ public class FloatStatistics extends Statistics<Float> {
 	public double getSum() {
 		return sum;
 	}
+	
+	@Override
+	public Float getLast(){
+		return last;
+	}
 
 	@Override
 	protected void mergeStatisticsValue(Statistics<?> stats) {
 		FloatStatistics floatStats = (FloatStatistics) stats;
 		if (isEmpty) {
-			initializeStats(floatStats.getMin(), floatStats.getMax(), floatStats.getFirst(), floatStats.getSum());
+			initializeStats(floatStats.getMin(), floatStats.getMax(), floatStats.getFirst(), floatStats.getSum(),floatStats.getLast());
 			isEmpty = false;
 		} else {
-			updateStats(floatStats.getMin(), floatStats.getMax(), floatStats.getFirst(), floatStats.getSum());
+			updateStats(floatStats.getMin(), floatStats.getMax(), floatStats.getFirst(), floatStats.getSum(),floatStats.getLast());
 		}
 
 	}
 
-	public void initializeStats(float min, float max, float first, double sum) {
+	public void initializeStats(float min, float max, float first, double sum,float last) {
 		this.min = min;
 		this.max = max;
 		this.first = first;
 		this.sum = sum;
+		this.last = last;
 	}
 
 	@Override
@@ -97,9 +105,14 @@ public class FloatStatistics extends Statistics<Float> {
 	public byte[] getSumBytes() {
 		return BytesUtils.doubleToBytes(sum);
 	}
+	
+	@Override
+	public byte[] getLastBytes(){
+		return BytesUtils.floatToBytes(last);
+	}
 
 	@Override
 	public String toString() {
-		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + "]";
+		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + ",last:" + last + "]";
 	}
 }
