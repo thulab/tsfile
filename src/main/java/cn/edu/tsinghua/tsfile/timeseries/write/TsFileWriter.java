@@ -50,6 +50,7 @@ public class TsFileWriter {
   private long recordCountForNextMemCheck = MINIMUM_RECORD_COUNT_FOR_CHECK;
   private long rowGroupSizeThreshold;
   private int oneRowMaxSize;
+  private volatile long memUsage;
 
   public TsFileWriter(File file) throws WriteProcessException, IOException {
     this(new TsFileIOWriter(file), new FileSchema(), TSFileDescriptor.getInstance().getConfig());
@@ -223,7 +224,16 @@ public class TsFileWriter {
     for (IRowGroupWriter group : groupWriters.values()) {
       memTotalSize += group.updateMaxGroupMemSize();
     }
+    memUsage = memTotalSize;
     return memTotalSize;
+  }
+  /**
+   * get the memory usage which is just an estimated result.
+   * 
+   * @return estimated memory usage.
+   */
+  public long getMemoryUsage(){
+	  return memUsage;
   }
 
   /**
