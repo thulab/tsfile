@@ -1,11 +1,10 @@
 package cn.edu.tsinghua.tsfile.timeseries.read;
 
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
-import cn.edu.tsinghua.tsfile.timeseries.read.management.FileStreamManager;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 
 /**
  * File-read interface for local file.
