@@ -161,13 +161,15 @@ public class TsFileWriter {
    *           exception in IO
    * @throws WriteProcessException
    *           exception in write process
+   * @return boolean
    */
-  public void write(TSRecord record) throws IOException, WriteProcessException {
+  public boolean write(TSRecord record) throws IOException, WriteProcessException {
     if (checkIsDeltaExist(record)) {
       groupWriters.get(record.deltaObjectId).write(record.time, record.dataPointList);
       ++recordCount;
-      checkMemorySize();
+      return checkMemorySize();
     }
+	return false;
   }
 
   /**
@@ -233,18 +235,20 @@ public class TsFileWriter {
    * @throws IOException
    *           exception in IO
    */
-  protected void checkMemorySize() throws IOException {
+  protected boolean checkMemorySize() throws IOException {
     if (recordCount >= recordCountForNextMemCheck) {
       long memSize = calculateMemSizeForAllGroup();
       if (memSize > rowGroupSizeThreshold) {
         LOG.info("start_write_row_group, memory space occupy:" + memSize);
-        flushRowGroup(true);
         recordCountForNextMemCheck = rowGroupSizeThreshold / oneRowMaxSize;
+        return flushRowGroup(true);
       } else {
         recordCountForNextMemCheck = recordCount
             + (rowGroupSizeThreshold - memSize) / oneRowMaxSize;
+        return false;
       }
     }
+    return false;
   }
 
   /**
@@ -255,7 +259,7 @@ public class TsFileWriter {
    * @throws IOException
    *           exception in IO
    */
-  protected void flushRowGroup(boolean isFillRowGroup) throws IOException {
+  protected boolean flushRowGroup(boolean isFillRowGroup) throws IOException {
     // at the present stage, just flush one block
     if (recordCount > 0) {
       long totalMemStart = deltaFileWriter.getPos();
@@ -277,6 +281,7 @@ public class TsFileWriter {
       recordCount = 0;
       reset();
     }
+    return false;
   }
 
   protected void fillInRowGroupSize(long actualRowGroupSize) throws IOException {
