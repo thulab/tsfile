@@ -2,10 +2,7 @@ package cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl;
 
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.*;
-import cn.edu.tsinghua.tsfile.timeseries.filter.utils.DoubleInterval;
-import cn.edu.tsinghua.tsfile.timeseries.filter.utils.FloatInterval;
-import cn.edu.tsinghua.tsfile.timeseries.filter.utils.IntInterval;
-import cn.edu.tsinghua.tsfile.timeseries.filter.utils.LongInterval;
+import cn.edu.tsinghua.tsfile.timeseries.filter.utils.*;
 import cn.edu.tsinghua.tsfile.timeseries.filter.verifier.FilterVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,14 +19,21 @@ public class SingleValueVisitor<V extends Comparable<V>> implements FilterVisito
     private static final Logger LOG = LoggerFactory.getLogger(SingleValueVisitor.class);
     private V value;
     private FilterVerifier verifier;
-    private SingleSeriesFilterExpression ssFilter;
+    private SingleSeriesFilterExpression singleSeriesFilter;
+    private Interval interval;
 
     public SingleValueVisitor() {
     }
 
+    /**
+     * This method is only used for INT32,INT64,FLOAT,DOUBLE data type.
+     *
+     * @param filter
+     */
     public SingleValueVisitor(SingleSeriesFilterExpression filter) {
         verifier = FilterVerifier.create(filter.getFilterSeries().getSeriesDataType());
-        this.ssFilter = filter;
+        this.singleSeriesFilter = filter;
+        interval = verifier.getInterval(singleSeriesFilter);
     }
 
     /**
@@ -59,7 +63,7 @@ public class SingleValueVisitor<V extends Comparable<V>> implements FilterVisito
      * @return is satisfied
      */
     public boolean verify(int value) {
-        IntInterval val = (IntInterval) verifier.getInterval(ssFilter);
+        IntInterval val = (IntInterval) interval;
         for (int i = 0; i < val.count; i += 2) {
             if (val.v[i] < value && value < val.v[i + 1])
                 return true;
@@ -72,7 +76,7 @@ public class SingleValueVisitor<V extends Comparable<V>> implements FilterVisito
     }
 
     public boolean verify(long value) {
-        LongInterval val = (LongInterval) verifier.getInterval(ssFilter);
+        LongInterval val = (LongInterval) interval;
         for (int i = 0; i < val.count; i += 2) {
             if (val.v[i] < value && value < val.v[i + 1])
                 return true;
@@ -85,7 +89,7 @@ public class SingleValueVisitor<V extends Comparable<V>> implements FilterVisito
     }
 
     public boolean verify(float value) {
-        FloatInterval val = (FloatInterval) verifier.getInterval(ssFilter);
+        FloatInterval val = (FloatInterval) interval;
         for (int i = 0; i < val.count; i += 2) {
             if (val.v[i] < value && value < val.v[i + 1])
                 return true;
@@ -98,7 +102,7 @@ public class SingleValueVisitor<V extends Comparable<V>> implements FilterVisito
     }
 
     public boolean verify(double value) {
-        DoubleInterval val = (DoubleInterval) verifier.getInterval(ssFilter);
+        DoubleInterval val = (DoubleInterval) interval;
         for (int i = 0; i < val.count; i += 2) {
             if (val.v[i] < value && value < val.v[i + 1])
                 return true;
