@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 /**
  * Definition for binary filter operations.
+ *
  * @author CGF
  */
 

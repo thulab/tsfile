@@ -1,7 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.filterV2.visitor.impl;
 
 
-import cn.edu.tsinghua.tsfile.format.Digest;
 import cn.edu.tsinghua.tsfile.timeseries.filter.utils.DigestForFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.basic.Filter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.basic.UnaryFilter;

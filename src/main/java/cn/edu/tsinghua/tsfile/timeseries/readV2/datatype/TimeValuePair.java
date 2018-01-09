@@ -36,7 +36,9 @@ public class TimeValuePair {
 
     public boolean equals(Object object) {
         if (object instanceof TimeValuePair) {
-            return ((TimeValuePair) object).getTimestamp() == timestamp && ((TimeValuePair) object).getValue().equals(value);
+            return ((TimeValuePair) object).getTimestamp() == timestamp
+                    && ((TimeValuePair) object).getValue() != null
+                    && ((TimeValuePair) object).getValue().equals(value);
         }
         return false;
     }
