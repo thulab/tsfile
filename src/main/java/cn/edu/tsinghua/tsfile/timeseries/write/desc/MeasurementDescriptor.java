@@ -38,6 +38,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
   private TSEncodingConverter encodingConverter;
   private Compressor compressor;
   private TSFileConfig conf;
+  private Map<String, String> props;
 
   public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding) {
     this(measurementId, type, encoding, Collections.emptyMap());
@@ -48,6 +49,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     this.type = type;
     this.measurementId = measurementId;
     this.encoding = encoding;
+    this.props = props == null? Collections.emptyMap(): props;
     this.conf = TSFileDescriptor.getInstance().getConfig();
     // initialize TSDataType. e.g. set data values for enum type
     if (type == TSDataType.ENUMS) {
@@ -67,6 +69,10 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
 
   public String getMeasurementId() {
     return measurementId;
+  }
+
+  public Map<String, String> getProps(){
+    return props;
   }
 
   public void setMeasurementId(String measurementId) {
