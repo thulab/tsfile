@@ -16,4 +16,6 @@ public class StatisticConstant {
 	public static final String MEAN = "mean";
 
 	public static final String SUM = "sum";
+	
+	public static final String LAST = "last";
 }

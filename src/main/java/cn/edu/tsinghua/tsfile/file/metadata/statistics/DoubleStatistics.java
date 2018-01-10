@@ -12,6 +12,7 @@ public class DoubleStatistics extends Statistics<Double> {
 	private double min;
 	private double first;
 	private double sum;
+	private double last;
 
 	@Override
 	public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
@@ -22,14 +23,14 @@ public class DoubleStatistics extends Statistics<Double> {
 	@Override
 	public void updateStats(double value) {
 		if (this.isEmpty) {
-			initializeStats(value, value, value, value);
+			initializeStats(value, value, value, value,value);
 			isEmpty = false;
 		} else {
-			updateStats(value, value, value, value);
+			updateStats(value, value, value, value,value);
 		}
 	}
 
-	private void updateStats(double minValue, double maxValue, double firstValue, double sumValue) {
+	private void updateStats(double minValue, double maxValue, double firstValue, double sumValue,double lastValue) {
 		if (minValue < min) {
 			min = minValue;
 		}
@@ -37,6 +38,7 @@ public class DoubleStatistics extends Statistics<Double> {
 			max = maxValue;
 		}
 		sum += sumValue;
+		this.last = lastValue;
 	}
 
 	@Override
@@ -58,24 +60,30 @@ public class DoubleStatistics extends Statistics<Double> {
 	public double getSum() {
 		return sum;
 	}
+	
+	@Override
+	public Double getLast(){
+		return last;
+	}
 
 	@Override
 	protected void mergeStatisticsValue(Statistics<?> stats) {
 		DoubleStatistics doubleStats = (DoubleStatistics) stats;
 		if (this.isEmpty) {
-			initializeStats(doubleStats.getMin(), doubleStats.getMax(), doubleStats.getFirst(), doubleStats.getSum());
+			initializeStats(doubleStats.getMin(), doubleStats.getMax(), doubleStats.getFirst(), doubleStats.getSum(),doubleStats.getLast());
 			isEmpty = false;
 		} else {
-			updateStats(doubleStats.getMin(), doubleStats.getMax(), doubleStats.getFirst(), doubleStats.getSum());
+			updateStats(doubleStats.getMin(), doubleStats.getMax(), doubleStats.getFirst(), doubleStats.getSum(),doubleStats.getLast());
 		}
 
 	}
 
-	public void initializeStats(double min, double max, double first, double sum) {
+	public void initializeStats(double min, double max, double first, double sum,double last) {
 		this.min = min;
 		this.max = max;
 		this.first = first;
 		this.sum = sum;
+		this.last = last;
 	}
 
 	@Override
@@ -97,10 +105,15 @@ public class DoubleStatistics extends Statistics<Double> {
 	public byte[] getSumBytes() {
 		return BytesUtils.doubleToBytes(sum);
 	}
+	
+	@Override
+	public byte[] getLastBytes(){
+		return BytesUtils.doubleToBytes(last);
+	}
 
 	@Override
 	public String toString() {
-		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + "]";
+		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + ",last:" + last + "]";
 	}
 
 }

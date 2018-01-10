@@ -14,18 +14,20 @@ public class BigDecimalStatistics extends Statistics<BigDecimal> {
 	private BigDecimal min;
 	private BigDecimal first;
 	private double sum;
+	private BigDecimal last;
 
 	@Override
 	public void updateStats(BigDecimal value) {
 		if (this.isEmpty) {
-			initializeStats(value, value, value, value.doubleValue());
+			initializeStats(value, value, value, value.doubleValue(), value);
 			isEmpty = false;
 		} else {
-			updateStats(value, value, value, value.doubleValue());
+			updateStats(value, value, value, value.doubleValue(), value);
 		}
 	}
 
-	private void updateStats(BigDecimal minValue, BigDecimal maxValue, BigDecimal firstValue, double sumValue) {
+	private void updateStats(BigDecimal minValue, BigDecimal maxValue, BigDecimal firstValue, double sumValue,
+			BigDecimal lastValue) {
 		if (minValue.doubleValue() < min.doubleValue()) {
 			min = minValue;
 		}
@@ -33,6 +35,7 @@ public class BigDecimalStatistics extends Statistics<BigDecimal> {
 			max = maxValue;
 		}
 		sum += sumValue;
+		this.last = lastValue;
 	}
 
 	@Override
@@ -56,24 +59,30 @@ public class BigDecimalStatistics extends Statistics<BigDecimal> {
 	}
 
 	@Override
+	public BigDecimal getLast() {
+		return last;
+	}
+
+	@Override
 	protected void mergeStatisticsValue(Statistics<?> stats) {
 		BigDecimalStatistics bigDecimalStats = (BigDecimalStatistics) stats;
 		if (this.isEmpty) {
 			initializeStats(bigDecimalStats.getMin(), bigDecimalStats.getMax(), bigDecimalStats.getFirst(),
-					bigDecimalStats.getSum());
+					bigDecimalStats.getSum(), bigDecimalStats.getLast());
 			isEmpty = false;
 		} else {
 			updateStats(bigDecimalStats.getMin(), bigDecimalStats.getMax(), bigDecimalStats.getFirst(),
-					bigDecimalStats.getSum());
+					bigDecimalStats.getSum(), bigDecimalStats.getLast());
 		}
 
 	}
 
-	public void initializeStats(BigDecimal min, BigDecimal max, BigDecimal first, double sum) {
+	public void initializeStats(BigDecimal min, BigDecimal max, BigDecimal first, double sum, BigDecimal last) {
 		this.min = min;
 		this.max = max;
 		this.first = first;
 		this.sum = sum;
+		this.last = last;
 	}
 
 	@Override
@@ -95,6 +104,11 @@ public class BigDecimalStatistics extends Statistics<BigDecimal> {
 	public byte[] getSumBytes() {
 		return BytesUtils.doubleToBytes(sum);
 	}
+	
+	@Override
+	public byte[] getLastBytes(){
+		return BytesUtils.doubleToBytes(last.doubleValue());
+	}
 
 	@Override
 	public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
@@ -104,6 +118,6 @@ public class BigDecimalStatistics extends Statistics<BigDecimal> {
 
 	@Override
 	public String toString() {
-		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + "]";
+		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + ",last:" + last + "]";
 	}
 }

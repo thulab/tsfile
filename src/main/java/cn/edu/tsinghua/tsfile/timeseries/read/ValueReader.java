@@ -15,7 +15,6 @@ import cn.edu.tsinghua.tsfile.format.Encoding;
 import cn.edu.tsinghua.tsfile.format.PageHeader;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.utils.DigestForFilter;
-import cn.edu.tsinghua.tsfile.timeseries.filter.utils.StrDigestForFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.DigestVisitor;
 import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.IntervalTimeVisitor;
 import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.SingleValueVisitor;
@@ -173,11 +172,11 @@ public class ValueReader {
         if (valueFilter != null) {
             digest = getDigest();
             if (getDataType() == TSDataType.ENUMS) {
-                String minString = enumValues.get(Integer.parseInt(digest.getStatistics().get(StatisticConstant.MIN_VALUE)) - 1);
-                String maxString = enumValues.get(Integer.parseInt(digest.getStatistics().get(StatisticConstant.MAX_VALUE)) - 1);
+                String minString = enumValues.get(BytesUtils.bytesToInt(digest.getStatistics().get(StatisticConstant.MIN_VALUE).array()) - 1);
+                String maxString = enumValues.get(BytesUtils.bytesToInt(digest.getStatistics().get(StatisticConstant.MAX_VALUE).array()) - 1);
                 valueDigest = new DigestForFilter(ByteBuffer.wrap(BytesUtils.StringToBytes(minString)), ByteBuffer.wrap(BytesUtils.StringToBytes(maxString)), TSDataType.TEXT);
             } else {
-                valueDigest = new StrDigestForFilter(digest.getStatistics().get(StatisticConstant.MIN_VALUE)
+                valueDigest = new DigestForFilter(digest.getStatistics().get(StatisticConstant.MIN_VALUE)
                         , digest.getStatistics().get(StatisticConstant.MAX_VALUE)
                         , getDataType());
             }
@@ -289,11 +288,11 @@ public class ValueReader {
                 DigestForFilter valueDigestFF = null;
                 if (pageDigest != null) {
                     if (getDataType() == TSDataType.ENUMS) {
-                        String minString = enumValues.get(Integer.parseInt(pageDigest.getStatistics().get(StatisticConstant.MIN_VALUE)) - 1);
-                        String maxString = enumValues.get(Integer.parseInt(pageDigest.getStatistics().get(StatisticConstant.MAX_VALUE)) - 1);
+                        String minString = enumValues.get(BytesUtils.bytesToInt(pageDigest.getStatistics().get(StatisticConstant.MIN_VALUE).array()) - 1);
+                        String maxString = enumValues.get(BytesUtils.bytesToInt(pageDigest.getStatistics().get(StatisticConstant.MAX_VALUE).array()) - 1);
                         valueDigestFF = new DigestForFilter(ByteBuffer.wrap(BytesUtils.StringToBytes(minString)), ByteBuffer.wrap(BytesUtils.StringToBytes(maxString)), TSDataType.TEXT);
                     } else {
-                        valueDigestFF = new StrDigestForFilter(pageDigest.getStatistics().get(StatisticConstant.MIN_VALUE)
+                        valueDigestFF = new DigestForFilter(pageDigest.getStatistics().get(StatisticConstant.MIN_VALUE)
                                                             ,   pageDigest.getStatistics().get(StatisticConstant.MAX_VALUE),
                                                                 getDataType());
                     }

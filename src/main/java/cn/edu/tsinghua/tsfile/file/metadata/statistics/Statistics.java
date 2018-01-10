@@ -62,6 +62,8 @@ public abstract class Statistics<T> {
     abstract public T getFirst();
     
     abstract public double getSum();
+    
+    abstract public T getLast();
 
     /**
      * merge parameter to this statistic. Including
@@ -143,4 +145,6 @@ public abstract class Statistics<T> {
     abstract public byte[] getFirstBytes();
     
     abstract public byte[] getSumBytes();
+    
+    abstract public byte[] getLastBytes();
 }

@@ -13,6 +13,7 @@ public class BinaryStatistics extends Statistics<Binary> {
 	private Binary min = new Binary("");
 	private Binary first = new Binary("");
 	private double sum;
+	private Binary last = new Binary("");
 
 	@Override
 	public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
@@ -39,43 +40,50 @@ public class BinaryStatistics extends Statistics<Binary> {
 	public double getSum() {
 		return sum;
 	}
+	
+	@Override
+	public Binary getLast(){
+		return last;
+	}
 
-	public void initializeStats(Binary min, Binary max, Binary first, double sum) {
+	public void initializeStats(Binary min, Binary max, Binary first, double sum,Binary last) {
 		this.min = min;
 		this.max = max;
 		this.first = first;
 		this.sum = sum;
+		this.last = last;
 	}
 
 	@Override
 	protected void mergeStatisticsValue(Statistics<?> stats) {
 		BinaryStatistics stringStats = (BinaryStatistics) stats;
 		if (isEmpty) {
-			initializeStats(stringStats.getMin(), stringStats.getMax(), stringStats.getFirst(), stringStats.getSum());
+			initializeStats(stringStats.getMin(), stringStats.getMax(), stringStats.getFirst(), stringStats.getSum(),stringStats.getLast());
 			isEmpty = false;
 		} else {
-			updateStats(stringStats.getMin(), stringStats.getMax(), stringStats.getFirst(), stringStats.getSum());
+			updateStats(stringStats.getMin(), stringStats.getMax(), stringStats.getFirst(), stringStats.getSum(),stringStats.getLast());
 		}
 	}
 
 	@Override
 	public void updateStats(Binary value) {
 		if (isEmpty) {
-			initializeStats(value, value, value, 0);
+			initializeStats(value, value, value, 0,value);
 			isEmpty = false;
 		} else {
-			updateStats(value, value, value, 0);
+			updateStats(value, value, value, 0,value);
 			isEmpty = false;
 		}
 	}
 
-	private void updateStats(Binary minValue, Binary maxValue, Binary firstValue, double sum) {
+	private void updateStats(Binary minValue, Binary maxValue, Binary firstValue, double sum,Binary lastValue) {
 		if (minValue.compareTo(min) < 0) {
 			min = minValue;
 		}
 		if (maxValue.compareTo(max) > 0) {
 			max = maxValue;
 		}
+		this.last = lastValue;
 	}
 
 	@Override
@@ -99,7 +107,12 @@ public class BinaryStatistics extends Statistics<Binary> {
 	}
 	
 	@Override
+	public byte[] getLastBytes(){
+		return BytesUtils.StringToBytes(last.getStringValue());
+	}
+	
+	@Override
 	public String toString(){
-		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + "]";
+		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + ",last:" + last + "]";
 	}
 }
