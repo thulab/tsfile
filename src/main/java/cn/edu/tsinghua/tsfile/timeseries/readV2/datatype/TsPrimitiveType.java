@@ -62,7 +62,7 @@ public abstract class TsPrimitiveType {
 
         @Override
         public String getStringValue() {
-            return null;
+            return String.valueOf(value);
         }
     }
 

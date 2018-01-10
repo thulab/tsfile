@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.filterV2;
 
+import cn.edu.tsinghua.tsfile.common.utils.Binary;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.basic.Filter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.factory.FilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.visitor.impl.TimeValuePairFilterVisitorImpl;
@@ -29,6 +30,12 @@ public class OperatorTest {
                 new TimeValuePair(100, new TsPrimitiveType.TsInt(50)), filter2));
         Assert.assertEquals(false, timeValuePairFilterVisitor.satisfy(
                 new TimeValuePair(100, new TsPrimitiveType.TsInt(51)), filter2));
+
+        Filter<Boolean> filter3 = ValueFilter.eq(true);
+        Assert.assertEquals(true, timeValuePairFilterVisitor.satisfy(
+                new TimeValuePair(100, new TsPrimitiveType.TsBoolean(true)), filter3));
+        Assert.assertEquals(false, timeValuePairFilterVisitor.satisfy(
+                new TimeValuePair(100, new TsPrimitiveType.TsBoolean(false)), filter3));
     }
 
     @Test
@@ -48,6 +55,12 @@ public class OperatorTest {
                 new TimeValuePair(TESTED_TIMESTAMP, new TsPrimitiveType.TsFloat(0.01f)), valueGt));
         Assert.assertEquals(false, timeValuePairFilterVisitor.satisfy(
                 new TimeValuePair(TESTED_TIMESTAMP, new TsPrimitiveType.TsFloat(-0.01f)), valueGt));
+
+        Filter<Binary> binaryFilter = ValueFilter.gt(new Binary("test1"));
+        Assert.assertEquals(true, timeValuePairFilterVisitor.satisfy(
+                new TimeValuePair(TESTED_TIMESTAMP, new TsPrimitiveType.TsBinary(new Binary("test2"))), binaryFilter));
+        Assert.assertEquals(false, timeValuePairFilterVisitor.satisfy(
+                new TimeValuePair(TESTED_TIMESTAMP, new TsPrimitiveType.TsBinary(new Binary("test0"))), binaryFilter));
     }
 
     @Test
@@ -138,7 +151,7 @@ public class OperatorTest {
     }
 
     @Test
-    public void testNotEq(){
+    public void testNotEq() {
         Filter<Long> timeNotEq = TimeFilter.notEq(100L);
         Assert.assertEquals(false, timeValuePairFilterVisitor.satisfy(
                 new TimeValuePair(100, new TsPrimitiveType.TsInt(100)), timeNotEq));
@@ -153,7 +166,7 @@ public class OperatorTest {
     }
 
     @Test
-    public void testAndOr(){
+    public void testAndOr() {
         Filter<Double> andFilter = FilterFactory.and(TimeFilter.gt(100L), ValueFilter.lt(50.9));
         Assert.assertEquals(true, timeValuePairFilterVisitor.satisfy(
                 new TimeValuePair(101L, new TsPrimitiveType.TsDouble(50)), andFilter));
@@ -180,17 +193,29 @@ public class OperatorTest {
     }
 
     @Test
-    public void effeciencyTest(){
+    public void testWrongUsage() {
+        Filter<Boolean> andFilter = FilterFactory.and(TimeFilter.gt(100L), ValueFilter.lt(true));
+        TimeValuePair timeValuePair = new TimeValuePair(101L, new TsPrimitiveType.TsLong(50));
+        try {
+            timeValuePairFilterVisitor.satisfy(timeValuePair, andFilter);
+            Assert.fail();
+        }catch (ClassCastException e){
+            
+        }
+    }
+
+    @Test
+    public void efficiencyTest() {
         Filter<Double> andFilter = FilterFactory.and(TimeFilter.gt(100L), ValueFilter.lt(50.9));
         Filter<Double> orFilter = FilterFactory.or(andFilter, TimeFilter.eq(1000L));
 
         long startTime = System.currentTimeMillis();
-        for(long i = 0; i < EFFICIENCY_TEST_COUNT; i ++){
+        for (long i = 0; i < EFFICIENCY_TEST_COUNT; i++) {
             TimeValuePair tvPair = new TimeValuePair(Long.valueOf(i), new TsPrimitiveType.TsDouble(i + 0.1));
             timeValuePairFilterVisitor.satisfy(tvPair, orFilter);
         }
         long endTime = System.currentTimeMillis();
-        System.out.println("EffeciencyTest for Filter: \n\tFilter Expression = " + orFilter + "\n\tCOUNT = " + EFFICIENCY_TEST_COUNT +
+        System.out.println("EfficiencyTest for Filter: \n\tFilter Expression = " + orFilter + "\n\tCOUNT = " + EFFICIENCY_TEST_COUNT +
                 "\n\tTotal Time = " + (endTime - startTime) + "ms.");
     }
 }
