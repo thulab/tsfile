@@ -85,7 +85,7 @@ public class RecordReader {
             checkSeriesByHadoop(deltaObjectUID, measurementUID);
         }catch(IOException ex){
             if(res == null)res = new DynamicOneColumnData();
-            res.dataType = fileReader.getRowGroupReaderListByDeltaObject(deltaObjectUID).get(0).getDataTypeBySeriesName(measurementUID);
+            res.dataType = fileReader.getRowGroupReaderListByDeltaObjectByHadoop(deltaObjectUID).get(0).getDataTypeBySeriesName(measurementUID);
             return res;
         }
         List<RowGroupReader> rowGroupReaderList = fileReader.getRowGroupReaderListByDeltaObjectByHadoop(deltaObjectUID);
