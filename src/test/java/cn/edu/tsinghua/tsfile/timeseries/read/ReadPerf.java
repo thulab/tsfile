@@ -28,24 +28,23 @@ public class ReadPerf {
     private static final Logger LOG = LoggerFactory.getLogger(ReadPerf.class);
     public static final int ROW_COUNT = 1000;
     public static TsFileWriter innerWriter;
-    static public String inputDataFile;
-    static public String outputDataFile;
-    static public String errorOutputDataFile;
-    static public JSONObject jsonSchema;
-	
+    public static String inputDataFile;
+    public static String outputDataFile = "src/test/resources/perTestOutputData.ksn";
+    public static String errorOutputDataFile;
+    public static JSONObject jsonSchema;
+
 	public static void generateFile() throws IOException, InterruptedException, WriteProcessException {
 		prepare();
     	write();
 	}
-	
+
     public static void prepare() throws IOException {
         inputDataFile = "src/test/resources/perTestInputData";
-        outputDataFile = "src/test/resources/perTestOutputData.ksn";
         errorOutputDataFile = "src/test/resources/perTestErrorOutputData.ksn";
         jsonSchema = generateTestData();
         generateSampleInputDataFile();
     }
-    
+
     public static void after() {
         File file = new File(inputDataFile);
         if (file.exists())
@@ -57,7 +56,7 @@ public class ReadPerf {
         if (file.exists())
             file.delete();
     }
-    
+
     static private void generateSampleInputDataFile() throws IOException {
         File file = new File(inputDataFile);
         if (file.exists())
@@ -76,13 +75,13 @@ public class ReadPerf {
             }
             if (i % 5 == 0)
                 d1 += ",s3," + (i * 10 + 3);
-            if (i % 8 == 0) 
+            if (i % 8 == 0)
             	d1 += ",s4," + "dog" + i;
-            if (i % 9 == 0) 
+            if (i % 9 == 0)
             	d1 += ",s5," + "false";
-            if (i % 10 == 0) 
+            if (i % 10 == 0)
             	d1 += ",s6," + ((int)(i/9.0)*100)/100.0;
-            if (i % 11 == 0) 
+            if (i % 11 == 0)
             	d1 += ",s7," + ((int)(i/10.0)*100)/100.0;
             fw.write(d1 + "\r\n");
 
@@ -94,7 +93,7 @@ public class ReadPerf {
             }
             if (i % 5 == 0)
                 d2 += ",s1," + (i * 10 + 1);
-            if (i % 8 == 0) 
+            if (i % 8 == 0)
             	d2 += ",s4," + "dog" + i%4;
             fw.write(d2 + "\r\n");
         }
@@ -107,7 +106,7 @@ public class ReadPerf {
         fw.write(d + "\r\n");
         fw.close();
     }
-    
+
     static public void write() throws IOException, InterruptedException, WriteProcessException {
         File file = new File(outputDataFile);
         File errorFile = new File(errorOutputDataFile);
@@ -131,7 +130,7 @@ public class ReadPerf {
         }
         LOG.info("write to file successfully!!");
     }
-    
+
     private static JSONObject generateTestData() {
         TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
         JSONObject s1 = new JSONObject();
@@ -169,7 +168,7 @@ public class ReadPerf {
         s7.put(JsonFormatConstant.DATA_TYPE, TSDataType.DOUBLE.toString());
         s7.put(JsonFormatConstant.MEASUREMENT_ENCODING,
                 TSEncoding.RLE.toString());
-        
+
         JSONArray measureGroup1 = new JSONArray();
         measureGroup1.put(s1);
         measureGroup1.put(s2);
@@ -178,14 +177,14 @@ public class ReadPerf {
         measureGroup1.put(s5);
         measureGroup1.put(s6);
         measureGroup1.put(s7);
-        
+
         JSONObject jsonSchema = new JSONObject();
         jsonSchema.put(JsonFormatConstant.DELTA_TYPE, "test_type");
         jsonSchema.put(JsonFormatConstant.JSON_SCHEMA, measureGroup1);
         //System.out.println(jsonSchema);
         return jsonSchema;
     }
-    
+
     static public void writeToFile(FileSchema schema) throws InterruptedException, IOException, WriteProcessException {
         Scanner in = getDataFile(inputDataFile);
         long lineCount = 0;
@@ -213,7 +212,7 @@ public class ReadPerf {
         LOG.info("src file size:{}GB", FileUtils.getLocalFileByte(inputDataFile, Unit.GB));
         LOG.info("src file size:{}MB", FileUtils.getLocalFileByte(outputDataFile, Unit.MB));
     }
-    
+
     static private Scanner getDataFile(String path) {
         File file = new File(path);
         try {
