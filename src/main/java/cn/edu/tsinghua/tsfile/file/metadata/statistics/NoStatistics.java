@@ -1,8 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 
 
-import javax.annotation.processing.SupportedSourceVersion;
-
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
 
 /**
