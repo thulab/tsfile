@@ -21,6 +21,7 @@ public class BooleanStatisticsTest {
 		assertEquals(false, (boolean) booleanStatistics.getMin());
 		assertEquals(0, (double) booleanStatistics.getSum(), maxError);
 		assertEquals(true, (boolean) booleanStatistics.getFirst());
+		assertEquals(false, (boolean) booleanStatistics.getLast());
 	}
 
 	@Test
@@ -40,11 +41,13 @@ public class BooleanStatisticsTest {
 		assertEquals(false, (boolean) booleanStats3.getMin());
 		assertEquals(0, (double) booleanStats3.getSum(), maxError);
 		assertEquals(false, (boolean) booleanStats3.getFirst());
+		assertEquals(false, (boolean) booleanStats3.getLast());
 
 		booleanStats3.mergeStatistics(booleanStats2);
 		assertEquals(true, (boolean) booleanStats3.getMax());
 		assertEquals(false, (boolean) booleanStats3.getMin());
 		assertEquals(0, (double) booleanStats3.getSum(), maxError);
 		assertEquals(false, (boolean) booleanStats3.getFirst());
+		assertEquals(true, (boolean) booleanStats3.getLast());
 	}
 }

@@ -22,6 +22,7 @@ public class BigDecimalStatisticsTest {
 		assertEquals(up1, (BigDecimal) bigStats.getMin());
 		assertEquals(up2.add(up1).doubleValue(), bigStats.getSum(),maxError);
 		assertEquals(up1, (BigDecimal) bigStats.getFirst());
+		assertEquals(up2, (BigDecimal) bigStats.getLast());
 	}
 
 	@Test
@@ -43,12 +44,14 @@ public class BigDecimalStatisticsTest {
 		assertEquals(down1, (BigDecimal) bigStats3.getMin());
 		assertEquals(up1.add(down1).doubleValue(), bigStats3.getSum(),maxError);
 		assertEquals(down1, (BigDecimal) bigStats3.getFirst());
+		assertEquals(up1, (BigDecimal) bigStats3.getLast());
 
 		bigStats3.mergeStatistics(bigStats2);
 		assertEquals(up2, (BigDecimal) bigStats3.getMax());
 		assertEquals(down1, (BigDecimal) bigStats3.getMin());
 		assertEquals(up1.add(down1).add(up2).doubleValue(), bigStats3.getSum(),maxError);
 		assertEquals(down1, (BigDecimal) bigStats3.getFirst());
+		assertEquals(up2, (BigDecimal) bigStats3.getLast());
 
 	}
 

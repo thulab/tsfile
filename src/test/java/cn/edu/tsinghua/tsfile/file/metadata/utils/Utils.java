@@ -2,6 +2,7 @@ package cn.edu.tsinghua.tsfile.file.metadata.utils;
 
 import static org.junit.Assert.*;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public class Utils {
 		}
 	}
 
-	public static void isMapEqual(Map<String, String> mapA, Map<String, String> mapB, String name) {
+	public static void isMapStringEqual(Map<String, String> mapA, Map<String, String> mapB, String name) {
 		if ((mapA == null) ^ (mapB == null)) {
 			System.out.println("error");
 			fail(String.format("one of %s is null", name));
@@ -50,6 +51,24 @@ public class Utils {
 			}
 		}
 	}
+
+	public static void isMapBufferEqual(Map<String, ByteBuffer> mapA, Map<String, ByteBuffer> mapB, String name) {
+	if ((mapA == null) ^ (mapB == null)) {
+		System.out.println("error");
+		fail(String.format("one of %s is null", name));
+	}
+	if ((mapA != null) && (mapB != null)) {
+		if (mapA.size() != mapB.size()) {
+			fail(String.format("%s size is different", name));
+		}
+		for (String key : mapB.keySet()) {
+			ByteBuffer b = mapB.get(key);
+			ByteBuffer a = mapA.get(key);
+			assertTrue(b.equals(a));
+		}
+	}
+}	
+
 
 	/**
 	 * when one of A and B is Null, A != B, so test case fails.
@@ -145,8 +164,9 @@ public class Utils {
 					.equals(valueInTimeSeriesChunkMetaData.getData_type().toString()));
 			if (Utils.isTwoObjectsNotNULL(vSeriesMetaData.getDigest(), valueInTimeSeriesChunkMetaData.getDigest(),
 					"Digest")) {
-				Utils.isMapEqual(vSeriesMetaData.getDigest().getStatistics(),
-						valueInTimeSeriesChunkMetaData.getDigest().getStatistics(), "Diges statistics map");
+				Utils.isMapBufferEqual(vSeriesMetaData.getDigest().getStatistics(),
+						valueInTimeSeriesChunkMetaData.getDigest().getStatistics(), 
+						"Diges statistics map");
 			}
 			Utils.isListEqual(vSeriesMetaData.getEnumValues(), valueInTimeSeriesChunkMetaData.getEnum_values(),
 					"data values");
@@ -245,7 +265,7 @@ public class Utils {
 			Utils.isTimeSeriesListEqual(fileMetaDataInTSF.getTimeSeriesList(), fileMetaDataInThrift.getTimeseries_list());
 			Utils.isListEqual(fileMetaDataInTSF.getJsonMetaData(), fileMetaDataInThrift.getJson_metadata(), "json metadata");
 			if (Utils.isTwoObjectsNotNULL(fileMetaDataInTSF.getProps(), fileMetaDataInThrift.getProperties(), "user specified properties")) {
-				Utils.isMapEqual(fileMetaDataInTSF.getProps(), fileMetaDataInThrift.getProperties(), "Filemetadata properties");
+				Utils.isMapStringEqual(fileMetaDataInTSF.getProps(), fileMetaDataInThrift.getProperties(), "Filemetadata properties");
 			}
 			if(Utils.isTwoObjectsNotNULL(fileMetaDataInTSF.getDeltaObjectMap(), fileMetaDataInThrift.getDelta_object_map(), "delta object map")) {
 				Map<String, TsDeltaObject> mapInTSF = fileMetaDataInTSF.getDeltaObjectMap();

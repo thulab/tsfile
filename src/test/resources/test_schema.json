@@ -30,5 +30,9 @@
             "data_type": "INT32",
             "encoding": "TS_2DIFF"
         }
-    ]
+    ],
+    "properties":{
+        "k1":"v1",
+        "k2":"v2"
+    }
 }

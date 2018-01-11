@@ -47,7 +47,7 @@ enum ConvertedType {
  */
 struct Digest {
    /** Statistics of timeseries, eg. min and max value, sum value */
-   1: optional map<string, string> statistics;
+   1: optional map<string, binary> statistics;
    /** count of null value in the timeseries */
    2: optional i64 null_count;
    /** count of distinct values occurring */

@@ -3,6 +3,7 @@ package cn.edu.tsinghua.tsfile.file.metadata;
 import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.format.Digest;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,24 +14,24 @@ public class TsDigest implements IConverter<Digest> {
 	/**
 	 * Digest/statistics per row group and per page.
 	 */
-	public Map<String, String> statistics;
+	public Map<String, ByteBuffer> statistics;
 
 	public TsDigest() {
 	}
 
-	public TsDigest(Map<String, String> statistics) {
+	public TsDigest(Map<String, ByteBuffer> statistics) {
 		this.statistics = statistics;
 	}
 	
-	public void setStatistics(Map<String, String> statistics) {
+	public void setStatistics(Map<String,ByteBuffer> statistics) {
 		this.statistics = statistics;
 	}
 	
-	public Map<String, String> getStatistics(){
+	public Map<String, ByteBuffer> getStatistics(){
 		return this.statistics;
 	}
 	
-	public void addStatistics(String key, String value) {
+	public void addStatistics(String key, ByteBuffer value) {
 		if(statistics == null) {
 			statistics = new HashMap<>();
 		}
@@ -46,7 +47,7 @@ public class TsDigest implements IConverter<Digest> {
 	public Digest convertToThrift() {
 		Digest digest = new Digest();
 		if (statistics != null) {
-			Map<String, String> statisticsInThrift = new HashMap<>();
+			Map<String, ByteBuffer> statisticsInThrift = new HashMap<>();
 			for (String key : statistics.keySet()) {
 				statisticsInThrift.put(key, statistics.get(key));
 			}
@@ -58,15 +59,21 @@ public class TsDigest implements IConverter<Digest> {
 	@Override
 	public void convertToTSF(Digest digestInThrift) {
 		if (digestInThrift != null) {
-			Map<String, String> statisticsInThrift = digestInThrift.getStatistics();
+			Map<String, ByteBuffer> statisticsInThrift = digestInThrift.getStatistics();
 			if (statisticsInThrift != null) {
 				statistics = new HashMap<>();
 				for (String key : statisticsInThrift.keySet()) {
-					statistics.put(key, statisticsInThrift.get(key));
+					statistics.put(key, byteBufferDeepCopy(statisticsInThrift.get(key)));
 				}
 			} else {
 				statistics = null;
 			}
 		}
+	}
+
+	public ByteBuffer byteBufferDeepCopy(ByteBuffer src) {
+		ByteBuffer copy = ByteBuffer.allocate(src.remaining()).put(src.slice());
+		copy.flip();
+		return copy;
 	}
 }

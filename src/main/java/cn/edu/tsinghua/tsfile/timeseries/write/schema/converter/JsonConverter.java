@@ -12,6 +12,7 @@ import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
 
 /**
@@ -103,5 +104,38 @@ public class JsonConverter {
       props.put(key.toString(), value);
     }
     return new MeasurementDescriptor(measurementId, type, encoding, props);
+  }
+
+  /**
+   * given a FileSchema and convert it into a JSONObject
+   *
+   * @param fileSchema
+   *          the given schema in type of {@linkplain FileSchema FileSchema}
+   * @return converted File Schema in type of JSONObject
+   */
+
+  public static JSONObject converterFileSchemaToJson(
+          FileSchema fileSchema) {
+    JSONObject ret = new JSONObject();
+    JSONArray jsonSchema = new JSONArray();
+    JSONObject jsonProperties = new JSONObject();
+
+    for (MeasurementDescriptor measurementDescriptor : fileSchema.getDescriptor().values()) {
+      jsonSchema.put(convertMeasurementDescriptorToJson(measurementDescriptor));
+    }
+    fileSchema.getProps().forEach(jsonProperties::put);
+    ret.put(JsonFormatConstant.JSON_SCHEMA, jsonSchema);
+    ret.put(JsonFormatConstant.PROPERTIES, jsonProperties);
+    return ret;
+  }
+
+  private static JSONObject convertMeasurementDescriptorToJson(
+          MeasurementDescriptor measurementDescriptor) {
+    JSONObject measurementObj = new JSONObject();
+    measurementObj.put(JsonFormatConstant.MEASUREMENT_UID, measurementDescriptor.getMeasurementId());
+    measurementObj.put(JsonFormatConstant.DATA_TYPE, measurementDescriptor.getType().toString());
+    measurementObj.put(JsonFormatConstant.MEASUREMENT_ENCODING, measurementDescriptor.getEncodingType().toString());
+    measurementDescriptor.getProps().forEach(measurementObj::put);
+    return measurementObj;
   }
 }

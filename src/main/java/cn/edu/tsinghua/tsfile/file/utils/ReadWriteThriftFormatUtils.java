@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -127,27 +128,15 @@ public class ReadWriteThriftFormatUtils {
 				max_timestamp, min_timestamp));
 		if (!statistics.isEmpty()) {
 			Digest digest = new Digest();
-			Map<String, String> statisticsMap = new HashMap<>();
-
+			Map<String, ByteBuffer> statisticsMap = new HashMap<>();
 			// TODO add your statistics
-			if (statistics.getMax() == null) {
-				statisticsMap.put(StatisticConstant.MAX_VALUE, "");
-			} else {
-				statisticsMap.put(StatisticConstant.MAX_VALUE, statistics.getMax().toString());
-			}
-			if (statistics.getMin() == null) {
-				statisticsMap.put(StatisticConstant.MIN_VALUE, "");
-			} else {
-				statisticsMap.put(StatisticConstant.MIN_VALUE, statistics.getMin().toString());
-			}
-			if (statistics.getFirst() == null) {
-				statisticsMap.put(StatisticConstant.FIRST, "");
-			} else {
-				statisticsMap.put(StatisticConstant.FIRST, statistics.getFirst().toString());
-			}
-			statisticsMap.put(StatisticConstant.SUM, String.valueOf(statistics.getSum()));
-
+			statisticsMap.put(StatisticConstant.MAX_VALUE, ByteBuffer.wrap(statistics.getMaxBytes()));
+			statisticsMap.put(StatisticConstant.MIN_VALUE, ByteBuffer.wrap(statistics.getMinBytes()));
+			statisticsMap.put(StatisticConstant.FIRST, ByteBuffer.wrap(statistics.getFirstBytes()));
+			statisticsMap.put(StatisticConstant.SUM, ByteBuffer.wrap(statistics.getSumBytes()));
+			statisticsMap.put(StatisticConstant.LAST, ByteBuffer.wrap(statistics.getLastBytes()));
 			digest.setStatistics(statisticsMap);
+
 			pageHeader.getData_page_header().setDigest(digest);
 		}
 		return pageHeader;
