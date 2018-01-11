@@ -162,7 +162,8 @@ public class TsFileWriter {
    *           exception in IO
    * @throws WriteProcessException
    *           exception in write process
-   * @return boolean
+   * @return true -size of tsfile or metadata reaches the threshold. 
+   * false - otherwise
    */
   public boolean write(TSRecord record) throws IOException, WriteProcessException {
     if (checkIsDeltaExist(record)) {
@@ -244,6 +245,8 @@ public class TsFileWriter {
    *
    * @throws IOException
    *           exception in IO
+   * @return true - size of tsfile or metadata reaches the threshold. 
+   * false - otherwise
    */
   protected boolean checkMemorySize() throws IOException {
     if (recordCount >= recordCountForNextMemCheck) {
@@ -268,6 +271,8 @@ public class TsFileWriter {
    *          whether to fill RowGroup
    * @throws IOException
    *           exception in IO
+   * @return true - size of tsfile or metadata reaches the threshold. 
+   * false - otherwise. But this function just return false, the Override of IoTDB may return true.
    */
   protected boolean flushRowGroup(boolean isFillRowGroup) throws IOException {
     // at the present stage, just flush one block
