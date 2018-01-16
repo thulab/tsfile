@@ -4,8 +4,8 @@ import cn.edu.tsinghua.tsfile.common.constant.StatisticConstant;
 import cn.edu.tsinghua.tsfile.timeseries.filter.utils.DigestForFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.basic.Filter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.visitor.impl.DigestFilterVisitor;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunk;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
 
 import java.io.IOException;
@@ -20,29 +20,29 @@ public class SeriesReaderFromSingleFileWithFilterImpl extends SeriesReaderFromSi
     private DigestFilterVisitor digestFilterVisitor;
 
     public SeriesReaderFromSingleFileWithFilterImpl(SeriesChunkLoader seriesChunkLoader
-            , List<SeriesChunkDescriptor> seriesChunkDescriptorList, Filter<?> filter) {
-        super(seriesChunkLoader, seriesChunkDescriptorList);
+            , List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList, Filter<?> filter) {
+        super(seriesChunkLoader, encodedSeriesChunkDescriptorList);
         this.filter = filter;
         this.digestFilterVisitor = new DigestFilterVisitor();
     }
 
-    protected void initSeriesChunkReader(SeriesChunkDescriptor seriesChunkDescriptor) throws IOException {
-        SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(seriesChunkDescriptor);
+    protected void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException {
+        SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
         this.seriesChunkReader = new SeriesChunkReaderWithFilterImpl(memSeriesChunk.getSeriesChunkBodyStream(),
-                memSeriesChunk.getSeriesChunkDescriptor().getDataType(),
-                memSeriesChunk.getSeriesChunkDescriptor().getCompressionTypeName(),
+                memSeriesChunk.getEncodedSeriesChunkDescriptor().getDataType(),
+                memSeriesChunk.getEncodedSeriesChunkDescriptor().getCompressionTypeName(),
                 filter);
     }
 
     @Override
-    protected boolean seriesChunkSatisfied(SeriesChunkDescriptor seriesChunkDescriptor) {
-        DigestForFilter timeDigest = new DigestForFilter(seriesChunkDescriptor.getMinTimestamp(),
-                seriesChunkDescriptor.getMaxTimestamp());
+    protected boolean seriesChunkSatisfied(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) {
+        DigestForFilter timeDigest = new DigestForFilter(encodedSeriesChunkDescriptor.getMinTimestamp(),
+                encodedSeriesChunkDescriptor.getMaxTimestamp());
         //TODO: Using ByteBuffer as min/max is best
         DigestForFilter valueDigest = new DigestForFilter(
-                seriesChunkDescriptor.getValueDigest().getStatistics().get(StatisticConstant.MIN_VALUE),
-                seriesChunkDescriptor.getValueDigest().getStatistics().get(StatisticConstant.MAX_VALUE),
-                seriesChunkDescriptor.getDataType());
+                encodedSeriesChunkDescriptor.getValueDigest().getStatistics().get(StatisticConstant.MIN_VALUE),
+                encodedSeriesChunkDescriptor.getValueDigest().getStatistics().get(StatisticConstant.MAX_VALUE),
+                encodedSeriesChunkDescriptor.getDataType());
         return digestFilterVisitor.satisfy(timeDigest, valueDigest, filter);
     }
 }

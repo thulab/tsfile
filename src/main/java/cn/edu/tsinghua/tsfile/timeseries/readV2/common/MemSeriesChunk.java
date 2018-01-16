@@ -6,16 +6,16 @@ import java.io.ByteArrayInputStream;
  * Created by zhangjinrui on 2017/12/25.
  */
 public class MemSeriesChunk implements SeriesChunk{
-    private SeriesChunkDescriptor seriesChunkDescriptor;
+    private EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor;
     private ByteArrayInputStream seriesChunkBodyStream;
 
-    public MemSeriesChunk(SeriesChunkDescriptor seriesChunkDescriptor, ByteArrayInputStream seriesChunkBodyStream) {
-        this.seriesChunkDescriptor = seriesChunkDescriptor;
+    public MemSeriesChunk(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor, ByteArrayInputStream seriesChunkBodyStream) {
+        this.encodedSeriesChunkDescriptor = encodedSeriesChunkDescriptor;
         this.seriesChunkBodyStream = seriesChunkBodyStream;
     }
 
-    public SeriesChunkDescriptor getSeriesChunkDescriptor() {
-        return seriesChunkDescriptor;
+    public EncodedSeriesChunkDescriptor getEncodedSeriesChunkDescriptor() {
+        return encodedSeriesChunkDescriptor;
     }
 
     public ByteArrayInputStream getSeriesChunkBodyStream() {

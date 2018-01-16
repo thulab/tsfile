@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.controller;
 
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 
 import java.io.IOException;
 import java.util.List;
@@ -11,6 +11,6 @@ import java.util.List;
  */
 public interface MetadataQuerier {
 
-    List<SeriesChunkDescriptor> getSeriesChunkDescriptorList(Path path) throws IOException;
+    List<EncodedSeriesChunkDescriptor> getSeriesChunkDescriptorList(Path path) throws IOException;
 
 }

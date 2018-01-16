@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunk;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
 
 import java.io.IOException;
@@ -12,19 +12,19 @@ import java.util.List;
  */
 public class SeriesReaderFromSingleFileWithoutFilterImpl extends SeriesReaderFromSingleFile {
 
-    public SeriesReaderFromSingleFileWithoutFilterImpl(SeriesChunkLoader seriesChunkLoader, List<SeriesChunkDescriptor> seriesChunkDescriptorList) {
-        super(seriesChunkLoader, seriesChunkDescriptorList);
+    public SeriesReaderFromSingleFileWithoutFilterImpl(SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
+        super(seriesChunkLoader, encodedSeriesChunkDescriptorList);
     }
 
-    protected void initSeriesChunkReader(SeriesChunkDescriptor seriesChunkDescriptor) throws IOException {
-        SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(seriesChunkDescriptor);
+    protected void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException {
+        SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
         this.seriesChunkReader = new SeriesChunkReaderWithoutFilterImpl(memSeriesChunk.getSeriesChunkBodyStream(),
-                memSeriesChunk.getSeriesChunkDescriptor().getDataType(),
-                memSeriesChunk.getSeriesChunkDescriptor().getCompressionTypeName());
+                memSeriesChunk.getEncodedSeriesChunkDescriptor().getDataType(),
+                memSeriesChunk.getEncodedSeriesChunkDescriptor().getCompressionTypeName());
     }
 
     @Override
-    protected boolean seriesChunkSatisfied(SeriesChunkDescriptor seriesChunkDescriptor) {
+    protected boolean seriesChunkSatisfied(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) {
         return true;
     }
 }

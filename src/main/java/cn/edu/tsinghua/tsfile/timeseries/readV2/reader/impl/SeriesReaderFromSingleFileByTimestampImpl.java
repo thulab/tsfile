@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunk;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType;
@@ -19,8 +19,8 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
     private TimeValuePair cachedTimeValuePair;
     private int nextSeriesChunkIndex;
 
-    public SeriesReaderFromSingleFileByTimestampImpl(SeriesChunkLoader seriesChunkLoader, List<SeriesChunkDescriptor> seriesChunkDescriptorList) {
-        super(seriesChunkLoader, seriesChunkDescriptorList);
+    public SeriesReaderFromSingleFileByTimestampImpl(SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
+        super(seriesChunkLoader, encodedSeriesChunkDescriptorList);
         nextSeriesChunkIndex = 0;
     }
 
@@ -29,17 +29,17 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
         if (seriesChunkReaderInitialized && seriesChunkReader.hasNext()) {
             return true;
         }
-        while (nextSeriesChunkIndex < seriesChunkDescriptorList.size()) {
+        while (nextSeriesChunkIndex < encodedSeriesChunkDescriptorList.size()) {
             if (!seriesChunkReaderInitialized) {
-                SeriesChunkDescriptor seriesChunkDescriptor = seriesChunkDescriptorList.get(nextSeriesChunkIndex);
-                if (seriesChunkSatisfied(seriesChunkDescriptor)) {
-                    initSeriesChunkReader(seriesChunkDescriptor);
+                EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor = encodedSeriesChunkDescriptorList.get(nextSeriesChunkIndex);
+                if (seriesChunkSatisfied(encodedSeriesChunkDescriptor)) {
+                    initSeriesChunkReader(encodedSeriesChunkDescriptor);
                     ((SeriesChunkReaderByTimestampImpl) seriesChunkReader).setCurrentTimestamp(currentTimestamp);
                     seriesChunkReaderInitialized = true;
                     nextSeriesChunkIndex++;
                 } else {
-                    long minTimestamp = seriesChunkDescriptor.getMinTimestamp();
-                    long maxTimestamp = seriesChunkDescriptor.getMaxTimestamp();
+                    long minTimestamp = encodedSeriesChunkDescriptor.getMinTimestamp();
+                    long maxTimestamp = encodedSeriesChunkDescriptor.getMaxTimestamp();
                     if (maxTimestamp < currentTimestamp) {
                         continue;
                     } else if (minTimestamp > currentTimestamp) {
@@ -88,17 +88,17 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
     }
 
     @Override
-    protected void initSeriesChunkReader(SeriesChunkDescriptor seriesChunkDescriptor) throws IOException {
-        SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(seriesChunkDescriptor);
+    protected void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException {
+        SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
         this.seriesChunkReader = new SeriesChunkReaderByTimestampImpl(memSeriesChunk.getSeriesChunkBodyStream()
-                , seriesChunkDescriptor.getDataType(),
-                seriesChunkDescriptor.getCompressionTypeName());
+                , encodedSeriesChunkDescriptor.getDataType(),
+                encodedSeriesChunkDescriptor.getCompressionTypeName());
     }
 
     @Override
-    protected boolean seriesChunkSatisfied(SeriesChunkDescriptor seriesChunkDescriptor) {
-        long minTimestamp = seriesChunkDescriptor.getMinTimestamp();
-        long maxTimestamp = seriesChunkDescriptor.getMaxTimestamp();
+    protected boolean seriesChunkSatisfied(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) {
+        long minTimestamp = encodedSeriesChunkDescriptor.getMinTimestamp();
+        long maxTimestamp = encodedSeriesChunkDescriptor.getMaxTimestamp();
         if (minTimestamp <= currentTimestamp && currentTimestamp <= maxTimestamp) {
             return true;
         }

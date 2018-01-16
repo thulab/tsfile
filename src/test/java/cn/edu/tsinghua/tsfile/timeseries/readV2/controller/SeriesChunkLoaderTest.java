@@ -5,7 +5,7 @@ import cn.edu.tsinghua.tsfile.timeseries.read.TsRandomAccessLocalFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileGeneratorForTest;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.MemSeriesChunk;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import org.junit.After;
 import org.junit.Assert;
@@ -39,12 +39,12 @@ public class SeriesChunkLoaderTest {
     public void test() throws IOException {
         randomAccessFileReader = new TsRandomAccessLocalFileReader(FILE_PATH);
         MetadataQuerierByFileImpl metadataQuerierByFile = new MetadataQuerierByFileImpl(randomAccessFileReader);
-        List<SeriesChunkDescriptor> seriesChunkDescriptorList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d2.s1"));
+        List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d2.s1"));
 
         SeriesChunkLoaderImpl seriesChunkLoader = new SeriesChunkLoaderImpl(randomAccessFileReader);
-        for (SeriesChunkDescriptor seriesChunkDescriptor : seriesChunkDescriptorList) {
-            MemSeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(seriesChunkDescriptor);
-            Assert.assertEquals(seriesChunkDescriptor.getLengthOfBytes(), memSeriesChunk.getSeriesChunkBodyStream().available());
+        for (EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor : encodedSeriesChunkDescriptorList) {
+            MemSeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
+            Assert.assertEquals(encodedSeriesChunkDescriptor.getLengthOfBytes(), memSeriesChunk.getSeriesChunkBodyStream().available());
         }
     }
 }

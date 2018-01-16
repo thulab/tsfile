@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.query.timegenerator;
 
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.SeriesFilter;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.MetadataQuerier;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.SeriesReader;
@@ -24,8 +24,8 @@ public class NodeConstructorForSingleFileImpl extends NodeConstructor {
 
     @Override
     public SeriesReader generateSeriesReader(SeriesFilter<?> seriesFilter) throws IOException {
-        List<SeriesChunkDescriptor> seriesChunkDescriptorList = metadataQuerier.getSeriesChunkDescriptorList(
+        List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList = metadataQuerier.getSeriesChunkDescriptorList(
                 seriesFilter.getSeriesPath());
-        return new SeriesReaderFromSingleFileWithFilterImpl(seriesChunkLoader, seriesChunkDescriptorList, seriesFilter.getFilter());
+        return new SeriesReaderFromSingleFileWithFilterImpl(seriesChunkLoader, encodedSeriesChunkDescriptorList, seriesFilter.getFilter());
     }
 }

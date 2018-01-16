@@ -6,7 +6,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.*;
 import cn.edu.tsinghua.tsfile.file.metadata.converter.TsFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.utils.cache.LRUCache;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 
@@ -28,7 +28,7 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
     private TsFileMetaData fileMetaData;
 
     private LRUCache<String, List<RowGroupMetaData>> rowGroupMetadataCache;
-    private LRUCache<Path, List<SeriesChunkDescriptor>> seriesChunkDescriptorCache;
+    private LRUCache<Path, List<EncodedSeriesChunkDescriptor>> seriesChunkDescriptorCache;
 
     public MetadataQuerierByFileImpl(ITsRandomAccessFileReader randomAccessFileReader) throws IOException {
         this.randomAccessFileReader = randomAccessFileReader;
@@ -49,14 +49,14 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
             }
         };
 
-        seriesChunkDescriptorCache = new LRUCache<Path, List<SeriesChunkDescriptor>>(SERIESCHUNK_DESCRIPTOR_CACHE_SIZE) {
+        seriesChunkDescriptorCache = new LRUCache<Path, List<EncodedSeriesChunkDescriptor>>(SERIESCHUNK_DESCRIPTOR_CACHE_SIZE) {
             @Override
-            public void beforeRemove(List<SeriesChunkDescriptor> object) throws CacheException {
+            public void beforeRemove(List<EncodedSeriesChunkDescriptor> object) throws CacheException {
                 return;
             }
 
             @Override
-            public List<SeriesChunkDescriptor> loadObjectByKey(Path key) throws CacheException {
+            public List<EncodedSeriesChunkDescriptor> loadObjectByKey(Path key) throws CacheException {
                 return loadSeriesChunkDescriptor(key);
             }
         };
@@ -75,7 +75,7 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
     }
 
     @Override
-    public List<SeriesChunkDescriptor> getSeriesChunkDescriptorList(Path path) throws IOException {
+    public List<EncodedSeriesChunkDescriptor> getSeriesChunkDescriptorList(Path path) throws IOException {
         try {
             return seriesChunkDescriptorCache.get(path);
         } catch (CacheException e) {
@@ -83,22 +83,22 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
         }
     }
 
-    private List<SeriesChunkDescriptor> loadSeriesChunkDescriptor(Path path) throws CacheException {
+    private List<EncodedSeriesChunkDescriptor> loadSeriesChunkDescriptor(Path path) throws CacheException {
         List<RowGroupMetaData> rowGroupMetaDataList = rowGroupMetadataCache.get(path.getDeltaObjectToString());
-        List<SeriesChunkDescriptor> seriesChunkDescriptorList = new ArrayList<>();
+        List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList = new ArrayList<>();
         for (RowGroupMetaData rowGroupMetaData : rowGroupMetaDataList) {
             List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataListInOneRowGroup = rowGroupMetaData.getTimeSeriesChunkMetaDataList();
             for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataListInOneRowGroup) {
                 if (path.getMeasurementToString().equals(timeSeriesChunkMetaData.getProperties().getMeasurementUID())) {
-                    seriesChunkDescriptorList.add(generateSeriesChunkDescriptorByMetadata(timeSeriesChunkMetaData));
+                    encodedSeriesChunkDescriptorList.add(generateSeriesChunkDescriptorByMetadata(timeSeriesChunkMetaData));
                 }
             }
         }
-        return seriesChunkDescriptorList;
+        return encodedSeriesChunkDescriptorList;
     }
 
-    private SeriesChunkDescriptor generateSeriesChunkDescriptorByMetadata(TimeSeriesChunkMetaData timeSeriesChunkMetaData) {
-        SeriesChunkDescriptor seriesChunkDescriptor = new SeriesChunkDescriptor(
+    private EncodedSeriesChunkDescriptor generateSeriesChunkDescriptorByMetadata(TimeSeriesChunkMetaData timeSeriesChunkMetaData) {
+        EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor = new EncodedSeriesChunkDescriptor(
                 timeSeriesChunkMetaData.getProperties().getFileOffset(),
                 timeSeriesChunkMetaData.getTotalByteSize(),
                 timeSeriesChunkMetaData.getProperties().getCompression(),
@@ -108,7 +108,7 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
                 timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getEndTime(),
                 timeSeriesChunkMetaData.getNumRows(),
                 timeSeriesChunkMetaData.getVInTimeSeriesChunkMetaData().getEnumValues());
-        return seriesChunkDescriptor;
+        return encodedSeriesChunkDescriptor;
     }
 
     private List<RowGroupMetaData> loadRowGroupMetadata(String deltaObjectID) throws IOException {
