@@ -42,4 +42,8 @@ public class TimeValuePair {
         }
         return false;
     }
+
+    public int getSize() {
+        return 4 + 8 + value.getSize();
+    }
 }

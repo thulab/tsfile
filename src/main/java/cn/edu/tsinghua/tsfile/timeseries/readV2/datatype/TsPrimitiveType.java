@@ -30,6 +30,11 @@ public abstract class TsPrimitiveType {
         throw new UnsupportedOperationException("getBinary() is not supported for current sub-class");
     }
 
+    /**
+     * @return size of one instance of current class
+     */
+    public abstract int getSize();
+
     public abstract Object getValue();
 
     public abstract String getStringValue();
@@ -56,6 +61,11 @@ public abstract class TsPrimitiveType {
         }
 
         @Override
+        public int getSize() {
+            return 4 + 1;
+        }
+
+        @Override
         public Object getValue() {
             return value;
         }
@@ -75,6 +85,11 @@ public abstract class TsPrimitiveType {
 
         public int getInt() {
             return value;
+        }
+
+        @Override
+        public int getSize() {
+            return 4 + 4;
         }
 
         @Override
@@ -100,6 +115,11 @@ public abstract class TsPrimitiveType {
         }
 
         @Override
+        public int getSize() {
+            return 4 + 8;
+        }
+
+        @Override
         public String getStringValue() {
             return String.valueOf(value);
         }
@@ -119,6 +139,11 @@ public abstract class TsPrimitiveType {
 
         public float getFloat() {
             return value;
+        }
+
+        @Override
+        public int getSize() {
+            return 4 + 4;
         }
 
         @Override
@@ -144,6 +169,11 @@ public abstract class TsPrimitiveType {
         }
 
         @Override
+        public int getSize() {
+            return 4 + 8;
+        }
+
+        @Override
         public Object getValue() {
             return value;
         }
@@ -163,6 +193,11 @@ public abstract class TsPrimitiveType {
 
         public Binary getBinary() {
             return value;
+        }
+
+        @Override
+        public int getSize() {
+            return 4 + 4 + value.getLength();
         }
 
         @Override
