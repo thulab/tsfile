@@ -80,6 +80,12 @@ public class PageReader implements TimeValuePairReader {
         next();
     }
 
+    @Override
+    public void close() throws IOException {
+        timestampInputStream.close();
+        valueInputStream.close();
+    }
+
     private TsPrimitiveType readOneValue() {
         switch (dataType) {
             case BOOLEAN:

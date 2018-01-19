@@ -128,4 +128,9 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
     public void skipCurrentTimeValuePair() {
 
     }
+
+    @Override
+    public void close() throws IOException {
+
+    }
 }

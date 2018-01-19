@@ -14,5 +14,7 @@ public interface TimeValuePairReader{
     TimeValuePair next() throws IOException;
 
     void skipCurrentTimeValuePair() throws IOException;
+
+    void close() throws IOException;
 }
 

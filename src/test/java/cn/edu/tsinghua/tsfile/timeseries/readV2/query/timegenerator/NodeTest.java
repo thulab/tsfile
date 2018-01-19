@@ -98,5 +98,10 @@ public class NodeTest {
         public void skipCurrentTimeValuePair() throws IOException {
             next();
         }
+
+        @Override
+        public void close() throws IOException {
+
+        }
     }
 }

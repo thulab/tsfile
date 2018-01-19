@@ -64,4 +64,8 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
     protected abstract void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException;
 
     protected abstract boolean seriesChunkSatisfied(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor);
+
+    public void close() throws IOException{
+
+    }
 }

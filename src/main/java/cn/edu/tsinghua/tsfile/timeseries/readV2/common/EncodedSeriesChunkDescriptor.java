@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by zhangjinrui on 2017/12/25.
  */
-public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor{
+public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor {
     private String filePath;
     private long offsetInFile;
     private long lengthOfBytes;
@@ -63,7 +63,7 @@ public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor{
     }
 
     private String getUUID() {
-        return filePath + offsetInFile;
+        return filePath + offsetInFile + lengthOfBytes;
     }
 
     public String getFilePath() {
