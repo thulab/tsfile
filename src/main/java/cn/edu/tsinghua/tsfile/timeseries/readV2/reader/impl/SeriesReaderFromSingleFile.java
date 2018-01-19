@@ -1,7 +1,11 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.MetadataQuerierByFileImpl;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoaderImpl;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.SeriesReader;
 
@@ -19,6 +23,15 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
     protected SeriesChunkReader seriesChunkReader;
     protected boolean seriesChunkReaderInitialized;
     protected int currentReadSeriesChunkIndex;
+
+    protected ITsRandomAccessFileReader randomAccessFileReader;
+
+    public SeriesReaderFromSingleFile(ITsRandomAccessFileReader randomAccessFileReader, Path path) throws IOException {
+        this.seriesChunkLoader = new SeriesChunkLoaderImpl(randomAccessFileReader);
+        this.encodedSeriesChunkDescriptorList = new MetadataQuerierByFileImpl(randomAccessFileReader).getSeriesChunkDescriptorList(path);
+        this.currentReadSeriesChunkIndex = -1;
+        this.seriesChunkReaderInitialized = false;
+    }
 
     public SeriesReaderFromSingleFile(SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
         this.seriesChunkLoader = seriesChunkLoader;
@@ -65,7 +78,9 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
 
     protected abstract boolean seriesChunkSatisfied(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor);
 
-    public void close() throws IOException{
-
+    public void close() throws IOException {
+        if (randomAccessFileReader != null) {
+            randomAccessFileReader.close();
+        }
     }
 }

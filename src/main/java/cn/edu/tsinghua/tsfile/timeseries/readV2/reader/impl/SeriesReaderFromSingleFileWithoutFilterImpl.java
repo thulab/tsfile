@@ -1,5 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunk;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
@@ -14,6 +16,10 @@ public class SeriesReaderFromSingleFileWithoutFilterImpl extends SeriesReaderFro
 
     public SeriesReaderFromSingleFileWithoutFilterImpl(SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
         super(seriesChunkLoader, encodedSeriesChunkDescriptorList);
+    }
+
+    public SeriesReaderFromSingleFileWithoutFilterImpl(ITsRandomAccessFileReader randomAccessFileReader, Path path) throws IOException {
+        super(randomAccessFileReader, path);
     }
 
     protected void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException {
