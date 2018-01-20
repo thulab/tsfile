@@ -53,10 +53,19 @@ public class TsFileIOWriter {
 		magicStringBytes = BytesUtils.StringToBytes(TSFileConfig.MAGIC_STRING);
 	}
 
-	private final ITsRandomAccessFileWriter out;
+	private ITsRandomAccessFileWriter out;
 	protected List<RowGroupMetaData> rowGroupMetaDatas = new ArrayList<>();
 	private RowGroupMetaData currentRowGroupMetaData;
 	private TimeSeriesChunkMetaData currentChunkMetaData;
+	
+	
+	public TsFileIOWriter(){
+		
+	}
+	
+	public void setIOWriter(ITsRandomAccessFileWriter out){
+		this.out = out;
+	}
 
 	/**
 	 * for writing a new tsfile.
