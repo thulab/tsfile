@@ -1,9 +1,11 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.datatype;
 
+import java.io.Serializable;
+
 /**
  * @author Jinrui Zhang
  */
-public class TimeValuePair {
+public class TimeValuePair implements Serializable{
     private long timestamp;
     private TsPrimitiveType value;
 

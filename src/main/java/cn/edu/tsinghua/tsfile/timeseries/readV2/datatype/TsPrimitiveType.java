@@ -2,10 +2,12 @@ package cn.edu.tsinghua.tsfile.timeseries.readV2.datatype;
 
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
 
+import java.io.Serializable;
+
 /**
  * @author Jinrui Zhang
  */
-public abstract class TsPrimitiveType {
+public abstract class TsPrimitiveType implements Serializable {
     public boolean getBoolean() {
         throw new UnsupportedOperationException("getBoolean() is not supported for current sub-class");
     }
