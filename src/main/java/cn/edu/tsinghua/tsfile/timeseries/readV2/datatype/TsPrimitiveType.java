@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.datatype;
 
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 
 import java.io.Serializable;
 
@@ -41,6 +42,8 @@ public abstract class TsPrimitiveType implements Serializable {
 
     public abstract String getStringValue();
 
+    public abstract TSDataType getDataType();
+
     public String toString() {
         return getStringValue();
     }
@@ -76,6 +79,11 @@ public abstract class TsPrimitiveType implements Serializable {
         public String getStringValue() {
             return String.valueOf(value);
         }
+
+        @Override
+        public TSDataType getDataType() {
+            return TSDataType.BOOLEAN;
+        }
     }
 
     public static class TsInt extends TsPrimitiveType {
@@ -103,6 +111,11 @@ public abstract class TsPrimitiveType implements Serializable {
         public String getStringValue() {
             return String.valueOf(value);
         }
+
+        @Override
+        public TSDataType getDataType() {
+            return TSDataType.INT32;
+        }
     }
 
     public static class TsLong extends TsPrimitiveType {
@@ -124,6 +137,11 @@ public abstract class TsPrimitiveType implements Serializable {
         @Override
         public String getStringValue() {
             return String.valueOf(value);
+        }
+
+        @Override
+        public TSDataType getDataType() {
+            return TSDataType.INT64;
         }
 
         @Override
@@ -157,6 +175,11 @@ public abstract class TsPrimitiveType implements Serializable {
         public String getStringValue() {
             return String.valueOf(value);
         }
+
+        @Override
+        public TSDataType getDataType() {
+            return TSDataType.FLOAT;
+        }
     }
 
     public static class TsDouble extends TsPrimitiveType {
@@ -184,6 +207,11 @@ public abstract class TsPrimitiveType implements Serializable {
         public String getStringValue() {
             return String.valueOf(value);
         }
+
+        @Override
+        public TSDataType getDataType() {
+            return TSDataType.DOUBLE;
+        }
     }
 
     public static class TsBinary extends TsPrimitiveType {
@@ -210,6 +238,11 @@ public abstract class TsPrimitiveType implements Serializable {
         @Override
         public String getStringValue() {
             return String.valueOf(value);
+        }
+
+        @Override
+        public TSDataType getDataType() {
+            return TSDataType.TEXT;
         }
     }
 }
