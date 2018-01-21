@@ -145,6 +145,11 @@ public class TsFileIOWriter {
 																												// remove
 																												// deltaType
 	}
+	
+	public void startRowGroup(String deltaObjectId) {
+		LOG.debug("start row group:{}", deltaObjectId);
+		currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, 0, 0, new ArrayList<>(), "");// FIXME
+	}
 
 	/**
 	 * start a {@linkplain TimeSeriesChunkMetaData TimeSeriesChunkMetaData}.
@@ -198,6 +203,14 @@ public class TsFileIOWriter {
 
 	public void endRowGroup(long memSize) {
 		currentRowGroupMetaData.setTotalByteSize(memSize);
+		rowGroupMetaDatas.add(currentRowGroupMetaData);
+		LOG.debug("end row group:{}", currentRowGroupMetaData);
+		currentRowGroupMetaData = null;
+	}
+	
+	public void endRowGroup(long memSize,long recordCount) {
+		currentRowGroupMetaData.setTotalByteSize(memSize);
+		currentRowGroupMetaData.setNumOfRows(recordCount);
 		rowGroupMetaDatas.add(currentRowGroupMetaData);
 		LOG.debug("end row group:{}", currentRowGroupMetaData);
 		currentRowGroupMetaData = null;
