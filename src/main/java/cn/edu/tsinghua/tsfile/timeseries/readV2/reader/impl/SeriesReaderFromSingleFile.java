@@ -27,6 +27,7 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
     protected ITsRandomAccessFileReader randomAccessFileReader;
 
     public SeriesReaderFromSingleFile(ITsRandomAccessFileReader randomAccessFileReader, Path path) throws IOException {
+        this.randomAccessFileReader = randomAccessFileReader;
         this.seriesChunkLoader = new SeriesChunkLoaderImpl(randomAccessFileReader);
         this.encodedSeriesChunkDescriptorList = new MetadataQuerierByFileImpl(randomAccessFileReader).getSeriesChunkDescriptorList(path);
         this.currentReadSeriesChunkIndex = -1;
