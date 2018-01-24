@@ -35,6 +35,4 @@ public class ReadOnlyTsFile {
     public void close() throws IOException {
         randomAccessFileReader.close();
     }
-
-
 }
