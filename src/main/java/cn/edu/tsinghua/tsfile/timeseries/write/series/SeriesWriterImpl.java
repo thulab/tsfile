@@ -225,7 +225,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
             long currentColumnSize = dataValueWriter.estimateMaxMemSize();
             if (currentColumnSize > psThres) {
                 // we will write the current page
-                LOG.info("enough size, write page {}", desc);
+                LOG.debug("enough size, write page {}", desc);
                 writePage();
             } else {
                 LOG.debug("{}:{} not enough size, now: {}, change to {}", deltaObjectId, desc, valueCount,
