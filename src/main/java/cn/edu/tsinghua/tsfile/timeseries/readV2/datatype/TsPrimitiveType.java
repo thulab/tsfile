@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.datatype;
 
+import cn.edu.tsinghua.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 
@@ -243,6 +244,25 @@ public abstract class TsPrimitiveType implements Serializable {
         @Override
         public TSDataType getDataType() {
             return TSDataType.TEXT;
+        }
+    }
+
+    public static TsPrimitiveType getByType(TSDataType dataType, Object v) {
+        switch (dataType) {
+            case BOOLEAN:
+                return new TsPrimitiveType.TsBoolean((boolean) v);
+            case INT32:
+                return new TsPrimitiveType.TsInt((int) v);
+            case INT64:
+                return new TsPrimitiveType.TsLong((long) v);
+            case FLOAT:
+                return new TsPrimitiveType.TsFloat((float) v);
+            case DOUBLE:
+                return new TsPrimitiveType.TsDouble((double) v);
+            case TEXT:
+                return new TsPrimitiveType.TsBinary((Binary) v);
+            default:
+                throw new UnSupportedDataTypeException("Unsupported data type:" + dataType);
         }
     }
 }
