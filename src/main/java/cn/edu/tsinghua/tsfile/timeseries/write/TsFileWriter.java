@@ -254,7 +254,7 @@ public class TsFileWriter {
       if (memSize > rowGroupSizeThreshold) {
         LOG.info("start_write_row_group, memory space occupy:" + memSize);
         recordCountForNextMemCheck = rowGroupSizeThreshold / oneRowMaxSize;
-        return flushRowGroup(true);
+        return flushRowGroup(false);
       } else {
         recordCountForNextMemCheck = recordCount
             + (rowGroupSizeThreshold - memSize) / oneRowMaxSize;
