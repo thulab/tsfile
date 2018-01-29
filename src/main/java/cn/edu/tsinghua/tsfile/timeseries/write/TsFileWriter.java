@@ -175,24 +175,6 @@ public class TsFileWriter {
   }
 
   /**
-   * @see cn.edu.tsinghua.tsfile.timeseries.write.series.IRowGroupWriter#getDataInMemory(String)
-   * @param deltaObjectId deltaObject id
-   * @param measurementId measurement id
-   * @return first object is the current page data, second object is the all pages which is packaged
-   */
-  public List<Object> getDataInMemory(String deltaObjectId, String measurementId) {
-    if (groupWriters.get(deltaObjectId) == null) {
-      DynamicOneColumnData left = null;
-      Pair<List<ByteArrayInputStream>, CompressionTypeName> right = null;
-      List<Object> result = new ArrayList<>();
-      result.add(left);
-      result.add(right);
-      return result;
-    }
-    return groupWriters.get(deltaObjectId).getDataInMemory(measurementId);
-  }
-
-  /**
    * <b>Note that</b>, before calling this method, all {@code IRowGroupWriter} instance existing in
    * {@code groupWriters} have been reset for next writing stage, thus we don't add new
    * {@code IRowGroupWriter} if its deltaObjectId has existed.
