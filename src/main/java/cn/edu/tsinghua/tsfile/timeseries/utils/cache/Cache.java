@@ -7,4 +7,6 @@ import cn.edu.tsinghua.tsfile.common.exception.cache.CacheException;
  */
 public interface Cache<K, T> {
     T get(K key) throws CacheException;
+
+    void clear();
 }

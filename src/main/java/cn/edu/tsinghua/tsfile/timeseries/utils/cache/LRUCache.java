@@ -2,7 +2,8 @@ package cn.edu.tsinghua.tsfile.timeseries.utils.cache;
 
 import cn.edu.tsinghua.tsfile.common.exception.cache.CacheException;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Created by zhangjinrui on 2017/12/25.
@@ -14,7 +15,7 @@ public abstract class LRUCache<K, T> implements Cache<K, T> {
 
     public LRUCache(int cacheSize) {
         this.cacheSize = cacheSize;
-        this.cache = new LinkedHashMap<K, T>();
+        this.cache = new LinkedHashMap<>();
     }
 
     @Override
@@ -26,6 +27,10 @@ public abstract class LRUCache<K, T> implements Cache<K, T> {
             cache.put(key, loadObjectByKey(key));
         }
         return cache.get(key);
+    }
+
+    public void clear() {
+        this.cache.clear();
     }
 
     private void moveObjectToTail(K key) {
@@ -51,6 +56,7 @@ public abstract class LRUCache<K, T> implements Cache<K, T> {
 
     /**
      * Do something before remove object from cache.
+     *
      * @param object
      */
     public abstract void beforeRemove(T object) throws CacheException;
