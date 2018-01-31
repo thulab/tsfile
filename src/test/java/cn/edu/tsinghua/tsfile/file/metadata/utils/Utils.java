@@ -303,6 +303,36 @@ public class Utils {
 		}
 	}
 
+	public static void isRowGroupMetaDataEqual(RowGroupMetaData rowGroupMetaData1,
+											   RowGroupMetaData rowGroupMetaData2) {
+		if (Utils.isTwoObjectsNotNULL(rowGroupMetaData1, rowGroupMetaData2, "RowGroupMetaData")) {
+			assertTrue(rowGroupMetaData1.getDeltaObjectID().equals(rowGroupMetaData2.getDeltaObjectID()));
+			assertTrue(
+					rowGroupMetaData1.getDeltaObjectType().equals(rowGroupMetaData2.getDeltaObjectType()));
+			assertTrue(rowGroupMetaData1.getTotalByteSize() == rowGroupMetaData2.getTotalByteSize());
+			assertTrue(rowGroupMetaData1.getNumOfRows() == rowGroupMetaData2.getNumOfRows());
+
+			if (Utils.isTwoObjectsNotNULL(rowGroupMetaData1.getPath(), rowGroupMetaData2.getPath(),
+					"Row group metadata file path")) {
+				assertTrue(rowGroupMetaData1.getPath().equals(rowGroupMetaData2.getPath()));
+			}
+
+			if (Utils.isTwoObjectsNotNULL(rowGroupMetaData1.getMetaDatas(),
+					rowGroupMetaData2.getMetaDatas(), "TimeSeriesChunkMetaData List")) {
+				List<TimeSeriesChunkMetaData> list1 = rowGroupMetaData1.getMetaDatas();
+				List<TimeSeriesChunkMetaData> list2 = rowGroupMetaData2.getMetaDatas();
+
+				if (list1.size() != list2.size()) {
+					fail("TimeSeriesGroupMetaData List size is different");
+				}
+
+				for (int i = 0; i < list1.size(); i++) {
+					Utils.isTimeSeriesChunkMetaDataEqual(list1.get(i), list2.get(i));
+				}
+			}
+		}
+	}
+
 	public static void isRowGroupBlockMetadataEqual(TsRowGroupBlockMetaData rowGroupBlockMetaDataInTSF,
 			RowGroupBlockMetaData rowGroupBlockMetaDataInThrift) {
 		if (Utils.isTwoObjectsNotNULL(rowGroupBlockMetaDataInTSF, rowGroupBlockMetaDataInThrift,

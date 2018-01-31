@@ -1,9 +1,14 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -121,6 +126,49 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
                         metaDataInThrift, e);
             throw e;
         }
+    }
+
+    public void write(OutputStream outputStream) throws IOException {
+        ReadWriteToBytesUtils.writeIsNull(deltaObjectID, outputStream);
+        if(deltaObjectID != null)ReadWriteToBytesUtils.write(deltaObjectID, outputStream);
+
+        ReadWriteToBytesUtils.write(numOfRows, outputStream);
+        ReadWriteToBytesUtils.write(totalByteSize, outputStream);
+
+        ReadWriteToBytesUtils.writeIsNull(path, outputStream);
+        if(path != null)ReadWriteToBytesUtils.write(path, outputStream);
+
+        ReadWriteToBytesUtils.writeIsNull(timeSeriesChunkMetaDataList, outputStream);
+        if(timeSeriesChunkMetaDataList != null){
+            ReadWriteToBytesUtils.write(timeSeriesChunkMetaDataList.size(), outputStream);
+            for(TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList)
+                ReadWriteToBytesUtils.write(timeSeriesChunkMetaData, outputStream);
+        }
+
+        ReadWriteToBytesUtils.writeIsNull(deltaObjectType, outputStream);
+        if(deltaObjectType != null)ReadWriteToBytesUtils.write(deltaObjectType, outputStream);
+    }
+
+    public void read(InputStream inputStream) throws IOException {
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            deltaObjectID = ReadWriteToBytesUtils.readString(inputStream);
+
+        numOfRows = ReadWriteToBytesUtils.readLong(inputStream);
+        totalByteSize = ReadWriteToBytesUtils.readLong(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            path = ReadWriteToBytesUtils.readString(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream)){
+            timeSeriesChunkMetaDataList = new ArrayList<>();
+
+            int size = ReadWriteToBytesUtils.readInt(inputStream);
+            for(int i = 0;i < size;i++)
+                timeSeriesChunkMetaDataList.add(ReadWriteToBytesUtils.readTimeSeriesChunkMetaData(inputStream));
+        }
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            deltaObjectType = ReadWriteToBytesUtils.readString(inputStream);
     }
 
     @Override

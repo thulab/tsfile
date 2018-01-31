@@ -202,6 +202,16 @@ public class ReadWriteToBytesUtils {
         return timeSeriesChunkMetaData;
     }
 
+    public static void write(RowGroupMetaData rowGroupMetaData, OutputStream outputStream) throws IOException {
+        rowGroupMetaData.write(outputStream);
+    }
+
+    public static RowGroupMetaData readRowGroupMetaData(InputStream inputStream) throws IOException {
+        RowGroupMetaData rowGroupMetaData = new RowGroupMetaData();
+        rowGroupMetaData.read(inputStream);
+        return rowGroupMetaData;
+    }
+
     private static class Test{
         public Test(){}
 

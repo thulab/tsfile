@@ -12,6 +12,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,7 @@ public class RowGroupMetaDataTest {
   public static final String FILE_PATH = "/home/user/dev";
   public static final String DELTA_OBJECT_TYPE = "device_type_good";
   final String PATH = "target/outputRowGroup.ksn";
+  final String BYTE_FILE_PATH = "src/test/resources/bytes.txt";
 
   @Before
   public void setUp() throws Exception {}
@@ -53,6 +55,25 @@ public class RowGroupMetaDataTest {
 
     Utils.isRowGroupMetaDataEqual(metaData,
     		ReadWriteThriftFormatUtils.read(fis, new cn.edu.tsinghua.tsfile.format.RowGroupMetaData()));
+  }
+
+  @Test
+  public void testWriteIntoFileByBytes() throws IOException {
+    RowGroupMetaData metaData = TestHelper.createSimpleRowGroupMetaDataInTSF();
+    File file = new File(BYTE_FILE_PATH);
+    if (file.exists())
+      file.delete();
+    FileOutputStream fos = new FileOutputStream(file);
+    TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
+    ReadWriteToBytesUtils.write(metaData, out.getOutputStream());
+
+    out.close();
+    fos.close();
+
+    FileInputStream fis = new FileInputStream(new File(BYTE_FILE_PATH));
+    RowGroupMetaData metaData2 = ReadWriteToBytesUtils.readRowGroupMetaData(fis);
+
+    Utils.isRowGroupMetaDataEqual(metaData, metaData2);
   }
 
   @Test
