@@ -2,6 +2,7 @@ package cn.edu.tsinghua.tsfile.file.utils;
 
 import cn.edu.tsinghua.tsfile.file.metadata.*;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -220,6 +221,16 @@ public class ReadWriteToBytesUtils {
         RowGroupMetaData rowGroupMetaData = new RowGroupMetaData();
         rowGroupMetaData.read(inputStream);
         return rowGroupMetaData;
+    }
+
+    public static void write(TsRowGroupBlockMetaData rowGroupBlockMetaData, OutputStream outputStream) throws IOException {
+        rowGroupBlockMetaData.write(outputStream);
+    }
+
+    public static TsRowGroupBlockMetaData readTsRowGroupBlockMetaData(InputStream inputStream) throws IOException {
+        TsRowGroupBlockMetaData rowGroupBlockMetaData = new TsRowGroupBlockMetaData();
+        rowGroupBlockMetaData.read(inputStream);
+        return rowGroupBlockMetaData;
     }
 
     private static class Test{

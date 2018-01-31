@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +21,7 @@ import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
 public class RowGroupBlockMetaDataTest {
 	public static final String DELTA_OBJECT_UID = "delta-3312";
 	final String PATH = "target/outputRowGroupBlock.ksn";
+	final String BYTE_FILE_PATH = "src/test/resources/bytes.txt";
 
 	@Before
 	public void setUp() throws Exception {
@@ -52,6 +54,28 @@ public class RowGroupBlockMetaDataTest {
 		Utils.isRowGroupBlockMetadataEqual(metaData, metaData.convertToThrift());
 
 		Utils.isRowGroupBlockMetadataEqual(metaData,ReadWriteThriftFormatUtils.read(fis, new RowGroupBlockMetaData()));
+	}
+
+	@Test
+	public void testWriteIntoFileByBytes() throws IOException {
+		TsRowGroupBlockMetaData metaData = new TsRowGroupBlockMetaData();
+		metaData.addRowGroupMetaData(TestHelper.createSimpleRowGroupMetaDataInTSF());
+		metaData.addRowGroupMetaData(TestHelper.createSimpleRowGroupMetaDataInTSF());
+		metaData.setDeltaObjectID(DELTA_OBJECT_UID);
+		File file = new File(BYTE_FILE_PATH);
+		if (file.exists())
+			file.delete();
+		FileOutputStream fos = new FileOutputStream(file);
+		TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
+		ReadWriteToBytesUtils.write(metaData, out.getOutputStream());
+
+		out.close();
+		fos.close();
+
+		FileInputStream fis = new FileInputStream(new File(BYTE_FILE_PATH));
+		TsRowGroupBlockMetaData metaData2 = ReadWriteToBytesUtils.readTsRowGroupBlockMetaData(fis);
+
+		Utils.isRowGroupBlockMetadataEqual(metaData, metaData2);
 	}
 
 	@Test

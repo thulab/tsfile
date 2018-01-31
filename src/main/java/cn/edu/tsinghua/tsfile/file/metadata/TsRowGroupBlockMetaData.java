@@ -1,9 +1,13 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
 
 public class TsRowGroupBlockMetaData implements IConverter<RowGroupBlockMetaData>{
@@ -74,6 +78,33 @@ public class TsRowGroupBlockMetaData implements IConverter<RowGroupBlockMetaData
         }
 		this.deltaObjectID = metadataInThrift.getDelta_object_id();
 	}
+
+    public void write(OutputStream outputStream) throws IOException {
+        ReadWriteToBytesUtils.writeIsNull(rowGroupMetadataList, outputStream);
+        if(rowGroupMetadataList != null){
+            ReadWriteToBytesUtils.write(rowGroupMetadataList.size(), outputStream);
+
+            for(RowGroupMetaData rowGroupMetaData : rowGroupMetadataList)
+                ReadWriteToBytesUtils.write(rowGroupMetaData, outputStream);
+        }
+
+        ReadWriteToBytesUtils.writeIsNull(deltaObjectID, outputStream);
+        if(deltaObjectID != null)ReadWriteToBytesUtils.write(deltaObjectID, outputStream);
+    }
+
+    public void read(InputStream inputStream) throws IOException {
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream)){
+            rowGroupMetadataList = new ArrayList<>();
+
+            int size = ReadWriteToBytesUtils.readInt(inputStream);
+            for(int i = 0;i < size;i++)
+                rowGroupMetadataList.add(ReadWriteToBytesUtils.readRowGroupMetaData(inputStream));
+        }
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            deltaObjectID = ReadWriteToBytesUtils.readString(inputStream);
+    }
 
 	public String getDeltaObjectID() {
 		return deltaObjectID;

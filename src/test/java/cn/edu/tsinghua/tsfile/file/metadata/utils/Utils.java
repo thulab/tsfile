@@ -372,6 +372,27 @@ public class Utils {
 		}
 	}
 
+	public static void isRowGroupBlockMetadataEqual(TsRowGroupBlockMetaData rowGroupBlockMetaData1,
+													TsRowGroupBlockMetaData rowGroupBlockMetaData2) {
+		if (Utils.isTwoObjectsNotNULL(rowGroupBlockMetaData1, rowGroupBlockMetaData2,
+				"RowGroupBlockMetaData")) {
+			if (Utils.isTwoObjectsNotNULL(rowGroupBlockMetaData1.getRowGroups(),
+					rowGroupBlockMetaData2.getRowGroups(), "Row Group List")) {
+				List<RowGroupMetaData> list1 = rowGroupBlockMetaData1.getRowGroups();
+				List<RowGroupMetaData> list2 = rowGroupBlockMetaData2.getRowGroups();
+				if (list1.size() != list2.size()) {
+					fail("TimeSeriesGroupMetaData List size is different");
+				}
+				// long maxNumRows = 0;
+				for (int i = 0; i < list1.size(); i++) {
+					Utils.isRowGroupMetaDataEqual(list1.get(i), list2.get(i));
+					// maxNumRows += listTSF.get(i).getNumOfRows();
+				}
+				Utils.isStringSame(rowGroupBlockMetaData1.getDeltaObjectID(), rowGroupBlockMetaData2.getDeltaObjectID(), "delta object id");
+			}
+		}
+	}
+
 	public static void isFileMetaDataEqual(TsFileMetaData fileMetaDataInTSF, FileMetaData fileMetaDataInThrift) {
 		if (Utils.isTwoObjectsNotNULL(fileMetaDataInTSF, fileMetaDataInThrift, "File MetaData")) {
 			assertEquals(fileMetaDataInThrift.version, fileMetaDataInTSF.getCurrentVersion());
