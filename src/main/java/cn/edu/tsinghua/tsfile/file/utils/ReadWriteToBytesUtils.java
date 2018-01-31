@@ -1,8 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.utils;
 
-import cn.edu.tsinghua.tsfile.file.metadata.TInTimeSeriesChunkMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TsDigest;
-import cn.edu.tsinghua.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
+import cn.edu.tsinghua.tsfile.file.metadata.*;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 
 import java.io.*;
@@ -61,12 +59,12 @@ public class ReadWriteToBytesUtils {
         return num;
     }
 
-    public static void writeIsSet(Object object, OutputStream outputStream) throws IOException {
+    public static void writeIsNull(Object object, OutputStream outputStream) throws IOException {
         if(object == null)write(0, outputStream);
         else write(1, outputStream);
     }
 
-    public static boolean readIsSet(InputStream inputStream) throws IOException {
+    public static boolean readIsNull(InputStream inputStream) throws IOException {
         int flag = readInt(inputStream);
         if(flag == 1)return true;
         else return false;
@@ -182,6 +180,26 @@ public class ReadWriteToBytesUtils {
         TInTimeSeriesChunkMetaData tInTimeSeriesChunkMetaData = new TInTimeSeriesChunkMetaData();
         tInTimeSeriesChunkMetaData.read(inputStream);
         return tInTimeSeriesChunkMetaData;
+    }
+
+    public static void write(TimeSeriesChunkProperties timeSeriesChunkProperties, OutputStream outputStream) throws IOException {
+        timeSeriesChunkProperties.write(outputStream);
+    }
+
+    public static TimeSeriesChunkProperties readTimeSeriesChunkProperties(InputStream inputStream) throws IOException {
+        TimeSeriesChunkProperties timeSeriesChunkProperties = new TimeSeriesChunkProperties();
+        timeSeriesChunkProperties.read(inputStream);
+        return timeSeriesChunkProperties;
+    }
+
+    public static void write(TimeSeriesChunkMetaData timeSeriesChunkMetaData, OutputStream outputStream) throws IOException {
+        timeSeriesChunkMetaData.write(outputStream);
+    }
+
+    public static TimeSeriesChunkMetaData readTimeSeriesChunkMetaData(InputStream inputStream) throws IOException {
+        TimeSeriesChunkMetaData timeSeriesChunkMetaData = new TimeSeriesChunkMetaData();
+        timeSeriesChunkMetaData.read(inputStream);
+        return timeSeriesChunkMetaData;
     }
 
     private static class Test{

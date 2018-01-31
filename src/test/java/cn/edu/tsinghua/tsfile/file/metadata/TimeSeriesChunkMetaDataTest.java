@@ -11,6 +11,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.format.CompressionType;
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import org.junit.After;
@@ -31,6 +32,7 @@ public class TimeSeriesChunkMetaDataTest {
   public static final long DICTIONARY_PAGE_OFFSET = 23434543L;
   public static final long INDEX_PAGE_OFFSET = 34243453L;
   final String PATH = "target/outputTimeSeriesChunk.ksn";
+  final String BYTE_FILE_PATH = "src/test/resources/bytes.txt";
 
   @Before
   public void setUp() throws Exception {}
@@ -59,6 +61,25 @@ public class TimeSeriesChunkMetaDataTest {
     Utils.isTimeSeriesChunkMetaDataEqual(metaData, metaData.convertToThrift());
     Utils.isTimeSeriesChunkMetaDataEqual(metaData,
     		ReadWriteThriftFormatUtils.read(fis, new cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData()));
+  }
+
+  @Test
+  public void testWriteIntoFileByBytes() throws IOException {
+    TimeSeriesChunkMetaData metaData = TestHelper.createSimpleTimeSeriesChunkMetaDataInTSF();
+    File file = new File(BYTE_FILE_PATH);
+    if (file.exists())
+      file.delete();
+    FileOutputStream fos = new FileOutputStream(file);
+    TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
+      ReadWriteToBytesUtils.write(metaData, out.getOutputStream());
+
+    out.close();
+    fos.close();
+
+    FileInputStream fis = new FileInputStream(new File(BYTE_FILE_PATH));
+    TimeSeriesChunkMetaData metaData2 = ReadWriteToBytesUtils.readTimeSeriesChunkMetaData(fis);
+    fis.close();
+    Utils.isTimeSeriesChunkMetaDataEqual(metaData, metaData2);
   }
 
   @Test

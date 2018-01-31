@@ -78,28 +78,28 @@ public class VInTimeSeriesChunkMetaData implements IConverter<ValueInTimeSeriesC
     }
 
     public void write(OutputStream outputStream) throws IOException {
-        ReadWriteToBytesUtils.writeIsSet(dataType, outputStream);
+        ReadWriteToBytesUtils.writeIsNull(dataType, outputStream);
         if(dataType != null)ReadWriteToBytesUtils.write(dataType.toString(), outputStream);
 
-        ReadWriteToBytesUtils.writeIsSet(digest, outputStream);
+        ReadWriteToBytesUtils.writeIsNull(digest, outputStream);
         if(digest != null)ReadWriteToBytesUtils.write(digest, outputStream);
 
         ReadWriteToBytesUtils.write(maxError, outputStream);
 
-        ReadWriteToBytesUtils.writeIsSet(enumValues, outputStream);
+        ReadWriteToBytesUtils.writeIsNull(enumValues, outputStream);
         if(enumValues != null)ReadWriteToBytesUtils.write(enumValues, TSDataType.TEXT, outputStream);
     }
 
     public void read(InputStream inputStream) throws IOException {
-        if(ReadWriteToBytesUtils.readIsSet(inputStream))
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
             dataType = TSDataType.valueOf(ReadWriteToBytesUtils.readString(inputStream));
 
-        if(ReadWriteToBytesUtils.readIsSet(inputStream))
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
             digest = ReadWriteToBytesUtils.readDigest(inputStream);
 
         maxError = ReadWriteToBytesUtils.readInt(inputStream);
 
-        if(ReadWriteToBytesUtils.readIsSet(inputStream))
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
             enumValues = ReadWriteToBytesUtils.readStringList(inputStream);
     }
 

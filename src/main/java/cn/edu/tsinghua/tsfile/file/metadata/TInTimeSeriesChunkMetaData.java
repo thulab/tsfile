@@ -13,10 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * For more information, see TimeInTimeSeriesChunkMetaData
@@ -85,36 +82,36 @@ public class TInTimeSeriesChunkMetaData implements IConverter<TimeInTimeSeriesCh
     }
 
     public void write(OutputStream outputStream) throws IOException {
-        ReadWriteToBytesUtils.writeIsSet(dataType, outputStream);
+        ReadWriteToBytesUtils.writeIsNull(dataType, outputStream);
         if(dataType != null)ReadWriteToBytesUtils.write(dataType.toString(), outputStream);
 
         ReadWriteToBytesUtils.write(startTime, outputStream);
         ReadWriteToBytesUtils.write(endTime, outputStream);
 
-        ReadWriteToBytesUtils.writeIsSet(freqType, outputStream);
+        ReadWriteToBytesUtils.writeIsNull(freqType, outputStream);
         if(freqType != null)ReadWriteToBytesUtils.write(freqType.toString(), outputStream);
 
-        ReadWriteToBytesUtils.writeIsSet(frequencies, outputStream);
+        ReadWriteToBytesUtils.writeIsNull(frequencies, outputStream);
         if(frequencies != null)ReadWriteToBytesUtils.write(frequencies, TSDataType.INT32, outputStream);
 
-        ReadWriteToBytesUtils.writeIsSet(enumValues, outputStream);
+        ReadWriteToBytesUtils.writeIsNull(enumValues, outputStream);
         if(enumValues != null)ReadWriteToBytesUtils.write(enumValues, TSDataType.TEXT, outputStream);
     }
 
     public void read(InputStream inputStream) throws IOException {
-        if(ReadWriteToBytesUtils.readIsSet(inputStream))
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
             dataType = TSDataType.valueOf(ReadWriteToBytesUtils.readString(inputStream));
 
         startTime = ReadWriteToBytesUtils.readLong(inputStream);
         endTime = ReadWriteToBytesUtils.readLong(inputStream);
 
-        if(ReadWriteToBytesUtils.readIsSet(inputStream))
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
             freqType = TSFreqType.valueOf(ReadWriteToBytesUtils.readString(inputStream));
 
-        if(ReadWriteToBytesUtils.readIsSet(inputStream))
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
             frequencies = ReadWriteToBytesUtils.readIntegerList(inputStream);
 
-        if(ReadWriteToBytesUtils.readIsSet(inputStream))
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
             enumValues = ReadWriteToBytesUtils.readStringList(inputStream);
     }
 

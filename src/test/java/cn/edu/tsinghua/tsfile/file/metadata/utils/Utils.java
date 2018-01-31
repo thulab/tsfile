@@ -240,6 +240,38 @@ public class Utils {
 		}
 	}
 
+	public static void isTimeSeriesChunkMetaDataEqual(TimeSeriesChunkMetaData timeSeriesChunkMetaData1,
+													  TimeSeriesChunkMetaData timeSeriesChunkMetaData2) {
+		if (Utils.isTwoObjectsNotNULL(timeSeriesChunkMetaData1, timeSeriesChunkMetaData2,
+				"TimeSeriesChunkMetaData")) {
+			assertTrue(timeSeriesChunkMetaData1.getProperties().getMeasurementUID()
+					.equals(timeSeriesChunkMetaData2.getProperties().getMeasurementUID()));
+			assertTrue(timeSeriesChunkMetaData1.getProperties().getTsChunkType().toString()
+					.equals(timeSeriesChunkMetaData2.getProperties().getTsChunkType().toString()));
+			assertTrue(timeSeriesChunkMetaData1.getProperties().getFileOffset() == timeSeriesChunkMetaData2
+					.getProperties().getFileOffset());
+			assertTrue(timeSeriesChunkMetaData1.getProperties().getCompression().toString()
+					.equals(timeSeriesChunkMetaData2.getProperties().getCompression().toString()));
+
+			assertTrue(timeSeriesChunkMetaData1.getNumRows() == timeSeriesChunkMetaData2.getNumRows());
+			assertTrue(timeSeriesChunkMetaData1.getTotalByteSize() == timeSeriesChunkMetaData2
+					.getTotalByteSize());
+			assertTrue(timeSeriesChunkMetaData1.getDataPageOffset() == timeSeriesChunkMetaData2
+					.getDataPageOffset());
+			assertTrue(timeSeriesChunkMetaData1.getDictionaryPageOffset() == timeSeriesChunkMetaData2
+					.getDictionaryPageOffset());
+			assertTrue(timeSeriesChunkMetaData1.getIndexPageOffset() == timeSeriesChunkMetaData2
+					.getIndexPageOffset());
+			Utils.isListEqual(timeSeriesChunkMetaData1.getJsonMetaData(),
+					timeSeriesChunkMetaData2.getJsonMetaData(), "json metadata");
+
+			Utils.isTSeriesChunkMetadataEqual(timeSeriesChunkMetaData1.getTInTimeSeriesChunkMetaData(),
+					timeSeriesChunkMetaData2.getTInTimeSeriesChunkMetaData());
+			Utils.isVSeriesChunkMetadataEqual(timeSeriesChunkMetaData1.getVInTimeSeriesChunkMetaData(),
+					timeSeriesChunkMetaData2.getVInTimeSeriesChunkMetaData());
+		}
+	}
+
 	public static void isRowGroupMetaDataEqual(RowGroupMetaData rowGroupMetaDataInTSF,
 			cn.edu.tsinghua.tsfile.format.RowGroupMetaData rowGroupMetaDataInThrift) {
 		if (Utils.isTwoObjectsNotNULL(rowGroupMetaDataInTSF, rowGroupMetaDataInThrift, "RowGroupMetaData")) {

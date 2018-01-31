@@ -74,7 +74,7 @@ public class TsDigest implements IConverter<Digest> {
 	}
 
 	public void write(OutputStream outputStream) throws IOException {
-		ReadWriteToBytesUtils.writeIsSet(statistics, outputStream);
+		ReadWriteToBytesUtils.writeIsNull(statistics, outputStream);
 
 		if(statistics != null) {
 			outputStream.write(statistics.size());
@@ -86,7 +86,7 @@ public class TsDigest implements IConverter<Digest> {
 	}
 
 	public void read(InputStream inputStream) throws IOException {
-		if(ReadWriteToBytesUtils.readIsSet(inputStream)) {
+		if(ReadWriteToBytesUtils.readIsNull(inputStream)) {
 			statistics = new HashMap<>();
 			int size = ReadWriteToBytesUtils.readInt(inputStream);
 

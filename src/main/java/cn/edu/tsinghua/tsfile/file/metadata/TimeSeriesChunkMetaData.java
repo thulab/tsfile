@@ -3,11 +3,16 @@ package cn.edu.tsinghua.tsfile.file.metadata;
 import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.format.CompressionType;
 import cn.edu.tsinghua.tsfile.format.TimeSeriesChunkType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,6 +123,48 @@ public class TimeSeriesChunkMetaData
                         "tsfile-file TimeSeriesChunkMetaData: failed to convert TimeSeriesChunkMetaData from thrift to TSFile, content is {}",
                         metadataInThrift, e);
         }
+    }
+
+    public void write(OutputStream outputStream) throws IOException {
+        ReadWriteToBytesUtils.writeIsNull(properties, outputStream);
+        if(properties != null)ReadWriteToBytesUtils.write(properties, outputStream);
+
+        ReadWriteToBytesUtils.write(numRows, outputStream);
+        ReadWriteToBytesUtils.write(totalByteSize, outputStream);
+
+        ReadWriteToBytesUtils.writeIsNull(jsonMetaData, outputStream);
+        if(jsonMetaData != null)ReadWriteToBytesUtils.write(jsonMetaData, TSDataType.TEXT, outputStream);
+
+        ReadWriteToBytesUtils.write(dataPageOffset, outputStream);
+        ReadWriteToBytesUtils.write(indexPageOffset, outputStream);
+        ReadWriteToBytesUtils.write(dictionaryPageOffset, outputStream);
+
+        ReadWriteToBytesUtils.writeIsNull(tInTimeSeriesChunkMetaData, outputStream);
+        if(tInTimeSeriesChunkMetaData != null)ReadWriteToBytesUtils.write(tInTimeSeriesChunkMetaData, outputStream);
+
+        ReadWriteToBytesUtils.writeIsNull(vInTimeSeriesChunkMetaData, outputStream);
+        if(vInTimeSeriesChunkMetaData != null)ReadWriteToBytesUtils.write(vInTimeSeriesChunkMetaData, outputStream);
+    }
+
+    public void read(InputStream inputStream) throws IOException {
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            properties = ReadWriteToBytesUtils.readTimeSeriesChunkProperties(inputStream);
+
+        numRows = ReadWriteToBytesUtils.readLong(inputStream);
+        totalByteSize = ReadWriteToBytesUtils.readLong(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            jsonMetaData = ReadWriteToBytesUtils.readStringList(inputStream);
+
+        dataPageOffset = ReadWriteToBytesUtils.readLong(inputStream);
+        indexPageOffset = ReadWriteToBytesUtils.readLong(inputStream);
+        dictionaryPageOffset = ReadWriteToBytesUtils.readLong(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            tInTimeSeriesChunkMetaData = ReadWriteToBytesUtils.readTInTimeSeriesChunkMetaData(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            vInTimeSeriesChunkMetaData = ReadWriteToBytesUtils.readVInTimeSeriesChunkMetaData(inputStream);
     }
 
     private cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData initTimeSeriesChunkMetaDataInThrift() {
