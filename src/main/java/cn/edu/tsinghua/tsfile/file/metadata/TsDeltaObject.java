@@ -1,7 +1,13 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.format.DeltaObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
 
 public class TsDeltaObject implements IConverter<DeltaObject>{
 	/** start position of RowGroupMetadataBlock in file **/
@@ -15,6 +21,8 @@ public class TsDeltaObject implements IConverter<DeltaObject>{
 
 	/** end time for a delta object **/
 	public long endTime;
+
+	public TsDeltaObject(){ }
 	
 	public TsDeltaObject(long offset, int metadataBlockSize, long startTime, long endTime){
 		this.offset = offset;
@@ -34,5 +42,19 @@ public class TsDeltaObject implements IConverter<DeltaObject>{
 		this.metadataBlockSize = metadata.getMetadata_block_size();
 		this.startTime = metadata.getStart_time();
 		this.endTime = metadata.getEnd_time();
+	}
+
+	public void write(OutputStream outputStream) throws IOException {
+		ReadWriteToBytesUtils.write(offset, outputStream);
+		ReadWriteToBytesUtils.write(metadataBlockSize, outputStream);
+		ReadWriteToBytesUtils.write(startTime, outputStream);
+		ReadWriteToBytesUtils.write(endTime, outputStream);
+	}
+
+	public void read(InputStream inputStream) throws IOException {
+		offset = ReadWriteToBytesUtils.readLong(inputStream);
+		metadataBlockSize = ReadWriteToBytesUtils.readInt(inputStream);
+		startTime = ReadWriteToBytesUtils.readLong(inputStream);
+		endTime = ReadWriteToBytesUtils.readLong(inputStream);
 	}
 }

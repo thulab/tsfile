@@ -189,6 +189,15 @@ public class Utils {
 		}
 	}
 
+	public static void isDeltaObjectEqual(TsDeltaObject deltaObject1, TsDeltaObject deltaObject2) {
+		if (Utils.isTwoObjectsNotNULL(deltaObject1, deltaObject2, "Delta object")) {
+			assertTrue(deltaObject1.offset == deltaObject2.offset);
+			assertTrue(deltaObject1.metadataBlockSize == deltaObject2.metadataBlockSize);
+			assertTrue(deltaObject1.startTime == deltaObject2.startTime);
+			assertTrue(deltaObject1.endTime == deltaObject2.endTime);
+		}
+	}
+
 	public static void isVSeriesChunkMetadataEqual(VInTimeSeriesChunkMetaData vSeriesMetaData,
 													ValueInTimeSeriesChunkMetaData valueInTimeSeriesChunkMetaData) {
 		if (Utils.isTwoObjectsNotNULL(vSeriesMetaData, valueInTimeSeriesChunkMetaData,

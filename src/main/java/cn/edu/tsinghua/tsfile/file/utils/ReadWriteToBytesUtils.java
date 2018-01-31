@@ -233,6 +233,16 @@ public class ReadWriteToBytesUtils {
         return rowGroupBlockMetaData;
     }
 
+    public static void write(TsDeltaObject tsDeltaObject, OutputStream outputStream) throws IOException {
+        tsDeltaObject.write(outputStream);
+    }
+
+    public static TsDeltaObject readTsDeltaObject(InputStream inputStream) throws IOException {
+        TsDeltaObject tsDeltaObject = new TsDeltaObject();
+        tsDeltaObject.read(inputStream);
+        return tsDeltaObject;
+    }
+
     private static class Test{
         public Test(){}
 
