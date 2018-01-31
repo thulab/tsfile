@@ -146,6 +146,23 @@ public class Utils {
 		}
 	}
 
+	public static void isTSeriesChunkMetadataEqual(TInTimeSeriesChunkMetaData tSeriesMetaData1,
+												   TInTimeSeriesChunkMetaData tSeriesMetaData2) {
+		if (Utils.isTwoObjectsNotNULL(tSeriesMetaData1, tSeriesMetaData2,
+				"TimeInTimeSeriesChunkMetaData")) {
+			Utils.isStringSame(tSeriesMetaData1.getDataType(), tSeriesMetaData2.getDataType(),
+					"data type");
+			Utils.isStringSame(tSeriesMetaData1.getFreqType(), tSeriesMetaData2.getFreqType(),
+					"freq type");
+			assertTrue(tSeriesMetaData1.getStartTime() == tSeriesMetaData2.getStartTime());
+			assertTrue(tSeriesMetaData1.getEndTime() == tSeriesMetaData2.getEndTime());
+			Utils.isListEqual(tSeriesMetaData1.getFrequencies(), tSeriesMetaData2.getFrequencies(),
+					"frequencies");
+			Utils.isListEqual(tSeriesMetaData1.getEnumValues(), tSeriesMetaData2.getEnumValues(),
+					"data values");
+		}
+	}
+
 	public static void isDeltaObjectEqual(TsDeltaObject deltaObjectInTSF, DeltaObject deltaObjectInTHrift) {
 		if (Utils.isTwoObjectsNotNULL(deltaObjectInTSF, deltaObjectInTHrift, "Delta object")) {
 			assertTrue(deltaObjectInTSF.offset == deltaObjectInTHrift.getOffset());
@@ -156,7 +173,7 @@ public class Utils {
 	}
 
 	public static void isVSeriesChunkMetadataEqual(VInTimeSeriesChunkMetaData vSeriesMetaData,
-			ValueInTimeSeriesChunkMetaData valueInTimeSeriesChunkMetaData) {
+													ValueInTimeSeriesChunkMetaData valueInTimeSeriesChunkMetaData) {
 		if (Utils.isTwoObjectsNotNULL(vSeriesMetaData, valueInTimeSeriesChunkMetaData,
 				"ValueInTimeSeriesChunkMetaData")) {
 			assertTrue(vSeriesMetaData.getMaxError() == valueInTimeSeriesChunkMetaData.getMax_error());
@@ -165,10 +182,28 @@ public class Utils {
 			if (Utils.isTwoObjectsNotNULL(vSeriesMetaData.getDigest(), valueInTimeSeriesChunkMetaData.getDigest(),
 					"Digest")) {
 				Utils.isMapBufferEqual(vSeriesMetaData.getDigest().getStatistics(),
-						valueInTimeSeriesChunkMetaData.getDigest().getStatistics(), 
+						valueInTimeSeriesChunkMetaData.getDigest().getStatistics(),
 						"Diges statistics map");
 			}
 			Utils.isListEqual(vSeriesMetaData.getEnumValues(), valueInTimeSeriesChunkMetaData.getEnum_values(),
+					"data values");
+		}
+	}
+
+	public static void isVSeriesChunkMetadataEqual(VInTimeSeriesChunkMetaData vSeriesMetaData1,
+												   VInTimeSeriesChunkMetaData vSeriesMetaData2) {
+		if (Utils.isTwoObjectsNotNULL(vSeriesMetaData1, vSeriesMetaData2,
+				"ValueInTimeSeriesChunkMetaData")) {
+			assertTrue(vSeriesMetaData1.getMaxError() == vSeriesMetaData2.getMaxError());
+			assertTrue(vSeriesMetaData1.getDataType().toString()
+					.equals(vSeriesMetaData2.getDataType().toString()));
+			if (Utils.isTwoObjectsNotNULL(vSeriesMetaData1.getDigest(), vSeriesMetaData2.getDigest(),
+					"Digest")) {
+				Utils.isMapBufferEqual(vSeriesMetaData1.getDigest().getStatistics(),
+						vSeriesMetaData2.getDigest().getStatistics(),
+						"Diges statistics map");
+			}
+			Utils.isListEqual(vSeriesMetaData1.getEnumValues(), vSeriesMetaData2.getEnumValues(),
 					"data values");
 		}
 	}

@@ -2,11 +2,15 @@ package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.format.DataType;
 import cn.edu.tsinghua.tsfile.format.ValueInTimeSeriesChunkMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 /**
@@ -71,6 +75,32 @@ public class VInTimeSeriesChunkMetaData implements IConverter<ValueInTimeSeriesC
                         vTimeSeriesChunkMetaDataInThrift, e);
             throw e;
         }
+    }
+
+    public void write(OutputStream outputStream) throws IOException {
+        ReadWriteToBytesUtils.writeIsSet(dataType, outputStream);
+        if(dataType != null)ReadWriteToBytesUtils.write(dataType.toString(), outputStream);
+
+        ReadWriteToBytesUtils.writeIsSet(digest, outputStream);
+        if(digest != null)ReadWriteToBytesUtils.write(digest, outputStream);
+
+        ReadWriteToBytesUtils.write(maxError, outputStream);
+
+        ReadWriteToBytesUtils.writeIsSet(enumValues, outputStream);
+        if(enumValues != null)ReadWriteToBytesUtils.write(enumValues, TSDataType.TEXT, outputStream);
+    }
+
+    public void read(InputStream inputStream) throws IOException {
+        if(ReadWriteToBytesUtils.readIsSet(inputStream))
+            dataType = TSDataType.valueOf(ReadWriteToBytesUtils.readString(inputStream));
+
+        if(ReadWriteToBytesUtils.readIsSet(inputStream))
+            digest = ReadWriteToBytesUtils.readDigest(inputStream);
+
+        maxError = ReadWriteToBytesUtils.readInt(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsSet(inputStream))
+            enumValues = ReadWriteToBytesUtils.readStringList(inputStream);
     }
 
     @Override

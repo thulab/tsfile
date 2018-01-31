@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.format.DataType;
 import cn.edu.tsinghua.tsfile.format.Digest;
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
@@ -24,6 +25,8 @@ public class VInTimeSeriesChunkMetaDataTest {
 //  public static final String maxString = "3244324";
 //  public static final String minString = "fddsfsfgd";
   final String PATH = "target/outputV.ksn";
+  final String BYTE_FILE_PATH = "src/test/resources/bytes.txt";
+
   @Before
   public void setUp() throws Exception {
     metaData = new VInTimeSeriesChunkMetaData();
@@ -37,9 +40,28 @@ public class VInTimeSeriesChunkMetaDataTest {
   }
 
   @Test
-  public void testWriteIntoFile() throws IOException {
+  public void testWriteIntoFileByBytes() throws IOException {
     VInTimeSeriesChunkMetaData metaData = TestHelper.createSimpleV2InTSF(TSDataType.TEXT, new TsDigest());
     
+    File file = new File(BYTE_FILE_PATH);
+    if (file.exists())
+      file.delete();
+    FileOutputStream fos = new FileOutputStream(file);
+    TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
+    ReadWriteToBytesUtils.write(metaData, out.getOutputStream());
+
+    out.close();
+    fos.close();
+
+    FileInputStream fis = new FileInputStream(new File(BYTE_FILE_PATH));
+    VInTimeSeriesChunkMetaData metaData2 = ReadWriteToBytesUtils.readVInTimeSeriesChunkMetaData(fis);
+    fis.close();
+    Utils.isVSeriesChunkMetadataEqual(metaData, metaData2);
+  }
+
+  public void testWriteIntoFile() throws IOException {
+    VInTimeSeriesChunkMetaData metaData = TestHelper.createSimpleV2InTSF(TSDataType.TEXT, new TsDigest());
+
     File file = new File(PATH);
     if (file.exists())
       file.delete();
@@ -53,8 +75,9 @@ public class VInTimeSeriesChunkMetaDataTest {
     FileInputStream fis = new FileInputStream(new File(PATH));
     Utils.isVSeriesChunkMetadataEqual(metaData, metaData.convertToThrift());
     Utils.isVSeriesChunkMetadataEqual(metaData,
-    		ReadWriteThriftFormatUtils.read(fis, new ValueInTimeSeriesChunkMetaData()));
+            ReadWriteThriftFormatUtils.read(fis, new ValueInTimeSeriesChunkMetaData()));
   }
+
 
   @Test
   public void testConvertToThrift() throws UnsupportedEncodingException {

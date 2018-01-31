@@ -1,8 +1,10 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.format.Digest;
 
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,6 +69,34 @@ public class TsDigest implements IConverter<Digest> {
 				}
 			} else {
 				statistics = null;
+			}
+		}
+	}
+
+	public void write(OutputStream outputStream) throws IOException {
+		ReadWriteToBytesUtils.writeIsSet(statistics, outputStream);
+
+		if(statistics != null) {
+			outputStream.write(statistics.size());
+			for (Map.Entry<String, ByteBuffer> entry : statistics.entrySet()) {
+				ReadWriteToBytesUtils.write(entry.getKey(), outputStream);
+				ReadWriteToBytesUtils.write(entry.getValue(), outputStream);
+			}
+		}
+	}
+
+	public void read(InputStream inputStream) throws IOException {
+		if(ReadWriteToBytesUtils.readIsSet(inputStream)) {
+			statistics = new HashMap<>();
+			int size = ReadWriteToBytesUtils.readInt(inputStream);
+
+			String key;
+			ByteBuffer value;
+			for (int i = 0; i < size; i++) {
+				key = ReadWriteToBytesUtils.readString(inputStream);
+				value = ReadWriteToBytesUtils.readByteBuffer(inputStream);
+
+				statistics.put(key, value);
 			}
 		}
 	}

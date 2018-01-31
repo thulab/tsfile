@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.format.DataType;
 import cn.edu.tsinghua.tsfile.format.TimeInTimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
@@ -25,9 +26,10 @@ public class TInTimeSeriesChunkMetaDataTest {
   private TInTimeSeriesChunkMetaData metaData;
   public static List<Integer> frequencies1;
   public static List<Integer> frequencies2;
-  public static final long startTime = 523372036854775806L;;
-  public static final long endTime = 523372036854775806L;;
+  public static final long startTime = 523372036854775806L;
+  public static final long endTime = 523372036854775806L;
   final String PATH = "target/outputT.ksn";
+  final String BYTE_FILE_PATH = "src/test/resources/bytes.txt";
 
   @Before
   public void setUp() throws Exception {
@@ -65,6 +67,26 @@ public class TInTimeSeriesChunkMetaDataTest {
     Utils.isTSeriesChunkMetadataEqual(metaData, metaData.convertToThrift());
     Utils.isTSeriesChunkMetadataEqual(metaData,
     		ReadWriteThriftFormatUtils.read(fis, new TimeInTimeSeriesChunkMetaData()));
+  }
+
+  @Test
+  public void testWriteIntoFileByBytes() throws IOException {
+    TInTimeSeriesChunkMetaData metaData = TestHelper.createT2inTSF(TSDataType.TEXT,
+            TSFreqType.IRREGULAR_FREQ, frequencies2, startTime, endTime);
+    File file = new File(BYTE_FILE_PATH);
+    if (file.exists())
+      file.delete();
+    FileOutputStream fos = new FileOutputStream(file);
+    TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
+    ReadWriteToBytesUtils.write(metaData, out.getOutputStream());
+
+    out.close();
+    fos.close();
+
+    FileInputStream fis = new FileInputStream(new File(BYTE_FILE_PATH));
+    TInTimeSeriesChunkMetaData metaData2 = ReadWriteToBytesUtils.readTInTimeSeriesChunkMetaData(fis);
+    fis.close();
+    Utils.isTSeriesChunkMetadataEqual(metaData, metaData2);
   }
 
   @Test
