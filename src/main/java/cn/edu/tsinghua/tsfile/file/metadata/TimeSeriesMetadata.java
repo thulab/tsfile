@@ -3,12 +3,16 @@ package cn.edu.tsinghua.tsfile.file.metadata;
 import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.format.DataType;
 import cn.edu.tsinghua.tsfile.format.FreqType;
 import cn.edu.tsinghua.tsfile.format.TimeSeries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 /**
@@ -82,6 +86,44 @@ public class TimeSeriesMetadata implements IConverter<TimeSeries> {
                         "tsfile-file TimeSeriesMetadata: failed to convert TimeSeriesMetadata from TSFile to thrift, content is {}",
                         timeSeriesInThrift, e);
         }
+    }
+
+    public void write(OutputStream outputStream) throws IOException {
+        ReadWriteToBytesUtils.writeIsNull(measurementUID, outputStream);
+        if(measurementUID != null)ReadWriteToBytesUtils.write(measurementUID, outputStream);
+
+        ReadWriteToBytesUtils.writeIsNull(type, outputStream);
+        if(type != null)ReadWriteToBytesUtils.write(type.toString(), outputStream);
+
+        ReadWriteToBytesUtils.write(typeLength, outputStream);
+
+        ReadWriteToBytesUtils.writeIsNull(freqType, outputStream);
+        if(freqType != null)ReadWriteToBytesUtils.write(freqType.toString(), outputStream);
+
+        ReadWriteToBytesUtils.writeIsNull(frequencies, outputStream);
+        if(frequencies != null)ReadWriteToBytesUtils.write(frequencies, TSDataType.INT32, outputStream);
+
+        ReadWriteToBytesUtils.writeIsNull(enumValues, outputStream);
+        if(enumValues != null)ReadWriteToBytesUtils.write(enumValues, TSDataType.TEXT, outputStream);
+    }
+
+    public void read(InputStream inputStream) throws IOException {
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            measurementUID = ReadWriteToBytesUtils.readString(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            type = TSDataType.valueOf(ReadWriteToBytesUtils.readString(inputStream));
+
+        typeLength = ReadWriteToBytesUtils.readInt(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            freqType = TSFreqType.valueOf(ReadWriteToBytesUtils.readString(inputStream));
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            frequencies = ReadWriteToBytesUtils.readIntegerList(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            enumValues = ReadWriteToBytesUtils.readStringList(inputStream);
     }
 
     public String getMeasurementUID() {

@@ -182,6 +182,16 @@ public class ReadWriteToBytesUtils {
         return tInTimeSeriesChunkMetaData;
     }
 
+    public static void write(TimeSeriesMetadata timeSeriesMetadata, OutputStream outputStream) throws IOException {
+        timeSeriesMetadata.write(outputStream);
+    }
+
+    public static TimeSeriesMetadata readTimeSeriesMetadata(InputStream inputStream) throws IOException {
+        TimeSeriesMetadata timeSeriesMetadata = new TimeSeriesMetadata();
+        timeSeriesMetadata.read(inputStream);
+        return timeSeriesMetadata;
+    }
+
     public static void write(TimeSeriesChunkProperties timeSeriesChunkProperties, OutputStream outputStream) throws IOException {
         timeSeriesChunkProperties.write(outputStream);
     }

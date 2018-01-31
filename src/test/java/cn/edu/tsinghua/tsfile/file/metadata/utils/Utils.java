@@ -113,6 +113,23 @@ public class Utils {
 		Utils.isListEqual(timeSeriesInTSF.getEnumValues(), timeSeriesInThrift.getEnum_values(), "data values");
 	}
 
+	public static void isTimeSeriesEqual(TimeSeriesMetadata timeSeriesMetadata1, TimeSeriesMetadata timeSeriesMetadata2) {
+		if (Utils.isTwoObjectsNotNULL(timeSeriesMetadata1.getMeasurementUID(), timeSeriesMetadata2.getMeasurementUID(),
+				"sensorUID")) {
+			assertTrue(timeSeriesMetadata1.getMeasurementUID().equals(timeSeriesMetadata2.getMeasurementUID()));
+		}
+		assertTrue(timeSeriesMetadata1.getTypeLength() == timeSeriesMetadata2.getTypeLength());
+		if (Utils.isTwoObjectsNotNULL(timeSeriesMetadata1.getType(), timeSeriesMetadata2.getType(), "data type")) {
+			assertTrue(timeSeriesMetadata1.getType().toString() == timeSeriesMetadata2.getType().toString());
+		}
+		if (Utils.isTwoObjectsNotNULL(timeSeriesMetadata1.getFreqType(), timeSeriesMetadata2.getFreqType(), "freq type")) {
+			assertTrue(timeSeriesMetadata1.getFreqType().toString() == timeSeriesMetadata2.getFreqType().toString());
+		}
+
+		Utils.isListEqual(timeSeriesMetadata1.getFrequencies(), timeSeriesMetadata2.getFrequencies(), "frequencies");
+		Utils.isListEqual(timeSeriesMetadata1.getEnumValues(), timeSeriesMetadata2.getEnumValues(), "data values");
+	}
+
 	public static void isTimeSeriesListEqual(List<TimeSeriesMetadata> timeSeriesInTSF,
 			List<TimeSeries> timeSeriesInThrift) {
 		if (timeSeriesInTSF == null && timeSeriesInThrift == null)
