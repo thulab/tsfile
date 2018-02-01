@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.io;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -10,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +35,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
+//import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 
@@ -54,6 +56,7 @@ public class TsFileIOWriter {
 	}
 
 	private ITsRandomAccessFileWriter out;
+	private BufferedOutputStream bufferedOutputStream;
 	protected List<RowGroupMetaData> rowGroupMetaDatas = new ArrayList<>();
 	private RowGroupMetaData currentRowGroupMetaData;
 	private TimeSeriesChunkMetaData currentChunkMetaData;
@@ -77,6 +80,7 @@ public class TsFileIOWriter {
 	 */
 	public TsFileIOWriter(File file) throws IOException {
 		this.out = new TsRandomAccessFileWriter(file);
+		bufferedOutputStream = new BufferedOutputStream(out.getOutputStream());
 		startFile();
 	}
 
@@ -90,6 +94,7 @@ public class TsFileIOWriter {
 	 */
 	public TsFileIOWriter(ITsRandomAccessFileWriter output) throws IOException {
 		this.out = output;
+		bufferedOutputStream = new BufferedOutputStream(out.getOutputStream());
 		startFile();
 	}
 
@@ -110,6 +115,7 @@ public class TsFileIOWriter {
 			throws IOException {
 		this.out = output;
 		out.seek(offset);
+		bufferedOutputStream = new BufferedOutputStream(out.getOutputStream());
 		this.rowGroupMetaDatas = rowGroups;
 	}
 
@@ -275,8 +281,9 @@ public class TsFileIOWriter {
 			}
 			offsetIndex = out.getPos();
 			// flush tsRowGroupBlockMetaDatas in order
-			ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(currentTsRowGroupBlockMetaData.convertToThrift(),
-					out.getOutputStream());
+//			ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(currentTsRowGroupBlockMetaData.convertToThrift(),
+//					out.getOutputStream());
+			ReadWriteToBytesUtils.write(currentTsRowGroupBlockMetaData, bufferedOutputStream);
 			offset = out.getPos();
 			TsDeltaObject tsDeltaObject = new TsDeltaObject(offsetIndex, (int) (offset - offsetIndex), startTime,
 					endTime);
@@ -288,6 +295,7 @@ public class TsFileIOWriter {
 		Map<String, String> props = schema.getProps();
 		tsFileMetaData.setProps(props);
 		serializeTsFileMetadata(tsFileMetaData);
+		bufferedOutputStream.close();
 		out.close();
 		LOG.info("output stream is closed");
 	}
@@ -307,8 +315,9 @@ public class TsFileIOWriter {
 		long footerIndex = out.getPos();
 		LOG.debug("serialize the footer,file pos:{}", footerIndex);
 		TsFileMetaDataConverter metadataConverter = new TsFileMetaDataConverter();
-		ReadWriteThriftFormatUtils.writeFileMetaData(metadataConverter.toThriftFileMetadata(footer),
-				out.getOutputStream());
+//		ReadWriteThriftFormatUtils.writeFileMetaData(metadataConverter.toThriftFileMetadata(footer),
+//				out.getOutputStream());
+		ReadWriteToBytesUtils.write(footer, bufferedOutputStream);
 		LOG.debug("serialize the footer finished, file pos:{}", out.getPos());
 		out.write(BytesUtils.intToBytes((int) (out.getPos() - footerIndex)));
 		out.write(magicStringBytes);

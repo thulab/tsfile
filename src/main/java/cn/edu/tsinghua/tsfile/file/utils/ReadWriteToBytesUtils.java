@@ -243,6 +243,16 @@ public class ReadWriteToBytesUtils {
         return tsDeltaObject;
     }
 
+    public static void write(TsFileMetaData tsFileMetaData, OutputStream outputStream) throws IOException {
+        tsFileMetaData.write(outputStream);
+    }
+
+    public static TsFileMetaData readTsFileMetaData(InputStream inputStream) throws IOException {
+        TsFileMetaData tsFileMetaData = new TsFileMetaData();
+        tsFileMetaData.read(inputStream);
+        return tsFileMetaData;
+    }
+
     private static class Test{
         public Test(){}
 

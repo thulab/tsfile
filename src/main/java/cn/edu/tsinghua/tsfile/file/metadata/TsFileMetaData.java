@@ -2,6 +2,7 @@ package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.format.DeltaObject;
 import cn.edu.tsinghua.tsfile.format.FileMetaData;
 import cn.edu.tsinghua.tsfile.format.TimeSeries;
@@ -9,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 
 /**
@@ -171,6 +174,83 @@ public class TsFileMetaData implements IConverter<FileMetaData> {
             throw e;
         }
 
+    }
+
+    public void write(OutputStream outputStream) throws IOException {
+        ReadWriteToBytesUtils.writeIsNull(deltaObjectMap, outputStream);
+        if(deltaObjectMap != null){
+            ReadWriteToBytesUtils.write(deltaObjectMap.size(), outputStream);
+            for(Map.Entry<String, TsDeltaObject> entry : deltaObjectMap.entrySet()){
+                ReadWriteToBytesUtils.write(entry.getKey(), outputStream);
+                ReadWriteToBytesUtils.write(entry.getValue(), outputStream);
+            }
+        }
+
+        ReadWriteToBytesUtils.writeIsNull(timeSeriesList, outputStream);
+        if(timeSeriesList != null){
+            ReadWriteToBytesUtils.write(timeSeriesList.size(), outputStream);
+            for(TimeSeriesMetadata timeSeriesMetadata : timeSeriesList){
+                ReadWriteToBytesUtils.write(timeSeriesMetadata, outputStream);
+            }
+        }
+
+        ReadWriteToBytesUtils.write(currentVersion, outputStream);
+
+        ReadWriteToBytesUtils.writeIsNull(jsonMetaData, outputStream);
+        if(jsonMetaData != null)ReadWriteToBytesUtils.write(jsonMetaData, TSDataType.TEXT, outputStream);
+
+        ReadWriteToBytesUtils.writeIsNull(createdBy, outputStream);
+        if(createdBy != null)ReadWriteToBytesUtils.write(createdBy, outputStream);
+
+        ReadWriteToBytesUtils.writeIsNull(props, outputStream);
+        if(props != null){
+            ReadWriteToBytesUtils.write(props.size(), outputStream);
+            for(Map.Entry<String, String> entry : props.entrySet()){
+                ReadWriteToBytesUtils.write(entry.getKey(), outputStream);
+                ReadWriteToBytesUtils.write(entry.getValue(), outputStream);
+            }
+        }
+    }
+
+    public void read(InputStream inputStream) throws IOException {
+        if(ReadWriteToBytesUtils.readIsNull(inputStream)){
+            deltaObjectMap = new HashMap<>();
+            int size = ReadWriteToBytesUtils.readInt(inputStream);
+            String key;
+            TsDeltaObject value;
+            for(int i = 0;i < size;i++) {
+                key = ReadWriteToBytesUtils.readString(inputStream);
+                value = ReadWriteToBytesUtils.readTsDeltaObject(inputStream);
+                deltaObjectMap.put(key, value);
+            }
+        }
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream)){
+            timeSeriesList = new ArrayList<>();
+            int size = ReadWriteToBytesUtils.readInt(inputStream);
+            for(int i = 0;i < size;i++)
+                timeSeriesList.add(ReadWriteToBytesUtils.readTimeSeriesMetadata(inputStream));
+        }
+
+        currentVersion = ReadWriteToBytesUtils.readInt(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            jsonMetaData = ReadWriteToBytesUtils.readStringList(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            createdBy = ReadWriteToBytesUtils.readString(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream)){
+            props = new HashMap<>();
+            int size = ReadWriteToBytesUtils.readInt(inputStream);
+            String key;
+            String value;
+            for(int i = 0;i < size;i++) {
+                key = ReadWriteToBytesUtils.readString(inputStream);
+                value = ReadWriteToBytesUtils.readString(inputStream);
+                props.put(key, value);
+            }
+        }
     }
 
     public List<TimeSeriesMetadata> getTimeSeriesList() {

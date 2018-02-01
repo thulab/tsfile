@@ -146,6 +146,22 @@ public class Utils {
 		}
 	}
 
+	public static void isTimeSeriesListEqual(List<TimeSeriesMetadata> timeSeriesMetadataList1,
+											 List<TimeSeriesMetadata> timeSeriesMetadataList2, int nn) {
+		if (timeSeriesMetadataList1 == null && timeSeriesMetadataList2 == null)
+			return;
+
+		if (timeSeriesMetadataList1 == null && timeSeriesMetadataList2 == null)
+			return;
+		if ((timeSeriesMetadataList1 == null) ^ (timeSeriesMetadataList2 == null))
+			fail("one list is null");
+		if (timeSeriesMetadataList1.size() != timeSeriesMetadataList2.size())
+			fail("list size is different");
+		for (int i = 0; i < timeSeriesMetadataList1.size(); i++) {
+			isTimeSeriesEqual(timeSeriesMetadataList1.get(i), timeSeriesMetadataList2.get(i));
+		}
+	}
+
 	public static void isTSeriesChunkMetadataEqual(TInTimeSeriesChunkMetaData tSeriesMetaData,
 			TimeInTimeSeriesChunkMetaData timeInTimeSeriesChunkMetaData) {
 		if (Utils.isTwoObjectsNotNULL(tSeriesMetaData, timeInTimeSeriesChunkMetaData,
@@ -418,6 +434,33 @@ public class Utils {
 					for(String key: mapInTSF.keySet()) {
 						if(mapInThrift.containsKey(key)) {
 							isDeltaObjectEqual(mapInTSF.get(key), mapInThrift.get(key));
+						} else {
+							fail(String.format("delta object map in thrift does not contain key %s", key));
+						}
+					}
+				} else {
+					fail(String.format("%s size is different", "delta object map"));
+				}
+			}
+		}
+	}
+
+	public static void isFileMetaDataEqual(TsFileMetaData tsFileMetaData1, TsFileMetaData tsFileMetaData2) {
+		if (Utils.isTwoObjectsNotNULL(tsFileMetaData1, tsFileMetaData2, "File MetaData")) {
+			assertEquals(tsFileMetaData1.getCurrentVersion(), tsFileMetaData2.getCurrentVersion());
+			assertEquals(tsFileMetaData1.getCreatedBy(), tsFileMetaData2.getCreatedBy());
+			Utils.isTimeSeriesListEqual(tsFileMetaData1.getTimeSeriesList(), tsFileMetaData2.getTimeSeriesList(), 1);
+			Utils.isListEqual(tsFileMetaData1.getJsonMetaData(), tsFileMetaData2.getJsonMetaData(), "json metadata");
+			if (Utils.isTwoObjectsNotNULL(tsFileMetaData1.getProps(), tsFileMetaData2.getProps(), "user specified properties")) {
+				Utils.isMapStringEqual(tsFileMetaData1.getProps(), tsFileMetaData2.getProps(), "Filemetadata properties");
+			}
+			if(Utils.isTwoObjectsNotNULL(tsFileMetaData1.getDeltaObjectMap(), tsFileMetaData2.getDeltaObjectMap(), "delta object map")) {
+				Map<String, TsDeltaObject> map1 = tsFileMetaData1.getDeltaObjectMap();
+				Map<String, TsDeltaObject> map2 = tsFileMetaData2.getDeltaObjectMap();
+				if(map1.size() == map2.size()) {
+					for(String key: map1.keySet()) {
+						if(map1.containsKey(key)) {
+							isDeltaObjectEqual(map1.get(key), map2.get(key));
 						} else {
 							fail(String.format("delta object map in thrift does not contain key %s", key));
 						}

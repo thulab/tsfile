@@ -47,6 +47,10 @@ public class TInTimeSeriesChunkMetaDataTest {
     File file = new File(PATH);
     if (file.exists())
       file.delete();
+
+    file = new File(BYTE_FILE_PATH);
+    if (file.exists())
+      file.delete();
   }
 
   @Test

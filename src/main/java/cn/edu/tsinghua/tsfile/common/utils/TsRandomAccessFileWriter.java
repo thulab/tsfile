@@ -1,9 +1,6 @@
 package cn.edu.tsinghua.tsfile.common.utils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 
 /**
  * RandomAccessOutputStream implements the tsfile file writer interface and extends OutputStream. <br>
