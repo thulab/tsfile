@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +35,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
 //import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 
@@ -94,7 +94,7 @@ public class TsFileIOWriter {
 	 */
 	public TsFileIOWriter(ITsRandomAccessFileWriter output) throws IOException {
 		this.out = output;
-		bufferedOutputStream = new BufferedOutputStream(out.getOutputStream());
+        bufferedOutputStream = new BufferedOutputStream(out.getOutputStream());
 		startFile();
 	}
 
@@ -115,7 +115,7 @@ public class TsFileIOWriter {
 			throws IOException {
 		this.out = output;
 		out.seek(offset);
-		bufferedOutputStream = new BufferedOutputStream(out.getOutputStream());
+        bufferedOutputStream = new BufferedOutputStream(out.getOutputStream());
 		this.rowGroupMetaDatas = rowGroups;
 	}
 
@@ -283,7 +283,8 @@ public class TsFileIOWriter {
 			// flush tsRowGroupBlockMetaDatas in order
 //			ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(currentTsRowGroupBlockMetaData.convertToThrift(),
 //					out.getOutputStream());
-			ReadWriteToBytesUtils.write(currentTsRowGroupBlockMetaData, bufferedOutputStream);
+            ReadWriteToBytesUtils.write(currentTsRowGroupBlockMetaData, bufferedOutputStream);
+            bufferedOutputStream.flush();
 			offset = out.getPos();
 			TsDeltaObject tsDeltaObject = new TsDeltaObject(offsetIndex, (int) (offset - offsetIndex), startTime,
 					endTime);
@@ -314,10 +315,11 @@ public class TsFileIOWriter {
 	private void serializeTsFileMetadata(TsFileMetaData footer) throws IOException {
 		long footerIndex = out.getPos();
 		LOG.debug("serialize the footer,file pos:{}", footerIndex);
-		TsFileMetaDataConverter metadataConverter = new TsFileMetaDataConverter();
+//		TsFileMetaDataConverter metadataConverter = new TsFileMetaDataConverter();
 //		ReadWriteThriftFormatUtils.writeFileMetaData(metadataConverter.toThriftFileMetadata(footer),
 //				out.getOutputStream());
-		ReadWriteToBytesUtils.write(footer, bufferedOutputStream);
+        ReadWriteToBytesUtils.write(footer, bufferedOutputStream);
+        bufferedOutputStream.flush();
 		LOG.debug("serialize the footer finished, file pos:{}", out.getPos());
 		out.write(BytesUtils.intToBytes((int) (out.getPos() - footerIndex)));
 		out.write(magicStringBytes);

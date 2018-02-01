@@ -16,7 +16,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.IntDataPoint;
 public class TsFileWriteTest {
 
     public static void main(String args[]) throws IOException, WriteProcessException {
-        String path = "src/test/resources/test.ts";
+        String path = "src/test/resources/testBytes.ts";
         String s = "{\n" +
                 "    \"schema\": [\n" +
                 "        {\n" +
@@ -44,7 +44,9 @@ public class TsFileWriteTest {
                 "}";
         JSONObject schemaObject = new JSONObject(s);
 
-        TsFile tsFile = new TsFile(new File(path), schemaObject);
+        File file = new File(path);
+        if(file.exists())file.delete();
+        TsFile tsFile = new TsFile(file, schemaObject);
 
         tsFile.writeLine("device_1,1, sensor_1, 1.2, sensor_2, 20, sensor_3,");
         tsFile.writeLine("device_1,2, sensor_1, , sensor_2, 20, sensor_3, 50");

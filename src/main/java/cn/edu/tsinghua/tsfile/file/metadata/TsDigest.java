@@ -74,10 +74,11 @@ public class TsDigest implements IConverter<Digest> {
 	}
 
 	public void write(OutputStream outputStream) throws IOException {
+		int byteLen = 0;
 		ReadWriteToBytesUtils.writeIsNull(statistics, outputStream);
 
 		if(statistics != null) {
-			outputStream.write(statistics.size());
+			ReadWriteToBytesUtils.write(statistics.size(), outputStream);
 			for (Map.Entry<String, ByteBuffer> entry : statistics.entrySet()) {
 				ReadWriteToBytesUtils.write(entry.getKey(), outputStream);
 				ReadWriteToBytesUtils.write(entry.getValue(), outputStream);

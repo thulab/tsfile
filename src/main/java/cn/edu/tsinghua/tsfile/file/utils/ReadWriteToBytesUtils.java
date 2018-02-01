@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.utils;
 
+import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.file.metadata.*;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
@@ -102,7 +103,7 @@ public class ReadWriteToBytesUtils {
     }
 
     public static void write(ByteBuffer byteBuffer, OutputStream outputStream) throws IOException {
-        write(byteBuffer.position(), outputStream);
+        write(byteBuffer.capacity(), outputStream);
         outputStream.write(byteBuffer.array());
     }
 
@@ -231,6 +232,16 @@ public class ReadWriteToBytesUtils {
         TsRowGroupBlockMetaData rowGroupBlockMetaData = new TsRowGroupBlockMetaData();
         rowGroupBlockMetaData.read(inputStream);
         return rowGroupBlockMetaData;
+    }
+
+    public static TsRowGroupBlockMetaData readTsRowGroupBlockMetaData(ITsRandomAccessFileReader reader, long offset,
+                                                                  int size) throws IOException {
+        reader.seek(offset);
+        byte[] buf = new byte[size];
+        reader.read(buf, 0, buf.length);
+        ByteArrayInputStream bais = new ByteArrayInputStream(buf);
+
+        return readTsRowGroupBlockMetaData(bais);
     }
 
     public static void write(TsDeltaObject tsDeltaObject, OutputStream outputStream) throws IOException {
