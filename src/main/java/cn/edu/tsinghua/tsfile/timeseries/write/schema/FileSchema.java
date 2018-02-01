@@ -1,24 +1,18 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.schema;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesMetadata;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.converter.JsonConverter;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesMetadata;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.timeseries.write.TsFileWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
-import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
-import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.write.schema.converter.JsonConverter;
-import cn.edu.tsinghua.tsfile.timeseries.write.series.IRowGroupWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * FileSchema stores the schema of registered measurements and delta objects that appeared in this
@@ -106,31 +100,6 @@ public class FileSchema {
     this.currentMaxByteSizeInOneRow += additionalByteSize;
   }
 
-//  /**
-//   * judge whether given delta object id exists in this stage.
-//   *
-//   * @param deltaObjectId
-//   *          - delta object id
-//   * @return - if this id appeared in this stage, return true, otherwise return false
-//   */
-//  public boolean hasDeltaObject(String deltaObjectId) {
-//    return appearDeltaObjectIdSet.contains(deltaObjectId);
-////  }
-//
-//  /**
-//   * add a delta object id to this schema
-//   *
-//   * @param deltaObjectId
-//   *          - delta object id to be added
-//   */
-//  public void addDeltaObject(String deltaObjectId) {
-//    appearDeltaObjectIdSet.add(deltaObjectId);
-//  }
-//
-//  public Set<String> getDeltaObjectAppearedSet() {
-//    return appearDeltaObjectIdSet;
-//  }
-
   private void indexMeasurementDataType(String measurementUID, TSDataType type) {
     measurementDataTypeMap.put(measurementUID, type);
   }
@@ -164,31 +133,6 @@ public class FileSchema {
   public List<TimeSeriesMetadata> getTimeSeriesMetadatas() {
     return tsMetadata;
   }
-
-//  /**
-//   * This method is called in {@linkplain TsFileWriter InternalRecordWriter} after flushing row
-//   * group to file. The delta object id used in last stage remains in this stage. The delta object
-//   * id which not be used in last stage will be removed
-//   *
-//   * @param groupWriters
-//   *          - {@code Map<deltaObjectId, RowGroupWriter>}, a map remaining all
-//   *          {@linkplain IRowGroupWriter IRowGroupWriter}
-//   */
-//  public void resetUnusedDeltaObjectId(Map<String, IRowGroupWriter> groupWriters) {
-//    int size = groupWriters.size();
-//    if (size >= tempKeyArray.length)
-//      tempKeyArray = new String[size];
-//    int i = 0;
-//    for (String id : groupWriters.keySet()) {
-//      tempKeyArray[i++] = id;
-//    }
-//    for (String existDeltaObjectId : tempKeyArray) {
-//      if (!appearDeltaObjectIdSet.contains(existDeltaObjectId)) {
-//        groupWriters.remove(existDeltaObjectId);
-//      }
-//    }
-//    appearDeltaObjectIdSet.clear();
-//  }
 
   public void registerMeasurement(MeasurementDescriptor descriptor) {
     this.measurementNameDescriptorMap.put(descriptor.getMeasurementId(), descriptor);
