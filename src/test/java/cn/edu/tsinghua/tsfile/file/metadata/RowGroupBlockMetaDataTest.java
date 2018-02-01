@@ -46,7 +46,6 @@ public class RowGroupBlockMetaDataTest {
 		FileOutputStream fos = new FileOutputStream(file);
 		TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
 		ReadWriteThriftFormatUtils.write(metaData.convertToThrift(), out.getOutputStream());
-//		ReadWriteThriftFormatUtils.write(metaData.convertToThrift(), new BufferedOutputStream(fos));
 
 		out.close();
 		fos.close();
@@ -55,7 +54,6 @@ public class RowGroupBlockMetaDataTest {
 		Utils.isRowGroupBlockMetadataEqual(metaData, metaData.convertToThrift());
 
 		Utils.isRowGroupBlockMetadataEqual(metaData,ReadWriteThriftFormatUtils.read(fis, new RowGroupBlockMetaData()));
-//		Utils.isRowGroupBlockMetadataEqual(metaData,ReadWriteThriftFormatUtils.read(new BufferedInputStream(fis), new RowGroupBlockMetaData()));
 	}
 
 	@Test
@@ -68,25 +66,21 @@ public class RowGroupBlockMetaDataTest {
 		if (file.exists())
 			file.delete();
 		TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-		BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(file));
-//		ReadWriteToBytesUtils.write(metaData, new BufferedOutputStream(out.getOutputStream()));
+		BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(out.getOutputStream());
 		ReadWriteToBytesUtils.write(metaData, bufferedOutputStream);
-
-//		ReadWriteToBytesUtils.write(metaData, out.getOutputStream());
 
 		bufferedOutputStream.close();
 		out.close();
 
 		FileInputStream fis = new FileInputStream(new File(BYTE_FILE_PATH));
-//		TsRowGroupBlockMetaData metaData2 = ReadWriteToBytesUtils.readTsRowGroupBlockMetaData(new BufferedInputStream(fis));
-		TsRowGroupBlockMetaData metaData2 = ReadWriteToBytesUtils.readTsRowGroupBlockMetaData(fis);
+		TsRowGroupBlockMetaData metaData2 = ReadWriteToBytesUtils.readTsRowGroupBlockMetaData(new BufferedInputStream(fis));
 
 		Utils.isRowGroupBlockMetadataEqual(metaData, metaData2);
 	}
 
 	@Test
 	public void simpleTest() throws IOException {
-		int looptime = 100000;
+		int looptime = 10000;
 		long starttime, endtime;
 
 		System.out.println("thrift:");

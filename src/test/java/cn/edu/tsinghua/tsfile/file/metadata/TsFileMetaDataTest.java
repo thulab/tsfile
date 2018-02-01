@@ -84,8 +84,7 @@ public class TsFileMetaDataTest {
 
     FileInputStream fis = new FileInputStream(new File(PATH));
 
-    FileMetaData fileMetaData2 =
-        ReadWriteThriftFormatUtils.readFileMetaData(fis);
+    FileMetaData fileMetaData2 = ReadWriteThriftFormatUtils.readFileMetaData(fis);
     Utils.isFileMetaDataEqual(tsfMetaData, fileMetaData2);
   }
 
@@ -103,19 +102,18 @@ public class TsFileMetaDataTest {
     tsfMetaData.setProps(properties);
     tsfMetaData.addProp("key1", "value1");
 
-    File file = new File(BYTE_FILE_PATH);
+    File file = new File(PATH);
     if (file.exists())
       file.delete();
-    FileOutputStream fos = new FileOutputStream(file);
     TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-    ReadWriteToBytesUtils.write(tsfMetaData, out.getOutputStream());
+    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(out.getOutputStream());
+    ReadWriteToBytesUtils.write(tsfMetaData, bufferedOutputStream);
 
+    bufferedOutputStream.close();
     out.close();
-    fos.close();
 
-    FileInputStream fis = new FileInputStream(new File(BYTE_FILE_PATH));
-
-    TsFileMetaData tsfMetaData2 = ReadWriteToBytesUtils.readTsFileMetaData(fis);
+    FileInputStream fis = new FileInputStream(new File(PATH));
+    TsFileMetaData tsfMetaData2 = ReadWriteToBytesUtils.readTsFileMetaData(new BufferedInputStream(fis));
     Utils.isFileMetaDataEqual(tsfMetaData, tsfMetaData2);
   }
 
@@ -189,28 +187,30 @@ public class TsFileMetaDataTest {
 
   @Test
   public void simpleTest() throws IOException {
-    int looptime = 1000000;
+    int looptime = 10000;
     long starttime, endtime;
 
+    System.out.println("thrift:");
     starttime = System.currentTimeMillis();
     for(int i = 0;i < looptime;i++)
       testWriteFileMetaData();
     endtime = System.currentTimeMillis();
     System.out.println(endtime - starttime);
 
-    File file = new File(BYTE_FILE_PATH);
+    File file = new File(PATH);
     if(file.exists()){
       System.out.println(file.length());
       file.delete();
     }
 
+    System.out.println("bytes:");
     starttime = System.currentTimeMillis();
     for(int i = 0;i < looptime;i++)
       testWriteFileMetaDataByBytes();
     endtime = System.currentTimeMillis();
     System.out.println(endtime - starttime);
 
-    file = new File(BYTE_FILE_PATH);
+    file = new File(PATH);
     if(file.exists())
       System.out.println(file.length());
   }
