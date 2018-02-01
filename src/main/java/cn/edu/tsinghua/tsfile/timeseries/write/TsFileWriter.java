@@ -146,9 +146,9 @@ public class TsFileWriter {
    * @throws WriteProcessException exception
    */
   protected boolean checkIsDeltaExist(TSRecord record) throws WriteProcessException {
-    if (!schema.hasDeltaObject(record.deltaObjectId)) {
-      schema.addDeltaObject(record.deltaObjectId);
-    }
+//    if (!schema.hasDeltaObject(record.deltaObjectId)) {
+//      schema.addDeltaObject(record.deltaObjectId);
+//    }
     addGroupToInternalRecordWriter(record);
     return true;
   }
@@ -260,7 +260,7 @@ public class TsFileWriter {
     // at the present stage, just flush one block
     if (recordCount > 0) {
       long totalMemStart = deltaFileWriter.getPos();
-      for (String deltaObjectId : schema.getDeltaObjectAppearedSet()) {
+      for (String deltaObjectId : groupWriters.keySet()) {
         long memSize = deltaFileWriter.getPos();
         deltaFileWriter.startRowGroup(recordCount, deltaObjectId);
         IRowGroupWriter groupWriter = groupWriters.get(deltaObjectId);
@@ -293,7 +293,8 @@ public class TsFileWriter {
    * {@code flushToFileWriter()}, RowGroupWriter resets itself.
    */
   private void reset() {
-    schema.resetUnusedDeltaObjectId(groupWriters);
+    groupWriters.clear();
+//    schema.resetUnusedDeltaObjectId(groupWriters);
   }
 
   /**
