@@ -138,9 +138,23 @@ public class TsFileWriter {
    * @return - whether the record has been added into RecordWriter legally
    * @throws WriteProcessException exception
    */
-  protected boolean checkIsDeltaExist(TSRecord record) throws WriteProcessException {
-    addGroupToInternalRecordWriter(record);
-    return true;
+  protected boolean checkIsTimeSeriesExist(TSRecord record) throws WriteProcessException {
+		IRowGroupWriter groupWriter;
+		if (!groupWriters.containsKey(record.deltaObjectId)) {
+			groupWriter = new RowGroupWriterImpl(record.deltaObjectId);
+			groupWriters.put(record.deltaObjectId, groupWriter);
+		} else{
+			groupWriter = groupWriters.get(record.deltaObjectId);
+		}
+		Map<String, MeasurementDescriptor> schemaDescriptorMap = schema.getDescriptor();
+		for (DataPoint dp : record.dataPointList) {
+			String measurementId = dp.getMeasurementId();
+			if (schemaDescriptorMap.containsKey(measurementId))
+				groupWriter.addSeriesWriter(schemaDescriptorMap.get(measurementId), pageSize);
+			else
+				throw new NoMeasurementException("input measurement is invalid: " + measurementId);
+		}
+		return true;
   }
 
   /**
@@ -156,37 +170,12 @@ public class TsFileWriter {
    * false - otherwise
    */
   public boolean write(TSRecord record) throws IOException, WriteProcessException {
-    if (checkIsDeltaExist(record)) {
+    if (checkIsTimeSeriesExist(record)) {
       groupWriters.get(record.deltaObjectId).write(record.time, record.dataPointList);
       ++recordCount;
       return checkMemorySize();
     }
 	return false;
-  }
-
-  /**
-   * <b>Note that</b>, before calling this method, all {@code IRowGroupWriter} instance existing in
-   * {@code groupWriters} have been reset for next writing stage, thus we don't add new
-   * {@code IRowGroupWriter} if its deltaObjectId has existed.
-   *
-   * @param record TSRecord
-   * @throws WriteProcessException - delta object to be add
-   */
-  protected void addGroupToInternalRecordWriter(TSRecord record) throws WriteProcessException {
-    IRowGroupWriter groupWriter;
-    if (!groupWriters.containsKey(record.deltaObjectId)) {
-      groupWriter = new RowGroupWriterImpl(record.deltaObjectId);
-      groupWriters.put(record.deltaObjectId, groupWriter);
-    } else
-      groupWriter = groupWriters.get(record.deltaObjectId);
-    Map<String, MeasurementDescriptor> schemaDescriptorMap = schema.getDescriptor();
-    for (DataPoint dp : record.dataPointList) {
-      String measurementId = dp.getMeasurementId();
-      if (schemaDescriptorMap.containsKey(measurementId))
-        groupWriter.addSeriesWriter(schemaDescriptorMap.get(measurementId), pageSize);
-      else
-        throw new NoMeasurementException("input measurement is invalid: " + measurementId);
-    }
   }
 
   /**
