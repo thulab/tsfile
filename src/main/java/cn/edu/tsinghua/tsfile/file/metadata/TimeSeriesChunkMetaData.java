@@ -4,8 +4,6 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
-import cn.edu.tsinghua.tsfile.format.CompressionType;
-import cn.edu.tsinghua.tsfile.format.TimeSeriesChunkType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

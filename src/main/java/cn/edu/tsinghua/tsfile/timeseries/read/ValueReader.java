@@ -28,8 +28,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import static cn.edu.tsinghua.tsfile.format.Encoding.*;
-
 /**
  * @author Jinrui Zhang
  * This class is mainly used to read one column of data in RowGroup.
