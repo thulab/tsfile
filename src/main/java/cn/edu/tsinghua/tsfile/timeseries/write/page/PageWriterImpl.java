@@ -6,7 +6,6 @@ import cn.edu.tsinghua.tsfile.common.utils.PublicBAOS;
 import cn.edu.tsinghua.tsfile.compress.Compressor;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.PageException;
@@ -52,10 +51,8 @@ public class PageWriterImpl implements IPageWriter {
         PublicBAOS tempOutputStream = new PublicBAOS(estimateMaxPageHeaderSize() + compressedSize);
         // write the page header to IOWriter
         try {
-//            ReadWriteToBytesUtils.writeDataPageHeader(uncompressedSize, compressedSize, valueCount, statistics,
-//                    valueCount, desc.getEncodingType(), maxTimestamp, minTimestamp, tempOutputStream);
-            ReadWriteThriftFormatUtils.writeDataPageHeader(uncompressedSize, compressedSize, valueCount, statistics,
-                    valueCount, desc.getEncodingType(), tempOutputStream, maxTimestamp, minTimestamp);
+            ReadWriteToBytesUtils.writeDataPageHeader(uncompressedSize, compressedSize, valueCount, statistics,
+                    valueCount, desc.getEncodingType(), maxTimestamp, minTimestamp, tempOutputStream);
         } catch (IOException e) {
             resetTimeStamp();
             throw new PageException(

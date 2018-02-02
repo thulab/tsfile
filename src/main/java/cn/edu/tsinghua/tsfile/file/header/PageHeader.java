@@ -1,7 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.header;
 
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
-import com.sun.org.apache.regexp.internal.RE;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +33,16 @@ public class PageHeader {
         this.type = type;
         this.uncompressed_page_size = uncompressed_page_size;
         this.compressed_page_size = compressed_page_size;
+    }
+
+    public PageHeader(PageType type, int uncompressed_page_size, int compressed_page_size, int crc, DataPageHeader data_page_header, IndexPageHeader index_page_header, DictionaryPageHeader dictionary_page_header) {
+        this.type = type;
+        this.uncompressed_page_size = uncompressed_page_size;
+        this.compressed_page_size = compressed_page_size;
+        this.crc = crc;
+        this.data_page_header = data_page_header;
+        this.index_page_header = index_page_header;
+        this.dictionary_page_header = dictionary_page_header;
     }
 
     public DataPageHeader getData_page_header() {
@@ -114,3 +123,4 @@ public class PageHeader {
         }
     }
 }
+

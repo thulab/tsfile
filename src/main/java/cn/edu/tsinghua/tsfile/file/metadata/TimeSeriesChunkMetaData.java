@@ -121,37 +121,6 @@ public class TimeSeriesChunkMetaData {
             vInTimeSeriesChunkMetaData = ReadWriteToBytesUtils.readVInTimeSeriesChunkMetaData(inputStream);
     }
 
-    private cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData initTimeSeriesChunkMetaDataInThrift() {
-        cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData metadataInThrift =
-                new cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData(
-                        properties.getMeasurementUID(),
-                        properties.getTsChunkType() == null ? null : TimeSeriesChunkType.valueOf(properties.getTsChunkType().toString()),
-                        properties.getFileOffset(),
-                        properties.getCompression() == null ? null : CompressionType.valueOf(properties.getCompression().toString()));
-        metadataInThrift.setNum_rows(numRows);
-        metadataInThrift.setTotal_byte_size(totalByteSize);
-        metadataInThrift.setJson_metadata(jsonMetaData);
-        metadataInThrift.setData_page_offset(dataPageOffset);
-        metadataInThrift.setIndex_page_offset(indexPageOffset);
-        metadataInThrift.setDictionary_page_offset(dictionaryPageOffset);
-        return metadataInThrift;
-    }
-
-    private void initTimeSeriesChunkMetaDataInTSFile(
-            cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData metadataInThrift) {
-        properties = new TimeSeriesChunkProperties(
-                metadataInThrift.getMeasurement_uid(),
-                metadataInThrift.getTimeseries_chunk_type() == null ? null : TSChunkType.valueOf(metadataInThrift.getTimeseries_chunk_type().toString()),
-                metadataInThrift.getFile_offset(),
-                metadataInThrift.getCompression_type() == null ? null : CompressionTypeName.valueOf(metadataInThrift.getCompression_type().toString()));
-        numRows = metadataInThrift.getNum_rows();
-        totalByteSize = metadataInThrift.getTotal_byte_size();
-        jsonMetaData = metadataInThrift.getJson_metadata();
-        dataPageOffset = metadataInThrift.getData_page_offset();
-        indexPageOffset = metadataInThrift.getIndex_page_offset();
-        dictionaryPageOffset = metadataInThrift.getDictionary_page_offset();
-    }
-
     @Override
     public String toString() {
         return String.format(

@@ -6,6 +6,8 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
+import cn.edu.tsinghua.tsfile.file.header.DataPageHeader;
+import cn.edu.tsinghua.tsfile.file.header.PageHeader;
 import cn.edu.tsinghua.tsfile.file.metadata.TsFileMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TsRowGroupBlockMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
@@ -468,6 +470,63 @@ public class Utils {
 				} else {
 					fail(String.format("%s size is different", "delta object map"));
 				}
+			}
+		}
+	}
+
+	public static void isDataPageHeaderEqual(DataPageHeader dataPageHeader1, DataPageHeader dataPageHeader2){
+		if (Utils.isTwoObjectsNotNULL(dataPageHeader1, dataPageHeader2, "Data Page Header")) {
+			assertEquals(dataPageHeader1.num_values, dataPageHeader2.num_values);
+			assertEquals(dataPageHeader1.num_rows, dataPageHeader2.num_rows);
+			if(Utils.isTwoObjectsNotNULL(dataPageHeader1.encoding, dataPageHeader2.encoding, "DataPageHeader TSEncoding")){
+				assertEquals(dataPageHeader1.encoding.toString(), dataPageHeader2.encoding.toString());
+			}
+			if(Utils.isTwoObjectsNotNULL(dataPageHeader1.digest, dataPageHeader2.digest, "DataPageHeader Digest")){
+				if(Utils.isTwoObjectsNotNULL(dataPageHeader1.digest.getStatistics(), dataPageHeader2.digest.getStatistics(), "statistics")) {
+					Map<String, ByteBuffer> map1 = dataPageHeader1.digest.getStatistics();
+					Map<String, ByteBuffer> map2 = dataPageHeader2.digest.getStatistics();
+					if(map1.size() == map2.size()) {
+						for(String key: map1.keySet()) {
+							if(map1.containsKey(key)) {
+								byte[] bytes1 = map1.get(key).array();
+								byte[] bytes2 = map2.get(key).array();
+								if(Utils.isTwoObjectsNotNULL(bytes1, bytes2, "Byte Buffer")){
+									assertEquals(bytes1.length, bytes2.length);
+									for(int i = 0;i < bytes1.length;i++){
+										assertEquals(bytes1[i], bytes2[i]);
+									}
+								}
+							} else {
+								fail(String.format("statistics in digest2 does not contain key %s", key));
+							}
+						}
+					} else {
+						fail(String.format("%s size is different", "statistics"));
+					}
+				}
+			}
+			assertEquals(dataPageHeader1.is_compressed, dataPageHeader2.is_compressed);
+			assertEquals(dataPageHeader1.max_timestamp, dataPageHeader2.max_timestamp);
+			assertEquals(dataPageHeader1.min_timestamp, dataPageHeader2.min_timestamp);
+		}
+	}
+
+	public static void isPageHeaderEqual(PageHeader pageHeader1, PageHeader pageHeader2) {
+		if (Utils.isTwoObjectsNotNULL(pageHeader1, pageHeader2, "Page Header")) {
+			if(Utils.isTwoObjectsNotNULL(pageHeader1.type, pageHeader2.type, "Page type")){
+				assertEquals(pageHeader1.type.toString(), pageHeader2.type.toString());
+			}
+			assertEquals(pageHeader1.uncompressed_page_size, pageHeader2.uncompressed_page_size);
+			assertEquals(pageHeader1.compressed_page_size, pageHeader2.compressed_page_size);
+			assertEquals(pageHeader1.crc, pageHeader2.crc);
+			if(Utils.isTwoObjectsNotNULL(pageHeader1.data_page_header, pageHeader2.data_page_header, "Data Page Header")){
+				isDataPageHeaderEqual(pageHeader1.data_page_header, pageHeader2.data_page_header);
+			}
+			if(Utils.isTwoObjectsNotNULL(pageHeader1.index_page_header, pageHeader2.index_page_header, "Index Page Header")){
+				assertEquals(pageHeader1.index_page_header, pageHeader2.index_page_header);
+			}
+			if(Utils.isTwoObjectsNotNULL(pageHeader1.dictionary_page_header, pageHeader2.dictionary_page_header, "Dictionary Page Header")){
+				assertEquals(pageHeader1.dictionary_page_header, pageHeader2.dictionary_page_header);
 			}
 		}
 	}

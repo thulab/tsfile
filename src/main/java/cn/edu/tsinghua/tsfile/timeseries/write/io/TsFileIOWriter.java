@@ -276,6 +276,7 @@ public class TsFileIOWriter {
 					endTime = Long.max(endTime, timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getEndTime());
 				}
 			}
+			bufferedOutputStream.flush();
 			offsetIndex = out.getPos();
 			// write tsRowGroupBlockMetaDatas in order
             rgbmdLen = ReadWriteToBytesUtils.write(currentTsRowGroupBlockMetaData, bufferedOutputStream);

@@ -7,13 +7,11 @@ import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
-//import cn.edu.tsinghua.tsfile.file.header.PageHeader;
+import cn.edu.tsinghua.tsfile.file.header.PageHeader;
 import cn.edu.tsinghua.tsfile.file.metadata.TsDigest;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
-import cn.edu.tsinghua.tsfile.format.Digest;
-import cn.edu.tsinghua.tsfile.format.PageHeader;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.utils.DigestForFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.DigestVisitor;
@@ -285,8 +283,7 @@ public class ValueReader {
                 PageHeader pageHeader = pageReader.getNextPageHeader();
 
                 // construct valueFilter
-//                TsDigest pageDigest = pageHeader.data_page_header.getDigest();
-                Digest pageDigest = pageHeader.data_page_header.getDigest();
+                TsDigest pageDigest = pageHeader.data_page_header.getDigest();
                 DigestForFilter valueDigestFF = null;
                 if (pageDigest != null) {
                     if (getDataType() == TSDataType.ENUMS) {

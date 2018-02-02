@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.header.DataPageHeader;
+import cn.edu.tsinghua.tsfile.file.header.PageHeader;
+import cn.edu.tsinghua.tsfile.file.header.PageType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.*;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaDataTest;
@@ -321,6 +321,16 @@ public class TestHelper {
 	  digest.getStatistics().put("first", ByteBuffer.wrap(BytesUtils.StringToBytes(FIRST_VALUE)));
 	  digest.getStatistics().put("last", ByteBuffer.wrap(BytesUtils.StringToBytes(LAST_VALUE)));
 	  return digest;
+  }
+
+  public static DataPageHeader createSimpleDataPageHeader(){
+    TsDigest digest = createSimpleTsDigest();
+    return new DataPageHeader(100, 100, TSEncoding.PLAIN, digest, false, 100, 1);
+  }
+
+  public static PageHeader createSimplePageHeader(){
+    DataPageHeader dataPageHeader = createSimpleDataPageHeader();
+    return new PageHeader(PageType.DATA_PAGE, 100, 100, 0, dataPageHeader, null, null);
   }
 
   public static List<String> getJSONArray() {

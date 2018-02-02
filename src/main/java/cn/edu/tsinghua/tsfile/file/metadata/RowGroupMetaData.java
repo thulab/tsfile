@@ -110,8 +110,9 @@ public class RowGroupMetaData {
             timeSeriesChunkMetaDataList = new ArrayList<>();
 
             int size = ReadWriteToBytesUtils.readInt(inputStream);
-            for(int i = 0;i < size;i++)
+            for(int i = 0;i < size;i++) {
                 timeSeriesChunkMetaDataList.add(ReadWriteToBytesUtils.readTimeSeriesChunkMetaData(inputStream));
+            }
         }
 
         if(ReadWriteToBytesUtils.readIsNull(inputStream))

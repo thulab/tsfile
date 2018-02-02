@@ -123,7 +123,7 @@ public class DataPageHeader {
         }
 
         is_compressed = ReadWriteToBytesUtils.readBool(inputStream);
-        max_timestamp = ReadWriteToBytesUtils.readInt(inputStream);
-        min_timestamp = ReadWriteToBytesUtils.readInt(inputStream);
+        max_timestamp = ReadWriteToBytesUtils.readLong(inputStream);
+        min_timestamp = ReadWriteToBytesUtils.readLong(inputStream);
     }
 }

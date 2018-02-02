@@ -63,8 +63,13 @@ public class TimeSeriesChunkProperties {
 
         fileOffset = ReadWriteToBytesUtils.readLong(inputStream);
 
-        if(ReadWriteToBytesUtils.readIsNull(inputStream))
-            compression = CompressionTypeName.valueOf(ReadWriteToBytesUtils.readString(inputStream));
+        if(ReadWriteToBytesUtils.readIsNull(inputStream)) {
+            try {
+                compression = CompressionTypeName.valueOf(ReadWriteToBytesUtils.readString(inputStream));
+            }catch (Exception ex){
+                System.out.println(ex.getMessage());
+            }
+        }
     }
 
     public TSChunkType getTsChunkType() {
