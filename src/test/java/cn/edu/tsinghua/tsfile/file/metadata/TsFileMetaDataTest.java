@@ -10,7 +10,6 @@ import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.format.DeltaObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +20,6 @@ public class TsFileMetaDataTest {
 
   public static Map<String, String> properties = new HashMap<>();
   public static Map<String, TsDeltaObject> tsDeltaObjectMap = new HashMap<>();
-  public static Map<String, DeltaObject> deltaObjectMap = new HashMap<>();
   static {
       properties.put("s1", "sensor1");
       properties.put("s2", "sensor2");
@@ -32,12 +30,6 @@ public class TsFileMetaDataTest {
 	  tsDeltaObjectMap.put("d1", new TsDeltaObject(123, 456, 789, 901));
 	  tsDeltaObjectMap.put("d2", new TsDeltaObject(123, 456, 789, 901));
 	  tsDeltaObjectMap.put("d3", new TsDeltaObject(123, 456, 789, 901));
-  }
-  
-  static {
-	  deltaObjectMap.put("d1", new DeltaObject(123, 456, 789, 901));
-	  deltaObjectMap.put("d2", new DeltaObject(123, 456, 789, 901));
-	  deltaObjectMap.put("d3", new DeltaObject(123, 456, 789, 901));
   }
 
   @Before
