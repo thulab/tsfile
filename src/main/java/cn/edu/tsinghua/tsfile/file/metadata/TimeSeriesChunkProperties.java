@@ -2,7 +2,6 @@ package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 
 import java.io.IOException;
@@ -38,17 +37,21 @@ public class TimeSeriesChunkProperties {
         this.compression = compression;
     }
 
-    public void write(OutputStream outputStream) throws IOException {
-        ReadWriteToBytesUtils.writeIsNull(measurementUID, outputStream);
-        if(measurementUID != null)ReadWriteToBytesUtils.write(measurementUID, outputStream);
+    public int write(OutputStream outputStream) throws IOException {
+        int byteLen = 0;
 
-        ReadWriteToBytesUtils.writeIsNull(tsChunkType, outputStream);
-        if(tsChunkType != null)ReadWriteToBytesUtils.write(tsChunkType.toString(), outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(measurementUID, outputStream);
+        if(measurementUID != null)byteLen += ReadWriteToBytesUtils.write(measurementUID, outputStream);
 
-        ReadWriteToBytesUtils.write(fileOffset, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(tsChunkType, outputStream);
+        if(tsChunkType != null)byteLen += ReadWriteToBytesUtils.write(tsChunkType.toString(), outputStream);
 
-        ReadWriteToBytesUtils.writeIsNull(compression, outputStream);
-        if(compression != null)ReadWriteToBytesUtils.write(compression.toString(), outputStream);
+        byteLen += ReadWriteToBytesUtils.write(fileOffset, outputStream);
+
+        byteLen += ReadWriteToBytesUtils.writeIsNull(compression, outputStream);
+        if(compression != null)byteLen += ReadWriteToBytesUtils.write(compression.toString(), outputStream);
+
+        return byteLen;
     }
 
     public void read(InputStream inputStream) throws IOException {

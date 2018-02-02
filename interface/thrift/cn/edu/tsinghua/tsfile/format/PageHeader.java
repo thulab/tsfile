@@ -51,7 +51,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
 
   /**
    * the type of the page: indicates which of the *_header fields is set *
-   * 
+   *
    * @see PageType
    */
   public PageType type; // required
@@ -66,7 +66,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
   /**
    * 32bit crc for the data below. This allows for disabling checksumming in HDFS
    * if only a few pages needs to be read
-   * 
+   *
    */
   public int crc; // optional
   public DataPageHeader data_page_header; // optional
@@ -77,7 +77,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     /**
      * the type of the page: indicates which of the *_header fields is set *
-     * 
+     *
      * @see PageType
      */
     TYPE((short)1, "type"),
@@ -92,7 +92,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
     /**
      * 32bit crc for the data below. This allows for disabling checksumming in HDFS
      * if only a few pages needs to be read
-     * 
+     *
      */
     CRC((short)4, "crc"),
     DATA_PAGE_HEADER((short)5, "data_page_header"),
@@ -174,19 +174,19 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.TYPE, new org.apache.thrift.meta_data.FieldMetaData("type", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.TYPE, new org.apache.thrift.meta_data.FieldMetaData("type", org.apache.thrift.TFieldRequirementType.REQUIRED,
         new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, PageType.class)));
-    tmpMap.put(_Fields.UNCOMPRESSED_PAGE_SIZE, new org.apache.thrift.meta_data.FieldMetaData("uncompressed_page_size", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.UNCOMPRESSED_PAGE_SIZE, new org.apache.thrift.meta_data.FieldMetaData("uncompressed_page_size", org.apache.thrift.TFieldRequirementType.REQUIRED,
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.COMPRESSED_PAGE_SIZE, new org.apache.thrift.meta_data.FieldMetaData("compressed_page_size", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.COMPRESSED_PAGE_SIZE, new org.apache.thrift.meta_data.FieldMetaData("compressed_page_size", org.apache.thrift.TFieldRequirementType.REQUIRED,
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.CRC, new org.apache.thrift.meta_data.FieldMetaData("crc", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+    tmpMap.put(_Fields.CRC, new org.apache.thrift.meta_data.FieldMetaData("crc", org.apache.thrift.TFieldRequirementType.OPTIONAL,
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.DATA_PAGE_HEADER, new org.apache.thrift.meta_data.FieldMetaData("data_page_header", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+    tmpMap.put(_Fields.DATA_PAGE_HEADER, new org.apache.thrift.meta_data.FieldMetaData("data_page_header", org.apache.thrift.TFieldRequirementType.OPTIONAL,
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, DataPageHeader.class)));
-    tmpMap.put(_Fields.INDEX_PAGE_HEADER, new org.apache.thrift.meta_data.FieldMetaData("index_page_header", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+    tmpMap.put(_Fields.INDEX_PAGE_HEADER, new org.apache.thrift.meta_data.FieldMetaData("index_page_header", org.apache.thrift.TFieldRequirementType.OPTIONAL,
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, IndexPageHeader.class)));
-    tmpMap.put(_Fields.DICTIONARY_PAGE_HEADER, new org.apache.thrift.meta_data.FieldMetaData("dictionary_page_header", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+    tmpMap.put(_Fields.DICTIONARY_PAGE_HEADER, new org.apache.thrift.meta_data.FieldMetaData("dictionary_page_header", org.apache.thrift.TFieldRequirementType.OPTIONAL,
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, DictionaryPageHeader.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(PageHeader.class, metaDataMap);
@@ -250,7 +250,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
 
   /**
    * the type of the page: indicates which of the *_header fields is set *
-   * 
+   *
    * @see PageType
    */
   public PageType getType() {
@@ -259,7 +259,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
 
   /**
    * the type of the page: indicates which of the *_header fields is set *
-   * 
+   *
    * @see PageType
    */
   public PageHeader setType(PageType type) {
@@ -343,7 +343,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
   /**
    * 32bit crc for the data below. This allows for disabling checksumming in HDFS
    * if only a few pages needs to be read
-   * 
+   *
    */
   public int getCrc() {
     return this.crc;
@@ -352,7 +352,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
   /**
    * 32bit crc for the data below. This allows for disabling checksumming in HDFS
    * if only a few pages needs to be read
-   * 
+   *
    */
   public PageHeader setCrc(int crc) {
     this.crc = crc;
@@ -846,7 +846,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
       while (true)
       {
         schemeField = iprot.readFieldBegin();
-        if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+        if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
           break;
         }
         switch (schemeField.id) {
@@ -854,7 +854,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.type = PageType.findByValue(iprot.readI32());
               struct.setTypeIsSet(true);
-            } else { 
+            } else {
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
@@ -862,7 +862,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.uncompressed_page_size = iprot.readI32();
               struct.setUncompressed_page_sizeIsSet(true);
-            } else { 
+            } else {
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
@@ -870,7 +870,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.compressed_page_size = iprot.readI32();
               struct.setCompressed_page_sizeIsSet(true);
-            } else { 
+            } else {
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
@@ -878,7 +878,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.crc = iprot.readI32();
               struct.setCrcIsSet(true);
-            } else { 
+            } else {
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
@@ -887,7 +887,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
               struct.data_page_header = new DataPageHeader();
               struct.data_page_header.read(iprot);
               struct.setData_page_headerIsSet(true);
-            } else { 
+            } else {
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
@@ -896,7 +896,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
               struct.index_page_header = new IndexPageHeader();
               struct.index_page_header.read(iprot);
               struct.setIndex_page_headerIsSet(true);
-            } else { 
+            } else {
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
@@ -905,7 +905,7 @@ public class PageHeader implements org.apache.thrift.TBase<PageHeader, PageHeade
               struct.dictionary_page_header = new DictionaryPageHeader();
               struct.dictionary_page_header.read(iprot);
               struct.setDictionary_page_headerIsSet(true);
-            } else { 
+            } else {
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;

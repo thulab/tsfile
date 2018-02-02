@@ -2,10 +2,12 @@ package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
 import cn.edu.tsinghua.tsfile.compress.UnCompressor;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
+//import cn.edu.tsinghua.tsfile.file.header.PageHeader;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.tsinghua.tsfile.format.Encoding;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.format.PageHeader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.TimeValuePairReader;
@@ -25,7 +27,7 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
     private boolean pageReaderInitialized;
     private PageReader pageReader;
     private UnCompressor unCompressor;
-    private Encoding defaultTimestampEncoding;
+    private TSEncoding defaultTimestampEncoding;
     private boolean hasCachedTimeValuePair;
     private TimeValuePair cachedTimeValuePair;
 
@@ -35,7 +37,7 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
         this.dataType = dataType;
         this.unCompressor = UnCompressor.getUnCompressor(compressionTypeName);
         this.pageReaderInitialized = false;
-        defaultTimestampEncoding = Encoding.TS_2DIFF;
+        defaultTimestampEncoding = TSEncoding.TS_2DIFF;
     }
 
     @Override
@@ -121,6 +123,7 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
     }
 
     private PageHeader getNextPageHeader() throws IOException {
+//        return ReadWriteToBytesUtils.readPageHeader(seriesChunkInputStream);
         return ReadWriteThriftFormatUtils.readPageHeader(seriesChunkInputStream);
     }
 

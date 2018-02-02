@@ -4,17 +4,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
-import cn.edu.tsinghua.tsfile.format.DataType;
-import cn.edu.tsinghua.tsfile.format.Digest;
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.tsinghua.tsfile.format.ValueInTimeSeriesChunkMetaData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +20,6 @@ public class VInTimeSeriesChunkMetaDataTest {
 //  public static final String maxString = "3244324";
 //  public static final String minString = "fddsfsfgd";
   final String PATH = "target/outputV.ksn";
-  final String BYTE_FILE_PATH = "src/test/resources/bytes.txt";
 
   @Before
   public void setUp() throws Exception {
@@ -40,10 +34,10 @@ public class VInTimeSeriesChunkMetaDataTest {
   }
 
   @Test
-  public void testWriteIntoFileByBytes() throws IOException {
+  public void testWriteIntoFile() throws IOException {
     VInTimeSeriesChunkMetaData metaData = TestHelper.createSimpleV2InTSF(TSDataType.TEXT, new TsDigest());
     
-    File file = new File(BYTE_FILE_PATH);
+    File file = new File(PATH);
     if (file.exists())
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
@@ -53,75 +47,9 @@ public class VInTimeSeriesChunkMetaDataTest {
     out.close();
     fos.close();
 
-    FileInputStream fis = new FileInputStream(new File(BYTE_FILE_PATH));
+    FileInputStream fis = new FileInputStream(new File(PATH));
     VInTimeSeriesChunkMetaData metaData2 = ReadWriteToBytesUtils.readVInTimeSeriesChunkMetaData(fis);
     fis.close();
     Utils.isVSeriesChunkMetadataEqual(metaData, metaData2);
-  }
-
-  public void testWriteIntoFile() throws IOException {
-    VInTimeSeriesChunkMetaData metaData = TestHelper.createSimpleV2InTSF(TSDataType.TEXT, new TsDigest());
-
-    File file = new File(PATH);
-    if (file.exists())
-      file.delete();
-    FileOutputStream fos = new FileOutputStream(file);
-    TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-    ReadWriteThriftFormatUtils.write(metaData.convertToThrift(), out.getOutputStream());
-
-    out.close();
-    fos.close();
-
-    FileInputStream fis = new FileInputStream(new File(PATH));
-    Utils.isVSeriesChunkMetadataEqual(metaData, metaData.convertToThrift());
-    Utils.isVSeriesChunkMetadataEqual(metaData,
-            ReadWriteThriftFormatUtils.read(fis, new ValueInTimeSeriesChunkMetaData()));
-  }
-
-
-  @Test
-  public void testConvertToThrift() throws UnsupportedEncodingException {
-    for (TSDataType dataType : TSDataType.values()) {
-      VInTimeSeriesChunkMetaData metaData = new VInTimeSeriesChunkMetaData(dataType);
-      Utils.isVSeriesChunkMetadataEqual(metaData, metaData.convertToThrift());
-
-      metaData.setMaxError(3123);
-      Utils.isVSeriesChunkMetadataEqual(metaData, metaData.convertToThrift());
-      metaData.setMaxError(-11);
-      Utils.isVSeriesChunkMetadataEqual(metaData, metaData.convertToThrift());
-
-      TsDigest digest = new TsDigest();
-      metaData.setDigest(digest);
-      Utils.isVSeriesChunkMetadataEqual(metaData, metaData.convertToThrift());
-
-      metaData.setDigest(TestHelper.createSimpleTsDigest());
-      Utils.isVSeriesChunkMetadataEqual(metaData, metaData.convertToThrift());
-    }
-  }
-
-  @Test
-  public void testConvertToTSF() throws UnsupportedEncodingException {
-    for (DataType dataType : DataType.values()) {
-      ValueInTimeSeriesChunkMetaData valueInTimeSeriesChunkMetaData =
-          new ValueInTimeSeriesChunkMetaData(dataType);
-      metaData.convertToTSF(valueInTimeSeriesChunkMetaData);
-      Utils.isVSeriesChunkMetadataEqual(metaData, valueInTimeSeriesChunkMetaData);
-
-      valueInTimeSeriesChunkMetaData.setMax_error(3123);
-      metaData.convertToTSF(valueInTimeSeriesChunkMetaData);
-      Utils.isVSeriesChunkMetadataEqual(metaData, valueInTimeSeriesChunkMetaData);
-
-      valueInTimeSeriesChunkMetaData.setMax_error(-231);
-      metaData.convertToTSF(valueInTimeSeriesChunkMetaData);
-      Utils.isVSeriesChunkMetadataEqual(metaData, valueInTimeSeriesChunkMetaData);
-
-      valueInTimeSeriesChunkMetaData.setDigest(new Digest());
-      metaData.convertToTSF(valueInTimeSeriesChunkMetaData);
-      Utils.isVSeriesChunkMetadataEqual(metaData, valueInTimeSeriesChunkMetaData);
-      
-      valueInTimeSeriesChunkMetaData.setDigest(TestHelper.createSimpleDigest());
-      metaData.convertToTSF(valueInTimeSeriesChunkMetaData);
-      Utils.isVSeriesChunkMetadataEqual(metaData, valueInTimeSeriesChunkMetaData);
-    }
   }
 }

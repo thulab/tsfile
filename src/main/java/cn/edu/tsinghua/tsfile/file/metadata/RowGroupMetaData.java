@@ -1,7 +1,5 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +14,7 @@ import java.util.List;
 /**
  * For more information, see RowGroupMetaData in cn.edu.thu.tsfile.format package
  */
-public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.format.RowGroupMetaData> {
+public class RowGroupMetaData {
     private static final Logger LOGGER = LoggerFactory.getLogger(RowGroupMetaData.class);
 
     private String deltaObjectID;
@@ -73,80 +71,29 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
                 : Collections.unmodifiableList(timeSeriesChunkMetaDataList);
     }
 
-    @Override
-    public cn.edu.tsinghua.tsfile.format.RowGroupMetaData convertToThrift() {
-        try {
-            List<cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData> timeSeriesChunkMetaDataListInThrift = null;
-            if (timeSeriesChunkMetaDataList != null) {
-                timeSeriesChunkMetaDataListInThrift = new ArrayList<>();
-                for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList) {
-                    timeSeriesChunkMetaDataListInThrift.add(timeSeriesChunkMetaData.convertToThrift());
-                }
-            }
-            cn.edu.tsinghua.tsfile.format.RowGroupMetaData metaDataInThrift =
-                    new cn.edu.tsinghua.tsfile.format.RowGroupMetaData(timeSeriesChunkMetaDataListInThrift,
-                    		deltaObjectID, totalByteSize, numOfRows, deltaObjectType);
-            metaDataInThrift.setFile_path(path);
-            return metaDataInThrift;
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file RowGroupMetaData: failed to convert row group metadata from TSFile to thrift, row group metadata:{}",
-                        this, e);
-            throw e;
-        }
-    }
+    public int write(OutputStream outputStream) throws IOException {
+        int byteLen = 0;
 
-    @Override
-    public void convertToTSF(cn.edu.tsinghua.tsfile.format.RowGroupMetaData metaDataInThrift) {
-        try {
-            deltaObjectID = metaDataInThrift.getDelta_object_id();
-            numOfRows = metaDataInThrift.getMax_num_rows();
-            totalByteSize = metaDataInThrift.getTotal_byte_size();
-            path = metaDataInThrift.getFile_path();
-            deltaObjectType = metaDataInThrift.getDelta_object_type();
-            List<cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData> timeSeriesChunkMetaDataListInThrift = metaDataInThrift.getTsc_metadata();
-            if (timeSeriesChunkMetaDataListInThrift == null) {
-                timeSeriesChunkMetaDataList = null;
-            } else {
-                if (timeSeriesChunkMetaDataList == null) {
-                    timeSeriesChunkMetaDataList = new ArrayList<>();
-                }
-                timeSeriesChunkMetaDataList.clear();
-                for (cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData timeSeriesChunkMetaDataInThrift : timeSeriesChunkMetaDataListInThrift) {
-                    TimeSeriesChunkMetaData timeSeriesChunkMetaData = new TimeSeriesChunkMetaData();
-                    timeSeriesChunkMetaData.convertToTSF(timeSeriesChunkMetaDataInThrift);
-                    timeSeriesChunkMetaDataList.add(timeSeriesChunkMetaData);
-                }
-            }
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file RowGroupMetaData: failed to convert row group metadata from thrift to TSFile, row group metadata:{}",
-                        metaDataInThrift, e);
-            throw e;
-        }
-    }
+        byteLen += ReadWriteToBytesUtils.writeIsNull(deltaObjectID, outputStream);
+        if(deltaObjectID != null)byteLen += ReadWriteToBytesUtils.write(deltaObjectID, outputStream);
 
-    public void write(OutputStream outputStream) throws IOException {
-        ReadWriteToBytesUtils.writeIsNull(deltaObjectID, outputStream);
-        if(deltaObjectID != null)ReadWriteToBytesUtils.write(deltaObjectID, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(numOfRows, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(totalByteSize, outputStream);
 
-        ReadWriteToBytesUtils.write(numOfRows, outputStream);
-        ReadWriteToBytesUtils.write(totalByteSize, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(path, outputStream);
+        if(path != null)byteLen += ReadWriteToBytesUtils.write(path, outputStream);
 
-        ReadWriteToBytesUtils.writeIsNull(path, outputStream);
-        if(path != null)ReadWriteToBytesUtils.write(path, outputStream);
-
-        ReadWriteToBytesUtils.writeIsNull(timeSeriesChunkMetaDataList, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(timeSeriesChunkMetaDataList, outputStream);
         if(timeSeriesChunkMetaDataList != null){
-            ReadWriteToBytesUtils.write(timeSeriesChunkMetaDataList.size(), outputStream);
+            byteLen += ReadWriteToBytesUtils.write(timeSeriesChunkMetaDataList.size(), outputStream);
             for(TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList)
-                ReadWriteToBytesUtils.write(timeSeriesChunkMetaData, outputStream);
+                byteLen += ReadWriteToBytesUtils.write(timeSeriesChunkMetaData, outputStream);
         }
 
-        ReadWriteToBytesUtils.writeIsNull(deltaObjectType, outputStream);
-        if(deltaObjectType != null)ReadWriteToBytesUtils.write(deltaObjectType, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(deltaObjectType, outputStream);
+        if(deltaObjectType != null)byteLen += ReadWriteToBytesUtils.write(deltaObjectType, outputStream);
+
+        return byteLen;
     }
 
     public void read(InputStream inputStream) throws IOException {

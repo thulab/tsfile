@@ -1,8 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
-import cn.edu.tsinghua.tsfile.format.Digest;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -12,7 +10,7 @@ import java.util.Map;
 /**
  * For more information, see Digest in cn.edu.thu.tsfile.format package
  */
-public class TsDigest implements IConverter<Digest> {
+public class TsDigest {
 	/**
 	 * Digest/statistics per row group and per page.
 	 */
@@ -45,45 +43,19 @@ public class TsDigest implements IConverter<Digest> {
 		return statistics != null ? statistics.toString() : "";
 	}
 
-	@Override
-	public Digest convertToThrift() {
-		Digest digest = new Digest();
-		if (statistics != null) {
-			Map<String, ByteBuffer> statisticsInThrift = new HashMap<>();
-			for (String key : statistics.keySet()) {
-				statisticsInThrift.put(key, statistics.get(key));
-			}
-			digest.setStatistics(statisticsInThrift);
-		}
-		return digest;
-	}
-
-	@Override
-	public void convertToTSF(Digest digestInThrift) {
-		if (digestInThrift != null) {
-			Map<String, ByteBuffer> statisticsInThrift = digestInThrift.getStatistics();
-			if (statisticsInThrift != null) {
-				statistics = new HashMap<>();
-				for (String key : statisticsInThrift.keySet()) {
-					statistics.put(key, byteBufferDeepCopy(statisticsInThrift.get(key)));
-				}
-			} else {
-				statistics = null;
-			}
-		}
-	}
-
-	public void write(OutputStream outputStream) throws IOException {
+	public int write(OutputStream outputStream) throws IOException {
 		int byteLen = 0;
-		ReadWriteToBytesUtils.writeIsNull(statistics, outputStream);
 
+		byteLen += ReadWriteToBytesUtils.writeIsNull(statistics, outputStream);
 		if(statistics != null) {
-			ReadWriteToBytesUtils.write(statistics.size(), outputStream);
+			byteLen += ReadWriteToBytesUtils.write(statistics.size(), outputStream);
 			for (Map.Entry<String, ByteBuffer> entry : statistics.entrySet()) {
-				ReadWriteToBytesUtils.write(entry.getKey(), outputStream);
-				ReadWriteToBytesUtils.write(entry.getValue(), outputStream);
+				byteLen += ReadWriteToBytesUtils.write(entry.getKey(), outputStream);
+				byteLen += ReadWriteToBytesUtils.write(entry.getValue(), outputStream);
 			}
 		}
+
+		return byteLen;
 	}
 
 	public void read(InputStream inputStream) throws IOException {

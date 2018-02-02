@@ -1,8 +1,11 @@
 package cn.edu.tsinghua.tsfile.timeseries.read;
 
 import cn.edu.tsinghua.tsfile.compress.UnCompressor;
+//import cn.edu.tsinghua.tsfile.file.header.PageHeader;
+
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.format.PageHeader;
 
 import java.io.ByteArrayInputStream;
@@ -34,6 +37,7 @@ public class PageReader {
             return pageHeader;
         }
         if (bis.available() > 0) {
+//            pageHeader = ReadWriteToBytesUtils.readPageHeader(bis);
             pageHeader = ReadWriteThriftFormatUtils.readPageHeader(bis);
             return pageHeader;
 

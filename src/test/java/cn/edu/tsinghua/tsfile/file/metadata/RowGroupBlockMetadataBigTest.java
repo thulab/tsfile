@@ -1,17 +1,13 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -56,21 +52,18 @@ public class RowGroupBlockMetadataBigTest {
 		TsRowGroupBlockMetaData metaData = new TsRowGroupBlockMetaData(rowGroupMetaDatas);
 		metaData.setDeltaObjectID(DELTA_OBJECT_UID);
 		System.out.println("1: create Metadata " + (System.currentTimeMillis() - startTime)+"ms");
-
-		startTime = System.currentTimeMillis();
-		RowGroupBlockMetaData metaDataInThrift = metaData.convertToThrift();
-		System.out.println("2: covernet to Thrift " + (System.currentTimeMillis() - startTime)+"ms");
-
-		Utils.isRowGroupBlockMetadataEqual(metaData, metaDataInThrift);
 		
 		startTime = System.currentTimeMillis();
 		File file = new File(PATH);
 		if (file.exists())
 			file.delete();
 		TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-		ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(metaDataInThrift, out.getOutputStream());
+		BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(out.getOutputStream());
+		ReadWriteToBytesUtils.write(metaData, bufferedOutputStream);
+
+		bufferedOutputStream.close();
 		out.close();
-		System.out.println("3: write to File" + (System.currentTimeMillis() - startTime)+"ms");
+		System.out.println("2: write to File" + (System.currentTimeMillis() - startTime)+"ms");
 
 		FileInputStream fis = new FileInputStream(file);
 		System.out.println("file size: " + fis.available());
@@ -78,27 +71,10 @@ public class RowGroupBlockMetadataBigTest {
 		
 		FileInputStream fis2 = new FileInputStream(new File(PATH));
 		startTime = System.currentTimeMillis();
-		RowGroupBlockMetaData metaDataInThrift2 = ReadWriteThriftFormatUtils.readRowGroupBlockMetaData(fis2);
-		System.out.println("4: read from File" + (System.currentTimeMillis() - startTime)+"ms");
-	    Utils.isRowGroupBlockMetadataEqual(metaData, metaDataInThrift2);
+		TsRowGroupBlockMetaData metaData2 = ReadWriteToBytesUtils.readTsRowGroupBlockMetaData(new BufferedInputStream(fis2));
+		System.out.println("3: read from File" + (System.currentTimeMillis() - startTime)+"ms");
+	    Utils.isRowGroupBlockMetadataEqual(metaData, metaData2);
 	    System.out.println("-------------End Metadata big data test------------");
 	}
-
-//	public static void main(String[] args) throws IOException {
-		// long startTime = System.currentTimeMillis();
-		// File file = new File(PATH);
-		// RandomAccessOutputStream outputStream = new
-		// RandomAccessOutputStream(file, "rw");
-		// byte[] b = new byte[20*1024*1024];
-		// outputStream.write(b);
-		// outputStream.close();
-		// System.out.println("3: "+(System.currentTimeMillis()-startTime));
-		// FileInputStream fis = new FileInputStream(file);
-		// System.out.println("file size: "+fis.available());
-		// fis.close();
-		//
-		// if (file.exists())
-		// file.delete();
-//	}
 
 }

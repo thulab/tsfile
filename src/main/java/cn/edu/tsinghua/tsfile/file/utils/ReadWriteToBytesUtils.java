@@ -1,14 +1,21 @@
 package cn.edu.tsinghua.tsfile.file.utils;
 
+import cn.edu.tsinghua.tsfile.common.constant.StatisticConstant;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.file.header.DataPageHeader;
+import cn.edu.tsinghua.tsfile.file.header.PageHeader;
+import cn.edu.tsinghua.tsfile.file.header.PageType;
 import cn.edu.tsinghua.tsfile.file.metadata.*;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
+import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * ConverterUtils is a utility class. It provide conversion between normal datatype and byte array.
@@ -17,9 +24,8 @@ import java.util.List;
  */
 public class ReadWriteToBytesUtils {
 
-    private static byte[] intBytes = new byte[4];
-    private static byte[] longBytes = new byte[8];
-    private static byte[] stringBytes = new byte[100];
+    public static int INT_LEN = 4;
+    public static int LONG_LEN = 8;
 
     /**
      * convert Integer to byte array
@@ -61,50 +67,72 @@ public class ReadWriteToBytesUtils {
         return num;
     }
 
-    public static void writeIsNull(Object object, OutputStream outputStream) throws IOException {
-        if(object == null)write(0, outputStream);
-        else write(1, outputStream);
+    public static int write(Boolean flag, OutputStream outputStream) throws IOException {
+        if(flag)outputStream.write(1);
+        else outputStream.write(0);
+        return 1;
+    }
+
+    public static boolean readBool(InputStream inputStream) throws IOException {
+        int flag = inputStream.read();
+        return flag == 1;
+    }
+
+    public static int writeIsNull(Object object, OutputStream outputStream) throws IOException {
+        return write(object != null, outputStream);
     }
 
     public static boolean readIsNull(InputStream inputStream) throws IOException {
-        int flag = readInt(inputStream);
-        if(flag == 1)return true;
-        else return false;
+        return readBool(inputStream);
     }
 
-    public static void write(int n, OutputStream outputStream) throws IOException {
-        outputStream.write(intToByteArray(n));
+    public static int write(int n, OutputStream outputStream) throws IOException {
+        byte[] bytes = intToByteArray(n);
+        outputStream.write(bytes);
+        return bytes.length;
     }
 
     public static int readInt(InputStream inputStream) throws IOException {
-        inputStream.read(intBytes);
-        return byteArrayToInt(intBytes);
+        byte[] bytes = new byte[INT_LEN];
+        inputStream.read(bytes);
+        return byteArrayToInt(bytes);
     }
 
-    public static void write(long n, OutputStream outputStream) throws IOException {
-        outputStream.write(longToByteArray(n));
+    public static int write(long n, OutputStream outputStream) throws IOException {
+        byte[] bytes = longToByteArray(n);
+        outputStream.write(bytes);
+        return bytes.length;
     }
 
     public static long readLong(InputStream inputStream) throws IOException {
-        inputStream.read(longBytes);
-        return byteArrayToLong(longBytes);
+        byte[] bytes = new byte[LONG_LEN];
+        inputStream.read(bytes);
+        return byteArrayToLong(bytes);
     }
 
-    public static void write(String s, OutputStream outputStream) throws IOException {
-        write(s.length(), outputStream);
-        outputStream.write(s.getBytes());
+    public static int write(String s, OutputStream outputStream) throws IOException {
+        int len = 0;
+        len += write(s.length(), outputStream);
+        byte[] bytes = s.getBytes();
+        outputStream.write(bytes);
+        len += bytes.length;
+        return len;
     }
 
     public static String readString(InputStream inputStream) throws IOException {
         int sLength = readInt(inputStream);
-        inputStream.read(stringBytes, 0, sLength);
-
-        return new String(stringBytes, 0, sLength);
+        byte[] bytes = new byte[sLength];
+        inputStream.read(bytes, 0, sLength);
+        return new String(bytes, 0, sLength);
     }
 
-    public static void write(ByteBuffer byteBuffer, OutputStream outputStream) throws IOException {
-        write(byteBuffer.capacity(), outputStream);
-        outputStream.write(byteBuffer.array());
+    public static int write(ByteBuffer byteBuffer, OutputStream outputStream) throws IOException {
+        int len = 0;
+        len += write(byteBuffer.capacity(), outputStream);
+        byte[] bytes = byteBuffer.array();
+        outputStream.write(bytes);
+        len += bytes.length;
+        return len;
     }
 
     public static ByteBuffer readByteBuffer(InputStream inputStream) throws IOException {
@@ -117,21 +145,24 @@ public class ReadWriteToBytesUtils {
         return byteBuffer;
     }
 
-    public static void write(List list, TSDataType dataType, OutputStream outputStream) throws IOException {
-        write(list.size(), outputStream);
+    public static int write(List list, TSDataType dataType, OutputStream outputStream) throws IOException {
+        int len = 0;
 
+        len += write(list.size(), outputStream);
         for(Object one : list){
             switch (dataType){
                 case INT32:
-                    write((int)one, outputStream);
+                    len += write((int)one, outputStream);
                     break;
                 case TEXT:
-                    write((String)one, outputStream);
+                    len += write((String)one, outputStream);
                     break;
                 default:
                     throw new IOException(String.format("Unsupported data type for {}", dataType.toString()));
             }
         }
+
+        return len;
     }
 
     public static List<Integer> readIntegerList(InputStream inputStream) throws IOException {
@@ -154,8 +185,8 @@ public class ReadWriteToBytesUtils {
         return list;
     }
 
-    public static void write(TsDigest digest, OutputStream outputStream) throws IOException {
-        digest.write(outputStream);
+    public static int write(TsDigest digest, OutputStream outputStream) throws IOException {
+        return digest.write(outputStream);
     }
 
     public static TsDigest readDigest(InputStream inputStream) throws IOException {
@@ -164,8 +195,8 @@ public class ReadWriteToBytesUtils {
         return tsDigest;
     }
 
-    public static void write(VInTimeSeriesChunkMetaData vInTimeSeriesChunkMetaData, OutputStream outputStream) throws IOException {
-        vInTimeSeriesChunkMetaData.write(outputStream);
+    public static int write(VInTimeSeriesChunkMetaData vInTimeSeriesChunkMetaData, OutputStream outputStream) throws IOException {
+        return vInTimeSeriesChunkMetaData.write(outputStream);
     }
 
     public static VInTimeSeriesChunkMetaData readVInTimeSeriesChunkMetaData(InputStream inputStream) throws IOException {
@@ -174,8 +205,8 @@ public class ReadWriteToBytesUtils {
         return vInTimeSeriesChunkMetaData;
     }
 
-    public static void write(TInTimeSeriesChunkMetaData tInTimeSeriesChunkMetaData, OutputStream outputStream) throws IOException {
-        tInTimeSeriesChunkMetaData.write(outputStream);
+    public static int write(TInTimeSeriesChunkMetaData tInTimeSeriesChunkMetaData, OutputStream outputStream) throws IOException {
+        return tInTimeSeriesChunkMetaData.write(outputStream);
     }
 
     public static TInTimeSeriesChunkMetaData readTInTimeSeriesChunkMetaData(InputStream inputStream) throws IOException {
@@ -184,8 +215,8 @@ public class ReadWriteToBytesUtils {
         return tInTimeSeriesChunkMetaData;
     }
 
-    public static void write(TimeSeriesMetadata timeSeriesMetadata, OutputStream outputStream) throws IOException {
-        timeSeriesMetadata.write(outputStream);
+    public static int write(TimeSeriesMetadata timeSeriesMetadata, OutputStream outputStream) throws IOException {
+        return timeSeriesMetadata.write(outputStream);
     }
 
     public static TimeSeriesMetadata readTimeSeriesMetadata(InputStream inputStream) throws IOException {
@@ -194,8 +225,8 @@ public class ReadWriteToBytesUtils {
         return timeSeriesMetadata;
     }
 
-    public static void write(TimeSeriesChunkProperties timeSeriesChunkProperties, OutputStream outputStream) throws IOException {
-        timeSeriesChunkProperties.write(outputStream);
+    public static int write(TimeSeriesChunkProperties timeSeriesChunkProperties, OutputStream outputStream) throws IOException {
+        return timeSeriesChunkProperties.write(outputStream);
     }
 
     public static TimeSeriesChunkProperties readTimeSeriesChunkProperties(InputStream inputStream) throws IOException {
@@ -204,8 +235,8 @@ public class ReadWriteToBytesUtils {
         return timeSeriesChunkProperties;
     }
 
-    public static void write(TimeSeriesChunkMetaData timeSeriesChunkMetaData, OutputStream outputStream) throws IOException {
-        timeSeriesChunkMetaData.write(outputStream);
+    public static int write(TimeSeriesChunkMetaData timeSeriesChunkMetaData, OutputStream outputStream) throws IOException {
+        return timeSeriesChunkMetaData.write(outputStream);
     }
 
     public static TimeSeriesChunkMetaData readTimeSeriesChunkMetaData(InputStream inputStream) throws IOException {
@@ -214,8 +245,8 @@ public class ReadWriteToBytesUtils {
         return timeSeriesChunkMetaData;
     }
 
-    public static void write(RowGroupMetaData rowGroupMetaData, OutputStream outputStream) throws IOException {
-        rowGroupMetaData.write(outputStream);
+    public static int write(RowGroupMetaData rowGroupMetaData, OutputStream outputStream) throws IOException {
+        return rowGroupMetaData.write(outputStream);
     }
 
     public static RowGroupMetaData readRowGroupMetaData(InputStream inputStream) throws IOException {
@@ -224,8 +255,8 @@ public class ReadWriteToBytesUtils {
         return rowGroupMetaData;
     }
 
-    public static void write(TsRowGroupBlockMetaData rowGroupBlockMetaData, OutputStream outputStream) throws IOException {
-        rowGroupBlockMetaData.write(outputStream);
+    public static int write(TsRowGroupBlockMetaData rowGroupBlockMetaData, OutputStream outputStream) throws IOException {
+        return rowGroupBlockMetaData.write(outputStream);
     }
 
     public static TsRowGroupBlockMetaData readTsRowGroupBlockMetaData(InputStream inputStream) throws IOException {
@@ -244,8 +275,8 @@ public class ReadWriteToBytesUtils {
         return readTsRowGroupBlockMetaData(bais);
     }
 
-    public static void write(TsDeltaObject tsDeltaObject, OutputStream outputStream) throws IOException {
-        tsDeltaObject.write(outputStream);
+    public static int write(TsDeltaObject tsDeltaObject, OutputStream outputStream) throws IOException {
+        return tsDeltaObject.write(outputStream);
     }
 
     public static TsDeltaObject readTsDeltaObject(InputStream inputStream) throws IOException {
@@ -254,8 +285,8 @@ public class ReadWriteToBytesUtils {
         return tsDeltaObject;
     }
 
-    public static void write(TsFileMetaData tsFileMetaData, OutputStream outputStream) throws IOException {
-        tsFileMetaData.write(outputStream);
+    public static int write(TsFileMetaData tsFileMetaData, OutputStream outputStream) throws IOException {
+        return tsFileMetaData.write(outputStream);
     }
 
     public static TsFileMetaData readTsFileMetaData(InputStream inputStream) throws IOException {
@@ -264,38 +295,35 @@ public class ReadWriteToBytesUtils {
         return tsFileMetaData;
     }
 
-    private static class Test{
-        public Test(){}
-
-        private List<Integer> list;
-        private int a;
-
-        public void display(){
-            System.out.println(a);
-        }
+    public static int write(PageHeader pageHeader, OutputStream outputStream) throws IOException {
+        return pageHeader.write(outputStream);
     }
 
-    public static void main(String[] args) throws IOException {
-//        String path = "1.txt";
-//
-//        ByteBuffer byteBuffer = ByteBuffer.allocate(1000);
-//        byteBuffer.put("abcbfucbevwufbvuwe".getBytes());
-//
-//        BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(path));
-//        write(byteBuffer.position(), outputStream);
-//        outputStream.write(byteBuffer.array());
-//        outputStream.close();
-//
-//        BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(path));
-//        int size = readInt(inputStream);
-//        byte[] bytes = new byte[size];
-//        inputStream.read(bytes);
-//        String s = new String(bytes);
-//        inputStream.close();
-//
-//        System.out.println(s);
+    public static PageHeader readPageHeader(InputStream inputStream) throws IOException {
+        PageHeader pageHeader = new PageHeader();
+        pageHeader.read(inputStream);
+        return pageHeader;
+    }
 
-        Test test = new Test();
-        test.display();
+    public static int writeDataPageHeader(int uncompressedSize, int compressedSize, int numValues,
+                                           Statistics<?> statistics, int numRows, TSEncoding encoding,
+                                           long max_timestamp, long min_timestamp, OutputStream outputStream) throws IOException {
+        PageHeader pageHeader = new PageHeader(PageType.DATA_PAGE, uncompressedSize, compressedSize); // TODO: pageHeader crc uncomplete
+        pageHeader.setData_page_header(new DataPageHeader(numValues, numRows, TSEncoding.valueOf(encoding.toString()),
+                max_timestamp, min_timestamp));
+        if (!statistics.isEmpty()) {
+            TsDigest digest = new TsDigest();
+            Map<String, ByteBuffer> statisticsMap = new HashMap<>();
+            // TODO add your statistics
+            statisticsMap.put(StatisticConstant.MAX_VALUE, ByteBuffer.wrap(statistics.getMaxBytes()));
+            statisticsMap.put(StatisticConstant.MIN_VALUE, ByteBuffer.wrap(statistics.getMinBytes()));
+            statisticsMap.put(StatisticConstant.FIRST, ByteBuffer.wrap(statistics.getFirstBytes()));
+            statisticsMap.put(StatisticConstant.SUM, ByteBuffer.wrap(statistics.getSumBytes()));
+            statisticsMap.put(StatisticConstant.LAST, ByteBuffer.wrap(statistics.getLastBytes()));
+            digest.setStatistics(statisticsMap);
+
+            pageHeader.data_page_header.setDigest(digest);
+        }
+        return write(pageHeader, outputStream);
     }
 }

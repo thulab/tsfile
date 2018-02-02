@@ -90,7 +90,7 @@ public class ReadWriteThriftFormatUtils {
 	/**
 	 * write DataPageHeader to output stream. For more information about
 	 * DataPageHeader, see PageHeader and DataPageHeader in tsfile-format
-	 * 
+	 *
 	 * @param uncompressedSize
 	 *            uncompressed size in byte of one page size
 	 * @param compressedSize
@@ -234,7 +234,7 @@ public class ReadWriteThriftFormatUtils {
 
 	/**
 	 * In current version, DictionaryPageHeader is not used
-	 * 
+	 *
 	 * @param uncompressedSize
 	 *            uncompressed size in byte of one page size
 	 * @param compressedSize

@@ -3,8 +3,7 @@ package cn.edu.tsinghua.tsfile.timeseries.readV2.controller;
 import cn.edu.tsinghua.tsfile.common.exception.cache.CacheException;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.file.metadata.*;
-import cn.edu.tsinghua.tsfile.file.metadata.converter.TsFileMetaDataConverter;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.utils.cache.LRUCache;
@@ -71,7 +70,7 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
         randomAccessFileReader.read(buf, 0, buf.length);
 
         ByteArrayInputStream metadataInputStream = new ByteArrayInputStream(buf);
-        this.fileMetaData = new TsFileMetaDataConverter().toTsFileMetadata(ReadWriteThriftFormatUtils.readFileMetaData(metadataInputStream));
+        this.fileMetaData = ReadWriteToBytesUtils.readTsFileMetaData(metadataInputStream);;
     }
 
     @Override
@@ -113,9 +112,8 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
 
     private List<RowGroupMetaData> loadRowGroupMetadata(String deltaObjectID) throws IOException {
         TsDeltaObject deltaObject = fileMetaData.getDeltaObject(deltaObjectID);
-        TsRowGroupBlockMetaData rowGroupBlockMetaData = new TsRowGroupBlockMetaData();
-        rowGroupBlockMetaData.convertToTSF(ReadWriteThriftFormatUtils.readRowGroupBlockMetaData(this.randomAccessFileReader,
-                deltaObject.offset, deltaObject.metadataBlockSize));
+        TsRowGroupBlockMetaData rowGroupBlockMetaData = ReadWriteToBytesUtils.readTsRowGroupBlockMetaData(this.randomAccessFileReader,
+                deltaObject.offset, deltaObject.metadataBlockSize);
         return rowGroupBlockMetaData.getRowGroups();
     }
 }

@@ -48,6 +48,33 @@ public abstract class Decoder {
         }
     }
 
+    public static Decoder getDecoderByType(TSEncoding type, TSDataType dataType) {
+        // PLA and DFT encoding are not supported in current version
+        if (type == TSEncoding.PLAIN) {
+            return new PlainDecoder(EndianType.LITTLE_ENDIAN);
+        } else if (type == TSEncoding.RLE && dataType == TSDataType.BOOLEAN) {
+            return new IntRleDecoder(EndianType.LITTLE_ENDIAN);
+        }  else if (type == TSEncoding.TS_2DIFF && dataType == TSDataType.INT32) {
+            return new DeltaBinaryDecoder.IntDeltaDecoder();
+        } else if (type == TSEncoding.TS_2DIFF && dataType == TSDataType.INT64) {
+            return new DeltaBinaryDecoder.LongDeltaDecoder();
+        } else if (type == TSEncoding.RLE && dataType == TSDataType.INT32) {
+            return new IntRleDecoder(EndianType.LITTLE_ENDIAN);
+        } else if (type == TSEncoding.RLE && dataType == TSDataType.INT64) {
+            return new LongRleDecoder(EndianType.LITTLE_ENDIAN);
+        } else if (type == TSEncoding.BITMAP && dataType == TSDataType.ENUMS) {
+            return new BitmapDecoder(EndianType.LITTLE_ENDIAN);
+        } else if ((dataType == TSDataType.FLOAT || dataType == TSDataType.DOUBLE) && (type == TSEncoding.RLE || type == TSEncoding.TS_2DIFF) ) {
+            return new FloatDecoder(TSEncoding.valueOf(type.toString()), dataType);
+        } else if (type == TSEncoding.GORILLA && dataType == TSDataType.FLOAT) {
+            return new SinglePrecisionDecoder();
+        } else if (type == TSEncoding.GORILLA && dataType == TSDataType.DOUBLE) {
+            return new DoublePrecisionDecoder();
+        } else {
+            throw new TSFileDecodingException("Decoder not found:" + type + " , DataType is :" + dataType);
+        }
+    }
+
     public int readInt(InputStream in) {
         throw new TSFileDecodingException("Method readInt is not supproted by Decoder");
     }

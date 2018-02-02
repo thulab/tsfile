@@ -1,11 +1,7 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
-import cn.edu.tsinghua.tsfile.format.DeltaObject;
-import cn.edu.tsinghua.tsfile.format.FileMetaData;
-import cn.edu.tsinghua.tsfile.format.TimeSeries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +13,7 @@ import java.util.*;
 /**
  * TSFileMetaData collects all metadata info and saves in its data structure
  */
-public class TsFileMetaData implements IConverter<FileMetaData> {
+public class TsFileMetaData {
     private static final Logger LOGGER = LoggerFactory.getLogger(TsFileMetaData.class);
 
     private Map<String, TsDeltaObject> deltaObjectMap;
@@ -97,119 +93,44 @@ public class TsFileMetaData implements IConverter<FileMetaData> {
                 timeSeriesList, currentVersion);
     }
 
-    /**
-     * create file metadata in thrift format. For more information about file metadata
-     * in cn.edu.thu.tsfile.format package, see FileMetaData in tsfile-format
-     *
-     * @return file metadata in thrift format
-     */
-    @Override
-    public FileMetaData convertToThrift() {
-        try {
-            List<TimeSeries> timeSeriesListInThrift = null;
-            if (timeSeriesList != null) {
-                timeSeriesListInThrift = new ArrayList<TimeSeries>();
-                for (TimeSeriesMetadata timeSeries : timeSeriesList) {
-                    timeSeriesListInThrift.add(timeSeries.convertToThrift());
-                }
-            }
+    public int write(OutputStream outputStream) throws IOException {
+        int byteLen = 0;
 
-            Map<String, DeltaObject> deltaObjectMapInThrift = null;
-            if( deltaObjectMap != null){
-            		deltaObjectMapInThrift = new HashMap<>();
-            		for(Map.Entry<String, TsDeltaObject> entry : deltaObjectMap.entrySet()){
-            			TsDeltaObject object = entry.getValue();
-            			deltaObjectMapInThrift.put(entry.getKey(), new DeltaObject(object.offset, 
-            					object.metadataBlockSize, object.startTime, object.endTime));
-            		}
-            }
-
-            FileMetaData metaDataInThrift = new FileMetaData(currentVersion, deltaObjectMapInThrift, timeSeriesListInThrift);
-            metaDataInThrift.setCreated_by(createdBy);
-            metaDataInThrift.setJson_metadata(jsonMetaData);
-            metaDataInThrift.setProperties(props);
-            return metaDataInThrift;
-        } catch (Exception e) {
-            LOGGER.error("TsFileMetaData: failed to convert file metadata from TSFile to thrift, content is {}", this, e);
-            throw e;
-        }
-    }
-
-    /**
-     * receive file metadata in thrift format and convert it to tsfile format
-     * @param metadataInThrift - file metadata in thrift format
-     */
-    @Override
-    public void convertToTSF(FileMetaData metadataInThrift) {
-        try {
-            if (metadataInThrift.getTimeseries_list() == null) {
-                timeSeriesList = null;
-            } else {
-                timeSeriesList = new ArrayList<TimeSeriesMetadata>();
-
-                for (TimeSeries timeSeriesInThrift : metadataInThrift.getTimeseries_list()) {
-                    TimeSeriesMetadata timeSeriesInTSFile = new TimeSeriesMetadata();
-                    timeSeriesInTSFile.convertToTSF(timeSeriesInThrift);
-                    timeSeriesList.add(timeSeriesInTSFile);
-                }
-            }
-
-            if(metadataInThrift.getDelta_object_map() == null){
-            		deltaObjectMap = null;
-            } else {
-            		deltaObjectMap = new HashMap<>();
-            		for (Map.Entry<String, DeltaObject> entry : metadataInThrift.getDelta_object_map().entrySet()){
-            			DeltaObject object = entry.getValue();
-            			deltaObjectMap.put(entry.getKey(), new TsDeltaObject(object.getOffset(),
-            					object.getMetadata_block_size(), object.getStart_time(),  object.getEnd_time()));
-            		}
-            }
-            
-            currentVersion = metadataInThrift.getVersion();
-            createdBy = metadataInThrift.getCreated_by();
-            jsonMetaData = metadataInThrift.getJson_metadata();
-            props = metadataInThrift.getProperties();
-        } catch (Exception e) {
-            LOGGER.error("TsFileMetaData: failed to convert file metadata from thrift to TSFile, content is {}",metadataInThrift, e);
-            throw e;
-        }
-
-    }
-
-    public void write(OutputStream outputStream) throws IOException {
-        ReadWriteToBytesUtils.writeIsNull(deltaObjectMap, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(deltaObjectMap, outputStream);
         if(deltaObjectMap != null){
-            ReadWriteToBytesUtils.write(deltaObjectMap.size(), outputStream);
+            byteLen += ReadWriteToBytesUtils.write(deltaObjectMap.size(), outputStream);
             for(Map.Entry<String, TsDeltaObject> entry : deltaObjectMap.entrySet()){
-                ReadWriteToBytesUtils.write(entry.getKey(), outputStream);
-                ReadWriteToBytesUtils.write(entry.getValue(), outputStream);
+                byteLen += ReadWriteToBytesUtils.write(entry.getKey(), outputStream);
+                byteLen += ReadWriteToBytesUtils.write(entry.getValue(), outputStream);
             }
         }
 
-        ReadWriteToBytesUtils.writeIsNull(timeSeriesList, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(timeSeriesList, outputStream);
         if(timeSeriesList != null){
-            ReadWriteToBytesUtils.write(timeSeriesList.size(), outputStream);
+            byteLen += ReadWriteToBytesUtils.write(timeSeriesList.size(), outputStream);
             for(TimeSeriesMetadata timeSeriesMetadata : timeSeriesList){
-                ReadWriteToBytesUtils.write(timeSeriesMetadata, outputStream);
+                byteLen += ReadWriteToBytesUtils.write(timeSeriesMetadata, outputStream);
             }
         }
 
-        ReadWriteToBytesUtils.write(currentVersion, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(currentVersion, outputStream);
 
-        ReadWriteToBytesUtils.writeIsNull(jsonMetaData, outputStream);
-        if(jsonMetaData != null)ReadWriteToBytesUtils.write(jsonMetaData, TSDataType.TEXT, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(jsonMetaData, outputStream);
+        if(jsonMetaData != null)byteLen += ReadWriteToBytesUtils.write(jsonMetaData, TSDataType.TEXT, outputStream);
 
-        ReadWriteToBytesUtils.writeIsNull(createdBy, outputStream);
-        if(createdBy != null)ReadWriteToBytesUtils.write(createdBy, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(createdBy, outputStream);
+        if(createdBy != null)byteLen += ReadWriteToBytesUtils.write(createdBy, outputStream);
 
-        ReadWriteToBytesUtils.writeIsNull(props, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(props, outputStream);
         if(props != null){
-            ReadWriteToBytesUtils.write(props.size(), outputStream);
+            byteLen += ReadWriteToBytesUtils.write(props.size(), outputStream);
             for(Map.Entry<String, String> entry : props.entrySet()){
-                ReadWriteToBytesUtils.write(entry.getKey(), outputStream);
-                ReadWriteToBytesUtils.write(entry.getValue(), outputStream);
+                byteLen += ReadWriteToBytesUtils.write(entry.getKey(), outputStream);
+                byteLen += ReadWriteToBytesUtils.write(entry.getValue(), outputStream);
             }
         }
+
+        return byteLen;
     }
 
     public void read(InputStream inputStream) throws IOException {

@@ -1,10 +1,7 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
-import cn.edu.tsinghua.tsfile.format.DataType;
-import cn.edu.tsinghua.tsfile.format.ValueInTimeSeriesChunkMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +14,7 @@ import java.util.List;
  * For more information, see ValueInTimeSeriesChunkMetaData
  * in cn.edu.thu.tsfile.format package
  */
-public class VInTimeSeriesChunkMetaData implements IConverter<ValueInTimeSeriesChunkMetaData> {
+public class VInTimeSeriesChunkMetaData {
     private static final Logger LOGGER = LoggerFactory.getLogger(VInTimeSeriesChunkMetaData.class);
 
     private TSDataType dataType;
@@ -38,56 +35,21 @@ public class VInTimeSeriesChunkMetaData implements IConverter<ValueInTimeSeriesC
         this.dataType = dataType;
     }
 
-    @Override
-    public ValueInTimeSeriesChunkMetaData convertToThrift() {
-        try {
-            ValueInTimeSeriesChunkMetaData vTimeSeriesChunkMetaDataInThrift = new ValueInTimeSeriesChunkMetaData(
-                    dataType == null ? null : DataType.valueOf(dataType.toString()));
-            vTimeSeriesChunkMetaDataInThrift.setMax_error(maxError);
-            vTimeSeriesChunkMetaDataInThrift.setEnum_values(enumValues);
-            vTimeSeriesChunkMetaDataInThrift.setDigest(digest == null ? null : digest.convertToThrift());
-            return vTimeSeriesChunkMetaDataInThrift;
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file VInTimeSeriesChunkMetaData: failed to convert ValueInTimeSeriesChunkMetaData from TSFile to thrift, content is {}",
-                        this, e);
-            throw e;
-        }
-    }
+    public int write(OutputStream outputStream) throws IOException {
+        int byteLen = 0;
 
-    @Override
-    public void convertToTSF(ValueInTimeSeriesChunkMetaData vTimeSeriesChunkMetaDataInThrift) {
-        try {
-            this.dataType = vTimeSeriesChunkMetaDataInThrift.getData_type() == null ? null : TSDataType.valueOf(vTimeSeriesChunkMetaDataInThrift.getData_type().toString());
-            this.maxError = vTimeSeriesChunkMetaDataInThrift.getMax_error();
-            this.enumValues = vTimeSeriesChunkMetaDataInThrift.getEnum_values();
-            if (vTimeSeriesChunkMetaDataInThrift.getDigest() == null) {
-                this.digest = null;
-            } else {
-                this.digest = new TsDigest();
-                this.digest.convertToTSF(vTimeSeriesChunkMetaDataInThrift.getDigest());
-            }
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file VInTimeSeriesChunkMetaData: failed to convert ValueInTimeSeriesChunkMetaData from thrift to TSFile, content is {}",
-                        vTimeSeriesChunkMetaDataInThrift, e);
-            throw e;
-        }
-    }
+        byteLen += ReadWriteToBytesUtils.writeIsNull(dataType, outputStream);
+        if(dataType != null)byteLen += ReadWriteToBytesUtils.write(dataType.toString(), outputStream);
 
-    public void write(OutputStream outputStream) throws IOException {
-        ReadWriteToBytesUtils.writeIsNull(dataType, outputStream);
-        if(dataType != null)ReadWriteToBytesUtils.write(dataType.toString(), outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(digest, outputStream);
+        if(digest != null)byteLen += ReadWriteToBytesUtils.write(digest, outputStream);
 
-        ReadWriteToBytesUtils.writeIsNull(digest, outputStream);
-        if(digest != null)ReadWriteToBytesUtils.write(digest, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(maxError, outputStream);
 
-        ReadWriteToBytesUtils.write(maxError, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(enumValues, outputStream);
+        if(enumValues != null)byteLen += ReadWriteToBytesUtils.write(enumValues, TSDataType.TEXT, outputStream);
 
-        ReadWriteToBytesUtils.writeIsNull(enumValues, outputStream);
-        if(enumValues != null)ReadWriteToBytesUtils.write(enumValues, TSDataType.TEXT, outputStream);
+        return byteLen;
     }
 
     public void read(InputStream inputStream) throws IOException {

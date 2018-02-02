@@ -29,12 +29,10 @@ import cn.edu.tsinghua.tsfile.file.metadata.TsDigest;
 import cn.edu.tsinghua.tsfile.file.metadata.TsFileMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TsRowGroupBlockMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.converter.TsFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
-//import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
@@ -48,7 +46,6 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 public class TsFileIOWriter {
 
 	public static final byte[] magicStringBytes;
-	public static final TsFileMetaDataConverter metadataConverter = new TsFileMetaDataConverter();
 	private static final Logger LOG = LoggerFactory.getLogger(TsFileIOWriter.class);
 
 	static {
@@ -252,8 +249,8 @@ public class TsFileIOWriter {
 		}
 		Iterator<Map.Entry<String, TsRowGroupBlockMetaData>> iterator = tsRowGroupBlockMetaDataMap.entrySet()
 				.iterator();
-		long offset;
 		long offsetIndex;
+        int rgbmdLen;
 		/** size of RowGroupMetadataBlock in byte **/
 		int metadataBlockSize;
 
@@ -280,13 +277,9 @@ public class TsFileIOWriter {
 				}
 			}
 			offsetIndex = out.getPos();
-			// flush tsRowGroupBlockMetaDatas in order
-//			ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(currentTsRowGroupBlockMetaData.convertToThrift(),
-//					out.getOutputStream());
-            ReadWriteToBytesUtils.write(currentTsRowGroupBlockMetaData, bufferedOutputStream);
-            bufferedOutputStream.flush();
-			offset = out.getPos();
-			TsDeltaObject tsDeltaObject = new TsDeltaObject(offsetIndex, (int) (offset - offsetIndex), startTime,
+			// write tsRowGroupBlockMetaDatas in order
+            rgbmdLen = ReadWriteToBytesUtils.write(currentTsRowGroupBlockMetaData, bufferedOutputStream);
+			TsDeltaObject tsDeltaObject = new TsDeltaObject(offsetIndex, rgbmdLen, startTime,
 					endTime);
 			tsDeltaObjectMap.put(currentDeltaObject, tsDeltaObject);
 		}
@@ -313,15 +306,11 @@ public class TsFileIOWriter {
 	}
 
 	private void serializeTsFileMetadata(TsFileMetaData footer) throws IOException {
-		long footerIndex = out.getPos();
-		LOG.debug("serialize the footer,file pos:{}", footerIndex);
-//		TsFileMetaDataConverter metadataConverter = new TsFileMetaDataConverter();
-//		ReadWriteThriftFormatUtils.writeFileMetaData(metadataConverter.toThriftFileMetadata(footer),
-//				out.getOutputStream());
-        ReadWriteToBytesUtils.write(footer, bufferedOutputStream);
+        LOG.debug("serialize the footer start");
+        int fmdLen = ReadWriteToBytesUtils.write(footer, bufferedOutputStream);
         bufferedOutputStream.flush();
-		LOG.debug("serialize the footer finished, file pos:{}", out.getPos());
-		out.write(BytesUtils.intToBytes((int) (out.getPos() - footerIndex)));
+		LOG.debug("serialize the footer finished, footer length:{}", fmdLen);
+		out.write(BytesUtils.intToBytes(fmdLen));
 		out.write(magicStringBytes);
 	}
 

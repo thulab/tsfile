@@ -1,12 +1,8 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
-import cn.edu.tsinghua.tsfile.format.DataType;
-import cn.edu.tsinghua.tsfile.format.FreqType;
-import cn.edu.tsinghua.tsfile.format.TimeInTimeSeriesChunkMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +15,7 @@ import java.util.List;
  * For more information, see TimeInTimeSeriesChunkMetaData
  * in cn.edu.thu.tsfile.format package
  */
-public class TInTimeSeriesChunkMetaData implements IConverter<TimeInTimeSeriesChunkMetaData> {
+public class TInTimeSeriesChunkMetaData {
     private static final Logger LOGGER = LoggerFactory.getLogger(TInTimeSeriesChunkMetaData.class);
 
     private TSDataType dataType;
@@ -44,58 +40,25 @@ public class TInTimeSeriesChunkMetaData implements IConverter<TimeInTimeSeriesCh
         this.endTime = endTime;
     }
 
-    @Override
-    public TimeInTimeSeriesChunkMetaData convertToThrift() {
-        try {
-            TimeInTimeSeriesChunkMetaData tTimeSeriesChunkMetaDataInThrift =
-                    new TimeInTimeSeriesChunkMetaData(
-                            dataType == null ? null : DataType.valueOf(dataType.toString()), startTime, endTime);
-            tTimeSeriesChunkMetaDataInThrift.setFreq_type(freqType == null ? null : FreqType.valueOf(freqType.toString()));
-            tTimeSeriesChunkMetaDataInThrift.setFrequencies(frequencies);
-            tTimeSeriesChunkMetaDataInThrift.setEnum_values(enumValues);
-            return tTimeSeriesChunkMetaDataInThrift;
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file TInTimeSeriesChunkMetaData: failed to convert TimeInTimeSeriesChunkMetaData from TSFile to thrift, content is {}",
-                        this, e);
-            throw e;
-        }
-    }
+    public int write(OutputStream outputStream) throws IOException {
+        int byteLen = 0;
 
-    @Override
-    public void convertToTSF(TimeInTimeSeriesChunkMetaData tTimeSeriesChunkMetaDataInThrift) {
-        try {
-            dataType = tTimeSeriesChunkMetaDataInThrift.getData_type() == null ? null : TSDataType.valueOf(tTimeSeriesChunkMetaDataInThrift.getData_type().toString());
-            freqType = tTimeSeriesChunkMetaDataInThrift.getFreq_type() == null ? null : TSFreqType.valueOf(tTimeSeriesChunkMetaDataInThrift.getFreq_type().toString());
-            frequencies = tTimeSeriesChunkMetaDataInThrift.getFrequencies();
-            startTime = tTimeSeriesChunkMetaDataInThrift.getStartime();
-            endTime = tTimeSeriesChunkMetaDataInThrift.getEndtime();
-            enumValues = tTimeSeriesChunkMetaDataInThrift.getEnum_values();
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file TInTimeSeriesChunkMetaData: failed to convert TimeInTimeSeriesChunkMetaData from thrift to TSFile, content is {}",
-                        tTimeSeriesChunkMetaDataInThrift, e);
-            throw e;
-        }
-    }
+        byteLen += ReadWriteToBytesUtils.writeIsNull(dataType, outputStream);
+        if(dataType != null)byteLen += ReadWriteToBytesUtils.write(dataType.toString(), outputStream);
 
-    public void write(OutputStream outputStream) throws IOException {
-        ReadWriteToBytesUtils.writeIsNull(dataType, outputStream);
-        if(dataType != null)ReadWriteToBytesUtils.write(dataType.toString(), outputStream);
+        byteLen += ReadWriteToBytesUtils.write(startTime, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(endTime, outputStream);
 
-        ReadWriteToBytesUtils.write(startTime, outputStream);
-        ReadWriteToBytesUtils.write(endTime, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(freqType, outputStream);
+        if(freqType != null)byteLen += ReadWriteToBytesUtils.write(freqType.toString(), outputStream);
 
-        ReadWriteToBytesUtils.writeIsNull(freqType, outputStream);
-        if(freqType != null)ReadWriteToBytesUtils.write(freqType.toString(), outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(frequencies, outputStream);
+        if(frequencies != null)byteLen += ReadWriteToBytesUtils.write(frequencies, TSDataType.INT32, outputStream);
 
-        ReadWriteToBytesUtils.writeIsNull(frequencies, outputStream);
-        if(frequencies != null)ReadWriteToBytesUtils.write(frequencies, TSDataType.INT32, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(enumValues, outputStream);
+        if(enumValues != null)byteLen += ReadWriteToBytesUtils.write(enumValues, TSDataType.TEXT, outputStream);
 
-        ReadWriteToBytesUtils.writeIsNull(enumValues, outputStream);
-        if(enumValues != null)ReadWriteToBytesUtils.write(enumValues, TSDataType.TEXT, outputStream);
+        return byteLen;
     }
 
     public void read(InputStream inputStream) throws IOException {

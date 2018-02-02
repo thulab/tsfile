@@ -1,12 +1,8 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
-import cn.edu.tsinghua.tsfile.format.DataType;
-import cn.edu.tsinghua.tsfile.format.FreqType;
-import cn.edu.tsinghua.tsfile.format.TimeSeries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +14,7 @@ import java.util.List;
 /**
  * For more information, see TimeSeries in cn.edu.thu.tsfile.format package
  */
-public class TimeSeriesMetadata implements IConverter<TimeSeries> {
+public class TimeSeriesMetadata {
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeSeriesMetadata.class);
 
     private String measurementUID;
@@ -50,61 +46,27 @@ public class TimeSeriesMetadata implements IConverter<TimeSeries> {
         this.type = dataType;
     }
 
-    @Override
-    public TimeSeries convertToThrift() {
-        try {
-            TimeSeries timeSeriesInThrift = new TimeSeries(measurementUID,
-                    type == null ? null : DataType.valueOf(type.toString()), "");//FIXME remove deltaType from TimeSeries.java
-            timeSeriesInThrift.setType_length(typeLength);
-            timeSeriesInThrift.setFreq_type(freqType == null ? null : FreqType.valueOf(freqType.toString()));
-            timeSeriesInThrift.setFrequencies(frequencies);
-            timeSeriesInThrift.setEnum_values(enumValues);
-            return timeSeriesInThrift;
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file TimeSeriesMetadata: failed to convert TimeSeriesMetadata from TSFile to thrift, content is {}",
-                        this, e);
-            throw e;
-        }
-    }
+    public int write(OutputStream outputStream) throws IOException {
+        int byteLen = 0;
 
-    @Override
-    public void convertToTSF(TimeSeries timeSeriesInThrift) {
-        try {
-            measurementUID = timeSeriesInThrift.getMeasurement_uid();
-            type = timeSeriesInThrift.getType() == null ? null
-                    : TSDataType.valueOf(timeSeriesInThrift.getType().toString());
-            typeLength = timeSeriesInThrift.getType_length();
-            freqType = timeSeriesInThrift.getFreq_type() == null ? null
-                    : TSFreqType.valueOf(timeSeriesInThrift.getFreq_type().toString());
-            frequencies = timeSeriesInThrift.getFrequencies();
-            enumValues = timeSeriesInThrift.getEnum_values();
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file TimeSeriesMetadata: failed to convert TimeSeriesMetadata from TSFile to thrift, content is {}",
-                        timeSeriesInThrift, e);
-        }
-    }
+        byteLen += ReadWriteToBytesUtils.writeIsNull(measurementUID, outputStream);
+        if(measurementUID != null)byteLen += ReadWriteToBytesUtils.write(measurementUID, outputStream);
 
-    public void write(OutputStream outputStream) throws IOException {
-        ReadWriteToBytesUtils.writeIsNull(measurementUID, outputStream);
-        if(measurementUID != null)ReadWriteToBytesUtils.write(measurementUID, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(type, outputStream);
+        if(type != null)byteLen += ReadWriteToBytesUtils.write(type.toString(), outputStream);
 
-        ReadWriteToBytesUtils.writeIsNull(type, outputStream);
-        if(type != null)ReadWriteToBytesUtils.write(type.toString(), outputStream);
+        byteLen += ReadWriteToBytesUtils.write(typeLength, outputStream);
 
-        ReadWriteToBytesUtils.write(typeLength, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(freqType, outputStream);
+        if(freqType != null)byteLen += ReadWriteToBytesUtils.write(freqType.toString(), outputStream);
 
-        ReadWriteToBytesUtils.writeIsNull(freqType, outputStream);
-        if(freqType != null)ReadWriteToBytesUtils.write(freqType.toString(), outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(frequencies, outputStream);
+        if(frequencies != null)byteLen += ReadWriteToBytesUtils.write(frequencies, TSDataType.INT32, outputStream);
 
-        ReadWriteToBytesUtils.writeIsNull(frequencies, outputStream);
-        if(frequencies != null)ReadWriteToBytesUtils.write(frequencies, TSDataType.INT32, outputStream);
+        byteLen += ReadWriteToBytesUtils.writeIsNull(enumValues, outputStream);
+        if(enumValues != null)byteLen += ReadWriteToBytesUtils.write(enumValues, TSDataType.TEXT, outputStream);
 
-        ReadWriteToBytesUtils.writeIsNull(enumValues, outputStream);
-        if(enumValues != null)ReadWriteToBytesUtils.write(enumValues, TSDataType.TEXT, outputStream);
+        return byteLen;
     }
 
     public void read(InputStream inputStream) throws IOException {
