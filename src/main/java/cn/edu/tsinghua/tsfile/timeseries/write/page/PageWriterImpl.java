@@ -44,6 +44,9 @@ public class PageWriterImpl implements IPageWriter {
         // compress the input data
         if (this.minTimestamp == -1)
             this.minTimestamp = minTimestamp;
+        if(this.minTimestamp==-1){
+        	LOG.error("Write page error, {}, minTime:{}, maxTime:{}",desc,minTimestamp,maxTimestamp);
+        }
         this.maxTimestamp = maxTimestamp;
         int uncompressedSize = listByteArray.size();
         ListByteArrayOutputStream compressedBytes = compressor.compress(listByteArray);
@@ -76,15 +79,6 @@ public class PageWriterImpl implements IPageWriter {
                 estimateMaxPageMemSize());
     }
 
-    public Pair<List<ByteArrayInputStream>, CompressionTypeName> query() {
-
-
-        List<ByteArrayInputStream> backupPageList = buf.transform();
-        Pair<List<ByteArrayInputStream>, CompressionTypeName> ret = new Pair<List<ByteArrayInputStream>, CompressionTypeName>(
-                backupPageList, compressor.getCodecName());
-        return ret;
-    }
-
     private void resetTimeStamp() {
         if (totalValueCount == 0)
             minTimestamp = -1;
@@ -92,6 +86,9 @@ public class PageWriterImpl implements IPageWriter {
 
     @Override
     public void writeToFileWriter(TsFileIOWriter writer, Statistics<?> statistics) throws IOException {
+    	if(minTimestamp==-1){
+    		LOG.error("Write page error, {}, minTime:{}, maxTime:{}",desc,minTimestamp,maxTimestamp);
+    	}
         writer.startSeries(desc, compressor.getCodecName(), desc.getType(), statistics, maxTimestamp, minTimestamp);
         long totalByteSize = writer.getPos();
         writer.writeBytesToStream(buf);

@@ -34,13 +34,6 @@ public interface IPageWriter {
                    long maxTimestamp, long minTimestamp) throws PageException;
 
     /**
-     * query all pages which have been packaged
-     *
-     * @return left is all pages data, right is the name of compression
-     */
-    Pair<List<ByteArrayInputStream>, CompressionTypeName> query();
-
-    /**
      * write the page to specified IOWriter
      *
      * @param writer the specified IOWriter

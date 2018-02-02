@@ -1,23 +1,8 @@
 package cn.edu.tsinghua.tsfile.timeseries.write;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.common.utils.Pair;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
-import cn.edu.tsinghua.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.NoMeasurementException;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
@@ -28,6 +13,14 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.converter.JsonConverter;
 import cn.edu.tsinghua.tsfile.timeseries.write.series.IRowGroupWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.series.RowGroupWriterImpl;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * TsFileWriter is the entrance for writing processing. It receives a record and send it to
@@ -50,7 +43,6 @@ public class TsFileWriter {
   private long recordCountForNextMemCheck = MINIMUM_RECORD_COUNT_FOR_CHECK;
   private long rowGroupSizeThreshold;
   private int oneRowMaxSize;
-  private volatile long memUsage;
 
   public TsFileWriter(File file) throws WriteProcessException, IOException {
     this(new TsFileIOWriter(file), new FileSchema(), TSFileDescriptor.getInstance().getConfig());
@@ -145,12 +137,23 @@ public class TsFileWriter {
    * @return - whether the record has been added into RecordWriter legally
    * @throws WriteProcessException exception
    */
-  protected boolean checkIsDeltaExist(TSRecord record) throws WriteProcessException {
-    if (!schema.hasDeltaObject(record.deltaObjectId)) {
-      schema.addDeltaObject(record.deltaObjectId);
-    }
-    addGroupToInternalRecordWriter(record);
-    return true;
+  protected boolean checkIsTimeSeriesExist(TSRecord record) throws WriteProcessException {
+		IRowGroupWriter groupWriter;
+		if (!groupWriters.containsKey(record.deltaObjectId)) {
+			groupWriter = new RowGroupWriterImpl(record.deltaObjectId);
+			groupWriters.put(record.deltaObjectId, groupWriter);
+		} else{
+			groupWriter = groupWriters.get(record.deltaObjectId);
+		}
+		Map<String, MeasurementDescriptor> schemaDescriptorMap = schema.getDescriptor();
+		for (DataPoint dp : record.dataPointList) {
+			String measurementId = dp.getMeasurementId();
+			if (schemaDescriptorMap.containsKey(measurementId))
+				groupWriter.addSeriesWriter(schemaDescriptorMap.get(measurementId), pageSize);
+			else
+				throw new NoMeasurementException("input measurement is invalid: " + measurementId);
+		}
+		return true;
   }
 
   /**
@@ -166,37 +169,12 @@ public class TsFileWriter {
    * false - otherwise
    */
   public boolean write(TSRecord record) throws IOException, WriteProcessException {
-    if (checkIsDeltaExist(record)) {
+    if (checkIsTimeSeriesExist(record)) {
       groupWriters.get(record.deltaObjectId).write(record.time, record.dataPointList);
       ++recordCount;
       return checkMemorySize();
     }
 	return false;
-  }
-
-  /**
-   * <b>Note that</b>, before calling this method, all {@code IRowGroupWriter} instance existing in
-   * {@code groupWriters} have been reset for next writing stage, thus we don't add new
-   * {@code IRowGroupWriter} if its deltaObjectId has existed.
-   *
-   * @param record TSRecord
-   * @throws WriteProcessException - delta object to be add
-   */
-  protected void addGroupToInternalRecordWriter(TSRecord record) throws WriteProcessException {
-    IRowGroupWriter groupWriter;
-    if (!groupWriters.containsKey(record.deltaObjectId)) {
-      groupWriter = new RowGroupWriterImpl(record.deltaObjectId);
-      groupWriters.put(record.deltaObjectId, groupWriter);
-    } else
-      groupWriter = groupWriters.get(record.deltaObjectId);
-    Map<String, MeasurementDescriptor> schemaDescriptorMap = schema.getDescriptor();
-    for (DataPoint dp : record.dataPointList) {
-      String measurementId = dp.getMeasurementId();
-      if (schemaDescriptorMap.containsKey(measurementId))
-        groupWriter.addSeriesWriter(schemaDescriptorMap.get(measurementId), pageSize);
-      else
-        throw new NoMeasurementException("input measurement is invalid: " + measurementId);
-    }
   }
 
   /**
@@ -209,16 +187,7 @@ public class TsFileWriter {
     for (IRowGroupWriter group : groupWriters.values()) {
       memTotalSize += group.updateMaxGroupMemSize();
     }
-    memUsage = memTotalSize;
     return memTotalSize;
-  }
-  /**
-   * get the memory usage which is just an estimated result.
-   * 
-   * @return estimated memory usage.
-   */
-  public long getMemoryUsage(){
-	  return memUsage;
   }
 
   /**
@@ -260,7 +229,7 @@ public class TsFileWriter {
     // at the present stage, just flush one block
     if (recordCount > 0) {
       long totalMemStart = deltaFileWriter.getPos();
-      for (String deltaObjectId : schema.getDeltaObjectAppearedSet()) {
+      for (String deltaObjectId : groupWriters.keySet()) {
         long memSize = deltaFileWriter.getPos();
         deltaFileWriter.startRowGroup(recordCount, deltaObjectId);
         IRowGroupWriter groupWriter = groupWriters.get(deltaObjectId);
@@ -288,12 +257,8 @@ public class TsFileWriter {
     deltaFileWriter.fillInRowGroup(primaryRowGroupSize - actualRowGroupSize);
   }
 
-  /**
-   * <b>Note that</b> we don't need to reset RowGroupWriter explicitly, since after calling
-   * {@code flushToFileWriter()}, RowGroupWriter resets itself.
-   */
   private void reset() {
-    schema.resetUnusedDeltaObjectId(groupWriters);
+    groupWriters.clear();
   }
 
   /**
