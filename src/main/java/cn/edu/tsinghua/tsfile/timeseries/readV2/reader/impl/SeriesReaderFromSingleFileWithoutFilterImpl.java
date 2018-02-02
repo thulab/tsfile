@@ -22,6 +22,11 @@ public class SeriesReaderFromSingleFileWithoutFilterImpl extends SeriesReaderFro
         super(randomAccessFileReader, path);
     }
 
+    public SeriesReaderFromSingleFileWithoutFilterImpl(ITsRandomAccessFileReader randomAccessFileReader,
+                                      SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
+        super(randomAccessFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
+    }
+
     protected void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException {
         SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
         this.seriesChunkReader = new SeriesChunkReaderWithoutFilterImpl(memSeriesChunk.getSeriesChunkBodyStream(),

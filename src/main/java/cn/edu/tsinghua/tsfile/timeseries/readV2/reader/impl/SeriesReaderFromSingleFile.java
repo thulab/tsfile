@@ -34,6 +34,17 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
         this.seriesChunkReaderInitialized = false;
     }
 
+    public SeriesReaderFromSingleFile(ITsRandomAccessFileReader randomAccessFileReader,
+                                      SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
+        this(seriesChunkLoader, encodedSeriesChunkDescriptorList);
+        this.randomAccessFileReader = randomAccessFileReader;
+    }
+
+    /**
+     * Using this constructor cannot close corresponding FileStream
+     * @param seriesChunkLoader
+     * @param encodedSeriesChunkDescriptorList
+     */
     public SeriesReaderFromSingleFile(SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
         this.seriesChunkLoader = seriesChunkLoader;
         this.encodedSeriesChunkDescriptorList = encodedSeriesChunkDescriptorList;

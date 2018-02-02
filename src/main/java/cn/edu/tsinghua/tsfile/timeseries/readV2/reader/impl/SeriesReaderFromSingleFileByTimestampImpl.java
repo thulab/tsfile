@@ -30,6 +30,11 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
         super(randomAccessFileReader, path);
     }
 
+    public SeriesReaderFromSingleFileByTimestampImpl(ITsRandomAccessFileReader randomAccessFileReader,
+                                      SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
+        super(randomAccessFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
+    }
+
     @Override
     public boolean hasNext() throws IOException {
         if (seriesChunkReaderInitialized && seriesChunkReader.hasNext()) {

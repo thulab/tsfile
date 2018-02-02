@@ -28,6 +28,13 @@ public class SeriesReaderFromSingleFileWithFilterImpl extends SeriesReaderFromSi
         this.digestFilterVisitor = new DigestFilterVisitor();
     }
 
+    public SeriesReaderFromSingleFileWithFilterImpl(ITsRandomAccessFileReader randomAccessFileReader, SeriesChunkLoader seriesChunkLoader,
+                                                    List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList, Filter<?> filter) {
+        super(randomAccessFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
+        this.filter = filter;
+        this.digestFilterVisitor = new DigestFilterVisitor();
+    }
+
     public SeriesReaderFromSingleFileWithFilterImpl(ITsRandomAccessFileReader randomAccessFileReader
             , Path path, Filter<?> filter) throws IOException {
         super(randomAccessFileReader, path);
