@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
@@ -16,7 +17,7 @@ import java.util.List;
 /**
  * For more information, see TimeSeriesChunkMetaData in cn.edu.thu.tsfile.format package
  */
-public class TimeSeriesChunkMetaData {
+public class TimeSeriesChunkMetaData implements IBytesConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeSeriesChunkMetaData.class);
 
     private TimeSeriesChunkProperties properties;

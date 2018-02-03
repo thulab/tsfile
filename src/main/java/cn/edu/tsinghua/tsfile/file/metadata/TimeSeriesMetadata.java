@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * For more information, see TimeSeries in cn.edu.thu.tsfile.format package
  */
-public class TimeSeriesMetadata {
+public class TimeSeriesMetadata implements IBytesConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeSeriesMetadata.class);
 
     private String measurementUID;

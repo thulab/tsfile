@@ -6,9 +6,10 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 
-public class TsRowGroupBlockMetaData {
+public class TsRowGroupBlockMetaData implements IBytesConverter {
 	/**
      * Row groups in this file
      */

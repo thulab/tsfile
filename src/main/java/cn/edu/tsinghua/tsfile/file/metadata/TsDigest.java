@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 
 import java.io.*;
@@ -10,7 +11,7 @@ import java.util.Map;
 /**
  * For more information, see Digest in cn.edu.thu.tsfile.format package
  */
-public class TsDigest {
+public class TsDigest implements IBytesConverter {
 	/**
 	 * Digest/statistics per row group and per page.
 	 */

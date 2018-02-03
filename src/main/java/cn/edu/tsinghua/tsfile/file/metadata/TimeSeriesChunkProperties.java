@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
@@ -11,7 +12,7 @@ import java.io.OutputStream;
 /**
  * store required members in TimeSeriesChunkMetaData
  */
-public class TimeSeriesChunkProperties {
+public class TimeSeriesChunkProperties implements IBytesConverter {
     private String measurementUID;
 
     /**

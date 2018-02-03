@@ -49,21 +49,21 @@ public class Utils {
 	}
 
 	public static void isMapBufferEqual(Map<String, ByteBuffer> mapA, Map<String, ByteBuffer> mapB, String name) {
-	if ((mapA == null) ^ (mapB == null)) {
-		System.out.println("error");
-		fail(String.format("one of %s is null", name));
-	}
-	if ((mapA != null) && (mapB != null)) {
-		if (mapA.size() != mapB.size()) {
-			fail(String.format("%s size is different", name));
-		}
-		for (String key : mapB.keySet()) {
-			ByteBuffer b = mapB.get(key);
-			ByteBuffer a = mapA.get(key);
-			assertTrue(b.equals(a));
-		}
-	}
-}	
+        if ((mapA == null) ^ (mapB == null)) {
+            System.out.println("error");
+            fail(String.format("one of %s is null", name));
+        }
+        if ((mapA != null) && (mapB != null)) {
+            if (mapA.size() != mapB.size()) {
+                fail(String.format("%s size is different", name));
+            }
+            for (String key : mapB.keySet()) {
+                ByteBuffer b = mapB.get(key);
+                ByteBuffer a = mapA.get(key);
+                assertTrue(b.equals(a));
+            }
+        }
+    }
 
 
 	/**

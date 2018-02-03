@@ -1,12 +1,13 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class TsDeltaObject{
+public class TsDeltaObject implements IBytesConverter {
 	/** start position of RowGroupMetadataBlock in file **/
 	public long offset;
 

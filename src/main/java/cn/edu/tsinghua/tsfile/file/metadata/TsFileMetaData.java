@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.slf4j.Logger;
@@ -13,7 +14,7 @@ import java.util.*;
 /**
  * TSFileMetaData collects all metadata info and saves in its data structure
  */
-public class TsFileMetaData {
+public class TsFileMetaData implements IBytesConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(TsFileMetaData.class);
 
     private Map<String, TsDeltaObject> deltaObjectMap;

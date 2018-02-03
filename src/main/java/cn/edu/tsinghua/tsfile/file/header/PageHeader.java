@@ -1,12 +1,13 @@
 package cn.edu.tsinghua.tsfile.file.header;
 
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class PageHeader {
+public class PageHeader implements IBytesConverter {
     public PageType type; // required
     /**
      * Uncompressed page size in bytes (not including this header) *

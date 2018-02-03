@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * For more information, see RowGroupMetaData in cn.edu.thu.tsfile.format package
  */
-public class RowGroupMetaData {
+public class RowGroupMetaData implements IBytesConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(RowGroupMetaData.class);
 
     private String deltaObjectID;

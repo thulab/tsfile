@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.header;
 
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 
@@ -7,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class DictionaryPageHeader {
+public class DictionaryPageHeader implements IBytesConverter {
 
     /**
      * Number of values in the dictionary *

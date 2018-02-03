@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.slf4j.Logger;
@@ -14,7 +15,7 @@ import java.util.List;
  * For more information, see ValueInTimeSeriesChunkMetaData
  * in cn.edu.thu.tsfile.format package
  */
-public class VInTimeSeriesChunkMetaData {
+public class VInTimeSeriesChunkMetaData implements IBytesConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(VInTimeSeriesChunkMetaData.class);
 
     private TSDataType dataType;
