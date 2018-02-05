@@ -260,6 +260,7 @@ public class TsFileIOWriter {
 		/** end time for a delta object **/
 		long endTime;
 
+		offsetIndex = out.getPos();
 		while (iterator.hasNext()) {
 			startTime = Long.MAX_VALUE;
 			endTime = Long.MIN_VALUE;
@@ -276,13 +277,12 @@ public class TsFileIOWriter {
 					endTime = Long.max(endTime, timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getEndTime());
 				}
 			}
-			bufferedOutputStream.flush();
-			offsetIndex = out.getPos();
 			// write tsRowGroupBlockMetaDatas in order
             rgbmdLen = ReadWriteToBytesUtils.write(currentTsRowGroupBlockMetaData, bufferedOutputStream);
 			TsDeltaObject tsDeltaObject = new TsDeltaObject(offsetIndex, rgbmdLen, startTime,
 					endTime);
 			tsDeltaObjectMap.put(currentDeltaObject, tsDeltaObject);
+            offsetIndex += rgbmdLen;
 		}
 
 		TsFileMetaData tsFileMetaData = new TsFileMetaData(tsDeltaObjectMap, timeSeriesList,
