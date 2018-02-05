@@ -35,6 +35,12 @@ public class SeriesReaderFromSingleFileWithFilterImpl extends SeriesReaderFromSi
         this.digestFilterVisitor = new DigestFilterVisitor();
     }
 
+    public SeriesReaderFromSingleFileWithFilterImpl(ITsRandomAccessFileReader randomAccessFileReader, SeriesChunkLoader seriesChunkLoader
+            , List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList, Filter<?> filter) {
+        this(seriesChunkLoader, encodedSeriesChunkDescriptorList, filter);
+        this.randomAccessFileReader = randomAccessFileReader;
+    }
+
     protected void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException {
         SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
         this.seriesChunkReader = new SeriesChunkReaderWithFilterImpl(memSeriesChunk.getSeriesChunkBodyStream(),
