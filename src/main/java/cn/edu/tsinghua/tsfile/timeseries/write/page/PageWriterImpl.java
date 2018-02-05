@@ -6,7 +6,7 @@ import cn.edu.tsinghua.tsfile.common.utils.PublicBAOS;
 import cn.edu.tsinghua.tsfile.compress.Compressor;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.PageException;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
@@ -51,8 +51,8 @@ public class PageWriterImpl implements IPageWriter {
         PublicBAOS tempOutputStream = new PublicBAOS(estimateMaxPageHeaderSize() + compressedSize);
         // write the page header to IOWriter
         try {
-            ReadWriteThriftFormatUtils.writeDataPageHeader(uncompressedSize, compressedSize, valueCount, statistics,
-                    valueCount, desc.getEncodingType(), tempOutputStream, maxTimestamp, minTimestamp);
+            ReadWriteToBytesUtils.writeDataPageHeader(uncompressedSize, compressedSize, valueCount, statistics,
+                    valueCount, desc.getEncodingType(), maxTimestamp, minTimestamp, tempOutputStream);
         } catch (IOException e) {
             resetTimeStamp();
             throw new PageException(
@@ -117,6 +117,15 @@ public class PageWriterImpl implements IPageWriter {
 
     private int estimateMaxPageHeaderSize() {
         int digestSize = (totalValueCount == 0) ? 0 : desc.getTypeLength() * 2;
-        return TsFileIOWriter.metadataConverter.calculatePageHeaderSize(digestSize);
+        return calculatePageHeaderSize(digestSize);
+    }
+
+    public int calculatePageHeaderSize(int digestSize) {
+        //PageHeader: PageType--4, uncompressedSize--4,compressedSize--4
+        //DatapageHeader: numValues--4, numNulls--4, numRows--4, Encoding--4, isCompressed--1, maxTimestamp--8, minTimestamp--8
+        //Digest: max ByteBuffer, min ByteBuffer
+        // * 2 to caculate max object size in memory
+
+        return 2 * (45 + digestSize);
     }
 }

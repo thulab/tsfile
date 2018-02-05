@@ -1,8 +1,9 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
-import cn.edu.tsinghua.tsfile.format.Digest;
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.Map;
 /**
  * For more information, see Digest in cn.edu.thu.tsfile.format package
  */
-public class TsDigest implements IConverter<Digest> {
+public class TsDigest implements IBytesConverter {
 	/**
 	 * Digest/statistics per row group and per page.
 	 */
@@ -43,30 +44,33 @@ public class TsDigest implements IConverter<Digest> {
 		return statistics != null ? statistics.toString() : "";
 	}
 
-	@Override
-	public Digest convertToThrift() {
-		Digest digest = new Digest();
-		if (statistics != null) {
-			Map<String, ByteBuffer> statisticsInThrift = new HashMap<>();
-			for (String key : statistics.keySet()) {
-				statisticsInThrift.put(key, statistics.get(key));
+	public int write(OutputStream outputStream) throws IOException {
+		int byteLen = 0;
+
+		byteLen += ReadWriteToBytesUtils.writeIsNull(statistics, outputStream);
+		if(statistics != null) {
+			byteLen += ReadWriteToBytesUtils.write(statistics.size(), outputStream);
+			for (Map.Entry<String, ByteBuffer> entry : statistics.entrySet()) {
+				byteLen += ReadWriteToBytesUtils.write(entry.getKey(), outputStream);
+				byteLen += ReadWriteToBytesUtils.write(entry.getValue(), outputStream);
 			}
-			digest.setStatistics(statisticsInThrift);
 		}
-		return digest;
+
+		return byteLen;
 	}
 
-	@Override
-	public void convertToTSF(Digest digestInThrift) {
-		if (digestInThrift != null) {
-			Map<String, ByteBuffer> statisticsInThrift = digestInThrift.getStatistics();
-			if (statisticsInThrift != null) {
-				statistics = new HashMap<>();
-				for (String key : statisticsInThrift.keySet()) {
-					statistics.put(key, byteBufferDeepCopy(statisticsInThrift.get(key)));
-				}
-			} else {
-				statistics = null;
+	public void read(InputStream inputStream) throws IOException {
+		if(ReadWriteToBytesUtils.readIsNull(inputStream)) {
+			statistics = new HashMap<>();
+			int size = ReadWriteToBytesUtils.readInt(inputStream);
+
+			String key;
+			ByteBuffer value;
+			for (int i = 0; i < size; i++) {
+				key = ReadWriteToBytesUtils.readString(inputStream);
+				value = ReadWriteToBytesUtils.readByteBuffer(inputStream);
+
+				statistics.put(key, value);
 			}
 		}
 	}

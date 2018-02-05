@@ -1,9 +1,11 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.datatype;
 
+import java.io.Serializable;
+
 /**
  * @author Jinrui Zhang
  */
-public class TimeValuePair {
+public class TimeValuePair implements Serializable{
     private long timestamp;
     private TsPrimitiveType value;
 
@@ -41,5 +43,9 @@ public class TimeValuePair {
                     && ((TimeValuePair) object).getValue().equals(value);
         }
         return false;
+    }
+
+    public int getSize() {
+        return 4 + 8 + value.getSize();
     }
 }

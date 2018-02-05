@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -7,8 +8,7 @@ import java.util.*;
 
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,6 +86,7 @@ public class RowGroupBlockMetadtaTimeTest {
             file.delete();
         startTime = System.currentTimeMillis();
         TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(out.getOutputStream());
         long offset;
         long offset_index;
         int metadataBlockSize;
@@ -108,10 +109,10 @@ public class RowGroupBlockMetadtaTimeTest {
 				}
 			}
             //flush tsRowGroupBlockMetaDatas in order
-            RowGroupBlockMetaData rowGroupBlockMetaData = current_tsRowGroupBlockMetaData.convertToThrift();
-            ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(rowGroupBlockMetaData, out.getOutputStream());
+            ReadWriteToBytesUtils.write(current_tsRowGroupBlockMetaData, bufferedOutputStream);
         }
         Long end_index = out.getPos();
+        bufferedOutputStream.close();
         out.close();
         System.out.println("2:" + (end_index - start_index) + " bytes write to File: " + (System.currentTimeMillis() - startTime)+"ms");
         System.out.println("-------------End Metadata multi_io test------------");
@@ -136,13 +137,13 @@ public class RowGroupBlockMetadtaTimeTest {
             file.delete();
         startTime = System.currentTimeMillis();
         TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(out.getOutputStream());
         String current_deltaobject;
         TsRowGroupBlockMetaData current_tsRowGroupBlockMetaData;
         Long start_index = out.getPos();
-        ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(
-                tsRowGroupBlockMetaData.convertToThrift(), out.getOutputStream()
-        );
+        ReadWriteToBytesUtils.write(tsRowGroupBlockMetaData, bufferedOutputStream);
         Long end_index = out.getPos();
+        bufferedOutputStream.close();
         out.close();
         System.out.println("2:" + (end_index - start_index) + " bytes write to File: " + (System.currentTimeMillis() - startTime)+"ms");
         System.out.println("-------------End Metadata one_io test------------");

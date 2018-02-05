@@ -1,12 +1,15 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
-import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 
-public class TsRowGroupBlockMetaData implements IConverter<RowGroupBlockMetaData>{
+public class TsRowGroupBlockMetaData implements IBytesConverter {
 	/**
      * Row groups in this file
      */
@@ -41,39 +44,36 @@ public class TsRowGroupBlockMetaData implements IConverter<RowGroupBlockMetaData
         this.rowGroupMetadataList = rowGroupMetadataList;
     }
 
-	@Override
-	public RowGroupBlockMetaData convertToThrift() {
-//        long numOfRows = 0;
-        List<cn.edu.tsinghua.tsfile.format.RowGroupMetaData> rowGroupMetaDataListInThrift = null;
-        if (rowGroupMetadataList != null) {
-            rowGroupMetaDataListInThrift =
-                    new ArrayList<cn.edu.tsinghua.tsfile.format.RowGroupMetaData>();
-            for (RowGroupMetaData rowGroupMetaData : rowGroupMetadataList) {
-//                numOfRows += rowGroupMetaData.getNumOfRows();
-                rowGroupMetaDataListInThrift.add(rowGroupMetaData.convertToThrift());
-            }
-        }
-        RowGroupBlockMetaData rowGroupBlockMetaData= new RowGroupBlockMetaData(rowGroupMetaDataListInThrift);
-        rowGroupBlockMetaData.setDelta_object_id(deltaObjectID);
-        return rowGroupBlockMetaData;
-	}
+    public int write(OutputStream outputStream) throws IOException {
+        int byteLen = 0;
 
-	@Override
-	public void convertToTSF(RowGroupBlockMetaData metadataInThrift) {
-        List<cn.edu.tsinghua.tsfile.format.RowGroupMetaData> rowGroupMetaDataListInThrift =
-                metadataInThrift.getRow_groups_metadata();
-        if (rowGroupMetaDataListInThrift == null) {
-            rowGroupMetadataList = null;
-        } else {
-            rowGroupMetadataList = new ArrayList<RowGroupMetaData>();
-            for (cn.edu.tsinghua.tsfile.format.RowGroupMetaData rowGroupMetaDataInThrift : rowGroupMetaDataListInThrift) {
-                RowGroupMetaData rowGroupMetaDataInTSFile = new RowGroupMetaData();
-                rowGroupMetaDataInTSFile.convertToTSF(rowGroupMetaDataInThrift);
-                rowGroupMetadataList.add(rowGroupMetaDataInTSFile);
-            }
+        byteLen += ReadWriteToBytesUtils.writeIsNull(rowGroupMetadataList, outputStream);
+        if(rowGroupMetadataList != null){
+            byteLen += ReadWriteToBytesUtils.write(rowGroupMetadataList.size(), outputStream);
+
+            for(RowGroupMetaData rowGroupMetaData : rowGroupMetadataList)
+                byteLen += ReadWriteToBytesUtils.write(rowGroupMetaData, outputStream);
         }
-		this.deltaObjectID = metadataInThrift.getDelta_object_id();
-	}
+
+        byteLen += ReadWriteToBytesUtils.writeIsNull(deltaObjectID, outputStream);
+        if(deltaObjectID != null)byteLen += ReadWriteToBytesUtils.write(deltaObjectID, outputStream);
+
+        return byteLen;
+    }
+
+    public void read(InputStream inputStream) throws IOException {
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream)){
+            rowGroupMetadataList = new ArrayList<>();
+
+            int size = ReadWriteToBytesUtils.readInt(inputStream);
+            for(int i = 0;i < size;i++)
+                rowGroupMetadataList.add(ReadWriteToBytesUtils.readRowGroupMetaData(inputStream));
+        }
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            deltaObjectID = ReadWriteToBytesUtils.readString(inputStream);
+    }
 
 	public String getDeltaObjectID() {
 		return deltaObjectID;

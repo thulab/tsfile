@@ -1,21 +1,23 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
-import cn.edu.tsinghua.tsfile.format.CompressionType;
-import cn.edu.tsinghua.tsfile.format.TimeSeriesChunkType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * For more information, see TimeSeriesChunkMetaData in cn.edu.thu.tsfile.format package
  */
-public class TimeSeriesChunkMetaData
-        implements IConverter<cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData> {
+public class TimeSeriesChunkMetaData implements IBytesConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeSeriesChunkMetaData.class);
 
     private TimeSeriesChunkProperties properties;
@@ -72,83 +74,50 @@ public class TimeSeriesChunkMetaData
         this.properties = properties;
     }
 
-    @Override
-    public cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData convertToThrift() {
-        try {
-            cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData metadataInThrift = initTimeSeriesChunkMetaDataInThrift();
-            if (tInTimeSeriesChunkMetaData != null) {
-                metadataInThrift.setTime_tsc(tInTimeSeriesChunkMetaData.convertToThrift());
-            }
-            if (vInTimeSeriesChunkMetaData != null) {
-                metadataInThrift.setValue_tsc(vInTimeSeriesChunkMetaData.convertToThrift());
-            }
-            return metadataInThrift;
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file TimeSeriesChunkMetaData: failed to convert TimeSeriesChunkMetaData from TSFile to thrift, content is {}",
-                        this, e);
-        }
-        return null;
+    public int write(OutputStream outputStream) throws IOException {
+        int byteLen = 0;
+
+        byteLen += ReadWriteToBytesUtils.writeIsNull(properties, outputStream);
+        if(properties != null)byteLen += ReadWriteToBytesUtils.write(properties, outputStream);
+
+        byteLen += ReadWriteToBytesUtils.write(numRows, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(totalByteSize, outputStream);
+
+        byteLen += ReadWriteToBytesUtils.writeIsNull(jsonMetaData, outputStream);
+        if(jsonMetaData != null)byteLen += ReadWriteToBytesUtils.write(jsonMetaData, TSDataType.TEXT, outputStream);
+
+        byteLen += ReadWriteToBytesUtils.write(dataPageOffset, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(indexPageOffset, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(dictionaryPageOffset, outputStream);
+
+        byteLen += ReadWriteToBytesUtils.writeIsNull(tInTimeSeriesChunkMetaData, outputStream);
+        if(tInTimeSeriesChunkMetaData != null)byteLen += ReadWriteToBytesUtils.write(tInTimeSeriesChunkMetaData, outputStream);
+
+        byteLen += ReadWriteToBytesUtils.writeIsNull(vInTimeSeriesChunkMetaData, outputStream);
+        if(vInTimeSeriesChunkMetaData != null)byteLen += ReadWriteToBytesUtils.write(vInTimeSeriesChunkMetaData, outputStream);
+
+        return byteLen;
     }
 
-    @Override
-    public void convertToTSF(cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData metadataInThrift) {
-        try {
-            initTimeSeriesChunkMetaDataInTSFile(metadataInThrift);
-            if (metadataInThrift.getTime_tsc() == null) {
-                tInTimeSeriesChunkMetaData = null;
-            } else {
-                if (tInTimeSeriesChunkMetaData == null) {
-                    tInTimeSeriesChunkMetaData = new TInTimeSeriesChunkMetaData();
-                }
-                tInTimeSeriesChunkMetaData.convertToTSF(metadataInThrift.getTime_tsc());
-            }
-            if (metadataInThrift.getValue_tsc() == null) {
-                vInTimeSeriesChunkMetaData = null;
-            } else {
-                if (vInTimeSeriesChunkMetaData == null) {
-                    vInTimeSeriesChunkMetaData = new VInTimeSeriesChunkMetaData();
-                }
-                vInTimeSeriesChunkMetaData.convertToTSF(metadataInThrift.getValue_tsc());
-            }
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file TimeSeriesChunkMetaData: failed to convert TimeSeriesChunkMetaData from thrift to TSFile, content is {}",
-                        metadataInThrift, e);
-        }
-    }
+    public void read(InputStream inputStream) throws IOException {
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            properties = ReadWriteToBytesUtils.readTimeSeriesChunkProperties(inputStream);
 
-    private cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData initTimeSeriesChunkMetaDataInThrift() {
-        cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData metadataInThrift =
-                new cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData(
-                        properties.getMeasurementUID(),
-                        properties.getTsChunkType() == null ? null : TimeSeriesChunkType.valueOf(properties.getTsChunkType().toString()),
-                        properties.getFileOffset(),
-                        properties.getCompression() == null ? null : CompressionType.valueOf(properties.getCompression().toString()));
-        metadataInThrift.setNum_rows(numRows);
-        metadataInThrift.setTotal_byte_size(totalByteSize);
-        metadataInThrift.setJson_metadata(jsonMetaData);
-        metadataInThrift.setData_page_offset(dataPageOffset);
-        metadataInThrift.setIndex_page_offset(indexPageOffset);
-        metadataInThrift.setDictionary_page_offset(dictionaryPageOffset);
-        return metadataInThrift;
-    }
+        numRows = ReadWriteToBytesUtils.readLong(inputStream);
+        totalByteSize = ReadWriteToBytesUtils.readLong(inputStream);
 
-    private void initTimeSeriesChunkMetaDataInTSFile(
-            cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData metadataInThrift) {
-        properties = new TimeSeriesChunkProperties(
-                metadataInThrift.getMeasurement_uid(),
-                metadataInThrift.getTimeseries_chunk_type() == null ? null : TSChunkType.valueOf(metadataInThrift.getTimeseries_chunk_type().toString()),
-                metadataInThrift.getFile_offset(),
-                metadataInThrift.getCompression_type() == null ? null : CompressionTypeName.valueOf(metadataInThrift.getCompression_type().toString()));
-        numRows = metadataInThrift.getNum_rows();
-        totalByteSize = metadataInThrift.getTotal_byte_size();
-        jsonMetaData = metadataInThrift.getJson_metadata();
-        dataPageOffset = metadataInThrift.getData_page_offset();
-        indexPageOffset = metadataInThrift.getIndex_page_offset();
-        dictionaryPageOffset = metadataInThrift.getDictionary_page_offset();
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            jsonMetaData = ReadWriteToBytesUtils.readStringList(inputStream);
+
+        dataPageOffset = ReadWriteToBytesUtils.readLong(inputStream);
+        indexPageOffset = ReadWriteToBytesUtils.readLong(inputStream);
+        dictionaryPageOffset = ReadWriteToBytesUtils.readLong(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            tInTimeSeriesChunkMetaData = ReadWriteToBytesUtils.readTInTimeSeriesChunkMetaData(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            vInTimeSeriesChunkMetaData = ReadWriteToBytesUtils.readVInTimeSeriesChunkMetaData(inputStream);
     }
 
     @Override

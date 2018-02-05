@@ -1,9 +1,13 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
-import cn.edu.tsinghua.tsfile.format.DeltaObject;
+import cn.edu.tsinghua.tsfile.file.IBytesConverter;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 
-public class TsDeltaObject implements IConverter<DeltaObject>{
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+public class TsDeltaObject implements IBytesConverter {
 	/** start position of RowGroupMetadataBlock in file **/
 	public long offset;
 
@@ -15,6 +19,8 @@ public class TsDeltaObject implements IConverter<DeltaObject>{
 
 	/** end time for a delta object **/
 	public long endTime;
+
+	public TsDeltaObject(){ }
 	
 	public TsDeltaObject(long offset, int metadataBlockSize, long startTime, long endTime){
 		this.offset = offset;
@@ -23,16 +29,21 @@ public class TsDeltaObject implements IConverter<DeltaObject>{
 		this.endTime = endTime;
 	}
 
-	@Override
-	public DeltaObject convertToThrift() {
-		return new DeltaObject(offset, metadataBlockSize, startTime, endTime);
+	public int write(OutputStream outputStream) throws IOException {
+		int byteLen = 0;
+
+		byteLen += ReadWriteToBytesUtils.write(offset, outputStream);
+		byteLen += ReadWriteToBytesUtils.write(metadataBlockSize, outputStream);
+		byteLen += ReadWriteToBytesUtils.write(startTime, outputStream);
+		byteLen += ReadWriteToBytesUtils.write(endTime, outputStream);
+
+		return byteLen;
 	}
 
-	@Override
-	public void convertToTSF(DeltaObject metadata) {
-		this.offset = metadata.getOffset();
-		this.metadataBlockSize = metadata.getMetadata_block_size();
-		this.startTime = metadata.getStart_time();
-		this.endTime = metadata.getEnd_time();
+	public void read(InputStream inputStream) throws IOException {
+		offset = ReadWriteToBytesUtils.readLong(inputStream);
+		metadataBlockSize = ReadWriteToBytesUtils.readInt(inputStream);
+		startTime = ReadWriteToBytesUtils.readLong(inputStream);
+		endTime = ReadWriteToBytesUtils.readLong(inputStream);
 	}
 }
