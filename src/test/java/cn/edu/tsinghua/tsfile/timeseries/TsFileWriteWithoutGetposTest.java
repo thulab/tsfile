@@ -23,9 +23,9 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 
-public class multDeltaObjectWriteTest {
+public class TsFileWriteWithoutGetposTest {
 
-    private String path = "src/test/resources/multDevice.ts";
+    private String path = "src/test/resources/nogetpos.ts";
     private String schema;
 
     @Before
@@ -157,6 +157,24 @@ public class multDeltaObjectWriteTest {
             }
         }
         assertEquals(11, recordCount);
+    }
+
+    @Test
+    public void writeBigFileTest() throws IOException, WriteProcessException {
+        JSONObject schemaObject = new JSONObject(schema);
+
+        File file = new File(path);
+        TsFile tsFile = new TsFile(file, schemaObject);
+
+        for(int i = 0;i < 100000000;i++) {
+            tsFile.writeLine("device_1,11, sensor_1, 1.2, sensor_2, 20, sensor_3,");
+            tsFile.writeLine("device_1,12, sensor_1, , sensor_2, 20, sensor_3, 50");
+            tsFile.writeLine("device_1,13, sensor_1, 1.4, sensor_2, 21, sensor_3,");
+            tsFile.writeLine("device_1,14, sensor_1, , sensor_2, 20, sensor_3, 51");
+        }
+
+        System.out.println("file length:" + file.length());
+        tsFile.close();
     }
 }
 
