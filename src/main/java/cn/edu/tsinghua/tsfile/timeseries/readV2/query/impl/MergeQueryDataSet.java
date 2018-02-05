@@ -71,7 +71,7 @@ public class MergeQueryDataSet implements QueryDataSet {
 
         @Override
         public int compareTo(Point o) {
-            return timestamp - o.timestamp > 0 ? 1 : timestamp - o.timestamp < 0 ? -1 : 0;
+            return Long.compare(timestamp, o.timestamp);
         }
     }
 }

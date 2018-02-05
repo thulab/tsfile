@@ -71,5 +71,6 @@ public class TimestampGeneratorTest {
             Assert.assertEquals(startTimestamp, timestampGenerator.next());
             startTimestamp += 1;
         }
+        Assert.assertEquals(1480562618101L, startTimestamp);
     }
 }

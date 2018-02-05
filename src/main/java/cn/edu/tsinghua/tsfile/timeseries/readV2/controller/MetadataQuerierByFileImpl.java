@@ -79,7 +79,7 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
         try {
             return seriesChunkDescriptorCache.get(path);
         } catch (CacheException e) {
-            throw new IOException("Get SeriesChunkDescriptorList Error.", e);
+            throw new IOException(String.format("Get SeriesChunkDescriptorList for Path[%s] Error.", path), e);
         }
     }
 

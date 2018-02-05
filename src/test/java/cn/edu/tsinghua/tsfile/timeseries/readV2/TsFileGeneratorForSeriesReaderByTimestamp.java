@@ -40,6 +40,9 @@ public class TsFileGeneratorForSeriesReaderByTimestamp {
 
     public static final long START_TIMESTAMP = 1480562618000L;
 
+    private static int preRowGroupSize;
+    private static int prePageSize;
+
     public static void generateFile(int rc, int rs, int ps) throws IOException, InterruptedException, WriteProcessException {
         rowCount = rc;
         rowGroupSize = rs;
@@ -56,6 +59,8 @@ public class TsFileGeneratorForSeriesReaderByTimestamp {
     }
 
     public static void after() {
+        TSFileDescriptor.getInstance().getConfig().groupSizeInByte = preRowGroupSize;
+        TSFileDescriptor.getInstance().getConfig().maxNumberOfPointsInPage = prePageSize;
         File file = new File(inputDataFile);
         if (file.exists())
             file.delete();
@@ -122,6 +127,8 @@ public class TsFileGeneratorForSeriesReaderByTimestamp {
 
         //LOG.info(jsonSchema.toString());
         FileSchema schema = new FileSchema(jsonSchema);
+        preRowGroupSize = TSFileDescriptor.getInstance().getConfig().groupSizeInByte;
+        prePageSize = TSFileDescriptor.getInstance().getConfig().maxNumberOfPointsInPage;
         TSFileDescriptor.getInstance().getConfig().groupSizeInByte = rowGroupSize;
         TSFileDescriptor.getInstance().getConfig().maxNumberOfPointsInPage = pageSize;
         innerWriter = new TsFileWriter(file, schema, TSFileDescriptor.getInstance().getConfig());
