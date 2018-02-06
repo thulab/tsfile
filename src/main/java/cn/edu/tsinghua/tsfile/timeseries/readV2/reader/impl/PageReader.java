@@ -102,9 +102,7 @@ public class PageReader implements TimeValuePairReader {
                 return new TsBinary(valueDecoder.readBinary(valueInputStream));
             case ENUMS:
                 return new TsInt(valueDecoder.readInt(valueInputStream));
-            case INT96:
-            case FIXED_LEN_BYTE_ARRAY:
-            case BIGDECIMAL:
+            default:
                 break;
         }
         throw new UnSupportedDataTypeException("Unsupported data type :" + dataType);
