@@ -141,14 +141,14 @@ public class TsFileIOWriter {
 	 */
 	public void startRowGroup(long recordCount, String deltaObjectId) {
 		LOG.debug("start row group:{}", deltaObjectId);
-		currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, recordCount, 0, new ArrayList<>(), "");// FIXME
-																												// remove
-																												// deltaType
+		currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, recordCount, 0, new ArrayList<>(), "");
+																												
+																												
 	}
 	
 	public void startRowGroup(String deltaObjectId) {
 		LOG.debug("start row group:{}", deltaObjectId);
-		currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, 0, 0, new ArrayList<>(), "");// FIXME
+		currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, 0, 0, new ArrayList<>(), "");
 	}
 
 	/**
