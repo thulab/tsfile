@@ -46,6 +46,6 @@ public class TimeValuePair implements Serializable{
     }
 
     public int getSize() {
-        return 4 + 8 + value.getSize();
+        return 8 + 8 + value.getSize();
     }
 }
