@@ -53,10 +53,19 @@ public class TsFileIOWriter {
 		magicStringBytes = BytesUtils.StringToBytes(TSFileConfig.MAGIC_STRING);
 	}
 
-	private final ITsRandomAccessFileWriter out;
+	private ITsRandomAccessFileWriter out;
 	protected List<RowGroupMetaData> rowGroupMetaDatas = new ArrayList<>();
 	private RowGroupMetaData currentRowGroupMetaData;
 	private TimeSeriesChunkMetaData currentChunkMetaData;
+	
+	
+	public TsFileIOWriter(){
+		
+	}
+	
+	public void setIOWriter(ITsRandomAccessFileWriter out){
+		this.out = out;
+	}
 
 	/**
 	 * for writing a new tsfile.
@@ -132,9 +141,14 @@ public class TsFileIOWriter {
 	 */
 	public void startRowGroup(long recordCount, String deltaObjectId) {
 		LOG.debug("start row group:{}", deltaObjectId);
-		currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, recordCount, 0, new ArrayList<>(), "");// FIXME
-																												// remove
-																												// deltaType
+		currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, recordCount, 0, new ArrayList<>(), "");
+																												
+																												
+	}
+	
+	public void startRowGroup(String deltaObjectId) {
+		LOG.debug("start row group:{}", deltaObjectId);
+		currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, 0, 0, new ArrayList<>(), "");
 	}
 
 	/**
@@ -189,6 +203,14 @@ public class TsFileIOWriter {
 
 	public void endRowGroup(long memSize) {
 		currentRowGroupMetaData.setTotalByteSize(memSize);
+		rowGroupMetaDatas.add(currentRowGroupMetaData);
+		LOG.debug("end row group:{}", currentRowGroupMetaData);
+		currentRowGroupMetaData = null;
+	}
+	
+	public void endRowGroup(long memSize,long recordCount) {
+		currentRowGroupMetaData.setTotalByteSize(memSize);
+		currentRowGroupMetaData.setNumOfRows(recordCount);
 		rowGroupMetaDatas.add(currentRowGroupMetaData);
 		LOG.debug("end row group:{}", currentRowGroupMetaData);
 		currentRowGroupMetaData = null;

@@ -1,8 +1,13 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.series;
 
-import cn.edu.tsinghua.tsfile.common.utils.Pair;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
-import cn.edu.tsinghua.tsfile.timeseries.read.query.DynamicOneColumnData;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.NoMeasurementException;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
@@ -10,15 +15,6 @@ import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.page.IPageWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.page.PageWriterImpl;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * a implementation of IRowGroupWriter
@@ -53,20 +49,6 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
             point.write(time, dataSeriesWriters.get(measurementId));
 
         }
-    }
-
-    @Override
-    public List<Object> getDataInMemory(String measurementId) {
-        if (dataSeriesWriters.get(measurementId) == null) {
-            LOG.warn("The measurementId {} is not exist", measurementId);
-            DynamicOneColumnData left = null;
-            Pair<List<ByteArrayInputStream>, CompressionTypeName> right = null;
-            List<Object> result = new ArrayList<>();
-            result.add(left);
-            result.add(right);
-            return result;
-        }
-        return dataSeriesWriters.get(measurementId).query();
     }
 
     @Override

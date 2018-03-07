@@ -1,6 +1,5 @@
 package cn.edu.tsinghua.tsfile.common.utils;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -85,18 +84,5 @@ public class ListByteArrayOutputStream {
     public void reset() {
         list.clear();
         totalSize = 0;
-    }
-
-    /**
-     * transform all {@link PublicBAOS} to list of {@link ByteArrayInputStream}
-     *
-     * @return a list of {@link ByteArrayInputStream} contain all page data
-     */
-    public List<ByteArrayInputStream> transform() {
-        List<ByteArrayInputStream> ret = new ArrayList<>();
-        for (PublicBAOS baos : list) {
-            ret.add(baos.transformToInputStream());
-        }
-        return ret;
     }
 }

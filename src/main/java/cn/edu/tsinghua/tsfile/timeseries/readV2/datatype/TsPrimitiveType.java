@@ -1,11 +1,15 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.datatype;
 
+import cn.edu.tsinghua.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+
+import java.io.Serializable;
 
 /**
  * @author Jinrui Zhang
  */
-public abstract class TsPrimitiveType {
+public abstract class TsPrimitiveType implements Serializable {
     public boolean getBoolean() {
         throw new UnsupportedOperationException("getBoolean() is not supported for current sub-class");
     }
@@ -30,9 +34,16 @@ public abstract class TsPrimitiveType {
         throw new UnsupportedOperationException("getBinary() is not supported for current sub-class");
     }
 
+    /**
+     * @return size of one instance of current class
+     */
+    public abstract int getSize();
+
     public abstract Object getValue();
 
     public abstract String getStringValue();
+
+    public abstract TSDataType getDataType();
 
     public String toString() {
         return getStringValue();
@@ -56,6 +67,11 @@ public abstract class TsPrimitiveType {
         }
 
         @Override
+        public int getSize() {
+            return 4 + 1;
+        }
+
+        @Override
         public Object getValue() {
             return value;
         }
@@ -63,6 +79,11 @@ public abstract class TsPrimitiveType {
         @Override
         public String getStringValue() {
             return String.valueOf(value);
+        }
+
+        @Override
+        public TSDataType getDataType() {
+            return TSDataType.BOOLEAN;
         }
     }
 
@@ -78,6 +99,11 @@ public abstract class TsPrimitiveType {
         }
 
         @Override
+        public int getSize() {
+            return 4 + 4;
+        }
+
+        @Override
         public Object getValue() {
             return value;
         }
@@ -85,6 +111,11 @@ public abstract class TsPrimitiveType {
         @Override
         public String getStringValue() {
             return String.valueOf(value);
+        }
+
+        @Override
+        public TSDataType getDataType() {
+            return TSDataType.INT32;
         }
     }
 
@@ -100,8 +131,18 @@ public abstract class TsPrimitiveType {
         }
 
         @Override
+        public int getSize() {
+            return 4 + 8;
+        }
+
+        @Override
         public String getStringValue() {
             return String.valueOf(value);
+        }
+
+        @Override
+        public TSDataType getDataType() {
+            return TSDataType.INT64;
         }
 
         @Override
@@ -122,6 +163,11 @@ public abstract class TsPrimitiveType {
         }
 
         @Override
+        public int getSize() {
+            return 4 + 4;
+        }
+
+        @Override
         public Object getValue() {
             return value;
         }
@@ -129,6 +175,11 @@ public abstract class TsPrimitiveType {
         @Override
         public String getStringValue() {
             return String.valueOf(value);
+        }
+
+        @Override
+        public TSDataType getDataType() {
+            return TSDataType.FLOAT;
         }
     }
 
@@ -144,6 +195,11 @@ public abstract class TsPrimitiveType {
         }
 
         @Override
+        public int getSize() {
+            return 4 + 8;
+        }
+
+        @Override
         public Object getValue() {
             return value;
         }
@@ -151,6 +207,11 @@ public abstract class TsPrimitiveType {
         @Override
         public String getStringValue() {
             return String.valueOf(value);
+        }
+
+        @Override
+        public TSDataType getDataType() {
+            return TSDataType.DOUBLE;
         }
     }
 
@@ -166,6 +227,11 @@ public abstract class TsPrimitiveType {
         }
 
         @Override
+        public int getSize() {
+            return 4 + 4 + value.getLength();
+        }
+
+        @Override
         public Object getValue() {
             return value;
         }
@@ -173,6 +239,30 @@ public abstract class TsPrimitiveType {
         @Override
         public String getStringValue() {
             return String.valueOf(value);
+        }
+
+        @Override
+        public TSDataType getDataType() {
+            return TSDataType.TEXT;
+        }
+    }
+
+    public static TsPrimitiveType getByType(TSDataType dataType, Object v) {
+        switch (dataType) {
+            case BOOLEAN:
+                return new TsPrimitiveType.TsBoolean((boolean) v);
+            case INT32:
+                return new TsPrimitiveType.TsInt((int) v);
+            case INT64:
+                return new TsPrimitiveType.TsLong((long) v);
+            case FLOAT:
+                return new TsPrimitiveType.TsFloat((float) v);
+            case DOUBLE:
+                return new TsPrimitiveType.TsDouble((double) v);
+            case TEXT:
+                return new TsPrimitiveType.TsBinary((Binary) v);
+            default:
+                throw new UnSupportedDataTypeException("Unsupported data type:" + dataType);
         }
     }
 }

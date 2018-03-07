@@ -1,25 +1,19 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.series;
 
-import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
+import java.io.IOException;
+import java.math.BigDecimal;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
-import cn.edu.tsinghua.tsfile.common.utils.Pair;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
-import cn.edu.tsinghua.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.PageException;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.page.IPageWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A implementation of {@code ISeriesWriter}. {@code SeriesWriterImpl} consists
@@ -44,10 +38,6 @@ public class SeriesWriterImpl implements ISeriesWriter {
      */
     private ValueWriter dataValueWriter;
 
-    /**
-     * cache current page data
-     */
-    private DynamicOneColumnData cacheCurrentPageData;
     /**
      * value count on of a page. It will be reset after calling
      * {@code writePage()}
@@ -85,11 +75,6 @@ public class SeriesWriterImpl implements ISeriesWriter {
 
         this.dataValueWriter.setTimeEncoder(desc.getTimeEncoder());
         this.dataValueWriter.setValueEncoder(desc.getValueEncoder());
-        // cache page data
-        TSFileConfig config = TSFileDescriptor.getInstance().getConfig();
-        if (config.duplicateIncompletedPage) {
-            this.cacheCurrentPageData = new DynamicOneColumnData(desc.getType(), true);
-        }
     }
 
     private void resetPageStatistics() {
@@ -102,10 +87,6 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
-        if (cacheCurrentPageData != null) {
-            cacheCurrentPageData.putTime(time);
-            cacheCurrentPageData.putLong(value);
-        }
         if (minTimestamp == -1)
             minTimestamp = time;
         checkPageSize();
@@ -117,10 +98,6 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
-        if (cacheCurrentPageData != null) {
-            cacheCurrentPageData.putTime(time);
-            cacheCurrentPageData.putInt(value);
-        }
         if (minTimestamp == -1)
             minTimestamp = time;
         checkPageSize();
@@ -132,10 +109,6 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
-        if (cacheCurrentPageData != null) {
-            cacheCurrentPageData.putTime(time);
-            cacheCurrentPageData.putBoolean(value);
-        }
         if (minTimestamp == -1)
             minTimestamp = time;
         checkPageSize();
@@ -147,10 +120,6 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
-        if (cacheCurrentPageData != null) {
-            cacheCurrentPageData.putTime(time);
-            cacheCurrentPageData.putFloat(value);
-        }
         if (minTimestamp == -1)
             minTimestamp = time;
         checkPageSize();
@@ -162,10 +131,6 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
-        if (cacheCurrentPageData != null) {
-            cacheCurrentPageData.putTime(time);
-            cacheCurrentPageData.putDouble(value);
-        }
         if (minTimestamp == -1)
             minTimestamp = time;
         checkPageSize();
@@ -188,28 +153,9 @@ public class SeriesWriterImpl implements ISeriesWriter {
         ++valueCount;
         dataValueWriter.write(time, value);
         pageStatistics.updateStats(value);
-        if (cacheCurrentPageData != null) {
-            cacheCurrentPageData.putTime(time);
-            cacheCurrentPageData.putBinary(value);
-        }
         if (minTimestamp == -1)
             minTimestamp = time;
         checkPageSize();
-    }
-
-    @Override
-    public List<Object> query() {
-
-        Pair<List<ByteArrayInputStream>, CompressionTypeName> pagePairData = pageWriter.query();
-        DynamicOneColumnData ret;
-        ret = new DynamicOneColumnData(cacheCurrentPageData.dataType, true);
-
-        ret.mergeRecord(cacheCurrentPageData);
-        List<Object> result = new ArrayList<>();
-        result.add(ret);
-        result.add(pagePairData);
-
-        return result;
     }
 
     /**
@@ -225,7 +171,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
             long currentColumnSize = dataValueWriter.estimateMaxMemSize();
             if (currentColumnSize > psThres) {
                 // we will write the current page
-                LOG.info("enough size, write page {}", desc);
+                LOG.debug("enough size, write page {}", desc);
                 writePage();
             } else {
                 LOG.debug("{}:{} not enough size, now: {}, change to {}", deltaObjectId, desc, valueCount,
@@ -243,10 +189,6 @@ public class SeriesWriterImpl implements ISeriesWriter {
         try {
             pageWriter.writePage(dataValueWriter.getBytes(), valueCount, pageStatistics, time, minTimestamp);
             this.seriesStatistics.mergeStatistics(this.pageStatistics);
-            // clear current page data
-            if (cacheCurrentPageData != null) {
-                this.cacheCurrentPageData.clearData();
-            }
         } catch (IOException e) {
             LOG.error("meet error in dataValueWriter.getBytes(),ignore this page, {}", e.getMessage());
         } catch (PageException e) {

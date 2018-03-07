@@ -38,7 +38,6 @@ public class ReadPageInMemTest {
 	private int RowGroupSize;
 	private int pageCheckSizeThreshold;
 	private int defaultMaxStringLength;
-	private boolean cachePageData;
 	@Before
 	public void setUp() throws Exception {
 		file.delete();
@@ -50,8 +49,6 @@ public class ReadPageInMemTest {
 		conf.pageCheckSizeThreshold = 1;
 		defaultMaxStringLength = conf.maxStringLength;
 		conf.maxStringLength = 2;
-		cachePageData = conf.duplicateIncompletedPage;
-		conf.duplicateIncompletedPage = true;
 		fileSchema = new FileSchema(getJsonSchema());
 		innerWriter = new TsFileWriter(new File(filePath), fileSchema, conf);
 	}
@@ -63,7 +60,6 @@ public class ReadPageInMemTest {
 		conf.groupSizeInByte = RowGroupSize;
 		conf.pageCheckSizeThreshold = pageCheckSizeThreshold;
 		conf.maxStringLength = defaultMaxStringLength;
-		conf.duplicateIncompletedPage = cachePageData;
 	}
 
 	@Test
@@ -79,17 +75,6 @@ public class ReadPageInMemTest {
 				fail(e.getMessage());
 			}
 		}
-		List<Object> result = innerWriter.getDataInMemory("root.car.d1", "s1");
-		DynamicOneColumnData left = (DynamicOneColumnData) result.get(0);
-		Pair<List<ByteArrayInputStream>, CompressionTypeName> right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) result
-				.get(1);
-		assertEquals(0, right.left.size());
-		assertEquals(3, left.valueLength);
-		for (int i = 1; i <= 3; i++) {
-			DynamicOneColumnData columnData = (DynamicOneColumnData) innerWriter.getDataInMemory("root.car.d1", "s1").get(0);
-			assertEquals(i, columnData.getTime(i - 1));
-			assertEquals(1, columnData.getInt(i - 1));
-		}
 		for (int i = 4; i < 100; i++) {
 			line = "root.car.d1," + i + ",s1,1,s2,1,s3,0.1,s4,0.1";
 			TSRecord record = RecordUtils.parseSimpleTupleRecord(line, fileSchema);
@@ -100,24 +85,6 @@ public class ReadPageInMemTest {
 				fail(e.getMessage());
 			}
 		}
-
-		result = innerWriter.getDataInMemory("root.car.d1", "s1");
-		left = (DynamicOneColumnData) result.get(0);
-		right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) result.get(1);
-
-		DynamicOneColumnData left2 = (DynamicOneColumnData) innerWriter.getDataInMemory("root.car.d1", "s3").get(0);
-		Pair<List<ByteArrayInputStream>, CompressionTypeName> right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter
-				.getDataInMemory("root.car.d1", "s3").get(1);
-		assertEquals(right.left.size(), right2.left.size());
-
-		right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.getDataInMemory("root.car.d1", "s2").get(1);
-		right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.getDataInMemory("root.car.d1", "s4").get(1);
-		assertEquals(right.left.size(), right2.left.size());
-
-		assertEquals(null, innerWriter.getDataInMemory("root.car.d1", "s5").get(0));
-		assertEquals(null, innerWriter.getDataInMemory("root.car.d1", "s5").get(1));
-		assertEquals(null, innerWriter.getDataInMemory("root.car.d2", "s5").get(0));
-		assertEquals(null, innerWriter.getDataInMemory("root.car.d2", "s5").get(1));
 		try {
 			innerWriter.close();
 		} catch (IOException e) {
@@ -150,16 +117,6 @@ public class ReadPageInMemTest {
 				fail(e.getMessage());
 			}
 		}
-		for (int i = 1; i <= 3; i++) {
-			DynamicOneColumnData columnData = (DynamicOneColumnData) innerWriter.getDataInMemory("root.car.d1", "s1").get(0);
-			assertEquals(i, columnData.getTime(i - 1));
-			assertEquals(1, columnData.getInt(i - 1));
-		}
-		for (int i = 1; i <= 3; i++) {
-			DynamicOneColumnData columnData = (DynamicOneColumnData) innerWriter.getDataInMemory("root.car.d2", "s1").get(0);
-			assertEquals(i, columnData.getTime(i - 1));
-			assertEquals(1, columnData.getInt(i - 1));
-		}
 
 		for (int i = 4; i < 100; i++) {
 			line = "root.car.d1," + i + ",s1,1,s2,1,s3,0.1,s4,0.1";
@@ -182,45 +139,7 @@ public class ReadPageInMemTest {
 				fail(e.getMessage());
 			}
 		}
-		DynamicOneColumnData left = (DynamicOneColumnData) innerWriter.getDataInMemory("root.car.d1", "s1").get(0);
-		DynamicOneColumnData left2 = (DynamicOneColumnData) innerWriter.getDataInMemory("root.car.d2", "s1").get(0);
-		Pair<List<ByteArrayInputStream>, CompressionTypeName> right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter
-				.getDataInMemory("root.car.d1", "s1").get(1);
-		Pair<List<ByteArrayInputStream>, CompressionTypeName> right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter
-				.getDataInMemory("root.car.d2", "s1").get(1);
-		assertEquals(right.left.size(), right2.left.size());
-		assertEquals(left.valueLength, left2.valueLength);
 
-		right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.getDataInMemory("root.car.d1", "s2").get(1);
-		right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.getDataInMemory("root.car.d2", "s2").get(1);
-		assertEquals(right.left.size(), right2.left.size());
-
-		left = (DynamicOneColumnData) innerWriter.getDataInMemory("root.car.d1", "s2").get(0);
-		left2 = (DynamicOneColumnData) innerWriter.getDataInMemory("root.car.d2", "s2").get(0);
-		assertEquals(left.valueLength, left2.valueLength);
-
-		right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.getDataInMemory("root.car.d1", "s3").get(1);
-		right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.getDataInMemory("root.car.d2", "s3").get(1);
-		assertEquals(right.left.size(), right2.left.size());
-
-		left = (DynamicOneColumnData) innerWriter.getDataInMemory("root.car.d1", "s3").get(0);
-		left2 = (DynamicOneColumnData) innerWriter.getDataInMemory("root.car.d2", "s3").get(0);
-		assertEquals(left.valueLength, left2.valueLength);
-
-		right = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.getDataInMemory("root.car.d1", "s4").get(1);
-		right2 = (Pair<List<ByteArrayInputStream>, CompressionTypeName>) innerWriter.getDataInMemory("root.car.d2", "s4").get(1);
-
-		assertEquals(right.left.size(), right2.left.size());
-
-		left = (DynamicOneColumnData) innerWriter.getDataInMemory("root.car.d1", "s4").get(0);
-		left2 = (DynamicOneColumnData) innerWriter.getDataInMemory("root.car.d2", "s4").get(0);
-
-		assertEquals(left.valueLength, left2.valueLength);
-
-		assertEquals(null, innerWriter.getDataInMemory("root.car.d1", "s5").get(0));
-		assertEquals(null, innerWriter.getDataInMemory("root.car.d1", "s5").get(1));
-		assertEquals(null, innerWriter.getDataInMemory("root.car.d2", "s5").get(0));
-		assertEquals(null, innerWriter.getDataInMemory("root.car.d2", "s5").get(1));
 		innerWriter.close();
 	}
 

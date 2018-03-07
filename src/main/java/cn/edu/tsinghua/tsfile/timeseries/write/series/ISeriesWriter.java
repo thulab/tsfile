@@ -1,11 +1,10 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.series;
 
-import cn.edu.tsinghua.tsfile.common.utils.Binary;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
-
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.List;
+
+import cn.edu.tsinghua.tsfile.common.utils.Binary;
+import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 
 /**
  * ISeriesWriter provides a list of writing methods for different value types.
@@ -26,8 +25,6 @@ public interface ISeriesWriter {
     void write(long time, BigDecimal value) throws IOException;
 
     void write(long time, Binary value) throws IOException;
-
-    List<Object> query();
 
     void writeToFileWriter(TsFileIOWriter tsfileWriter) throws IOException;
 

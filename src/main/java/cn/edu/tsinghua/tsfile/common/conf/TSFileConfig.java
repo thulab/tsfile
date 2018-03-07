@@ -113,11 +113,6 @@ public class TSFileConfig {
     public static int currentVersion = 3;
 
     /**
-     * Query page data while writing tsfile
-     */
-    public boolean duplicateIncompletedPage = false;
-
-    /**
      * Default endian value is LITTLE_ENDIAN
      */
     public String endian = "LITTLE_ENDIAN";
