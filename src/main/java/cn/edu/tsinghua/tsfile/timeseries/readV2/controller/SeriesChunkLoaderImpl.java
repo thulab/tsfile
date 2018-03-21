@@ -6,6 +6,8 @@ import cn.edu.tsinghua.tsfile.performance.CostFramework;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.MemSeriesChunk;
 import cn.edu.tsinghua.tsfile.timeseries.utils.cache.LRUCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -14,6 +16,9 @@ import java.io.IOException;
  * Created by zhangjinrui on 2017/12/25.
  */
 public class SeriesChunkLoaderImpl implements SeriesChunkLoader {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SeriesChunkLoaderImpl.class);
+
     private static final int DEFAULT_MEMSERISCHUNK_CACHE_SIZE = 100;
     private ITsRandomAccessFileReader randomAccessFileReader;
     private LRUCache<EncodedSeriesChunkDescriptor, byte[]> seriesChunkBytesCache;
@@ -50,27 +55,24 @@ public class SeriesChunkLoaderImpl implements SeriesChunkLoader {
     }
 
     private byte[] load(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException {
-        if (CostFramework.turnOn) {
-            long startTime = System.currentTimeMillis();
-            int seriesChunkLength = (int) encodedSeriesChunkDescriptor.getLengthOfBytes();
-            byte[] buf = new byte[seriesChunkLength];
-            randomAccessFileReader.seek(encodedSeriesChunkDescriptor.getOffsetInFile());
-            int readLength = randomAccessFileReader.read(buf, 0, seriesChunkLength);
-            if (readLength != seriesChunkLength) {
-                throw new IOException("length of seriesChunk read from file is not right. Expected:" + seriesChunkLength + ". Actual: " + readLength);
-            }
-            CostFramework.getInstance().addCost("cn.edu.tsinghua.tsfile.timeseries.readV2.controller", "load",
-                    System.currentTimeMillis() - startTime);
-            return buf;
-        } else {
-            int seriesChunkLength = (int) encodedSeriesChunkDescriptor.getLengthOfBytes();
-            byte[] buf = new byte[seriesChunkLength];
-            randomAccessFileReader.seek(encodedSeriesChunkDescriptor.getOffsetInFile());
-            int readLength = randomAccessFileReader.read(buf, 0, seriesChunkLength);
-            if (readLength != seriesChunkLength) {
-                throw new IOException("length of seriesChunk read from file is not right. Expected:" + seriesChunkLength + ". Actual: " + readLength);
-            }
-            return buf;
+
+        long startTime = 0;
+        if (CostFramework.turnOn) startTime = System.currentTimeMillis();
+
+        int seriesChunkLength = (int) encodedSeriesChunkDescriptor.getLengthOfBytes();
+        byte[] buf = new byte[seriesChunkLength];
+        randomAccessFileReader.seek(encodedSeriesChunkDescriptor.getOffsetInFile());
+        int readLength = randomAccessFileReader.read(buf, 0, seriesChunkLength);
+        if (readLength != seriesChunkLength) {
+            throw new IOException("length of seriesChunk read from file is not right. Expected:" + seriesChunkLength + ". Actual: " + readLength);
         }
+
+        //LOGGER.info("time cost : " + (System.currentTimeMillis() - startTime));
+        if (CostFramework.turnOn) {
+            CostFramework.getInstance().addExecutingTime("cn.edu.tsinghua.tsfile.timeseries.readV2.controller", "load",
+                    System.currentTimeMillis() - startTime);
+            //CostFramework.getInstance().addInvokingTime("cn.edu.tsinghua.tsfile.timeseries.readV2.controller", "load");
+        }
+        return buf;
     }
 }

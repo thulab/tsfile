@@ -4,6 +4,7 @@ import cn.edu.tsinghua.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.performance.CostFramework;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType.*;
@@ -48,14 +49,24 @@ public class PageReader implements TimeValuePairReader {
 
     @Override
     public boolean hasNext() throws IOException {
+
         if (hasOneCachedTimeValuePair) {
             return true;
         }
+
+        long startTime = 0;
+        if (CostFramework.turnOn) startTime = System.currentTimeMillis();
         if (timeDecoder.hasNext(timestampInputStream) && valueDecoder.hasNext(valueInputStream)) {
             cacheOneTimeValuePair();
             this.hasOneCachedTimeValuePair = true;
+
+            if (CostFramework.turnOn) CostFramework.getInstance().addExecutingTime("cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl.PageReader",
+                    "hasNext", System.currentTimeMillis() - startTime);
             return true;
         }
+
+        if (CostFramework.turnOn) CostFramework.getInstance().addExecutingTime("cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl.PageReader",
+                "hasNext", System.currentTimeMillis() - startTime);
         return false;
     }
 
