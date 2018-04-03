@@ -90,7 +90,7 @@ public class LongRleDecoderTest {
 	@Test
 	public void testRleReadBigLong() throws IOException{
 		List<Long> list = new ArrayList<>();
-		for(long i = 7000000; i < 10000000;i++){
+		for(long i = 8000000; i < 8400000;i++){
 			list.add(i);
 		}
 		int width = ReadWriteStreamUtils.getLongMaxBitWidth(list);
