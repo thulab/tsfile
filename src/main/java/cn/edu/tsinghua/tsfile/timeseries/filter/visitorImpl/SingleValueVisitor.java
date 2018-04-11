@@ -168,4 +168,7 @@ public class SingleValueVisitor<V extends Comparable<V>> implements FilterVisito
         return true;
     }
 
+    public Interval getInterval() {
+        return this.interval;
+    }
 }
