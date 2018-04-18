@@ -26,7 +26,7 @@ public class RowGroupReader {
     protected Map<String, ValueReader> valueReaders = new HashMap<>();
     protected String deltaObjectUID;
 
-    private List<String> measurementIds;
+    protected List<String> measurementIds;
     private long totalByteSize;
 
     protected ITsRandomAccessFileReader raf;
