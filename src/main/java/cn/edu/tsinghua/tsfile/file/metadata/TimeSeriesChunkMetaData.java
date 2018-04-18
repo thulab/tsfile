@@ -53,6 +53,11 @@ public class TimeSeriesChunkMetaData
     private TInTimeSeriesChunkMetaData tInTimeSeriesChunkMetaData;
     private VInTimeSeriesChunkMetaData vInTimeSeriesChunkMetaData;
 
+    /**
+     * The time its belonging RowGroup is formed. Remain unset until being queried.
+     */
+    private long writtenTime;
+
     public TimeSeriesChunkMetaData() {
         properties = new TimeSeriesChunkProperties();
         jsonMetaData = new ArrayList<String>();
