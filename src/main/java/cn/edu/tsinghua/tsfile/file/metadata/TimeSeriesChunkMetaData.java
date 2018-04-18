@@ -227,4 +227,12 @@ public class TimeSeriesChunkMetaData
     public void setVInTimeSeriesChunkMetaData(VInTimeSeriesChunkMetaData vInTimeSeriesChunkMetaData) {
         this.vInTimeSeriesChunkMetaData = vInTimeSeriesChunkMetaData;
     }
+
+    public long getWrittenTime() {
+        return writtenTime;
+    }
+
+    public void setWrittenTime(long writtenTime) {
+        this.writtenTime = writtenTime;
+    }
 }
