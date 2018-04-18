@@ -43,22 +43,7 @@ public class RowGroupReader {
         this.totalByteSize = rowGroupMetaData.getTotalByteSize();
         this.raf = raf;
 
-        for (TimeSeriesChunkMetaData tscMetaData : rowGroupMetaData.getTimeSeriesChunkMetaDataList()) {
-            if (tscMetaData.getVInTimeSeriesChunkMetaData() != null) {
-                measurementIds.add(tscMetaData.getProperties().getMeasurementUID());
-                seriesDataTypeMap.put(tscMetaData.getProperties().getMeasurementUID(),
-                        tscMetaData.getVInTimeSeriesChunkMetaData().getDataType());
-
-                ValueReader si = new ValueReader(tscMetaData.getProperties().getFileOffset(),
-                        tscMetaData.getTotalByteSize(),
-                        tscMetaData.getVInTimeSeriesChunkMetaData().getDataType(),
-                        tscMetaData.getVInTimeSeriesChunkMetaData().getDigest(), this.raf,
-                        tscMetaData.getVInTimeSeriesChunkMetaData().getEnumValues(),
-                        tscMetaData.getProperties().getCompression(), tscMetaData.getNumRows(),
-                        tscMetaData.getTInTimeSeriesChunkMetaData().getStartTime(), tscMetaData.getTInTimeSeriesChunkMetaData().getEndTime());
-                valueReaders.put(tscMetaData.getProperties().getMeasurementUID(), si);
-            }
-        }
+        initValueReaders(rowGroupMetaData);
     }
 
     public List<Object> getTimeByRet(List<Object> timeRet, HashMap<Integer, Object> retMap) {
@@ -136,5 +121,24 @@ public class RowGroupReader {
 
     public void close() throws IOException {
         this.raf.close();
+    }
+
+    public void initValueReaders(RowGroupMetaData rowGroupMetaData) {
+        for (TimeSeriesChunkMetaData tscMetaData : rowGroupMetaData.getTimeSeriesChunkMetaDataList()) {
+            if (tscMetaData.getVInTimeSeriesChunkMetaData() != null) {
+                measurementIds.add(tscMetaData.getProperties().getMeasurementUID());
+                seriesDataTypeMap.put(tscMetaData.getProperties().getMeasurementUID(),
+                        tscMetaData.getVInTimeSeriesChunkMetaData().getDataType());
+
+                ValueReader si = new ValueReader(tscMetaData.getProperties().getFileOffset(),
+                        tscMetaData.getTotalByteSize(),
+                        tscMetaData.getVInTimeSeriesChunkMetaData().getDataType(),
+                        tscMetaData.getVInTimeSeriesChunkMetaData().getDigest(), this.raf,
+                        tscMetaData.getVInTimeSeriesChunkMetaData().getEnumValues(),
+                        tscMetaData.getProperties().getCompression(), tscMetaData.getNumRows(),
+                        tscMetaData.getTInTimeSeriesChunkMetaData().getStartTime(), tscMetaData.getTInTimeSeriesChunkMetaData().getEndTime());
+                valueReaders.put(tscMetaData.getProperties().getMeasurementUID(), si);
+            }
+        }
     }
 }
