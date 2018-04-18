@@ -54,9 +54,10 @@ public class TimeSeriesChunkMetaData
     private VInTimeSeriesChunkMetaData vInTimeSeriesChunkMetaData;
 
     /**
-     * The time its belonging RowGroup is formed. Remain unset until being queried.
+     * The maximum time of the tombstones that take effect on this chunk. Only data with larger timestamps than this
+     * should be exposed to user.
      */
-    private long writtenTime;
+    private long maxTombstoneTime;
 
     public TimeSeriesChunkMetaData() {
         properties = new TimeSeriesChunkProperties();
@@ -228,11 +229,11 @@ public class TimeSeriesChunkMetaData
         this.vInTimeSeriesChunkMetaData = vInTimeSeriesChunkMetaData;
     }
 
-    public long getWrittenTime() {
-        return writtenTime;
+    public long getMaxTombstoneTime() {
+        return maxTombstoneTime;
     }
 
-    public void setWrittenTime(long writtenTime) {
-        this.writtenTime = writtenTime;
+    public void setMaxTombstoneTime(long maxTombstoneTime) {
+        this.maxTombstoneTime = maxTombstoneTime;
     }
 }
