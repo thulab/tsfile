@@ -55,7 +55,7 @@ public class TestHelper {
     cn.edu.tsinghua.tsfile.format.RowGroupMetaData rowGroupMetaData =
         new cn.edu.tsinghua.tsfile.format.RowGroupMetaData(new ArrayList<>(),
             RowGroupMetaDataTest.DELTA_OBJECT_UID, RowGroupMetaDataTest.TOTAL_BYTE_SIZE,
-            RowGroupMetaDataTest.MAX_NUM_ROWS, RowGroupMetaDataTest.DELTA_OBJECT_TYPE);
+            RowGroupMetaDataTest.MAX_NUM_ROWS, RowGroupMetaDataTest.DELTA_OBJECT_TYPE, System.currentTimeMillis());
     rowGroupMetaData.setFile_path(RowGroupMetaDataTest.FILE_PATH);
     rowGroupMetaData.setTsc_metadata(new ArrayList<>());
     rowGroupMetaData.getTsc_metadata()
