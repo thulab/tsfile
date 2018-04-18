@@ -27,7 +27,7 @@ public class RowGroupReader {
     protected String deltaObjectUID;
 
     protected List<String> measurementIds;
-    private long totalByteSize;
+    protected long totalByteSize;
 
     protected ITsRandomAccessFileReader raf;
 
