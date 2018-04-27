@@ -22,7 +22,7 @@ public class SeriesChunkReaderByTimestampImpl extends SeriesChunkReader {
     public boolean pageSatisfied(PageHeader pageHeader) {
         long maxTimestamp = pageHeader.data_page_header.max_timestamp;
         //If minTimestamp > currentTimestamp, this page should NOT be skipped
-        if (maxTimestamp < currentTimestamp) {
+        if (maxTimestamp < currentTimestamp || maxTimestamp < getMaxTombstoneTime()) {
             return false;
         }
         return true;
@@ -30,7 +30,7 @@ public class SeriesChunkReaderByTimestampImpl extends SeriesChunkReader {
 
     @Override
     public boolean timeValuePairSatisfied(TimeValuePair timeValuePair) {
-        return true;
+        return timeValuePair.getTimestamp() > getMaxTombstoneTime();
     }
 
     public void setCurrentTimestamp(long currentTimestamp) {
