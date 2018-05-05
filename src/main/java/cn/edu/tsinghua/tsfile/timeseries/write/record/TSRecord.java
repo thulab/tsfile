@@ -21,6 +21,10 @@ public class TSRecord {
         this.deltaObjectId = deltaObjectId;
     }
 
+    public void setTime(long timestamp) {
+        this.time = timestamp;
+    }
+
     public void addTuple(DataPoint tuple) {
         this.dataPointList.add(tuple);
     }
