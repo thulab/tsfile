@@ -10,7 +10,7 @@ The example is to show how to write and read a TsFile File.
     <dependency>
         <groupId>cn.edu.tsinghua</groupId>
         <artifactId>tsfile</artifactId>
-     	  <version>0.5.0</version>
+     	  <version>0.6.0</version>
     </dependency>
 </dependencies>
 ```
