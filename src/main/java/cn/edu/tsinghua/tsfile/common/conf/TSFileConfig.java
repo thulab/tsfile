@@ -13,9 +13,9 @@ public class TSFileConfig {
      */
     public int groupSizeInByte = 128 * 1024 * 1024;
     /**
-     * The memory size for each series writer to pack page, default value is 1MB
+     * The memory size for each series writer to pack page, default value is 64KB
      */
-    public int pageSizeInByte = 1024 * 1024;
+    public int pageSizeInByte = 64 * 1024;
     /**
      * The maximum number of data points in a page, defalut value is 1024 * 1024
      */
