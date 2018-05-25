@@ -7,6 +7,7 @@ import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunk;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.SeriesReaderByTimeStamp;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * Created by zhangjinrui on 2017/12/26.
  */
-public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromSingleFile {
+public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromSingleFile implements SeriesReaderByTimeStamp {
 
     private long currentTimestamp;
     private boolean hasCacheLastTimeValuePair;
@@ -96,6 +97,10 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
             }
         }
         return null;
+    }
+
+    public void setCurrentTimestamp(long currentTimestamp) {
+        this.currentTimestamp = currentTimestamp;
     }
 
     @Override

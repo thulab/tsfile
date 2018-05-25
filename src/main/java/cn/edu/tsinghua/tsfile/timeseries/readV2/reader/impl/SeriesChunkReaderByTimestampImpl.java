@@ -4,13 +4,14 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.format.PageHeader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.SeriesReaderByTimeStamp;
 
 import java.io.InputStream;
 
 /**
  * Created by zhangjinrui on 2017/12/26.
  */
-public class SeriesChunkReaderByTimestampImpl extends SeriesChunkReader {
+public class SeriesChunkReaderByTimestampImpl extends SeriesChunkReader implements SeriesReaderByTimeStamp {
 
     private long currentTimestamp;
 
@@ -30,9 +31,10 @@ public class SeriesChunkReaderByTimestampImpl extends SeriesChunkReader {
 
     @Override
     public boolean timeValuePairSatisfied(TimeValuePair timeValuePair) {
-        return true;
+        return timeValuePair.getTimestamp() == currentTimestamp;
     }
 
+    @Override
     public void setCurrentTimestamp(long currentTimestamp) {
         this.currentTimestamp = currentTimestamp;
     }
