@@ -4,7 +4,7 @@ import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TsDeltaObject;
 import cn.edu.tsinghua.tsfile.file.metadata.TsFileMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TsRowGroupBlockMetaData;
+import cn.edu.tsinghua.tsfile.file.metadata.TsRowGroupsOfDeltaObjectMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.converter.TsFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
@@ -191,7 +191,7 @@ public class FileReader {
         if (deltaObj == null)
             return;
         // read metadata block and use its RowGroupMetadata list to construct RowGroupReaders
-        TsRowGroupBlockMetaData blockMeta = new TsRowGroupBlockMetaData();
+        TsRowGroupsOfDeltaObjectMetaData blockMeta = new TsRowGroupsOfDeltaObjectMetaData();
         blockMeta.convertToTSF(ReadWriteThriftFormatUtils.readRowGroupBlockMetaData(this.randomAccessFileReader,
                 deltaObj.offset, deltaObj.metadataBlockSize));
         initRowGroupReaders(blockMeta.getRowGroups());
@@ -315,7 +315,7 @@ public class FileReader {
             this.rwLock.writeLock().lock();
             try {
                 TsDeltaObject deltaObj = this.fileMetaData.getDeltaObject(deltaObjectID);
-                TsRowGroupBlockMetaData blockMeta = new TsRowGroupBlockMetaData();
+                TsRowGroupsOfDeltaObjectMetaData blockMeta = new TsRowGroupsOfDeltaObjectMetaData();
                 blockMeta.convertToTSF(ReadWriteThriftFormatUtils.readRowGroupBlockMetaData(this.randomAccessFileReader,
                         deltaObj.offset, deltaObj.metadataBlockSize));
                 rowGroupMetaDataList.addAll(blockMeta.getRowGroups());

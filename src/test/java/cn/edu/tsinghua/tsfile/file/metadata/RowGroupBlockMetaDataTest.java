@@ -34,7 +34,7 @@ public class RowGroupBlockMetaDataTest {
 
 	@Test
 	public void testWriteIntoFile() throws IOException {
-		TsRowGroupBlockMetaData metaData = new TsRowGroupBlockMetaData();
+		TsRowGroupsOfDeltaObjectMetaData metaData = new TsRowGroupsOfDeltaObjectMetaData();
 		metaData.addRowGroupMetaData(TestHelper.createSimpleRowGroupMetaDataInTSF());
 		metaData.addRowGroupMetaData(TestHelper.createSimpleRowGroupMetaDataInTSF());
 		metaData.setDeltaObjectID(DELTA_OBJECT_UID);
@@ -56,7 +56,7 @@ public class RowGroupBlockMetaDataTest {
 
 	@Test
 	public void testConvertToThrift() throws UnsupportedEncodingException {
-		TsRowGroupBlockMetaData metaData = new TsRowGroupBlockMetaData(null);
+		TsRowGroupsOfDeltaObjectMetaData metaData = new TsRowGroupsOfDeltaObjectMetaData(null);
 		metaData.setDeltaObjectID(DELTA_OBJECT_UID);
 		Utils.isRowGroupBlockMetadataEqual(metaData, metaData.convertToThrift());
 		metaData.setRowGroups(new ArrayList<>());
@@ -71,7 +71,7 @@ public class RowGroupBlockMetaDataTest {
 	public void testConvertToTSF() throws UnsupportedEncodingException {
 		RowGroupBlockMetaData metaDataInThrift = new RowGroupBlockMetaData(new ArrayList<>());
 		metaDataInThrift.setDelta_object_id(DELTA_OBJECT_UID);
-		TsRowGroupBlockMetaData metaDataInTSF = new TsRowGroupBlockMetaData();
+		TsRowGroupsOfDeltaObjectMetaData metaDataInTSF = new TsRowGroupsOfDeltaObjectMetaData();
 		metaDataInTSF.convertToTSF(metaDataInThrift);
 		Utils.isRowGroupBlockMetadataEqual(metaDataInTSF, metaDataInTSF.convertToThrift());
 

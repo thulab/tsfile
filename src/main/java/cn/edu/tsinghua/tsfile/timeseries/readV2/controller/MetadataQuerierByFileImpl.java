@@ -113,7 +113,7 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
 
     private List<RowGroupMetaData> loadRowGroupMetadata(String deltaObjectID) throws IOException {
         TsDeltaObject deltaObject = fileMetaData.getDeltaObject(deltaObjectID);
-        TsRowGroupBlockMetaData rowGroupBlockMetaData = new TsRowGroupBlockMetaData();
+        TsRowGroupsOfDeltaObjectMetaData rowGroupBlockMetaData = new TsRowGroupsOfDeltaObjectMetaData();
         rowGroupBlockMetaData.convertToTSF(ReadWriteThriftFormatUtils.readRowGroupBlockMetaData(this.randomAccessFileReader,
                 deltaObject.offset, deltaObject.metadataBlockSize));
         return rowGroupBlockMetaData.getRowGroups();

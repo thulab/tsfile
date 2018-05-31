@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.edu.tsinghua.tsfile.file.metadata.TsFileMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TsRowGroupBlockMetaData;
+import cn.edu.tsinghua.tsfile.file.metadata.TsRowGroupsOfDeltaObjectMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TInTimeSeriesChunkMetaData;
@@ -236,7 +236,7 @@ public class Utils {
 		}
 	}
 
-	public static void isRowGroupBlockMetadataEqual(TsRowGroupBlockMetaData rowGroupBlockMetaDataInTSF,
+	public static void isRowGroupBlockMetadataEqual(TsRowGroupsOfDeltaObjectMetaData rowGroupBlockMetaDataInTSF,
 			RowGroupBlockMetaData rowGroupBlockMetaDataInThrift) {
 		if (Utils.isTwoObjectsNotNULL(rowGroupBlockMetaDataInTSF, rowGroupBlockMetaDataInThrift,
 				"RowGroupBlockMetaData")) {

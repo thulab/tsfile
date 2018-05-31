@@ -53,7 +53,7 @@ public class RowGroupBlockMetadataBigTest {
 		for (int i = 0; i < deviceNum; i++) {
 			rowGroupMetaDatas.add(createSimpleRowGroupMetaDataInTSF());
 		}
-		TsRowGroupBlockMetaData metaData = new TsRowGroupBlockMetaData(rowGroupMetaDatas);
+		TsRowGroupsOfDeltaObjectMetaData metaData = new TsRowGroupsOfDeltaObjectMetaData(rowGroupMetaDatas);
 		metaData.setDeltaObjectID(DELTA_OBJECT_UID);
 		System.out.println("1: create Metadata " + (System.currentTimeMillis() - startTime)+"ms");
 

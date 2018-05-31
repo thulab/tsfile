@@ -6,7 +6,7 @@ import java.util.List;
 import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
 
-public class TsRowGroupBlockMetaData implements IConverter<RowGroupBlockMetaData>{
+public class TsRowGroupsOfDeltaObjectMetaData implements IConverter<RowGroupBlockMetaData>{
 	/**
      * Row groups in this file
      */
@@ -14,11 +14,11 @@ public class TsRowGroupBlockMetaData implements IConverter<RowGroupBlockMetaData
     
     private String deltaObjectID;
     
-    public TsRowGroupBlockMetaData(){
+    public TsRowGroupsOfDeltaObjectMetaData(){
     		rowGroupMetadataList = new ArrayList<>();
     }
     
-    public TsRowGroupBlockMetaData(List<RowGroupMetaData> rowGroupMetadataList){
+    public TsRowGroupsOfDeltaObjectMetaData(List<RowGroupMetaData> rowGroupMetadataList){
     		this.rowGroupMetadataList = rowGroupMetadataList;
     }
     

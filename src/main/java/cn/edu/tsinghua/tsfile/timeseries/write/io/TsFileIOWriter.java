@@ -26,7 +26,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesMetadata;
 import cn.edu.tsinghua.tsfile.file.metadata.TsDeltaObject;
 import cn.edu.tsinghua.tsfile.file.metadata.TsDigest;
 import cn.edu.tsinghua.tsfile.file.metadata.TsFileMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TsRowGroupBlockMetaData;
+import cn.edu.tsinghua.tsfile.file.metadata.TsRowGroupsOfDeltaObjectMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.converter.TsFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
@@ -232,19 +232,19 @@ public class TsFileIOWriter {
 
 		Map<String, TsDeltaObject> tsDeltaObjectMap = new HashMap<>();
 		String currentDeltaObject;
-		TsRowGroupBlockMetaData currentTsRowGroupBlockMetaData;
+		TsRowGroupsOfDeltaObjectMetaData currentTsRowGroupsOfDeltaObjectMetaData;
 
-		LinkedHashMap<String, TsRowGroupBlockMetaData> tsRowGroupBlockMetaDataMap = new LinkedHashMap<>();
+		LinkedHashMap<String, TsRowGroupsOfDeltaObjectMetaData> tsRowGroupBlockMetaDataMap = new LinkedHashMap<>();
 		for (RowGroupMetaData rowGroupMetaData : rowGroupMetaDatas) {
 			currentDeltaObject = rowGroupMetaData.getDeltaObjectID();
 			if (!tsRowGroupBlockMetaDataMap.containsKey(currentDeltaObject)) {
-				TsRowGroupBlockMetaData tsRowGroupBlockMetaData = new TsRowGroupBlockMetaData();
-				tsRowGroupBlockMetaData.setDeltaObjectID(currentDeltaObject);
-				tsRowGroupBlockMetaDataMap.put(currentDeltaObject, tsRowGroupBlockMetaData);
+				TsRowGroupsOfDeltaObjectMetaData tsRowGroupsOfDeltaObjectMetaData = new TsRowGroupsOfDeltaObjectMetaData();
+				tsRowGroupsOfDeltaObjectMetaData.setDeltaObjectID(currentDeltaObject);
+				tsRowGroupBlockMetaDataMap.put(currentDeltaObject, tsRowGroupsOfDeltaObjectMetaData);
 			}
 			tsRowGroupBlockMetaDataMap.get(currentDeltaObject).addRowGroupMetaData(rowGroupMetaData);
 		}
-		Iterator<Map.Entry<String, TsRowGroupBlockMetaData>> iterator = tsRowGroupBlockMetaDataMap.entrySet()
+		Iterator<Map.Entry<String, TsRowGroupsOfDeltaObjectMetaData>> iterator = tsRowGroupBlockMetaDataMap.entrySet()
 				.iterator();
 		long offset;
 		long offsetIndex;
@@ -261,11 +261,11 @@ public class TsFileIOWriter {
 			startTime = Long.MAX_VALUE;
 			endTime = Long.MIN_VALUE;
 
-			Map.Entry<String, TsRowGroupBlockMetaData> entry = iterator.next();
+			Map.Entry<String, TsRowGroupsOfDeltaObjectMetaData> entry = iterator.next();
 			currentDeltaObject = entry.getKey();
-			currentTsRowGroupBlockMetaData = entry.getValue();
+			currentTsRowGroupsOfDeltaObjectMetaData = entry.getValue();
 
-			for (RowGroupMetaData rowGroupMetaData : currentTsRowGroupBlockMetaData.getRowGroups()) {
+			for (RowGroupMetaData rowGroupMetaData : currentTsRowGroupsOfDeltaObjectMetaData.getRowGroups()) {
 				for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : rowGroupMetaData
 						.getTimeSeriesChunkMetaDataList()) {
 					startTime = Long.min(startTime,
@@ -275,7 +275,7 @@ public class TsFileIOWriter {
 			}
 			offsetIndex = out.getPos();
 			// flush tsRowGroupBlockMetaDatas in order
-			ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(currentTsRowGroupBlockMetaData.convertToThrift(),
+			ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(currentTsRowGroupsOfDeltaObjectMetaData.convertToThrift(),
 					out.getOutputStream());
 			offset = out.getPos();
 			TsDeltaObject tsDeltaObject = new TsDeltaObject(offsetIndex, (int) (offset - offsetIndex), startTime,

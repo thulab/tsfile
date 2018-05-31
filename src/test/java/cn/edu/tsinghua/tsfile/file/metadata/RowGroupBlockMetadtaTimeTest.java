@@ -11,7 +11,6 @@ import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 
 public class RowGroupBlockMetadtaTimeTest {
     private static int deviceNum = 20;
@@ -62,7 +61,7 @@ public class RowGroupBlockMetadtaTimeTest {
     public void test_multi_io(int delta_object_num) throws IOException {
         System.out.println("-------------Start Metadata multi_io test_object" + delta_object_num + "------------");
         long startTime = System.currentTimeMillis();
-        Map<String, TsRowGroupBlockMetaData> tsRowGroupBlockMetaDataMap = new HashMap<>();
+        Map<String, TsRowGroupsOfDeltaObjectMetaData> tsRowGroupBlockMetaDataMap = new HashMap<>();
         List<String> delta_object_list = new ArrayList<>();
         for (int i = 0; i < delta_object_num; i++) {
             delta_object_list.add("delta-" + i);
@@ -74,9 +73,9 @@ public class RowGroupBlockMetadtaTimeTest {
             for (int j = 0; j < deviceNum; j++) {
                 rowGroupMetaDatas.add(createSimpleRowGroupMetaDataInTSF(delta_object_id));
             }
-            TsRowGroupBlockMetaData tsRowGroupBlockMetaData = new TsRowGroupBlockMetaData(rowGroupMetaDatas);
-            tsRowGroupBlockMetaData.setDeltaObjectID(delta_object_id);
-            tsRowGroupBlockMetaDataMap.put(delta_object_id, tsRowGroupBlockMetaData);
+            TsRowGroupsOfDeltaObjectMetaData tsRowGroupsOfDeltaObjectMetaData = new TsRowGroupsOfDeltaObjectMetaData(rowGroupMetaDatas);
+            tsRowGroupsOfDeltaObjectMetaData.setDeltaObjectID(delta_object_id);
+            tsRowGroupBlockMetaDataMap.put(delta_object_id, tsRowGroupsOfDeltaObjectMetaData);
         }
 
         System.out.println("1: create Metadata " + (System.currentTimeMillis() - startTime)+"ms");
@@ -92,23 +91,23 @@ public class RowGroupBlockMetadtaTimeTest {
         long start;
         long end;
         String current_deltaobject;
-        TsRowGroupBlockMetaData current_tsRowGroupBlockMetaData;
+        TsRowGroupsOfDeltaObjectMetaData current_tsRowGroupsOfDeltaObjectMetaData;
         Long start_index = out.getPos();
-        Iterator<Map.Entry<String, TsRowGroupBlockMetaData>> iterator = tsRowGroupBlockMetaDataMap.entrySet().iterator();
+        Iterator<Map.Entry<String, TsRowGroupsOfDeltaObjectMetaData>> iterator = tsRowGroupBlockMetaDataMap.entrySet().iterator();
         while (iterator.hasNext()) {
             start = Long.MAX_VALUE;
             end = Long.MIN_VALUE;
-            Map.Entry<String, TsRowGroupBlockMetaData> entry = iterator.next();
+            Map.Entry<String, TsRowGroupsOfDeltaObjectMetaData> entry = iterator.next();
             current_deltaobject = entry.getKey();
-            current_tsRowGroupBlockMetaData = entry.getValue();
-			for (RowGroupMetaData rowGroupMetaData : current_tsRowGroupBlockMetaData.getRowGroups()) {
+            current_tsRowGroupsOfDeltaObjectMetaData = entry.getValue();
+			for (RowGroupMetaData rowGroupMetaData : current_tsRowGroupsOfDeltaObjectMetaData.getRowGroups()) {
 				for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : rowGroupMetaData.getTimeSeriesChunkMetaDataList()) {
 					start = Long.min(start, timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getStartTime());
 					end = Long.max(end, timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getEndTime());
 				}
 			}
             //flush tsRowGroupBlockMetaDatas in order
-            RowGroupBlockMetaData rowGroupBlockMetaData = current_tsRowGroupBlockMetaData.convertToThrift();
+            RowGroupBlockMetaData rowGroupBlockMetaData = current_tsRowGroupsOfDeltaObjectMetaData.convertToThrift();
             ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(rowGroupBlockMetaData, out.getOutputStream());
         }
         Long end_index = out.getPos();
@@ -128,8 +127,8 @@ public class RowGroupBlockMetadtaTimeTest {
                 rowGroupMetaDatas.add(createSimpleRowGroupMetaDataInTSF(delta_object_id));
             }
         }
-        TsRowGroupBlockMetaData tsRowGroupBlockMetaData = new TsRowGroupBlockMetaData(rowGroupMetaDatas);
-        tsRowGroupBlockMetaData.setDeltaObjectID(delta_object_id);
+        TsRowGroupsOfDeltaObjectMetaData tsRowGroupsOfDeltaObjectMetaData = new TsRowGroupsOfDeltaObjectMetaData(rowGroupMetaDatas);
+        tsRowGroupsOfDeltaObjectMetaData.setDeltaObjectID(delta_object_id);
         System.out.println("1: create Metadata " + (System.currentTimeMillis() - startTime)+"ms");
         File file = new File(PATH);
         if (file.exists())
@@ -137,10 +136,10 @@ public class RowGroupBlockMetadtaTimeTest {
         startTime = System.currentTimeMillis();
         TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
         String current_deltaobject;
-        TsRowGroupBlockMetaData current_tsRowGroupBlockMetaData;
+        TsRowGroupsOfDeltaObjectMetaData current_tsRowGroupsOfDeltaObjectMetaData;
         Long start_index = out.getPos();
         ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(
-                tsRowGroupBlockMetaData.convertToThrift(), out.getOutputStream()
+                tsRowGroupsOfDeltaObjectMetaData.convertToThrift(), out.getOutputStream()
         );
         Long end_index = out.getPos();
         out.close();
