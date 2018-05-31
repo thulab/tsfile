@@ -73,6 +73,7 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
      * @return If there is no TimeValuePair whose timestamp equals to given timestamp, then return null.
      * @throws IOException
      */
+    @Override
     public TsPrimitiveType getValueInTimestamp(long timestamp) throws IOException {
         if (hasCacheLastTimeValuePair) {
             if (cachedTimeValuePair.getTimestamp() == timestamp) {
@@ -97,10 +98,6 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
             }
         }
         return null;
-    }
-
-    public void setCurrentTimestamp(long currentTimestamp) {
-        this.currentTimestamp = currentTimestamp;
     }
 
     @Override
