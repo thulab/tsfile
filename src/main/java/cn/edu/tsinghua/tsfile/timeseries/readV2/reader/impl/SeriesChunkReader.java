@@ -26,8 +26,8 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
     private PageReader pageReader;
     private UnCompressor unCompressor;
     private Encoding defaultTimestampEncoding;
-    private boolean hasCachedTimeValuePair;
-    private TimeValuePair cachedTimeValuePair;
+    protected boolean hasCachedTimeValuePair;
+    protected TimeValuePair cachedTimeValuePair;
 
 
     public SeriesChunkReader(InputStream seriesChunkInputStream, TSDataType dataType, CompressionTypeName compressionTypeName) {

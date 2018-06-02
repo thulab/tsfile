@@ -16,11 +16,10 @@ import java.io.InputStream;
 public class SeriesChunkReaderByTimestampImpl extends SeriesChunkReader implements SeriesReaderByTimeStamp{
 
     private long currentTimestamp;
-    private boolean hasCachedTimeValuePair;
-    private TimeValuePair cachedTimeValuePair;
 
     public SeriesChunkReaderByTimestampImpl(InputStream seriesChunkInputStream, TSDataType dataType, CompressionTypeName compressionTypeName) {
         super(seriesChunkInputStream, dataType, compressionTypeName);
+        currentTimestamp = Long.MIN_VALUE;
     }
 
     @Override
@@ -35,11 +34,14 @@ public class SeriesChunkReaderByTimestampImpl extends SeriesChunkReader implemen
 
     @Override
     public boolean timeValuePairSatisfied(TimeValuePair timeValuePair) {
-        return true;
+        return timeValuePair.getTimestamp() >= currentTimestamp;
     }
     
     public void setCurrentTimestamp(long currentTimestamp) {
         this.currentTimestamp = currentTimestamp;
+        if(hasCachedTimeValuePair && cachedTimeValuePair.getTimestamp() < currentTimestamp){
+            hasCachedTimeValuePair = false;
+        }
     }
 
     @Override
