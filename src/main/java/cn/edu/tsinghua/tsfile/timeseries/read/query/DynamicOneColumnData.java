@@ -339,10 +339,10 @@ public class DynamicOneColumnData {
      */
     private void rangeCheck(int idx) {
         if (idx < 0) {
-            throw new IndexOutOfBoundsException("Index is negative: " + idx);
+            throw new IndexOutOfBoundsException("DynamicOneColumnData value range check, Index is negative: " + idx);
         }
         if (idx >= valueLength) {
-            throw new IndexOutOfBoundsException("Index : " + idx + ". Length : " + valueLength);
+            throw new IndexOutOfBoundsException("DynamicOneColumnData value range check, Index : " + idx + ". Length : " + valueLength);
         }
     }
 
@@ -352,19 +352,19 @@ public class DynamicOneColumnData {
      */
     private void rangeCheckForTime(int idx) {
         if (idx < 0) {
-            throw new IndexOutOfBoundsException("Index is negative: " + idx);
+            throw new IndexOutOfBoundsException("DynamicOneColumnData time range check, Index is negative: " + idx);
         }
         if (idx >= timeLength) {
-            throw new IndexOutOfBoundsException("Index : " + idx + ". Length : " + valueLength);
+            throw new IndexOutOfBoundsException("DynamicOneColumnData time range check, Index : " + idx + ". Length : " + timeLength);
         }
     }
 
     private void rangeCheckForEmptyTime(int idx) {
         if (idx < 0) {
-            throw new IndexOutOfBoundsException("Index is negative: " + idx);
+            throw new IndexOutOfBoundsException("DynamicOneColumnData empty time range check, Index is negative: " + idx);
         }
         if (idx >= emptyTimeLength) {
-            throw new IndexOutOfBoundsException("Index : " + idx + ". Length : " + valueLength);
+            throw new IndexOutOfBoundsException("DynamicOneColumnData empty time range check, Index : " + idx + ". Length : " + emptyTimeLength);
         }
     }
 
