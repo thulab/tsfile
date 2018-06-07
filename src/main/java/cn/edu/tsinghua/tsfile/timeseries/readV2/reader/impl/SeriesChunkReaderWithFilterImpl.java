@@ -33,7 +33,7 @@ public class SeriesChunkReaderWithFilterImpl extends SeriesChunkReader {
 
     @Override
     public boolean pageSatisfied(PageHeader pageHeader) {
-        if(pageHeader.data_page_header.max_timestamp < getMaxTombstoneTime())
+        if (pageHeader.data_page_header.max_timestamp < getMaxTombstoneTime())
             return false;
         DigestForFilter timeDigest = new DigestForFilter(pageHeader.data_page_header.getMin_timestamp(),
                 pageHeader.data_page_header.getMax_timestamp());
@@ -47,7 +47,7 @@ public class SeriesChunkReaderWithFilterImpl extends SeriesChunkReader {
 
     @Override
     public boolean timeValuePairSatisfied(TimeValuePair timeValuePair) {
-        if(timeValuePair.getTimestamp() < getMaxTombstoneTime())
+        if (timeValuePair.getTimestamp() < getMaxTombstoneTime())
             return false;
         return timeValuePairFilterVisitor.satisfy(timeValuePair, filter);
     }
