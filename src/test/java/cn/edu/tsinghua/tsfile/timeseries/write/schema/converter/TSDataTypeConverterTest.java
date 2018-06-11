@@ -20,38 +20,4 @@ public class TSDataTypeConverterTest {
     private String[] enum_values = {"a", "s", "2", "d"};
     private String enum_values_tring = "a" + JsonFormatConstant.ENUM_VALUES_SEPARATOR + "s" + JsonFormatConstant.ENUM_VALUES_SEPARATOR
             + "2" + JsonFormatConstant.ENUM_VALUES_SEPARATOR + "d";
-
-    @Test
-    public void testCheckParameterNoParameter() {
-        TSDataType type = TSDataType.BIGDECIMAL;
-        try {
-            assertEquals(null,
-                    TSDataTypeConverter.checkParameter(type, noExists, noExists));
-        } catch (Exception e) {
-            assertTrue(e instanceof MetadataArgsErrorException);
-        }
-    }
-
-    @Test
-    public void testCheckParameterRLE() {
-        TSDataType type = TSDataType.ENUMS;
-        String[] ret = null;
-        try {
-            ret =
-                    (String[]) TSDataTypeConverter.checkParameter(type, 
-                            JsonFormatConstant.ENUM_VALUES, enum_values_tring);
-        } catch (MetadataArgsErrorException e1) {
-            assertTrue(false);
-        }
-        for (int i = 0; i < ret.length; i++) {
-            assertEquals(enum_values[i], ret[i]);
-        }
-
-        try {
-            TSDataTypeConverter.checkParameter(type, JsonFormatConstant.MAX_POINT_NUMBER,
-                    errIntStr1);
-        } catch (Exception e) {
-            assertTrue(e instanceof MetadataArgsErrorException);
-        }
-    }
 }

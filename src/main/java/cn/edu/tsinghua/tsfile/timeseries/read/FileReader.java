@@ -2,17 +2,14 @@ package cn.edu.tsinghua.tsfile.timeseries.read;
 
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TsDeltaObject;
+import cn.edu.tsinghua.tsfile.file.metadata.TsDeltaObjectMetadata;
 import cn.edu.tsinghua.tsfile.file.metadata.TsFileMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TsRowGroupBlockMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.converter.TsFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -27,14 +24,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class FileReader {
     private static final Logger logger = LoggerFactory.getLogger(FileReader.class);
 
-    private static final int FOOTER_LENGTH = 4;
+    private static final int FOOTER_LENGTH = 36;
     private static final int MAGIC_LENGTH = TsFileIOWriter.magicStringBytes.length;
     private static final int LRU_LENGTH = 1000000;  // TODO: get this from a configuration
     /**
      * If the file has many rowgroups and series,
      * the storage of <code>fileMetaData</code> may be large.
      */
-    private TsFileMetaData fileMetaData;
+    private byte[] fileMetaData;
     private ITsRandomAccessFileReader randomAccessFileReader;
 
     private Map<String, List<RowGroupReader>> rowGroupReaderMap;
@@ -75,14 +72,14 @@ public class FileReader {
     private void init() throws IOException {
         long l = randomAccessFileReader.length();
         randomAccessFileReader.seek(l - MAGIC_LENGTH - FOOTER_LENGTH);
-        int fileMetaDataLength = randomAccessFileReader.readInt();
-        randomAccessFileReader.seek(l - MAGIC_LENGTH - FOOTER_LENGTH - fileMetaDataLength);
-        byte[] buf = new byte[fileMetaDataLength];
+//        int fileMetaDataLength = randomAccessFileReader.readInt();
+//        randomAccessFileReader.seek(l - MAGIC_LENGTH - FOOTER_LENGTH - fileMetaDataLength);
+        byte[] buf = new byte[FOOTER_LENGTH];
         randomAccessFileReader.read(buf, 0, buf.length);//FIXME  is this a potential bug?
 
-        ByteArrayInputStream bais = new ByteArrayInputStream(buf);
-        this.fileMetaData = new TsFileMetaDataConverter().toTsFileMetadata(ReadWriteThriftFormatUtils.readFileMetaData(bais));
-
+        this.fileMetaData = buf;
+//        ByteArrayInputStream bais = new ByteArrayInputStream(buf);
+//        this.fileMetaData = new TsFileMetaDataConverter().toTsFileMetadata(ReadWriteThriftFormatUtils.readFileMetaData(bais));
         rowGroupReaderMap = new HashMap<>();
     }
 
@@ -120,14 +117,6 @@ public class FileReader {
         return this.rowGroupReaderMap;
     }
 
-    public Map<String, String> getProps() {
-        return fileMetaData.getProps();
-    }
-
-    public String getProp(String key) {
-        return fileMetaData.getProp(key);
-    }
-
     /**
      * Get all readers that access every RowGroup belonging to deltaObjectUID within this file.
      * This method will try to init the readers if they are uninitialized(non-exist).
@@ -159,7 +148,7 @@ public class FileReader {
     }
 
     /* The below methods can be used to init RowGroupReaders of a given deltaObj
-        in different ways, in case of another refactoring. Current method is based on TsDeltaObject.
+        in different ways, in case of another refactoring. Current method is based on TsDeltaObjectMetadata.
     */
 
     /**
@@ -174,7 +163,7 @@ public class FileReader {
             return;
         this.rwLock.writeLock().lock();
         try {
-            TsDeltaObject deltaObj = this.fileMetaData.getDeltaObject(deltaObjUID);
+            TsDeltaObjectMetadata deltaObj = this.fileMetaData.getDeltaObject(deltaObjUID);
             initRowGroupReaders(deltaObj);
         } finally {
             this.rwLock.writeLock().unlock();
@@ -187,7 +176,7 @@ public class FileReader {
      * @param deltaObj TSDeltaObject that contains a list of RowGroupMetaData
      * @throws IOException
      */
-    private void initRowGroupReaders(TsDeltaObject deltaObj) throws IOException {
+    private void initRowGroupReaders(TsDeltaObjectMetadata deltaObj) throws IOException {
         if (deltaObj == null)
             return;
         // read metadata block and use its RowGroupMetadata list to construct RowGroupReaders
@@ -314,7 +303,7 @@ public class FileReader {
         for (String deltaObjectID : deltaObjects) {
             this.rwLock.writeLock().lock();
             try {
-                TsDeltaObject deltaObj = this.fileMetaData.getDeltaObject(deltaObjectID);
+                TsDeltaObjectMetadata deltaObj = this.fileMetaData.getDeltaObject(deltaObjectID);
                 TsRowGroupBlockMetaData blockMeta = new TsRowGroupBlockMetaData();
                 blockMeta.convertToTSF(ReadWriteThriftFormatUtils.readRowGroupBlockMetaData(this.randomAccessFileReader,
                         deltaObj.offset, deltaObj.metadataBlockSize));

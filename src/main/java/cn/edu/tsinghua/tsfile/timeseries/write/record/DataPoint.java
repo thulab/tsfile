@@ -56,12 +56,6 @@ public abstract class DataPoint {
             case TEXT:
                 dataPoint = new StringDataPoint(measurementId, new Binary(value));
                 break;
-            case BIGDECIMAL:
-                dataPoint = new BigDecimalDataPoint(measurementId, new BigDecimal(value));
-                break;
-            case ENUMS:
-                dataPoint = new EnumDataPoint(measurementId, Integer.valueOf(value));
-                break;
             default:
                 throw new UnSupportedDataTypeException("This data type is not supoort -" + dataType);
         }

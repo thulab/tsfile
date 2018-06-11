@@ -213,9 +213,6 @@ public class QueryDataSet {
             case TEXT:
                 f.setBinaryV(col.getBinary(idx));
                 break;
-            case ENUMS:
-                f.setBinaryV(col.getBinary(idx));
-                break;
             default:
                 throw new UnSupportedDataTypeException("UnSupported" + String.valueOf(col.dataType));
         }

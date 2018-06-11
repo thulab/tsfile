@@ -126,10 +126,6 @@ public class DynamicOneColumnData {
                 binaryRet = new ArrayList<>();
                 binaryRet.add(new Binary[VALUE_CAPACITY]);
                 break;
-            case ENUMS:
-                intRet = new ArrayList<>();
-                intRet.add(new int[VALUE_CAPACITY]);
-                break;
             default:
                 throw new UnSupportedDataTypeException(String.valueOf(dataType));
         }
@@ -205,11 +201,6 @@ public class DynamicOneColumnData {
                 }
                 break;
             case TEXT:
-                for (int i = 0; i < col.valueLength; i++) {
-                    putBinary(col.getBinary(i));
-                }
-                break;
-            case ENUMS:
                 for (int i = 0; i < col.valueLength; i++) {
                     putBinary(col.getBinary(i));
                 }
@@ -533,8 +524,6 @@ public class DynamicOneColumnData {
                 return String.valueOf(getDouble(idx));
             case TEXT:
                 return String.valueOf(getBinary(idx));
-            case ENUMS:
-                return String.valueOf(getBinary(idx));
             default:
                 throw new UnSupportedDataTypeException(String.valueOf(dataType));
         }
@@ -559,9 +548,6 @@ public class DynamicOneColumnData {
                 v = String.valueOf(getDouble(idx));
                 break;
             case TEXT:
-                v = String.valueOf(getBinary(idx));
-                break;
-            case ENUMS:
                 v = String.valueOf(getBinary(idx));
                 break;
             default:
@@ -593,9 +579,6 @@ public class DynamicOneColumnData {
                 putDouble(B.getDouble(idx));
                 break;
             case TEXT:
-                putBinary(B.getBinary(idx));
-                break;
-            case ENUMS:
                 putBinary(B.getBinary(idx));
                 break;
             default:
@@ -635,9 +618,6 @@ public class DynamicOneColumnData {
                         doubleRet.remove(valueArrayIdx);
                         break;
                     case TEXT:
-                        binaryRet.remove(valueArrayIdx);
-                        break;
-                    case ENUMS:
                         binaryRet.remove(valueArrayIdx);
                         break;
                     default:

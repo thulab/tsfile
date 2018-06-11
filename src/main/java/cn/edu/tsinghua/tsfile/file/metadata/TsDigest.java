@@ -10,70 +10,42 @@ import java.util.Map;
 /**
  * For more information, see Digest in cn.edu.thu.tsfile.format package
  */
-public class TsDigest implements IConverter<Digest> {
-	/**
-	 * Digest/statistics per row group and per page.
-	 */
-	public Map<String, ByteBuffer> statistics;
+public class TsDigest {
+    /**
+     * Digest/statistics per row group and per page.
+     */
+    private Map<String, ByteBuffer> statistics;
 
-	public TsDigest() {
-	}
+    public TsDigest() {
+    }
 
-	public TsDigest(Map<String, ByteBuffer> statistics) {
-		this.statistics = statistics;
-	}
-	
-	public void setStatistics(Map<String,ByteBuffer> statistics) {
-		this.statistics = statistics;
-	}
-	
-	public Map<String, ByteBuffer> getStatistics(){
-		return this.statistics;
-	}
-	
-	public void addStatistics(String key, ByteBuffer value) {
-		if(statistics == null) {
-			statistics = new HashMap<>();
-		}
-		statistics.put(key, value);
-	}
+    public TsDigest(Map<String, ByteBuffer> statistics) {
+        this.statistics = statistics;
+    }
 
-	@Override
-	public String toString() {
-		return statistics != null ? statistics.toString() : "";
-	}
+    public void setStatistics(Map<String, ByteBuffer> statistics) {
+        this.statistics = statistics;
+    }
 
-	@Override
-	public Digest convertToThrift() {
-		Digest digest = new Digest();
-		if (statistics != null) {
-			Map<String, ByteBuffer> statisticsInThrift = new HashMap<>();
-			for (String key : statistics.keySet()) {
-				statisticsInThrift.put(key, statistics.get(key));
-			}
-			digest.setStatistics(statisticsInThrift);
-		}
-		return digest;
-	}
+    public Map<String, ByteBuffer> getStatistics() {
+        return this.statistics;
+    }
 
-	@Override
-	public void convertToTSF(Digest digestInThrift) {
-		if (digestInThrift != null) {
-			Map<String, ByteBuffer> statisticsInThrift = digestInThrift.getStatistics();
-			if (statisticsInThrift != null) {
-				statistics = new HashMap<>();
-				for (String key : statisticsInThrift.keySet()) {
-					statistics.put(key, byteBufferDeepCopy(statisticsInThrift.get(key)));
-				}
-			} else {
-				statistics = null;
-			}
-		}
-	}
+    public void addStatistics(String key, ByteBuffer value) {
+        if (statistics == null) {
+            statistics = new HashMap<>();
+        }
+        statistics.put(key, value);
+    }
 
-	public ByteBuffer byteBufferDeepCopy(ByteBuffer src) {
-		ByteBuffer copy = ByteBuffer.allocate(src.remaining()).put(src.slice());
-		copy.flip();
-		return copy;
-	}
+    @Override
+    public String toString() {
+        return statistics != null ? statistics.toString() : "";
+    }
+
+    public ByteBuffer byteBufferDeepCopy(ByteBuffer src) {
+        ByteBuffer copy = ByteBuffer.allocate(src.remaining()).put(src.slice());
+        copy.flip();
+        return copy;
+    }
 }

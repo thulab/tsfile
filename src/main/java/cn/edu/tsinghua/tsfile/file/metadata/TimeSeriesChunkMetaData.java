@@ -1,170 +1,71 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
-import cn.edu.tsinghua.tsfile.format.CompressionType;
-import cn.edu.tsinghua.tsfile.format.TimeSeriesChunkType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * For more information, see TimeSeriesChunkMetaData in cn.edu.thu.tsfile.format package
  */
-public class TimeSeriesChunkMetaData
-        implements IConverter<cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData> {
+public class TimeSeriesChunkMetaData {
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeSeriesChunkMetaData.class);
 
-    private TimeSeriesChunkProperties properties;
+    private String measurementUID;
 
-    private long numRows;
+    /**
+     * Byte offset of the corresponding data in the file
+     */
+    private long fileOffset;
+
+    /**
+     * Byte offset of timseries chunk metadata in the file
+     * Each timeseries chunk metadata has fixed length: 68 bytes.
+     */
+    private long tsDigestOffset;
+
+    private CompressionTypeName compression;
+
+    private long numOfPoints;
 
     /**
      * total byte size of all uncompressed pages in this time series chunk (including the headers)
      */
     private long totalByteSize;
 
-    /**
-     * Optional json metadata
-     */
-    private List<String> jsonMetaData;
+    private long startTime;
 
-    /**
-     * Byte offset from beginning of file to first data page
-     */
-    private long dataPageOffset;
+    private long endTime;
 
-    /**
-     * Byte offset from beginning of file to root index page
-     */
-    private long indexPageOffset;
+    private TSDataType dataType;
 
-    /**
-     * Byte offset from the beginning of file to first (only) dictionary page
-     */
-    private long dictionaryPageOffset;
-
-    /**
-     * one of TSeriesMetaData and VSeriesMetaData is not null
-     */
-    private TInTimeSeriesChunkMetaData tInTimeSeriesChunkMetaData;
-    private VInTimeSeriesChunkMetaData vInTimeSeriesChunkMetaData;
+    private TsDigest valuesStatistics;
 
     public TimeSeriesChunkMetaData() {
-        properties = new TimeSeriesChunkProperties();
-        jsonMetaData = new ArrayList<String>();
     }
 
-    public TimeSeriesChunkMetaData(String measurementUID, TSChunkType tsChunkGroup, long fileOffset,
-                                   CompressionTypeName compression) {
+    public TimeSeriesChunkMetaData(String measurementUID, long fileOffset, CompressionTypeName compression,
+                                   TSDataType dataType, long startTime, long endTime) {
         this();
-        this.properties = new TimeSeriesChunkProperties(measurementUID, tsChunkGroup, fileOffset, compression);
-    }
-
-    public TimeSeriesChunkProperties getProperties() {
-        return properties;
-    }
-
-    public void setProperties(TimeSeriesChunkProperties properties) {
-        this.properties = properties;
-    }
-
-    @Override
-    public cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData convertToThrift() {
-        try {
-            cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData metadataInThrift = initTimeSeriesChunkMetaDataInThrift();
-            if (tInTimeSeriesChunkMetaData != null) {
-                metadataInThrift.setTime_tsc(tInTimeSeriesChunkMetaData.convertToThrift());
-            }
-            if (vInTimeSeriesChunkMetaData != null) {
-                metadataInThrift.setValue_tsc(vInTimeSeriesChunkMetaData.convertToThrift());
-            }
-            return metadataInThrift;
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file TimeSeriesChunkMetaData: failed to convert TimeSeriesChunkMetaData from TSFile to thrift, content is {}",
-                        this, e);
-        }
-        return null;
-    }
-
-    @Override
-    public void convertToTSF(cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData metadataInThrift) {
-        try {
-            initTimeSeriesChunkMetaDataInTSFile(metadataInThrift);
-            if (metadataInThrift.getTime_tsc() == null) {
-                tInTimeSeriesChunkMetaData = null;
-            } else {
-                if (tInTimeSeriesChunkMetaData == null) {
-                    tInTimeSeriesChunkMetaData = new TInTimeSeriesChunkMetaData();
-                }
-                tInTimeSeriesChunkMetaData.convertToTSF(metadataInThrift.getTime_tsc());
-            }
-            if (metadataInThrift.getValue_tsc() == null) {
-                vInTimeSeriesChunkMetaData = null;
-            } else {
-                if (vInTimeSeriesChunkMetaData == null) {
-                    vInTimeSeriesChunkMetaData = new VInTimeSeriesChunkMetaData();
-                }
-                vInTimeSeriesChunkMetaData.convertToTSF(metadataInThrift.getValue_tsc());
-            }
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file TimeSeriesChunkMetaData: failed to convert TimeSeriesChunkMetaData from thrift to TSFile, content is {}",
-                        metadataInThrift, e);
-        }
-    }
-
-    private cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData initTimeSeriesChunkMetaDataInThrift() {
-        cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData metadataInThrift =
-                new cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData(
-                        properties.getMeasurementUID(),
-                        properties.getTsChunkType() == null ? null : TimeSeriesChunkType.valueOf(properties.getTsChunkType().toString()),
-                        properties.getFileOffset(),
-                        properties.getCompression() == null ? null : CompressionType.valueOf(properties.getCompression().toString()));
-        metadataInThrift.setNum_rows(numRows);
-        metadataInThrift.setTotal_byte_size(totalByteSize);
-        metadataInThrift.setJson_metadata(jsonMetaData);
-        metadataInThrift.setData_page_offset(dataPageOffset);
-        metadataInThrift.setIndex_page_offset(indexPageOffset);
-        metadataInThrift.setDictionary_page_offset(dictionaryPageOffset);
-        return metadataInThrift;
-    }
-
-    private void initTimeSeriesChunkMetaDataInTSFile(
-            cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData metadataInThrift) {
-        properties = new TimeSeriesChunkProperties(
-                metadataInThrift.getMeasurement_uid(),
-                metadataInThrift.getTimeseries_chunk_type() == null ? null : TSChunkType.valueOf(metadataInThrift.getTimeseries_chunk_type().toString()),
-                metadataInThrift.getFile_offset(),
-                metadataInThrift.getCompression_type() == null ? null : CompressionTypeName.valueOf(metadataInThrift.getCompression_type().toString()));
-        numRows = metadataInThrift.getNum_rows();
-        totalByteSize = metadataInThrift.getTotal_byte_size();
-        jsonMetaData = metadataInThrift.getJson_metadata();
-        dataPageOffset = metadataInThrift.getData_page_offset();
-        indexPageOffset = metadataInThrift.getIndex_page_offset();
-        dictionaryPageOffset = metadataInThrift.getDictionary_page_offset();
+        this.measurementUID = measurementUID;
+        this.fileOffset = fileOffset;
+        this.compression = compression;
+        this.dataType = dataType;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
     @Override
     public String toString() {
-        return String.format(
-                "TimeSeriesChunkProperties %s, numRows %d, totalByteSize %d, jsonMetaData %s, dataPageOffset %d, indexPageOffset %d, dictionaryPageOffset %s",
-                properties, numRows, totalByteSize, jsonMetaData, dataPageOffset, indexPageOffset,
-                dictionaryPageOffset);
+        return String.format("numPoints %d, totalByteSize %d", numOfPoints, totalByteSize);
     }
 
-    public long getNumRows() {
-        return numRows;
+    public long getNumOfPoints() {
+        return numOfPoints;
     }
 
-    public void setNumRows(long numRows) {
-        this.numRows = numRows;
+    public void setNumOfPoints(long numRows) {
+        this.numOfPoints = numRows;
     }
 
     public long getTotalByteSize() {
@@ -175,51 +76,56 @@ public class TimeSeriesChunkMetaData
         this.totalByteSize = totalByteSize;
     }
 
-    public List<String> getJsonMetaData() {
-        return jsonMetaData;
+    public long getFileOffset() {
+        return fileOffset;
     }
 
-    public void setJsonMetaData(List<String> jsonMetaData) {
-        this.jsonMetaData = jsonMetaData;
+    public CompressionTypeName getCompression() {
+        return compression;
     }
 
-    public long getDataPageOffset() {
-        return dataPageOffset;
+    public String getMeasurementUID() {
+        return measurementUID;
     }
 
-    public void setDataPageOffset(long dataPageOffset) {
-        this.dataPageOffset = dataPageOffset;
+    public TSDataType getDataType() {
+        return dataType;
     }
 
-    public long getIndexPageOffset() {
-        return indexPageOffset;
+    public void setDataType(TSDataType dataType) {
+
+        this.dataType = dataType;
     }
 
-    public void setIndexPageOffset(long indexPageOffset) {
-        this.indexPageOffset = indexPageOffset;
+    public TsDigest getDigest() {
+        return valuesStatistics;
     }
 
-    public long getDictionaryPageOffset() {
-        return dictionaryPageOffset;
+    public void setDigest(TsDigest digest) {
+        this.valuesStatistics = digest;
     }
 
-    public void setDictionaryPageOffset(long dictionaryPageOffset) {
-        this.dictionaryPageOffset = dictionaryPageOffset;
+    public long getStartTime() {
+        return startTime;
     }
 
-    public TInTimeSeriesChunkMetaData getTInTimeSeriesChunkMetaData() {
-        return tInTimeSeriesChunkMetaData;
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
     }
 
-    public void setTInTimeSeriesChunkMetaData(TInTimeSeriesChunkMetaData tInTimeSeriesChunkMetaData) {
-        this.tInTimeSeriesChunkMetaData = tInTimeSeriesChunkMetaData;
+    public long getEndTime() {
+        return endTime;
     }
 
-    public VInTimeSeriesChunkMetaData getVInTimeSeriesChunkMetaData() {
-        return vInTimeSeriesChunkMetaData;
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
     }
 
-    public void setVInTimeSeriesChunkMetaData(VInTimeSeriesChunkMetaData vInTimeSeriesChunkMetaData) {
-        this.vInTimeSeriesChunkMetaData = vInTimeSeriesChunkMetaData;
+    public long getTsDigestOffset() {
+        return tsDigestOffset;
+    }
+
+    public void setTsDigestOffset(long tsDigestOffset) {
+        this.tsDigestOffset = tsDigestOffset;
     }
 }

@@ -231,7 +231,7 @@ public class TsFileWriter {
       long totalMemStart = deltaFileWriter.getPos();
       for (String deltaObjectId : groupWriters.keySet()) {
         long memSize = deltaFileWriter.getPos();
-        deltaFileWriter.startRowGroup(recordCount, deltaObjectId);
+        deltaFileWriter.startRowGroup(deltaObjectId);
         IRowGroupWriter groupWriter = groupWriters.get(deltaObjectId);
         groupWriter.flushToFileWriter(deltaFileWriter);
         deltaFileWriter.endRowGroup(deltaFileWriter.getPos() - memSize);
