@@ -3,18 +3,48 @@ package cn.edu.tsinghua.tsfile.timeseries.read.query;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Field;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.RowRecord;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author qmm
  */
 public class SegmentQueryDataSet extends QueryDataSet {
+    private static final Logger logger = LoggerFactory.getLogger(SegmentQueryDataSet.class);
     private String[] keys;
+    private LinkedHashMap<String, Boolean> hasMoreRet = new LinkedHashMap<>();
+    private long x = 0;
 
     public SegmentQueryDataSet() {
         super();
+    }
+
+    public SegmentQueryDataSet(List<Path> paths) throws IOException {
+        for (Path p : paths) {
+            DynamicOneColumnData res = getMoreRecordsForOneColumn(p, null);
+
+            if (res == null) {
+                mapRet.put(p.getFullPath(), new DynamicOneColumnData(TSDataType.FLOAT, true, true));
+            } else {
+                mapRet.put(p.getFullPath(), res);
+            }
+
+            if (res == null || res.valueLength == 0) {
+                hasMoreRet.put(p.getFullPath(), false);
+            } else {
+                hasMoreRet.put(p.getFullPath(), true);
+            }
+        }
+    }
+
+    public DynamicOneColumnData getMoreRecordsForOneColumn(Path colName, DynamicOneColumnData res) throws IOException {
+        return null;
     }
 
     @Override
@@ -87,6 +117,20 @@ public class SegmentQueryDataSet extends QueryDataSet {
             record.addField(endTime);
             record.addField(result);
             cols[i].curIdx++;
+
+            if (cols[i].curIdx >= cols[i].timeLength) {
+                if (hasMoreRet.containsKey(keys[i]) && hasMoreRet.get(keys[i])) {
+                    cols[i].clearData();
+                    try {
+                        cols[i] = getMoreRecordsForOneColumn(new Path(keys[i]), cols[i]);
+                    } catch (Exception e) {
+                        logger.error("", e);
+                    }
+                    if (cols[i].timeLength == 0) {
+                        hasMoreRet.put(keys[i], false);
+                    }
+                }
+            }
 
             return record;
         }
