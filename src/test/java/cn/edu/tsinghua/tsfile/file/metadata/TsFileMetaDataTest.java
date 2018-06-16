@@ -28,7 +28,7 @@ public class TsFileMetaDataTest {
   final int VERSION = 123;
 
   public static Map<String, String> properties = new HashMap<>();
-  public static Map<String, TsDeltaObject> tsDeltaObjectMap = new HashMap<>();
+  public static Map<String, TsDeltaObjectMetadata> tsDeltaObjectMap = new HashMap<>();
   public static Map<String, DeltaObject> deltaObjectMap = new HashMap<>();
   static {
       properties.put("s1", "sensor1");
@@ -37,9 +37,9 @@ public class TsFileMetaDataTest {
   }
   
   static {
-	  tsDeltaObjectMap.put("d1", new TsDeltaObject(123, 456, 789, 901));
-	  tsDeltaObjectMap.put("d2", new TsDeltaObject(123, 456, 789, 901));
-	  tsDeltaObjectMap.put("d3", new TsDeltaObject(123, 456, 789, 901));
+	  tsDeltaObjectMap.put("d1", new TsDeltaObjectMetadata(123, 456, 789, 901));
+	  tsDeltaObjectMap.put("d2", new TsDeltaObjectMetadata(123, 456, 789, 901));
+	  tsDeltaObjectMap.put("d3", new TsDeltaObjectMetadata(123, 456, 789, 901));
   }
   
   static {

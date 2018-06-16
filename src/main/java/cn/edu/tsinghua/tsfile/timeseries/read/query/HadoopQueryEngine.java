@@ -39,7 +39,7 @@ public class HadoopQueryEngine extends QueryEngine {
         Set<String> sensorIdSet = new HashSet<>();
         for(RowGroupMetaData rowGroupMetaData : rowGroupMetaDataList) {
             for(TimeSeriesChunkMetaData timeSeriesChunkMetaData : rowGroupMetaData.getTimeSeriesChunkMetaDataList()){
-                sensorIdSet.add(timeSeriesChunkMetaData.getProperties().getMeasurementUID());
+                sensorIdSet.add(timeSeriesChunkMetaData.getMeasurementUID());
             }
         }
         return new ArrayList<>(sensorIdSet);

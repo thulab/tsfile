@@ -19,5 +19,7 @@ public interface ITsRandomAccessFileReader {
 
     int readInt() throws IOException;
 
+    long readLong() throws IOException;
+
     void close() throws IOException;
 }

@@ -2,13 +2,11 @@ package cn.edu.tsinghua.tsfile.timeseries.write.schema.converter;
 
 import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.tsinghua.tsfile.common.exception.metadata.MetadataArgsErrorException;
-import cn.edu.tsinghua.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.utils.TSFileEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,43 +23,6 @@ public abstract class TSDataTypeConverter {
     private static final Logger LOG = LoggerFactory.getLogger(TSDataTypeConverter.class);
 
     /**
-     * A static method to check the input parameter. If it's legal, return this parameter in its
-     * appropriate class type.
-     *
-     * @param type  - data type
-     * @param pmKey - argument key in JSON object key-value pair
-     * @param value - argument value in JSON object key-value pair in type of String
-     * @return - argument value in JSON object key-value pair in its suitable type
-     * @throws MetadataArgsErrorException throw exception when metadata has wrong args
-     */
-    public static Object checkParameter(TSDataType type, String pmKey, String value)
-            throws MetadataArgsErrorException {
-        switch (type) {
-            case ENUMS:
-                return (new ENUMS()).checkParameter(pmKey, value);
-            default:
-                throw new MetadataArgsErrorException("don't need args:{}" + pmKey);
-        }
-    }
-
-    /**
-     * Up to now, TSDataTypeConverter has only Enum converter
-     *
-     * @param type data type of TsFile
-     * @return Converter to convert data type
-     * @since version 0.1.0
-     */
-    public static TSDataTypeConverter getConverter(TSDataType type) {
-        switch (type) {
-            case ENUMS:
-                return new ENUMS();
-            default:
-                LOG.error("UnsupportedDataTypeException:{}", type);
-                throw new UnsupportedOperationException();
-        }
-    }
-
-    /**
      * for ENUMS, JSON is a method of the initialization. Each ENUMS in json-format schema should
      * have data value parameters. initFromProps gets values from JSON object which would be
      * used latter. If this type has extra parameter to construct, override it.
@@ -69,15 +30,6 @@ public abstract class TSDataTypeConverter {
      * @param props - properties which contains information DataTypeConverter needs
      */
     public void initFromProps(Map<String, String> props) {
-    }
-
-    /**
-     * based on visit pattern to provide unified parameter type in interface. write data values to
-     * VseriesMetaData
-     *
-     * @param v - VInTimeSeriesChunkMetaData to be set data
-     */
-    public void setDataValues(VInTimeSeriesChunkMetaData v) {
     }
 
     /**
@@ -126,14 +78,6 @@ public abstract class TSDataTypeConverter {
             tsfileEnum = new TSFileEnum();
             for (String value : values) {
                 tsfileEnum.addTSFileEnum(value);
-            }
-        }
-
-        @Override
-        public void setDataValues(VInTimeSeriesChunkMetaData v) {
-            if (tsfileEnum != null) {
-                List<String> dataValues = tsfileEnum.getEnumDataValues();
-                v.setEnumValues(dataValues);
             }
         }
 

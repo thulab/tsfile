@@ -55,6 +55,11 @@ public class TsRandomAccessLocalFileReader implements ITsRandomAccessFileReader 
   }
 
   @Override
+  public long readLong() throws IOException {
+    return raf.readLong();
+  }
+
+  @Override
   public void close() throws IOException {
     raf.close();
   }

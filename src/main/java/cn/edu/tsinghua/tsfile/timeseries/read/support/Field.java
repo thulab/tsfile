@@ -100,8 +100,6 @@ public class Field {
                 return String.valueOf(doubleV);
             case TEXT:
                 return binaryV.toString();
-            case ENUMS:
-                return binaryV.toString();
             default:
                 throw new UnSupportedDataTypeException(String.valueOf(dataType));
         }

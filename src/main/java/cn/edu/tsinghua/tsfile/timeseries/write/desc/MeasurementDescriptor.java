@@ -6,7 +6,6 @@ import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.tsinghua.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.tsinghua.tsfile.compress.Compressor;
 import cn.edu.tsinghua.tsfile.encoding.encoder.Encoder;
-import cn.edu.tsinghua.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
@@ -51,11 +50,6 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     this.encoding = encoding;
     this.props = props == null? Collections.emptyMap(): props;
     this.conf = TSFileDescriptor.getInstance().getConfig();
-    // initialize TSDataType. e.g. set data values for enum type
-    if (type == TSDataType.ENUMS) {
-      typeConverter = TSDataTypeConverter.getConverter(type);
-      typeConverter.initFromProps(props);
-    }
     // initialize TSEncoding. e.g. set max error for PLA and SDT
     encodingConverter = TSEncodingConverter.getConverter(encoding);
     encodingConverter.initFromProps(measurementId, props);
@@ -108,19 +102,9 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
         // 4 is the length of string in type of Integer.
         // Note that one char corresponding to 3 byte is valid only in 16-bit BMP
         return conf.maxStringLength * TSFileConfig.BYTE_SIZE_PER_CHAR + 4;
-      case ENUMS:
-        // every enum value is converted to integer
-        return 4;
-      case BIGDECIMAL:
-        return 8;
       default:
         throw new UnSupportedDataTypeException(type.toString());
     }
-  }
-
-  public void setDataValues(VInTimeSeriesChunkMetaData v) {
-    if (typeConverter != null)
-      typeConverter.setDataValues(v);
   }
 
   public Encoder getTimeEncoder() {
@@ -136,23 +120,6 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
 
   public Compressor getCompressor() {
     return compressor;
-  }
-
-  /**
-   * Enum datum inputs a string value and returns its ordinal integer value.It's illegal that other
-   * data type calling this method<br>
-   * e.g. enum:[MAN(0),WOMAN(1)],calls parseEnumValue("WOMAN"),return 1
-   *
-   * @param string
-   *          - enum value in type of string
-   * @return - ordinal integer in enum field
-   */
-  public int parseEnumValue(String string) {
-    if (type != TSDataType.ENUMS) {
-      LOG.error("type is not enums!return -1");
-      return -1;
-    }
-    return ((TSDataTypeConverter.ENUMS) typeConverter).parseValue(string);
   }
 
   @Override

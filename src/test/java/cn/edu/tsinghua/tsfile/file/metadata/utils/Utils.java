@@ -6,17 +6,11 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
-import cn.edu.tsinghua.tsfile.file.metadata.TsFileMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TsRowGroupBlockMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TInTimeSeriesChunkMetaData;
+import cn.edu.tsinghua.tsfile.file.metadata.*;
 import cn.edu.tsinghua.tsfile.format.TimeInTimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.format.TimeSeries;
 import cn.edu.tsinghua.tsfile.format.ValueInTimeSeriesChunkMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesMetadata;
-import cn.edu.tsinghua.tsfile.file.metadata.TsDeltaObject;
+import cn.edu.tsinghua.tsfile.file.metadata.TsDeltaObjectMetadata;
 import cn.edu.tsinghua.tsfile.format.DeltaObject;
 import cn.edu.tsinghua.tsfile.format.FileMetaData;
 import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
@@ -146,7 +140,7 @@ public class Utils {
 		}
 	}
 
-	public static void isDeltaObjectEqual(TsDeltaObject deltaObjectInTSF, DeltaObject deltaObjectInTHrift) {
+	public static void isDeltaObjectEqual(TsDeltaObjectMetadata deltaObjectInTSF, DeltaObject deltaObjectInTHrift) {
 		if (Utils.isTwoObjectsNotNULL(deltaObjectInTSF, deltaObjectInTHrift, "Delta object")) {
 			assertTrue(deltaObjectInTSF.offset == deltaObjectInTHrift.getOffset());
 			assertTrue(deltaObjectInTSF.metadataBlockSize == deltaObjectInTHrift.getMetadata_block_size());
@@ -268,7 +262,7 @@ public class Utils {
 				Utils.isMapStringEqual(fileMetaDataInTSF.getProps(), fileMetaDataInThrift.getProperties(), "Filemetadata properties");
 			}
 			if(Utils.isTwoObjectsNotNULL(fileMetaDataInTSF.getDeltaObjectMap(), fileMetaDataInThrift.getDelta_object_map(), "delta object map")) {
-				Map<String, TsDeltaObject> mapInTSF = fileMetaDataInTSF.getDeltaObjectMap();
+				Map<String, TsDeltaObjectMetadata> mapInTSF = fileMetaDataInTSF.getDeltaObjectMap();
 				Map<String, DeltaObject> mapInThrift = fileMetaDataInThrift.getDelta_object_map();
 				if(mapInThrift.size() == mapInTSF.size()) {
 					for(String key: mapInTSF.keySet()) {

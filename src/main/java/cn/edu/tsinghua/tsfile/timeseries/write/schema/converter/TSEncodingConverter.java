@@ -48,8 +48,6 @@ public abstract class TSEncodingConverter {
                 return new RLE();
             case TS_2DIFF:
                 return new TS_2DIFF();
-            case BITMAP:
-                return new BITMAP();
             case GORILLA:
                 return new GORILLA();
             default:
@@ -142,7 +140,6 @@ public abstract class TSEncodingConverter {
         @Override
         public Encoder getEncoder(String measurementId, TSDataType type) {
             switch (type) {
-                case ENUMS:
                 case INT32:
                 case BOOLEAN:
                     return new IntRleEncoder(EndianType.LITTLE_ENDIAN);
@@ -264,18 +261,6 @@ public abstract class TSEncodingConverter {
 
     }
 
-    public static class BITMAP extends TSEncodingConverter {
-        @Override
-        public Encoder getEncoder(String measurementId, TSDataType type) {
-            switch (type) {
-                case ENUMS:
-                    return new BitmapEncoder(EndianType.LITTLE_ENDIAN);
-                default:
-                    throw new UnSupportedDataTypeException("BITMAP doesn't support data type: " + type);
-            }
-        }
-    }
-    
 	public static class GORILLA extends TSEncodingConverter {
 
 		@Override

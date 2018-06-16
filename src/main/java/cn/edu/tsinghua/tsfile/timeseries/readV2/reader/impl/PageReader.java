@@ -100,8 +100,6 @@ public class PageReader implements TimeValuePairReader {
                 return new TsDouble(valueDecoder.readDouble(valueInputStream));
             case TEXT:
                 return new TsBinary(valueDecoder.readBinary(valueInputStream));
-            case ENUMS:
-                return new TsInt(valueDecoder.readInt(valueInputStream));
             default:
                 break;
         }

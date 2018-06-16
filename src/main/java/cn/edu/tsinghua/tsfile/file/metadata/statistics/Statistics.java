@@ -38,16 +38,12 @@ public abstract class Statistics<T> {
                 return new LongStatistics();
             case TEXT:
                 return new BinaryStatistics();
-            case ENUMS:
-                return new NoStatistics();
             case BOOLEAN:
                 return new BooleanStatistics();
             case DOUBLE:
                 return new DoubleStatistics();
             case FLOAT:
                 return new FloatStatistics();
-            case BIGDECIMAL:
-                return new BigDecimalStatistics();
             default:
                 throw new UnknownColumnTypeException(type.toString());
         }
