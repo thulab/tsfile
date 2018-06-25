@@ -54,48 +54,4 @@ public class RowGroupMetaDataTest {
     Utils.isRowGroupMetaDataEqual(metaData,
     		ReadWriteThriftFormatUtils.read(fis, new cn.edu.tsinghua.tsfile.format.RowGroupMetaData()));
   }
-
-  @Test
-  public void testConvertToThrift() throws UnsupportedEncodingException {
-    RowGroupMetaData metaData = new RowGroupMetaData(DELTA_OBJECT_UID, MAX_NUM_ROWS,
-        TOTAL_BYTE_SIZE, null, DELTA_OBJECT_TYPE);
-    Utils.isRowGroupMetaDataEqual(metaData, metaData.convertToThrift());
-    metaData.setPath(FILE_PATH);
-    Utils.isRowGroupMetaDataEqual(metaData, metaData.convertToThrift());
-    metaData.setTimeSeriesChunkMetaDataList(new ArrayList<>());
-    Utils.isRowGroupMetaDataEqual(metaData, metaData.convertToThrift());
-    metaData.addTimeSeriesChunkMetaData(TestHelper.createSimpleTimeSeriesChunkMetaDataInTSF());
-    Utils.isRowGroupMetaDataEqual(metaData, metaData.convertToThrift());
-    metaData.addTimeSeriesChunkMetaData(TestHelper.createSimpleTimeSeriesChunkMetaDataInTSF());
-    Utils.isRowGroupMetaDataEqual(metaData, metaData.convertToThrift());
-  }
-
-  @Test
-  public void testConvertToTSF() throws UnsupportedEncodingException {
-    cn.edu.tsinghua.tsfile.format.RowGroupMetaData rowGroupMetaData =
-        new cn.edu.tsinghua.tsfile.format.RowGroupMetaData(null, DELTA_OBJECT_UID, TOTAL_BYTE_SIZE,
-            MAX_NUM_ROWS, DELTA_OBJECT_TYPE);
-    RowGroupMetaData metaData = new RowGroupMetaData();
-    metaData.convertToTSF(rowGroupMetaData);
-    Utils.isRowGroupMetaDataEqual(metaData, metaData.convertToThrift());
-
-    rowGroupMetaData.setFile_path(FILE_PATH);
-    metaData.convertToTSF(rowGroupMetaData);
-    Utils.isRowGroupMetaDataEqual(metaData, metaData.convertToThrift());
-
-    rowGroupMetaData.setTsc_metadata(new ArrayList<>());
-    metaData.convertToTSF(rowGroupMetaData);
-    Utils.isRowGroupMetaDataEqual(metaData, metaData.convertToThrift());
-
-    rowGroupMetaData.getTsc_metadata()
-        .add(TestHelper.createSimpleTimeSeriesChunkMetaDataInThrift());
-    metaData.convertToTSF(rowGroupMetaData);
-    Utils.isRowGroupMetaDataEqual(metaData, metaData.convertToThrift());
-
-    rowGroupMetaData.getTsc_metadata()
-        .add(TestHelper.createSimpleTimeSeriesChunkMetaDataInThrift());
-    metaData.convertToTSF(rowGroupMetaData);
-    Utils.isRowGroupMetaDataEqual(metaData, metaData.convertToThrift());
-  }
-
 }

@@ -99,64 +99,8 @@ public class TestHelper {
 
   public static TimeSeriesMetadata createSimpleTimeSeriesInTSF() {
     TimeSeriesMetadata timeSeries = new TimeSeriesMetadata(TimeSeriesMetadataTest.measurementUID,
-        TSDataType.FIXED_LEN_BYTE_ARRAY);
-    timeSeries.setFreqType(TSFreqType.SINGLE_FREQ);
-    timeSeries.setTypeLength(TimeSeriesMetadataTest.typeLength);
-    List<Integer> frequencies = new ArrayList<Integer>();
-    frequencies.add(132);
-    frequencies.add(432);
-    frequencies.add(35435);
-    timeSeries.setFrequencies(frequencies);
-    List<String> dataValues = new ArrayList<String>();
-    dataValues.add("A");
-    dataValues.add("B");
-    dataValues.add("C");
-    dataValues.add("D");
-    timeSeries.setEnumValues(dataValues);
+        TSDataType.INT64);
     return timeSeries;
-  }
-
-  public static TimeSeries createSimpleTimeSeriesInThrift() {
-    TimeSeries timeSeries = new TimeSeries(TimeSeriesMetadataTest.measurementUID,
-        DataType.TEXT, "");
-    timeSeries.setFreq_type(FreqType.MULTI_FREQ);
-    timeSeries.setType_length(TimeSeriesMetadataTest.typeLength);
-    List<Integer> frequencies = new ArrayList<Integer>();
-    frequencies.add(132);
-    frequencies.add(432);
-    frequencies.add(35435);
-    timeSeries.setFrequencies(frequencies);
-    List<String> dataValues = new ArrayList<String>();
-    dataValues.add("Q");
-    dataValues.add("W");
-    dataValues.add("E");
-    dataValues.add("R");
-    timeSeries.setEnum_values(dataValues);
-    return timeSeries;
-  }
-
-  public static TInTimeSeriesChunkMetaData createT1inTSF(TSDataType dataType, long startTime,
-                                                         long endTime) {
-    TInTimeSeriesChunkMetaData metaData =
-        new TInTimeSeriesChunkMetaData(dataType, startTime, endTime);
-    return metaData;
-  }
-
-  public static TInTimeSeriesChunkMetaData createT2inTSF(TSDataType dataType, TSFreqType freqType,
-      List<Integer> frequencies, long startTime, long endTime) {
-    TInTimeSeriesChunkMetaData metaData =
-        new TInTimeSeriesChunkMetaData(dataType, startTime, endTime);
-    metaData.setFreqType(freqType);
-    metaData.setFrequencies(frequencies);
-
-    List<String> dataValues = new ArrayList<String>();
-    dataValues.add("A");
-    dataValues.add("B");
-    dataValues.add("C");
-    dataValues.add("D");
-    metaData.setEnumValues(dataValues);
-    return metaData;
-
   }
 
   public static List<TInTimeSeriesChunkMetaData> generateTSeriesChunkMetaDataListInTSF() {
@@ -183,116 +127,10 @@ public class TestHelper {
     return list;
   }
 
-  public static List<TimeInTimeSeriesChunkMetaData> generateTimeInTimeSeriesChunkMetaDataInThrift() {
-    ArrayList<Integer> frequencies1 = new ArrayList<Integer>();
-
-    ArrayList<Integer> frequencies2 = new ArrayList<Integer>();
-    frequencies2.add(132);
-    frequencies2.add(432);
-    frequencies2.add(35435);
-    List<TimeInTimeSeriesChunkMetaData> list = new ArrayList<TimeInTimeSeriesChunkMetaData>();
-    for (DataType dataType : DataType.values()) {
-      list.add(TestHelper.createT1inThrift(dataType, TInTimeSeriesChunkMetaDataTest.startTime,
-          TInTimeSeriesChunkMetaDataTest.endTime));
-
-      for (FreqType freqType : FreqType.values()) {
-        list.add(TestHelper.createT2inThrift(dataType, freqType, null,
-            TInTimeSeriesChunkMetaDataTest.startTime, TInTimeSeriesChunkMetaDataTest.endTime));
-        list.add(TestHelper.createT2inThrift(dataType, freqType, frequencies1,
-            TInTimeSeriesChunkMetaDataTest.startTime, TInTimeSeriesChunkMetaDataTest.endTime));
-        list.add(TestHelper.createT2inThrift(dataType, freqType, frequencies2,
-            TInTimeSeriesChunkMetaDataTest.startTime, TInTimeSeriesChunkMetaDataTest.endTime));
-      }
-    }
-    return list;
-  }
-
-  public static TimeInTimeSeriesChunkMetaData createT1inThrift(DataType dataType, long startTime,
-      long endTime) {
-    TimeInTimeSeriesChunkMetaData metaData =
-        new TimeInTimeSeriesChunkMetaData(dataType, startTime, endTime);
-    return metaData;
-  }
-
-  public static TimeInTimeSeriesChunkMetaData createT2inThrift(DataType dataType, FreqType freqType,
-      List<Integer> frequencies, long startTime, long endTime) {
-    TimeInTimeSeriesChunkMetaData metaData =
-        new TimeInTimeSeriesChunkMetaData(dataType, startTime, endTime);
-    metaData.setFreq_type(freqType);
-    metaData.setFrequencies(frequencies);
-    List<String> dataValues = new ArrayList<String>();
-    dataValues.add("Q");
-    dataValues.add("W");
-    dataValues.add("E");
-    dataValues.add("R");
-    metaData.setEnum_values(dataValues);
-    return metaData;
-  }
-
-  public static List<VInTimeSeriesChunkMetaData> generateVSeriesChunkMetaDataListInTSF()
-      throws UnsupportedEncodingException {
-    List<VInTimeSeriesChunkMetaData> list = new ArrayList<VInTimeSeriesChunkMetaData>();
-    for (TSDataType dataType : TSDataType.values()) {
-      list.add(TestHelper.createSimpleV1InTSF(dataType, null));
-      list.add(TestHelper.createSimpleV1InTSF(dataType, new TsDigest()));
-      list.add(TestHelper.createSimpleV2InTSF(dataType, createSimpleTsDigest()));
-    }
-    return list;
-  }
-
-  public static List<ValueInTimeSeriesChunkMetaData> generateValueInTimeSeriesChunkMetaDataInThrift()
-      throws UnsupportedEncodingException {
-    List<ValueInTimeSeriesChunkMetaData> list = new ArrayList<ValueInTimeSeriesChunkMetaData>();
-    for (DataType dataType : DataType.values()) {
-      list.add(TestHelper.createSimpleV1InThrift(dataType, null));
-      list.add(TestHelper.createSimpleV1InThrift(dataType, new Digest()));
-      list.add(TestHelper.createSimpleV2InThrift(dataType, createSimpleDigest()));
-    }
-    return list;
-  }
-
-  public static ValueInTimeSeriesChunkMetaData createSimpleV2InThrift(DataType dataType,
-      Digest digest) throws UnsupportedEncodingException {
-
-    ValueInTimeSeriesChunkMetaData metaData = new ValueInTimeSeriesChunkMetaData(dataType);
-    metaData.setMax_error(VInTimeSeriesChunkMetaDataTest.MAX_ERROR);
-    metaData.setDigest(digest);
-
-    List<String> dataValues = new ArrayList<String>();
-    dataValues.add("Q");
-    dataValues.add("W");
-    dataValues.add("E");
-    dataValues.add("R");
-    metaData.setEnum_values(dataValues);
-    return metaData;
-  }
-
   public static ValueInTimeSeriesChunkMetaData createSimpleV1InThrift(DataType dataType,
       Digest digest) throws UnsupportedEncodingException {
     ValueInTimeSeriesChunkMetaData metaData = new ValueInTimeSeriesChunkMetaData(dataType);
     metaData.setMax_error(VInTimeSeriesChunkMetaDataTest.MAX_ERROR);
-    metaData.setDigest(digest);
-    return metaData;
-  }
-
-  public static VInTimeSeriesChunkMetaData createSimpleV2InTSF(TSDataType dataType, TsDigest digest) throws UnsupportedEncodingException {
-    VInTimeSeriesChunkMetaData metaData = new VInTimeSeriesChunkMetaData(dataType);
-    metaData.setMaxError(VInTimeSeriesChunkMetaDataTest.MAX_ERROR);
-    metaData.setDigest(digest);
-
-    List<String> dataValues = new ArrayList<String>();
-    dataValues.add("A");
-    dataValues.add("B");
-    dataValues.add("C");
-    dataValues.add("D");
-    metaData.setEnumValues(dataValues);
-    return metaData;
-  }
-
-  public static VInTimeSeriesChunkMetaData createSimpleV1InTSF(TSDataType dataType, TsDigest digest)
-      throws UnsupportedEncodingException {
-    VInTimeSeriesChunkMetaData metaData = new VInTimeSeriesChunkMetaData(dataType);
-    metaData.setMaxError(VInTimeSeriesChunkMetaDataTest.MAX_ERROR);
     metaData.setDigest(digest);
     return metaData;
   }
@@ -304,18 +142,6 @@ public class TestHelper {
 	  digest.addStatistics("sum", ByteBuffer.wrap(BytesUtils.StringToBytes(SUM_VALUE)));
 	  digest.addStatistics("first", ByteBuffer.wrap(BytesUtils.StringToBytes(FIRST_VALUE)));
 	  digest.addStatistics("last", ByteBuffer.wrap(BytesUtils.StringToBytes(LAST_VALUE)));
-	  return digest;
-  }
-  
-  public static Digest createSimpleDigest() {
-	  Digest digest = new Digest();
-	  Map<String, ByteBuffer> statistics = new HashMap<>();
-	  digest.setStatistics(statistics);
-	  digest.getStatistics().put("max", ByteBuffer.wrap(BytesUtils.StringToBytes(MAX_VALUE)));
-	  digest.getStatistics().put("min", ByteBuffer.wrap(BytesUtils.StringToBytes(MIN_VALUE)));
-	  digest.getStatistics().put("sum", ByteBuffer.wrap(BytesUtils.StringToBytes(SUM_VALUE)));
-	  digest.getStatistics().put("first", ByteBuffer.wrap(BytesUtils.StringToBytes(FIRST_VALUE)));
-	  digest.getStatistics().put("last", ByteBuffer.wrap(BytesUtils.StringToBytes(LAST_VALUE)));
 	  return digest;
   }
 

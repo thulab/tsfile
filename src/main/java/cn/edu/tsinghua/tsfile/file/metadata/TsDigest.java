@@ -62,11 +62,12 @@ public class TsDigest {
         return len;
     }
 
-    public int write(OutputStream outputStream) throws IOException {
+    public int serialize(OutputStream outputStream) throws IOException {
         int byteLen = 0;
 
-        byteLen += ReadWriteToBytesUtils.writeIsNull(statistics, outputStream);
-        if(statistics != null) {
+        if(statistics == null){
+            byteLen += ReadWriteToBytesUtils.write(0, outputStream);
+        } else {
             byteLen += ReadWriteToBytesUtils.write(statistics.size(), outputStream);
             for (Map.Entry<String, ByteBuffer> entry : statistics.entrySet()) {
                 byteLen += ReadWriteToBytesUtils.write(entry.getKey(), outputStream);
@@ -77,20 +78,57 @@ public class TsDigest {
         return byteLen;
     }
 
-    public void read(InputStream inputStream) throws IOException {
-        if(ReadWriteToBytesUtils.readIsNull(inputStream)) {
-            statistics = new HashMap<>();
-            int size = ReadWriteToBytesUtils.readInt(inputStream);
+    public int serialize(ByteBuffer buffer) throws IOException {
+        int byteLen = 0;
 
+        if(statistics == null){
+            byteLen += ReadWriteToBytesUtils.write(0, buffer);
+        } else {
+            byteLen += ReadWriteToBytesUtils.write(statistics.size(), buffer);
+            for (Map.Entry<String, ByteBuffer> entry : statistics.entrySet()) {
+                byteLen += ReadWriteToBytesUtils.write(entry.getKey(), buffer);
+                byteLen += ReadWriteToBytesUtils.write(entry.getValue(), buffer);
+            }
+        }
+
+        return byteLen;
+    }
+
+    public static TsDigest deserialize(InputStream inputStream) throws IOException {
+        TsDigest digest = new TsDigest();
+
+        int size = ReadWriteToBytesUtils.readInt(inputStream);
+        if(size > 0) {
+            Map<String, ByteBuffer> statistics = new HashMap<>();
             String key;
             ByteBuffer value;
             for (int i = 0; i < size; i++) {
                 key = ReadWriteToBytesUtils.readString(inputStream);
                 value = ReadWriteToBytesUtils.readByteBuffer(inputStream);
-
                 statistics.put(key, value);
             }
+            digest.statistics = statistics;
         }
+
+        return digest;
     }
 
+    public static TsDigest deserialize(ByteBuffer buffer) throws IOException {
+        TsDigest digest = new TsDigest();
+
+        int size = ReadWriteToBytesUtils.readInt(buffer);
+        if(size > 0) {
+            Map<String, ByteBuffer> statistics = new HashMap<>();
+            String key;
+            ByteBuffer value;
+            for (int i = 0; i < size; i++) {
+                key = ReadWriteToBytesUtils.readString(buffer);
+                value = ReadWriteToBytesUtils.readByteBuffer(buffer);
+                statistics.put(key, value);
+            }
+            digest.statistics = statistics;
+        }
+
+        return digest;
+    }
 }

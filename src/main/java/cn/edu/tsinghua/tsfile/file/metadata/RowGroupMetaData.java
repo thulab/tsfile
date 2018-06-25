@@ -5,7 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -109,51 +111,89 @@ public class RowGroupMetaData {
     }
 
 
-    public int write(OutputStream outputStream) throws IOException {
+    public int serialize(OutputStream outputStream) throws IOException {
         int byteLen = 0;
 
         byteLen += ReadWriteToBytesUtils.writeIsNull(deltaObjectID, outputStream);
         if(deltaObjectID != null)byteLen += ReadWriteToBytesUtils.write(deltaObjectID, outputStream);
 
-        byteLen += ReadWriteToBytesUtils.write(numOfRows, outputStream);
         byteLen += ReadWriteToBytesUtils.write(totalByteSize, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(metadataOffset, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(metadataSize, outputStream);
 
-        byteLen += ReadWriteToBytesUtils.writeIsNull(path, outputStream);
-        if(path != null)byteLen += ReadWriteToBytesUtils.write(path, outputStream);
-
-        byteLen += ReadWriteToBytesUtils.writeIsNull(timeSeriesChunkMetaDataList, outputStream);
-        if(timeSeriesChunkMetaDataList != null){
+        if(timeSeriesChunkMetaDataList == null){
+            byteLen += ReadWriteToBytesUtils.write(0, outputStream);
+        } else {
             byteLen += ReadWriteToBytesUtils.write(timeSeriesChunkMetaDataList.size(), outputStream);
             for(TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList)
                 byteLen += ReadWriteToBytesUtils.write(timeSeriesChunkMetaData, outputStream);
         }
 
-        byteLen += ReadWriteToBytesUtils.writeIsNull(deltaObjectType, outputStream);
-        if(deltaObjectType != null)byteLen += ReadWriteToBytesUtils.write(deltaObjectType, outputStream);
+        return byteLen;
+    }
+
+    public int serialize(ByteBuffer buffer) throws IOException {
+        int byteLen = 0;
+
+        byteLen += ReadWriteToBytesUtils.writeIsNull(deltaObjectID, buffer);
+        if(deltaObjectID != null)byteLen += ReadWriteToBytesUtils.write(deltaObjectID, buffer);
+
+        byteLen += ReadWriteToBytesUtils.write(totalByteSize, buffer);
+        byteLen += ReadWriteToBytesUtils.write(metadataOffset, buffer);
+        byteLen += ReadWriteToBytesUtils.write(metadataSize, buffer);
+
+        if(timeSeriesChunkMetaDataList == null){
+            byteLen += ReadWriteToBytesUtils.write(0, buffer);
+        } else {
+            byteLen += ReadWriteToBytesUtils.write(timeSeriesChunkMetaDataList.size(), buffer);
+            for(TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList)
+                byteLen += ReadWriteToBytesUtils.write(timeSeriesChunkMetaData, buffer);
+        }
 
         return byteLen;
     }
 
-    public void read(InputStream inputStream) throws IOException {
-        if(ReadWriteToBytesUtils.readIsNull(inputStream))
-            deltaObjectID = ReadWriteToBytesUtils.readString(inputStream);
-
-        numOfRows = ReadWriteToBytesUtils.readLong(inputStream);
-        totalByteSize = ReadWriteToBytesUtils.readLong(inputStream);
+    public static RowGroupMetaData deserialize(InputStream inputStream) throws IOException {
+        RowGroupMetaData rowGroupMetaData = new RowGroupMetaData();
 
         if(ReadWriteToBytesUtils.readIsNull(inputStream))
-            path = ReadWriteToBytesUtils.readString(inputStream);
+            rowGroupMetaData.setDeltaObjectID(ReadWriteToBytesUtils.readString(inputStream));
 
-        if(ReadWriteToBytesUtils.readIsNull(inputStream)){
-            timeSeriesChunkMetaDataList = new ArrayList<>();
+        rowGroupMetaData.setTotalByteSize(ReadWriteToBytesUtils.readLong(inputStream));
+        rowGroupMetaData.setMetadataOffset(ReadWriteToBytesUtils.readLong(inputStream));
+        rowGroupMetaData.setMetadataSize(ReadWriteToBytesUtils.readInt(inputStream));
 
-            int size = ReadWriteToBytesUtils.readInt(inputStream);
-            for(int i = 0;i < size;i++) {
+        int size = ReadWriteToBytesUtils.readInt(inputStream);
+        if(size > 0) {
+            List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
                 timeSeriesChunkMetaDataList.add(ReadWriteToBytesUtils.readTimeSeriesChunkMetaData(inputStream));
             }
+            rowGroupMetaData.setTimeSeriesChunkMetaDataList(timeSeriesChunkMetaDataList);
         }
 
-        if(ReadWriteToBytesUtils.readIsNull(inputStream))
-            deltaObjectType = ReadWriteToBytesUtils.readString(inputStream);
+        return rowGroupMetaData;
+    }
+
+    public static RowGroupMetaData deserialize(ByteBuffer buffer) throws IOException {
+        RowGroupMetaData rowGroupMetaData = new RowGroupMetaData();
+
+        if(ReadWriteToBytesUtils.readIsNull(buffer))
+            rowGroupMetaData.setDeltaObjectID(ReadWriteToBytesUtils.readString(buffer));
+
+        rowGroupMetaData.setTotalByteSize(ReadWriteToBytesUtils.readLong(buffer));
+        rowGroupMetaData.setMetadataOffset(ReadWriteToBytesUtils.readLong(buffer));
+        rowGroupMetaData.setMetadataSize(ReadWriteToBytesUtils.readInt(buffer));
+
+        int size = ReadWriteToBytesUtils.readInt(buffer);
+        if(size > 0) {
+            List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                timeSeriesChunkMetaDataList.add(ReadWriteToBytesUtils.readTimeSeriesChunkMetaData(buffer));
+            }
+            rowGroupMetaData.setTimeSeriesChunkMetaDataList(timeSeriesChunkMetaDataList);
+        }
+
+        return rowGroupMetaData;
     }
 }
