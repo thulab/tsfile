@@ -1,10 +1,8 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.page;
 
 import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
-import cn.edu.tsinghua.tsfile.common.utils.Pair;
 import cn.edu.tsinghua.tsfile.common.utils.PublicBAOS;
 import cn.edu.tsinghua.tsfile.compress.Compressor;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
@@ -13,9 +11,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * a implementation of {@linkplain IPageWriter IPageWriter}
@@ -49,8 +45,14 @@ public class PageWriterImpl implements IPageWriter {
         }
         this.maxTimestamp = maxTimestamp;
         int uncompressedSize = listByteArray.size();
-        ListByteArrayOutputStream compressedBytes = compressor.compress(listByteArray);
-        int compressedSize = compressedBytes.size();
+        byte[] compressedBytes = null;
+        try {
+            compressedBytes = compressor.compress(listByteArray);
+        } catch (IOException e) {
+            throw new PageException(
+                    "Error when writing a page, " + e.getMessage());
+        }
+        int compressedSize = compressedBytes.length;
         PublicBAOS tempOutputStream = new PublicBAOS(estimateMaxPageHeaderSize() + compressedSize);
         // write the page header to IOWriter
         try {
@@ -63,7 +65,7 @@ public class PageWriterImpl implements IPageWriter {
         }
         this.totalValueCount += valueCount;
         try {
-            compressedBytes.writeAllTo(tempOutputStream);
+            tempOutputStream.write(compressedBytes);
         } catch (IOException e) {
             /*
 			 * In our method, this line is to flush listByteArray to buf, both

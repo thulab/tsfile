@@ -10,7 +10,6 @@ import java.util.Scanner;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import org.json.JSONArray;
@@ -21,13 +20,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils;
 import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils.Unit;
 import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 
 /**
@@ -172,8 +169,10 @@ public class PerfTest {
         innerWriter.close();
         endTime = System.currentTimeMillis();
         LOG.info("write total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+        LOG.info("write total:{},use time:{}ms", lineCount, (endTime - startTime) );
         LOG.info("src file size:{}GB", FileUtils.getLocalFileByte(inputDataFile, Unit.GB));
         LOG.info("src file size:{}MB", FileUtils.getLocalFileByte(outputDataFile, Unit.MB));
+        LOG.info("src file size:{}B", FileUtils.getLocalFileByte(outputDataFile, Unit.B));
     }
 
     private static JSONObject generateTestData() {
@@ -198,17 +197,17 @@ public class PerfTest {
         s4.put(JsonFormatConstant.DATA_TYPE, TSDataType.TEXT.toString());
         s4.put(JsonFormatConstant.MEASUREMENT_ENCODING,
                 TSEncoding.PLAIN.toString());
-        JSONObject s5 = new JSONObject();
-        s5.put(JsonFormatConstant.MEASUREMENT_UID, "s5");
-        s5.put(JsonFormatConstant.DATA_TYPE, TSDataType.ENUMS.toString());
-        s5.put(JsonFormatConstant.MEASUREMENT_ENCODING,
-                TSEncoding.PLAIN.toString());
+//        JSONObject s5 = new JSONObject();
+//        s5.put(JsonFormatConstant.MEASUREMENT_UID, "s5");
+//        s5.put(JsonFormatConstant.DATA_TYPE, TSDataType.ENUMS.toString());
+//        s5.put(JsonFormatConstant.MEASUREMENT_ENCODING,
+//                TSEncoding.PLAIN.toString());
         JSONArray measureGroup1 = new JSONArray();
         measureGroup1.put(s1);
         measureGroup1.put(s2);
         measureGroup1.put(s3);
         measureGroup1.put(s4);
-        measureGroup1.put(s5);
+//        measureGroup1.put(s5);
 
         JSONObject jsonSchema = new JSONObject();
         jsonSchema.put(JsonFormatConstant.DELTA_TYPE, "test_type");

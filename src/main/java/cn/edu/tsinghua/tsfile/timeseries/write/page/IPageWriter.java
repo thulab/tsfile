@@ -1,16 +1,12 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.page;
 
 import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
-import cn.edu.tsinghua.tsfile.common.utils.Pair;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.PageException;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.series.ISeriesWriter;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Each SeriesWriter has a page writer. While memory space occupied by series writer exceeds

@@ -3,12 +3,10 @@ package cn.edu.tsinghua.tsfile.timeseries.read;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.constant.StatisticConstant;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
-import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
 import cn.edu.tsinghua.tsfile.file.metadata.TsDigest;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.format.Digest;
 import cn.edu.tsinghua.tsfile.format.Encoding;
@@ -26,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.util.List;
 
 import static cn.edu.tsinghua.tsfile.format.Encoding.*;
@@ -49,7 +46,7 @@ public class ValueReader {
     public TSDataType dataType;
     public TsDigest digest;
     public ITsRandomAccessFileReader raf;
-    public List<String> enumValues;
+//    public List<String> enumValues;
     public CompressionTypeName compressionTypeName;
     public long rowNums;
     private long startTime, endTime;
@@ -88,14 +85,12 @@ public class ValueReader {
      * @param dataType            DataType for this column
      * @param digest              Digest for this column including time and value digests
      * @param raf                 RandomAccessFileReader stream
-     * @param enumValues          EnumValues if this column's dataType is ENUM
      * @param compressionTypeName CompressionType used for this column
      * @param rowNums             Total of rows for this column
      */
     public ValueReader(long offset, long totalSize, TSDataType dataType, TsDigest digest, ITsRandomAccessFileReader raf,
-                       List<String> enumValues, CompressionTypeName compressionTypeName, long rowNums, long startTime, long endTime) {
+                        CompressionTypeName compressionTypeName, long rowNums, long startTime, long endTime) {
         this(offset, totalSize, dataType, digest, raf, compressionTypeName);
-        this.enumValues = enumValues;
         this.rowNums = rowNums;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -171,15 +166,9 @@ public class ValueReader {
 
         if (valueFilter != null) {
             digest = getDigest();
-            if (getDataType() == TSDataType.ENUMS) {
-                String minString = enumValues.get(BytesUtils.bytesToInt(digest.getStatistics().get(StatisticConstant.MIN_VALUE).array()) - 1);
-                String maxString = enumValues.get(BytesUtils.bytesToInt(digest.getStatistics().get(StatisticConstant.MAX_VALUE).array()) - 1);
-                valueDigest = new DigestForFilter(ByteBuffer.wrap(BytesUtils.StringToBytes(minString)), ByteBuffer.wrap(BytesUtils.StringToBytes(maxString)), TSDataType.TEXT);
-            } else {
-                valueDigest = new DigestForFilter(digest.getStatistics().get(StatisticConstant.MIN_VALUE)
+            valueDigest = new DigestForFilter(digest.getStatistics().get(StatisticConstant.MIN_VALUE)
                         , digest.getStatistics().get(StatisticConstant.MAX_VALUE)
                         , getDataType());
-            }
         }
 
         DigestVisitor valueVisitor = new DigestVisitor();
@@ -287,15 +276,9 @@ public class ValueReader {
                 Digest pageDigest = pageHeader.data_page_header.getDigest();
                 DigestForFilter valueDigestFF = null;
                 if (pageDigest != null) {
-                    if (getDataType() == TSDataType.ENUMS) {
-                        String minString = enumValues.get(BytesUtils.bytesToInt(pageDigest.getStatistics().get(StatisticConstant.MIN_VALUE).array()) - 1);
-                        String maxString = enumValues.get(BytesUtils.bytesToInt(pageDigest.getStatistics().get(StatisticConstant.MAX_VALUE).array()) - 1);
-                        valueDigestFF = new DigestForFilter(ByteBuffer.wrap(BytesUtils.StringToBytes(minString)), ByteBuffer.wrap(BytesUtils.StringToBytes(maxString)), TSDataType.TEXT);
-                    } else {
                         valueDigestFF = new DigestForFilter(pageDigest.getStatistics().get(StatisticConstant.MIN_VALUE)
                                                             ,   pageDigest.getStatistics().get(StatisticConstant.MAX_VALUE),
                                                                 getDataType());
-                    }
                 }
 
                 // construct timeFilter
@@ -378,17 +361,6 @@ public class ValueReader {
                                     if ((timeFilter == null || timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter)) &&
                                             (valueFilter == null || valueVisitor.satisfyObject(v, valueFilter))) {
                                         res.putBinary(v);
-                                        res.putTime(timeValues[timeIdx]);
-                                    }
-                                    timeIdx++;
-                                }
-                                break;
-                            case ENUMS:
-                                while (decoder.hasNext(page)) {
-                                    int v = decoder.readInt(page) - 1;
-                                    if ((timeFilter == null || timeVisitor.satisfyObject(timeValues[timeIdx], timeFilter)) &&
-                                            (valueFilter == null || valueVisitor.satisfyObject(v, valueFilter))) {
-                                        res.putBinary(Binary.valueOf(enumValues.get(v)));
                                         res.putTime(timeValues[timeIdx]);
                                     }
                                     timeIdx++;
@@ -558,23 +530,6 @@ public class ValueReader {
                             }
                         }
                         break;
-                    case ENUMS:
-                        while (i < timeValues.length && timeIdx < timestamps.length) {
-                            while (i < timeValues.length && timeValues[i] < timestamps[timeIdx]) {
-                                i++;
-                                decoder.readInt(page);
-                            }
-                            if (i < timeValues.length && timeValues[i] == timestamps[timeIdx]) {
-                                res.putBinary(Binary.valueOf(enumValues.get(decoder.readInt(page) - 1)));
-                                res.putTime(timeValues[i]);
-                                i++;
-                                timeIdx++;
-                            }
-                            while (timeIdx < timestamps.length && i < timeValues.length && timestamps[timeIdx] < timeValues[i]) {
-                                timeIdx++;
-                            }
-                        }
-                        break;
                     default:
                         throw new IOException("Data Type not support");
                 }
@@ -624,14 +579,6 @@ public class ValueReader {
 
     public void setNumRows(long rowNums) {
         this.rowNums = rowNums;
-    }
-
-    public List<String> getEnumValues() {
-        return enumValues;
-    }
-
-    public void setEnumValues(List<String> enumValues) {
-        this.enumValues = enumValues;
     }
 
     public long getStartTime() {

@@ -2,8 +2,6 @@ package cn.edu.tsinghua.tsfile.compress;
 
 import cn.edu.tsinghua.tsfile.common.exception.CompressionTypeNotSupportedException;
 import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
-import cn.edu.tsinghua.tsfile.common.utils.PublicBAOS;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
@@ -32,7 +30,7 @@ public abstract class Compressor {
         }
     }
 
-    public abstract ListByteArrayOutputStream compress(ListByteArrayOutputStream ListByteArray);
+    public abstract byte[] compress(ListByteArrayOutputStream ListByteArray) throws IOException;
 
     public abstract CompressionTypeName getCodecName();
 
@@ -44,8 +42,8 @@ public abstract class Compressor {
     static public class NoCompressor extends Compressor {
 
         @Override
-        public ListByteArrayOutputStream compress(ListByteArrayOutputStream ListByteArray) {
-            return ListByteArray;
+        public byte[] compress(ListByteArrayOutputStream ListByteArray) throws IOException {
+            return ListByteArray.toByteArray();
         }
 
         @Override
@@ -58,19 +56,11 @@ public abstract class Compressor {
         private static final Logger LOGGER = LoggerFactory.getLogger(SnappyCompressor.class);
 
         @Override
-        public ListByteArrayOutputStream compress(ListByteArrayOutputStream listByteArray) {
+        public byte[] compress(ListByteArrayOutputStream listByteArray) throws IOException {
             if (listByteArray == null) {
                 return null;
             }
-            PublicBAOS out = new PublicBAOS();
-            try {
-                out.write(Snappy.compress(listByteArray.toByteArray()));
-            } catch (IOException e) {
-                LOGGER.error(
-                        "tsfile-compression SnappyCompressor: errors occurs when compress input byte, ListByteArray is {}, ByteArrayOutputStream is {}",
-                        listByteArray, out, e);
-            }
-            return ListByteArrayOutputStream.from(out);
+            return Snappy.compress(listByteArray.toByteArray());
         }
 
         @Override

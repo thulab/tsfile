@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;

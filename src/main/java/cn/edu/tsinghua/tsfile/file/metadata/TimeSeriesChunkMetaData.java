@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ public class TimeSeriesChunkMetaData {
      */
     private long tsDigestOffset;
 
-    private CompressionTypeName compression;
+    private CompressionType compression;
 
     private long numOfPoints;
 
@@ -44,7 +44,7 @@ public class TimeSeriesChunkMetaData {
     public TimeSeriesChunkMetaData() {
     }
 
-    public TimeSeriesChunkMetaData(String measurementUID, long fileOffset, CompressionTypeName compression,
+    public TimeSeriesChunkMetaData(String measurementUID, long fileOffset, CompressionType compression,
                                    TSDataType dataType, long startTime, long endTime) {
         this();
         this.measurementUID = measurementUID;
@@ -80,7 +80,7 @@ public class TimeSeriesChunkMetaData {
         return fileOffset;
     }
 
-    public CompressionTypeName getCompression() {
+    public CompressionType getCompression() {
         return compression;
     }
 

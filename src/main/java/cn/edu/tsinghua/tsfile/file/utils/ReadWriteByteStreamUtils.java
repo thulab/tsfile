@@ -15,6 +15,7 @@ import java.util.Map;
  * Created by lta on 2018/5/31.
  */
 public class ReadWriteByteStreamUtils {
+
     public static void writeRowGroupBlockMetadata(TsDeltaObjectMetadata tsDeltaObjectMetadata, ITsRandomAccessFileWriter out) throws IOException {
         List<RowGroupMetaData> rowGroupMetadataList = tsDeltaObjectMetadata.getRowGroups();
         for (RowGroupMetaData rowGroupMetaData : rowGroupMetadataList) {
