@@ -4,30 +4,29 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.tsinghua.tsfile.format.CompressionType;
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import cn.edu.tsinghua.tsfile.format.TimeInTimeSeriesChunkMetaData;
-import cn.edu.tsinghua.tsfile.format.TimeSeriesChunkType;
-import cn.edu.tsinghua.tsfile.format.ValueInTimeSeriesChunkMetaData;
 
 public class TimeSeriesChunkMetaDataTest {
 
   public static final String MEASUREMENT_UID = "sensor231";
   public static final long FILE_OFFSET = 2313424242L;
-  public static final long MAX_NUM_ROWS = 423432425L;
-  public static final long TOTAL_BYTE_SIZE = 432453453L;
-  public static final long DATA_PAGE_OFFSET = 42354334L;
-  public static final long DICTIONARY_PAGE_OFFSET = 23434543L;
-  public static final long INDEX_PAGE_OFFSET = 34243453L;
+  public static final long DIGEST_OFFSET = 42354334L;
+  public static final CompressionType COMPRESSION_TYPE = CompressionType.SNAPPY;
+  public static final long NUM_OF_POINTS = 123456L;
+  public static final long TOTAL_BYTE_SIZE = 34243453L;
+  public static final long START_TIME = 523372036854775806L;
+  public static final long END_TIME = 523372036854775806L;
+  public static final TSDataType DATA_TYPE = TSDataType.INT64;
   final String PATH = "target/outputTimeSeriesChunk.ksn";
 
   @Before
@@ -42,20 +41,17 @@ public class TimeSeriesChunkMetaDataTest {
 
   @Test
   public void testWriteIntoFile() throws IOException {
-    TimeSeriesChunkMetaData metaData = TestHelper.createSimpleTimeSeriesChunkMetaDataInTSF();
+    TimeSeriesChunkMetaData metaData = TestHelper.createSimpleTimeSeriesChunkMetaData();
     File file = new File(PATH);
     if (file.exists())
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
     TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-    ReadWriteThriftFormatUtils.write(metaData.convertToThrift(), out.getOutputStream());
-
+    ReadWriteToBytesUtils.write(metaData, out.getOutputStream());
     out.close();
     fos.close();
 
     FileInputStream fis = new FileInputStream(new File(PATH));
-    Utils.isTimeSeriesChunkMetaDataEqual(metaData, metaData.convertToThrift());
-    Utils.isTimeSeriesChunkMetaDataEqual(metaData,
-    		ReadWriteThriftFormatUtils.read(fis, new cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData()));
+    Utils.isTimeSeriesChunkMetadataEqual(metaData, ReadWriteToBytesUtils.readTimeSeriesChunkMetaData(fis));
   }
 }

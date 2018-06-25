@@ -1,23 +1,26 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
+import cn.edu.tsinghua.tsfile.file.metadata.TsDeltaObjectMetadata;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
+import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
-public class TimeSeriesMetadataTest {
-    public static final String measurementUID = "sensor01";
-    public static final int typeLength = 1024;
-    final String PATH = "target/outputTimeSeries.ksn";
+public class TsDeltaObjectMetadataTest {
+
+    public static final long OFFSET = 2313424242L;
+    public static final int METADATA_BLOCK_SIZE = 432453453;
+    public static final long START_TIME = 523372036854775806L;
+    public static final long END_TIME = 523372036854775806L;
+    final String PATH = "target/outputDeltaObject.ksn";
 
     @Before
     public void setUp() throws Exception {}
@@ -31,7 +34,7 @@ public class TimeSeriesMetadataTest {
 
     @Test
     public void testWriteIntoFile() throws IOException {
-        TimeSeriesMetadata metaData = TestHelper.createSimpleTimeSeriesMetaData();
+        TsDeltaObjectMetadata metaData = TestHelper.createSimpleDeltaObjectMetaData();
         File file = new File(PATH);
         if (file.exists())
             file.delete();
@@ -42,6 +45,6 @@ public class TimeSeriesMetadataTest {
         fos.close();
 
         FileInputStream fis = new FileInputStream(new File(PATH));
-        Utils.isTimeSeriesEqual(metaData, ReadWriteToBytesUtils.readTimeSeriesMetadata(fis));
+        Utils.isDeltaObjectEqual(metaData, ReadWriteToBytesUtils.readDeltaObjectMetadata(fis));
     }
 }
