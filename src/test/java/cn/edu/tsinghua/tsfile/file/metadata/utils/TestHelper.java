@@ -68,7 +68,7 @@ public class TestHelper {
     metaData.setTsDigestOffset(TimeSeriesChunkMetaDataTest.DIGEST_OFFSET);
     metaData.setNumOfPoints(TimeSeriesChunkMetaDataTest.NUM_OF_POINTS);
     metaData.setTotalByteSize(TimeSeriesChunkMetaDataTest.TOTAL_BYTE_SIZE);
-    metaData.setDigest(createSimpleTsDigest());
+    metaData.setDigest(new TsDigest());
     return metaData;
     }
 
