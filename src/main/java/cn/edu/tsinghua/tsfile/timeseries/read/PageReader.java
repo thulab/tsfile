@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.read;
 
 import cn.edu.tsinghua.tsfile.compress.UnCompressor;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.format.PageHeader;
 
@@ -17,7 +18,7 @@ public class PageReader {
     private PageHeader pageHeader = null;
     private UnCompressor unCompressor = null;
 
-    public PageReader(ByteArrayInputStream bis, CompressionTypeName compressionTypeName) {
+    public PageReader(ByteArrayInputStream bis, CompressionType compressionTypeName) {
         this.bis = bis;
         unCompressor = UnCompressor.getUnCompressor(compressionTypeName);
     }

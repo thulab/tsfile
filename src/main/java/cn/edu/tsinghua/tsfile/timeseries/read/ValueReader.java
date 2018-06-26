@@ -7,6 +7,7 @@ import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
 import cn.edu.tsinghua.tsfile.file.metadata.TsDigest;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.format.Digest;
 import cn.edu.tsinghua.tsfile.format.Encoding;
@@ -47,7 +48,7 @@ public class ValueReader {
     public TsDigest digest;
     public ITsRandomAccessFileReader raf;
 //    public List<String> enumValues;
-    public CompressionTypeName compressionTypeName;
+    public CompressionType compressionTypeName;
     public long rowNums;
     private long startTime, endTime;
 
@@ -73,7 +74,7 @@ public class ValueReader {
     }
 
     public ValueReader(long offset, long totalSize, TSDataType dataType, TsDigest digest, ITsRandomAccessFileReader raf,
-                       CompressionTypeName compressionTypeName) {
+                       CompressionType compressionTypeName) {
         this(offset, totalSize, dataType, digest);
         this.compressionTypeName = compressionTypeName;
         this.raf = raf;
@@ -89,7 +90,7 @@ public class ValueReader {
      * @param rowNums             Total of rows for this column
      */
     public ValueReader(long offset, long totalSize, TSDataType dataType, TsDigest digest, ITsRandomAccessFileReader raf,
-                        CompressionTypeName compressionTypeName, long rowNums, long startTime, long endTime) {
+                       CompressionType compressionTypeName, long rowNums, long startTime, long endTime) {
         this(offset, totalSize, dataType, digest, raf, compressionTypeName);
         this.rowNums = rowNums;
         this.startTime = startTime;

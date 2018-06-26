@@ -24,27 +24,27 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TsFileMetaDataTest {
-  final String PATH = "target/output1.ksn";
-  public static final int VERSION = 123;
-  public static final String CREATED_BY = "tsf";
-  public static final long FIRST_TSMETADATA_OFFSET = 111111111L;
-  public static final long LAST_TSMETADATA_OFFSET = 222222222L;
-  public static final long FIRST_DOMETADATA_OFFSET = 333333333L;
-  public static final long LAST_DOMETADATA_OFFSET = 444444444L;
-  
-  @Before
-  public void setUp() {
-  }
+    final String PATH = "target/output1.ksn";
+    public static final int VERSION = 123;
+    public static final String CREATED_BY = "tsf";
+    public static final long FIRST_TSMETADATA_OFFSET = 111111111L;
+    public static final long LAST_TSMETADATA_OFFSET = 222222222L;
+    public static final long FIRST_DOMETADATA_OFFSET = 333333333L;
+    public static final long LAST_DOMETADATA_OFFSET = 444444444L;
 
-  @After
-  public void tearDown() throws Exception {
+    @Before
+    public void setUp() {
+    }
+
+    @After
+    public void tearDown() throws Exception {
     File file = new File(PATH);
     if (file.exists())
       file.delete();
-  }
+    }
 
-  @Test
-  public void testWriteFileMetaData() throws IOException {
+    @Test
+    public void testWriteFileMetaData() throws IOException {
     TsFileMetaData tsfMetaData = TestHelper.createSimpleFileMetaData();
     File file = new File(PATH);
     if (file.exists())
@@ -57,5 +57,5 @@ public class TsFileMetaDataTest {
 
     FileInputStream fis = new FileInputStream(new File(PATH));
     Utils.isFileMetaDataEqual(tsfMetaData, ReadWriteToBytesUtils.readTsFileMetaData(fis));
-  }
+    }
 }

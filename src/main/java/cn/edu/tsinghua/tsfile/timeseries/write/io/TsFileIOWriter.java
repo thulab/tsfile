@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.edu.tsinghua.tsfile.file.metadata.*;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteByteStreamUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,9 +116,8 @@ public class TsFileIOWriter {
     /**
      * start a {@linkplain RowGroupMetaData RowGroupMetaData}.
      *
-     * @param recordCount   - the record count of this time series input in this stage
+     * @param deltaObjectId delta object id
      */
-
     public void startRowGroup(String deltaObjectId) {
         LOG.debug("start row group:{}", deltaObjectId);
         currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId,  0, new ArrayList<>());
@@ -134,7 +134,7 @@ public class TsFileIOWriter {
      * @param minTime              - minimum timestamp of the whole series in this stage
      * @throws IOException if I/O error occurs
      */
-    public void startSeries(MeasurementDescriptor descriptor, CompressionTypeName compressionCodecName,
+    public void startSeries(MeasurementDescriptor descriptor, CompressionType compressionCodecName,
                             TSDataType tsDataType, Statistics<?> statistics, long maxTime, long minTime) throws IOException {
         LOG.debug("start series:{}", descriptor);
         currentChunkMetaData = new TimeSeriesChunkMetaData(descriptor.getMeasurementId(), out.getPos(), compressionCodecName, tsDataType, minTime, maxTime);
