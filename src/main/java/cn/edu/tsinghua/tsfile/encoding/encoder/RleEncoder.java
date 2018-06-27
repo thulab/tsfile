@@ -145,7 +145,7 @@ public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
         }
         //write length
         ReadWriteStreamUtils.writeUnsignedVarInt(byteCache.size(), out);
-        out.write(byteCache.toByteArray());
+        byteCache.writeTo(out);
         reset();
     }
 
