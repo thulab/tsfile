@@ -2,6 +2,7 @@ package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
 import cn.edu.tsinghua.tsfile.compress.UnCompressor;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.format.Encoding;
@@ -29,7 +30,7 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
     private TimeValuePair cachedTimeValuePair;
 
 
-    public SeriesChunkReader(InputStream seriesChunkInputStream, TSDataType dataType, CompressionTypeName compressionTypeName) {
+    public SeriesChunkReader(InputStream seriesChunkInputStream, TSDataType dataType, CompressionType compressionTypeName) {
         this.seriesChunkInputStream = seriesChunkInputStream;
         this.dataType = dataType;
         this.unCompressor = UnCompressor.getUnCompressor(compressionTypeName);

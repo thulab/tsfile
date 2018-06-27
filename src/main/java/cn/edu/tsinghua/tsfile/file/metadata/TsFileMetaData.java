@@ -2,11 +2,15 @@ package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.format.FileMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 /**
@@ -161,5 +165,149 @@ public class TsFileMetaData {
 
     public void setLastTsDeltaObjectMetadataOffset(long lastTsDeltaObjectMetadataOffset) {
         this.lastTsDeltaObjectMetadataOffset = lastTsDeltaObjectMetadataOffset;
+    }
+
+    public int serialize(OutputStream outputStream) throws IOException {
+        int byteLen = 0;
+
+        if(deltaObjectMap == null){
+            byteLen += ReadWriteToBytesUtils.write(0, outputStream);
+        } else {
+            byteLen += ReadWriteToBytesUtils.write(deltaObjectMap.size(), outputStream);
+            for (Map.Entry<String, TsDeltaObjectMetadata> entry : deltaObjectMap.entrySet()) {
+                byteLen += ReadWriteToBytesUtils.write(entry.getKey(), outputStream);
+                byteLen += ReadWriteToBytesUtils.write(entry.getValue(), outputStream);
+            }
+        }
+
+        if(timeSeriesList == null){
+            byteLen += ReadWriteToBytesUtils.write(0, outputStream);
+        } else {
+            byteLen += ReadWriteToBytesUtils.write(timeSeriesList.size(), outputStream);
+            for(TimeSeriesMetadata timeSeriesMetadata : timeSeriesList)
+                byteLen += ReadWriteToBytesUtils.write(timeSeriesMetadata, outputStream);
+        }
+
+        byteLen += ReadWriteToBytesUtils.write(currentVersion, outputStream);
+
+        byteLen += ReadWriteToBytesUtils.writeIsNull(createdBy, outputStream);
+        if(createdBy != null)byteLen += ReadWriteToBytesUtils.write(createdBy, outputStream);
+
+        byteLen += ReadWriteToBytesUtils.write(firstTimeSeriesMetadataOffset, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(lastTimeSeriesMetadataOffset, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(firstTsDeltaObjectMetadataOffset, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(lastTsDeltaObjectMetadataOffset, outputStream);
+
+        return byteLen;
+    }
+
+    public int serialize(ByteBuffer buffer) throws IOException {
+        int byteLen = 0;
+
+        if(deltaObjectMap == null){
+            byteLen += ReadWriteToBytesUtils.write(0, buffer);
+        } else {
+            byteLen += ReadWriteToBytesUtils.write(deltaObjectMap.size(), buffer);
+            for (Map.Entry<String, TsDeltaObjectMetadata> entry : deltaObjectMap.entrySet()) {
+                byteLen += ReadWriteToBytesUtils.write(entry.getKey(), buffer);
+                byteLen += ReadWriteToBytesUtils.write(entry.getValue(), buffer);
+            }
+        }
+
+        if(timeSeriesList == null){
+            byteLen += ReadWriteToBytesUtils.write(0, buffer);
+        } else {
+            byteLen += ReadWriteToBytesUtils.write(timeSeriesList.size(), buffer);
+            for(TimeSeriesMetadata timeSeriesMetadata : timeSeriesList)
+                byteLen += ReadWriteToBytesUtils.write(timeSeriesMetadata, buffer);
+        }
+
+        byteLen += ReadWriteToBytesUtils.write(currentVersion, buffer);
+
+        byteLen += ReadWriteToBytesUtils.writeIsNull(createdBy, buffer);
+        if(createdBy != null)byteLen += ReadWriteToBytesUtils.write(createdBy, buffer);
+
+        byteLen += ReadWriteToBytesUtils.write(firstTimeSeriesMetadataOffset, buffer);
+        byteLen += ReadWriteToBytesUtils.write(lastTimeSeriesMetadataOffset, buffer);
+        byteLen += ReadWriteToBytesUtils.write(firstTsDeltaObjectMetadataOffset, buffer);
+        byteLen += ReadWriteToBytesUtils.write(lastTsDeltaObjectMetadataOffset, buffer);
+
+        return byteLen;
+    }
+
+    public static TsFileMetaData deserialize(InputStream inputStream) throws IOException {
+        TsFileMetaData fileMetaData = new TsFileMetaData();
+
+        int size = ReadWriteToBytesUtils.readInt(inputStream);
+        if(size > 0) {
+            Map<String, TsDeltaObjectMetadata> deltaObjectMap = new HashMap<>();
+            String key;
+            TsDeltaObjectMetadata value;
+            for (int i = 0; i < size; i++) {
+                key = ReadWriteToBytesUtils.readString(inputStream);
+                value = ReadWriteToBytesUtils.readDeltaObjectMetadata(inputStream);
+                deltaObjectMap.put(key, value);
+            }
+            fileMetaData.deltaObjectMap = deltaObjectMap;
+        }
+
+        size = ReadWriteToBytesUtils.readInt(inputStream);
+        if(size > 0) {
+            List<TimeSeriesMetadata> timeSeriesList = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                timeSeriesList.add(ReadWriteToBytesUtils.readTimeSeriesMetadata(inputStream));
+            }
+            fileMetaData.timeSeriesList = timeSeriesList;
+        }
+
+        fileMetaData.currentVersion = ReadWriteToBytesUtils.readInt(inputStream);
+
+        if(ReadWriteToBytesUtils.readIsNull(inputStream))
+            fileMetaData.createdBy = ReadWriteToBytesUtils.readString(inputStream);
+
+        fileMetaData.firstTimeSeriesMetadataOffset = ReadWriteToBytesUtils.readLong(inputStream);
+        fileMetaData.lastTimeSeriesMetadataOffset = ReadWriteToBytesUtils.readLong(inputStream);
+        fileMetaData.firstTsDeltaObjectMetadataOffset = ReadWriteToBytesUtils.readLong(inputStream);
+        fileMetaData.lastTsDeltaObjectMetadataOffset = ReadWriteToBytesUtils.readLong(inputStream);
+
+        return fileMetaData;
+    }
+
+    public static TsFileMetaData deserialize(ByteBuffer buffer) throws IOException {
+        TsFileMetaData fileMetaData = new TsFileMetaData();
+
+        int size = ReadWriteToBytesUtils.readInt(buffer);
+        if(size > 0) {
+            Map<String, TsDeltaObjectMetadata> deltaObjectMap = new HashMap<>();
+            String key;
+            TsDeltaObjectMetadata value;
+            for (int i = 0; i < size; i++) {
+                key = ReadWriteToBytesUtils.readString(buffer);
+                value = ReadWriteToBytesUtils.readDeltaObjectMetadata(buffer);
+                deltaObjectMap.put(key, value);
+            }
+            fileMetaData.deltaObjectMap = deltaObjectMap;
+        }
+
+        size = ReadWriteToBytesUtils.readInt(buffer);
+        if(size > 0) {
+            List<TimeSeriesMetadata> timeSeriesList = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                timeSeriesList.add(ReadWriteToBytesUtils.readTimeSeriesMetadata(buffer));
+            }
+            fileMetaData.timeSeriesList = timeSeriesList;
+        }
+
+        fileMetaData.currentVersion = ReadWriteToBytesUtils.readInt(buffer);
+
+        if(ReadWriteToBytesUtils.readIsNull(buffer))
+            fileMetaData.createdBy = ReadWriteToBytesUtils.readString(buffer);
+
+        fileMetaData.firstTimeSeriesMetadataOffset = ReadWriteToBytesUtils.readLong(buffer);
+        fileMetaData.lastTimeSeriesMetadataOffset = ReadWriteToBytesUtils.readLong(buffer);
+        fileMetaData.firstTsDeltaObjectMetadataOffset = ReadWriteToBytesUtils.readLong(buffer);
+        fileMetaData.lastTsDeltaObjectMetadataOffset = ReadWriteToBytesUtils.readLong(buffer);
+
+        return fileMetaData;
     }
 }

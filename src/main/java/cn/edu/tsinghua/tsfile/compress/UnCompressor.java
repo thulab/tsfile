@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.compress;
 
 import cn.edu.tsinghua.tsfile.common.exception.CompressionTypeNotSupportedException;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
@@ -11,7 +12,7 @@ import java.io.IOException;
  * uncompress data according to type in metadata
  */
 public abstract class UnCompressor {
-    public static UnCompressor getUnCompressor(CompressionTypeName name) {
+    public static UnCompressor getUnCompressor(CompressionType name) {
         if (name == null) {
             throw new CompressionTypeNotSupportedException("NULL");
         }
@@ -27,7 +28,7 @@ public abstract class UnCompressor {
 
     public abstract byte[] uncompress(byte[] byteArray);
 
-    public abstract CompressionTypeName getCodecName();
+    public abstract CompressionType getCodecName();
 
     static public class NoUnCompressor extends UnCompressor {
 
@@ -37,8 +38,8 @@ public abstract class UnCompressor {
         }
 
         @Override
-        public CompressionTypeName getCodecName() {
-            return CompressionTypeName.UNCOMPRESSED;
+        public CompressionType getCodecName() {
+            return CompressionType.UNCOMPRESSED;
         }
     }
 
@@ -62,8 +63,8 @@ public abstract class UnCompressor {
         }
 
         @Override
-        public CompressionTypeName getCodecName() {
-            return CompressionTypeName.SNAPPY;
+        public CompressionType getCodecName() {
+            return CompressionType.SNAPPY;
         }
     }
 }
