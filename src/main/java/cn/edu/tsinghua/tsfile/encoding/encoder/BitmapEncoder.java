@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.encoding.encoder;
 
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import org.slf4j.Logger;
@@ -46,12 +46,12 @@ public class BitmapEncoder extends Encoder {
 
 
     /**
-     * Each time encoder receives a value, encoder doesn't write it to OutputStream immediately.
+     * Each time encoder receives a value, encoder doesn't writeTo it to OutputStream immediately.
      * Encoder stores current value in a list. When all value is received, flush() method will be
      * invoked. Encoder encodes all values and writes them to OutputStream
      *
      * @param value value to encode
-     * @param out   OutputStream to write encoded stream
+     * @param out   OutputStream to writeTo encoded stream
      * @throws IOException cannot encode value
      * @see Encoder#encode(int, java.io.ByteArrayOutputStream)
      */
@@ -61,9 +61,9 @@ public class BitmapEncoder extends Encoder {
     }
 
     /**
-     * When all data received, encoder now encodes values in list and write them to OutputStream
+     * When all data received, encoder now encodes values in list and writeTo them to OutputStream
      *
-     * @param out OutputStream to write encoded stream
+     * @param out OutputStream to writeTo encoded stream
      * @throws IOException cannot flush to OutputStream
      * @see Encoder#flush(java.io.ByteArrayOutputStream)
      */
@@ -89,12 +89,12 @@ public class BitmapEncoder extends Encoder {
                     buffer[index] |= ((byte) 1 << offset);
                 }
             }
-            ReadWriteStreamUtils.writeUnsignedVarInt(value, byteCache);
+            ReadWriteForEncodingUtils.writeUnsignedVarInt(value, byteCache);
             byteCache.write(buffer);
 //      LOGGER.debug("tsfile-encoding BitmapEncoder: encode value {}, bitmap index {}", value, buffer);
         }
-        ReadWriteStreamUtils.writeUnsignedVarInt(byteCache.size(), out);
-        ReadWriteStreamUtils.writeUnsignedVarInt(len, out);
+        ReadWriteForEncodingUtils.writeUnsignedVarInt(byteCache.size(), out);
+        ReadWriteForEncodingUtils.writeUnsignedVarInt(len, out);
         out.write(byteCache.toByteArray());
         reset();
     }

@@ -32,18 +32,7 @@ public abstract class TSDataTypeConverter {
     public void initFromProps(Map<String, String> props) {
     }
 
-    /**
-     * For a kind of datatypeConverter, check the input parameter. If it's legal, return this
-     * parameter in its appropriate class type. It needs subclass extending.
-     *
-     * @param pmKey - argument key in JSON object key-value pair
-     * @param value - argument value in JSON object key-value pair in type of String
-     * @return - default return is null which means this data type needn't the parameter
-     * @throws MetadataArgsErrorException throw exception when metadata has wrong args
-     */
-    public Object checkParameter(String pmKey, String value) throws MetadataArgsErrorException {
-        throw new MetadataArgsErrorException("don't need args:{}" + pmKey);
-    }
+
 
     public static class ENUMS extends TSDataTypeConverter {
         private TSFileEnum tsfileEnum = null;
@@ -56,7 +45,7 @@ public abstract class TSDataTypeConverter {
          */
         public int parseValue(String v) {
             if (v == null || "".equals(v)) {
-                LOG.warn("write enum null, String:{}", v);
+                LOG.warn("writeTo enum null, String:{}", v);
                 return -1;
             }
             if (tsfileEnum == null) {
@@ -78,15 +67,6 @@ public abstract class TSDataTypeConverter {
             tsfileEnum = new TSFileEnum();
             for (String value : values) {
                 tsfileEnum.addTSFileEnum(value);
-            }
-        }
-
-        @Override
-        public Object checkParameter(String pmKey, String value) throws MetadataArgsErrorException {
-            if (JsonFormatConstant.ENUM_VALUES.equals(pmKey)) {
-                return value.split(JsonFormatConstant.ENUM_VALUES_SEPARATOR);
-            } else {
-                throw new MetadataArgsErrorException("don't need args:{}" + JsonFormatConstant.ENUM_VALUES);
             }
         }
 

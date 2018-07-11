@@ -1,16 +1,16 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.series;
 
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
-import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
 import cn.edu.tsinghua.tsfile.common.utils.PublicBAOS;
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.encoder.Encoder;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 
 /**
- * This function is used to write time-value into a time series. It consists of a time encoder, a
+ * This function is used to writeTo time-value into a time series. It consists of a time encoder, a
  * value encoder and respective OutputStream.
  *
  * @author kangrong
@@ -23,12 +23,13 @@ public class ValueWriter {
     private Encoder valueEncoder;
     private PublicBAOS valueOut;
 
-    private PublicBAOS timeSizeOut;
+    //private PublicBAOS timeSizeOut;
+    private int timeSize;
 
     public ValueWriter() {
         this.timeOut = new PublicBAOS();
         this.valueOut = new PublicBAOS();
-        this.timeSizeOut = new PublicBAOS();
+       // this.timeSizeOut = new PublicBAOS();
     }
 
     public void write(long time, boolean value) throws IOException {
@@ -83,17 +84,35 @@ public class ValueWriter {
         valueOut.flush();
     }
 
+//    /**
+//     * getBytes return data what it has been written in form of <code>ListByteArrayOutputStream</code>.
+//     *
+//     * @return - list byte array output stream containing time size, time stream and value stream.
+//     * @throws IOException exception in IO
+//     */
+//    public ListByteArrayOutputStream getBytes() throws IOException {
+//        prepareEndWriteOnePage();
+//        ReadWriteForEncodingUtils.writeUnsignedVarInt(timeOut.size(), timeSizeOut);
+//        return new ListByteArrayOutputStream(timeSizeOut, timeOut, valueOut);
+//    }
+
     /**
-     * getBytes return data what it has been written in form of <code>ListByteArrayOutputStream</code>.
-     *
-     * @return - list byte array output stream containing time size, time stream and value stream.
-     * @throws IOException exception in IO
+     * getBytes return data what it has been written in form of <code>size of time list, time list, value list</code>
+     * @return a new readable Bytebuffer whose position is 0.
+     * @throws IOException
+     * author hxd
      */
-    public ListByteArrayOutputStream getBytes() throws IOException {
+    public ByteBuffer getBytes() throws IOException {
         prepareEndWriteOnePage();
-        ReadWriteStreamUtils.writeUnsignedVarInt(timeOut.size(), timeSizeOut);
-        return new ListByteArrayOutputStream(timeSizeOut, timeOut, valueOut);
+        ByteBuffer buffer= ByteBuffer.allocate(timeOut.size()+valueOut.size()+32);
+        int length1=ReadWriteForEncodingUtils.writeUnsignedVarInt(timeOut.size(),buffer);//FIXME: why do we use a var-length int.
+        buffer.put(timeOut.getBuf(),0, timeOut.size());
+        buffer.put(valueOut.getBuf(),0, valueOut.size());
+        buffer.flip();
+        return buffer;
+        //return new ListByteArrayOutputStream(timeSizeOut, timeOut, valueOut);
     }
+
 
     /**
      * calculate max possible memory size it occupies, including time outputStream and value outputStream
@@ -110,7 +129,6 @@ public class ValueWriter {
     public void reset() {
         timeOut.reset();
         valueOut.reset();
-        timeSizeOut.reset();
     }
 
     public void setTimeEncoder(Encoder encoder) {

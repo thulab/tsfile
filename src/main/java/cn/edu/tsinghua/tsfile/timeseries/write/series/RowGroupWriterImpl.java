@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.edu.tsinghua.tsfile.file.header.RowGroupHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
             String measurementId = point.getMeasurementId();
             if (!dataSeriesWriters.containsKey(measurementId))
                 throw new NoMeasurementException("time " + time + ", measurement id " + measurementId + " not found!");
-            point.write(time, dataSeriesWriters.get(measurementId));
+            point.writeTo(time, dataSeriesWriters.get(measurementId));
 
         }
     }
@@ -65,5 +66,26 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
         for (ISeriesWriter seriesWriter : dataSeriesWriters.values())
             bufferSize += seriesWriter.estimateMaxSeriesMemSize();
         return bufferSize;
+    }
+
+
+    @Override
+    public long getCurrentRowGroupSize(){
+        long size= RowGroupHeader.getSerializedSize(deltaObjectId);
+        for(ISeriesWriter writer: dataSeriesWriters.values()){
+            size+=writer.getCurrentChunkSize();
+        }
+        return  size;
+    }
+
+    @Override
+    public void preFlush() {
+        for(ISeriesWriter writer: dataSeriesWriters.values()){
+            writer.preFlush();
+        }
+    }
+    @Override
+    public int getSeriesNumber(){
+        return dataSeriesWriters.size();
     }
 }

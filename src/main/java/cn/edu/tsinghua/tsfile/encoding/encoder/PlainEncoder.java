@@ -49,8 +49,8 @@ public class PlainEncoder extends Encoder {
                     "tsfile-encoding PlainEncoder: current version does not support short value encoding");
             throw new TSFileEncodingException(
                     "tsfile-encoding PlainEncoder: current version does not support short value encoding");
-            // out.write((value >> 8) & 0xFF);
-            // out.write((value >> 0) & 0xFF);
+            // out.writeTo((value >> 8) & 0xFF);
+            // out.writeTo((value >> 0) & 0xFF);
         }
     }
 
@@ -66,10 +66,10 @@ public class PlainEncoder extends Encoder {
                     "tsfile-encoding PlainEncoder: current version does not support int value encoding");
             throw new TSFileEncodingException(
                     "tsfile-encoding PlainEncoder: current version does not support int value encoding");
-            // out.write((value >> 24) & 0xFF);
-            // out.write((value >> 16) & 0xFF);
-            // out.write((value >> 8) & 0xFF);
-            // out.write((value >> 0) & 0xFF);
+            // out.writeTo((value >> 24) & 0xFF);
+            // out.writeTo((value >> 16) & 0xFF);
+            // out.writeTo((value >> 8) & 0xFF);
+            // out.writeTo((value >> 0) & 0xFF);
         }
     }
 
@@ -90,7 +90,7 @@ public class PlainEncoder extends Encoder {
                         "tsfile-encoding PlainEncoder: current version does not support long value encoding");
                 throw new TSFileEncodingException(
                         "tsfile-encoding PlainEncoder: current version does not support long value encoding");
-//        out.write(bufferBig);
+//        out.writeTo(bufferBig);
             }
         } catch (IOException e) {
             LOGGER.error("tsfile-encoding PlainEncoder: error occurs when encode long value {}", value,
@@ -111,9 +111,9 @@ public class PlainEncoder extends Encoder {
     @Override
     public void encode(Binary value, ByteArrayOutputStream out) {
         try {
-            // write the length of the bytes
+            // writeTo the length of the bytes
             encode(value.getLength(), out);
-            // write value
+            // writeTo value
             out.write(value.values);
         } catch (IOException e) {
             LOGGER.error("tsfile-encoding PlainEncoder: error occurs when encode Binary value {}", value, e);

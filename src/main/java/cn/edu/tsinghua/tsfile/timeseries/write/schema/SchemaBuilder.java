@@ -25,12 +25,28 @@ public class SchemaBuilder {
      * @param measurementId (not null) id of the series
      * @param dataType      (not null) series data type
      * @param tsEncoding    (not null) encoding method you specified
-     * @param props         information in encoding method
+     * @param props         information in encoding method.
+     *                      For RLE, Encoder.MAX_POINT_NUMBER
+     *                      For PLAIN, Encoder.MAX_STRING_LENGTH
      * @return this
      */
     public SchemaBuilder addSeries(String measurementId, TSDataType dataType, TSEncoding tsEncoding,
                                    Map<String, String> props) {
         MeasurementDescriptor md = new MeasurementDescriptor(measurementId, dataType, tsEncoding, props);
+        fileSchema.registerMeasurement(md);
+        return this;
+    }
+
+    /**
+     * add one series to tsfile schema
+     *
+     * @param measurementId (not null) id of the series
+     * @param dataType      (not null) series data type
+     * @param tsEncoding    (not null) encoding method you specified
+     * @return this
+     */
+    public SchemaBuilder addSeries(String measurementId, TSDataType dataType, TSEncoding tsEncoding ) {
+        MeasurementDescriptor md = new MeasurementDescriptor(measurementId, dataType, tsEncoding);
         fileSchema.registerMeasurement(md);
         return this;
     }
@@ -48,31 +64,17 @@ public class SchemaBuilder {
     }
 
 
-    /**
-     * add one series to tsfile schema
-     *
-     * @param measurementId (not null) id of the series
-     * @param dataType      (not null) series data type
-     * @param encoding      (not null) encoding method you specified
-     * @param props         information in encoding method
-     * @return this
-     */
-    public SchemaBuilder addSeries(String measurementId, TSDataType dataType, String encoding,
-                                   Map<String, String> props) {
-        TSEncoding tsEncoding = TSEncoding.valueOf(encoding);
-        addSeries(measurementId, dataType, tsEncoding, props);
-        return this;
-    }
 
-    public SchemaBuilder addProp(String key, String value) {
-        fileSchema.addProp(key, value);
-        return this;
-    }
 
-    public SchemaBuilder setProps(Map<String, String> props) {
-        fileSchema.setProps(props);
-        return this;
-    }
+//    public SchemaBuilder addProp(String key, String value) {
+//        fileSchema.addProp(key, value);
+//        return this;
+//    }
+//
+//    public SchemaBuilder setProps(Map<String, String> props) {
+//        fileSchema.setProps(props);
+//        return this;
+//    }
 
     /**
      * get file schema after adding all series and properties

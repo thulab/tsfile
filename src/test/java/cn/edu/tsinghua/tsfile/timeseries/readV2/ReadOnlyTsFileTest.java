@@ -2,7 +2,6 @@ package cn.edu.tsinghua.tsfile.timeseries.readV2;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.TimeFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.ValueFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.basic.Filter;
@@ -11,7 +10,6 @@ import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.GlobalTimeFilt
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.QueryFilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.SeriesFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.factory.FilterFactory;
-import cn.edu.tsinghua.tsfile.timeseries.read.TsRandomAccessLocalFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.basis.ReadOnlyTsFile;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.RowRecord;
@@ -31,7 +29,7 @@ import java.io.IOException;
 public class ReadOnlyTsFileTest {
 
     private static final String FILE_PATH = TsFileGeneratorForTest.outputDataFile;
-    private ITsRandomAccessFileReader randomAccessFileReader;
+    private TsFileSequenceReader fileReader;
     private int rowCount = 1000;
     private ReadOnlyTsFile tsFile;
 
@@ -39,8 +37,9 @@ public class ReadOnlyTsFileTest {
     public void before() throws InterruptedException, WriteProcessException, IOException {
         TSFileDescriptor.getInstance().getConfig().timeSeriesEncoder = "TS_2DIFF";
         TsFileGeneratorForTest.generateFile(rowCount, 16 * 1024 * 1024, 10000);
-        randomAccessFileReader = new TsRandomAccessLocalFileReader(FILE_PATH);
-        tsFile = new ReadOnlyTsFile(randomAccessFileReader);
+        fileReader = new TsFileSequenceReader(FILE_PATH);
+        fileReader.open();
+        tsFile = new ReadOnlyTsFile(fileReader);
     }
 
     @After
@@ -69,7 +68,9 @@ public class ReadOnlyTsFileTest {
         QueryDataSet queryDataSet = tsFile.query(queryExpression);
         long aimedTimestamp = 1480562618000L;
         while (queryDataSet.hasNext()) {
+            //System.out.println("find next!");
             RowRecord rowRecord = queryDataSet.next();
+            //System.out.println("result datum: "+rowRecord.getTimestamp()+"," +rowRecord.getFields());
             Assert.assertEquals(aimedTimestamp, rowRecord.getTimestamp());
             aimedTimestamp++;
         }

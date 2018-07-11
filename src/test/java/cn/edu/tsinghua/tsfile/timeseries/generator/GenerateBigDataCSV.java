@@ -190,7 +190,7 @@ public class GenerateBigDataCSV {
     private static Set<String> sensorSet = new HashSet<>();
     private static long lineCount;
     private static double writeFreqFraction[] = {0, 0, 0};
-    // 0:not write->1:writing->2:written
+    // 0:not writeTo->1:writing->2:written
     private static int hasWrittenFreq[] = {0, 0, 0};
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -200,7 +200,7 @@ public class GenerateBigDataCSV {
                     .println("input format: <csvFilePath> <schemaOutputFilePath> <lineCount> <sensorName> [<sensorName>...]");
             return;
         }
-        LOG.info("write start!");
+        LOG.info("writeTo start!");
         inputDataFile = args[0];
         String schemaOutputFilePath = args[1];
         lineCount = Long.valueOf(args[2]);
@@ -227,6 +227,6 @@ public class GenerateBigDataCSV {
             i++;
         }
         fw.close();
-        LOG.info("write finished!");
+        LOG.info("writeTo finished!");
     }
 }

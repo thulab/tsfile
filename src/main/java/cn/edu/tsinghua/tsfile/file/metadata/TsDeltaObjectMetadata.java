@@ -1,24 +1,26 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class TsDeltaObjectMetadata {
+public class TsDeltaObjectMetadata {//TODO 为什么这个类中没有deltaObjectID?
     /**
      * start position of RowGroupMetadataBlock in file
      **/
-    private long offset;
+    //private long offset;
+
 
     /**
      * size of RowGroupMetadataBlock in byte
      **/
-    private int metadataBlockSize;
+    private int serializedSize = 2 * Long.BYTES + Integer.BYTES;// this field does not need to be serialized.
 
     /**
      * start time for a delta object
@@ -35,6 +37,27 @@ public class TsDeltaObjectMetadata {
      */
     private List<RowGroupMetaData> rowGroupMetadataList;
 
+    private int sizeOfRowGroupMetadataList; // this field does not need to be serialized.
+
+
+    public int getSerializedSize() {
+        if((rowGroupMetadataList!=null && sizeOfRowGroupMetadataList !=rowGroupMetadataList.size()) || (rowGroupMetadataList == null && sizeOfRowGroupMetadataList !=0))
+            reCalculateSerializedSize();
+        return serializedSize;
+    }
+
+    private void reCalculateSerializedSize(){
+        serializedSize = 2 * Long.BYTES + Integer.BYTES;
+        if(rowGroupMetadataList!=null) {
+            for (RowGroupMetaData meta : rowGroupMetadataList) {
+                serializedSize += meta.getSerializedSize();
+            }
+            this.sizeOfRowGroupMetadataList = rowGroupMetadataList.size();
+        }else{
+            this.sizeOfRowGroupMetadataList = 0;
+        }
+    }
+
     public TsDeltaObjectMetadata(){
     }
 
@@ -48,30 +71,12 @@ public class TsDeltaObjectMetadata {
             rowGroupMetadataList = new ArrayList<RowGroupMetaData>();
         }
         rowGroupMetadataList.add(rowGroup);
+        sizeOfRowGroupMetadataList++;
+        serializedSize+=rowGroup.getSerializedSize();
     }
 
     public List<RowGroupMetaData> getRowGroups() {
-        return rowGroupMetadataList;
-    }
-
-    public void setRowGroups(List<RowGroupMetaData> rowGroupMetadataList) {
-        this.rowGroupMetadataList = rowGroupMetadataList;
-    }
-
-    public long getOffset() {
-        return offset;
-    }
-
-    public void setOffset(long offset) {
-        this.offset = offset;
-    }
-
-    public int getMetadataBlockSize() {
-        return metadataBlockSize;
-    }
-
-    public void setMetadataBlockSize(int metadataBlockSize) {
-        this.metadataBlockSize = metadataBlockSize;
+        return Collections.unmodifiableList(rowGroupMetadataList);
     }
 
     public long getStartTime() {
@@ -90,81 +95,95 @@ public class TsDeltaObjectMetadata {
         this.endTime = endTime;
     }
 
-    public int serialize(OutputStream outputStream) throws IOException {
-        int byteLen = 0;
+    public int serializeTo(OutputStream outputStream) throws IOException {
+        if(sizeOfRowGroupMetadataList !=rowGroupMetadataList.size()){
+            reCalculateSerializedSize();
+        }
 
-        byteLen += ReadWriteToBytesUtils.write(offset, outputStream);
-        byteLen += ReadWriteToBytesUtils.write(metadataBlockSize, outputStream);
-        byteLen += ReadWriteToBytesUtils.write(startTime, outputStream);
-        byteLen += ReadWriteToBytesUtils.write(endTime, outputStream);
+        int byteLen = 0;
+        byteLen += ReadWriteIOUtils.write(startTime, outputStream);
+        byteLen += ReadWriteIOUtils.write(endTime, outputStream);
 
         if(rowGroupMetadataList == null){
-            byteLen += ReadWriteToBytesUtils.write(0, outputStream);
+            byteLen += ReadWriteIOUtils.write(0, outputStream);
         } else {
-            byteLen += ReadWriteToBytesUtils.write(rowGroupMetadataList.size(), outputStream);
+            byteLen += ReadWriteIOUtils.write(rowGroupMetadataList.size(), outputStream);
             for(RowGroupMetaData rowGroupMetaData : rowGroupMetadataList)
-                byteLen += ReadWriteToBytesUtils.write(rowGroupMetaData, outputStream);
+                byteLen += ReadWriteIOUtils.write(rowGroupMetaData, outputStream);
         }
+
+        assert  getSerializedSize() == byteLen;
+        return byteLen;
+    }
+
+    public int serializeTo(ByteBuffer buffer) throws IOException {
+        if(sizeOfRowGroupMetadataList !=rowGroupMetadataList.size()){
+            reCalculateSerializedSize();
+        }
+        int byteLen = 0;
+
+        byteLen += ReadWriteIOUtils.write(startTime, buffer);
+        byteLen += ReadWriteIOUtils.write(endTime, buffer);
+
+        if(rowGroupMetadataList == null){
+            byteLen += ReadWriteIOUtils.write(0, buffer);
+        } else {
+            byteLen += ReadWriteIOUtils.write(rowGroupMetadataList.size(), buffer);
+            for(RowGroupMetaData rowGroupMetaData : rowGroupMetadataList)
+                byteLen += ReadWriteIOUtils.write(rowGroupMetaData, buffer);
+        }
+
+        assert  sizeOfRowGroupMetadataList == byteLen;
 
         return byteLen;
     }
 
-    public int serialize(ByteBuffer buffer) throws IOException {
-        int byteLen = 0;
-
-        byteLen += ReadWriteToBytesUtils.write(offset, buffer);
-        byteLen += ReadWriteToBytesUtils.write(metadataBlockSize, buffer);
-        byteLen += ReadWriteToBytesUtils.write(startTime, buffer);
-        byteLen += ReadWriteToBytesUtils.write(endTime, buffer);
-
-        if(rowGroupMetadataList == null){
-            byteLen += ReadWriteToBytesUtils.write(0, buffer);
-        } else {
-            byteLen += ReadWriteToBytesUtils.write(rowGroupMetadataList.size(), buffer);
-            for(RowGroupMetaData rowGroupMetaData : rowGroupMetadataList)
-                byteLen += ReadWriteToBytesUtils.write(rowGroupMetaData, buffer);
-        }
-
-        return byteLen;
-    }
-
-    public static TsDeltaObjectMetadata deserialize(InputStream inputStream) throws IOException {
+    public static TsDeltaObjectMetadata deserializeFrom(InputStream inputStream) throws IOException {
         TsDeltaObjectMetadata deltaObjectMetadata = new TsDeltaObjectMetadata();
 
-        deltaObjectMetadata.offset = ReadWriteToBytesUtils.readLong(inputStream);
-        deltaObjectMetadata.metadataBlockSize = ReadWriteToBytesUtils.readInt(inputStream);
-        deltaObjectMetadata.startTime = ReadWriteToBytesUtils.readLong(inputStream);
-        deltaObjectMetadata.endTime = ReadWriteToBytesUtils.readLong(inputStream);
+        deltaObjectMetadata.startTime = ReadWriteIOUtils.readLong(inputStream);
+        deltaObjectMetadata.endTime = ReadWriteIOUtils.readLong(inputStream);
 
-        int size = ReadWriteToBytesUtils.readInt(inputStream);
+        int size = ReadWriteIOUtils.readInt(inputStream);
         if(size > 0) {
             List<RowGroupMetaData> rowGroupMetaDataList = new ArrayList<>();
             for (int i = 0; i < size; i++) {
-                rowGroupMetaDataList.add(ReadWriteToBytesUtils.readRowGroupMetaData(inputStream));
+                rowGroupMetaDataList.add(ReadWriteIOUtils.readRowGroupMetaData(inputStream));
             }
             deltaObjectMetadata.rowGroupMetadataList = rowGroupMetaDataList;
         }
 
+        deltaObjectMetadata.reCalculateSerializedSize();
         return deltaObjectMetadata;
     }
 
-    public static TsDeltaObjectMetadata deserialize(ByteBuffer buffer) throws IOException {
+    public static TsDeltaObjectMetadata deserializeFrom(ByteBuffer buffer) throws IOException {
         TsDeltaObjectMetadata deltaObjectMetadata = new TsDeltaObjectMetadata();
 
-        deltaObjectMetadata.offset = ReadWriteToBytesUtils.readLong(buffer);
-        deltaObjectMetadata.metadataBlockSize = ReadWriteToBytesUtils.readInt(buffer);
-        deltaObjectMetadata.startTime = ReadWriteToBytesUtils.readLong(buffer);
-        deltaObjectMetadata.endTime = ReadWriteToBytesUtils.readLong(buffer);
+        deltaObjectMetadata.startTime = ReadWriteIOUtils.readLong(buffer);
+        deltaObjectMetadata.endTime = ReadWriteIOUtils.readLong(buffer);
 
-        int size = ReadWriteToBytesUtils.readInt(buffer);
+        int size = ReadWriteIOUtils.readInt(buffer);
         if(size > 0) {
             List<RowGroupMetaData> rowGroupMetaDataList = new ArrayList<>();
             for (int i = 0; i < size; i++) {
-                rowGroupMetaDataList.add(ReadWriteToBytesUtils.readRowGroupMetaData(buffer));
+                rowGroupMetaDataList.add(ReadWriteIOUtils.readRowGroupMetaData(buffer));
             }
             deltaObjectMetadata.rowGroupMetadataList = rowGroupMetaDataList;
         }
 
+        deltaObjectMetadata.reCalculateSerializedSize();
         return deltaObjectMetadata;
+    }
+
+    @Override
+    public String toString() {
+        return "TsDeltaObjectMetadata{" +
+                "serializedSize=" + serializedSize +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", rowGroupMetadataList=" + rowGroupMetadataList +
+                ", sizeOfRowGroupMetadataList=" + sizeOfRowGroupMetadataList +
+                '}';
     }
 }

@@ -51,13 +51,13 @@ public class WriteDemo {
         TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
         tsFileWriter = new TsFileWriter(file, schema, conf);
 
-        // write to file
+        // writeTo to file
         try {
             writeToFile(schema);
         } catch (WriteProcessException e) {
             e.printStackTrace();
         }
-        LOG.info("write to file successfully!!");
+        LOG.info("writeTo to file successfully!!");
     }
 
     private static void writeToFile(FileSchema schema) throws InterruptedException, IOException, WriteProcessException {
@@ -69,9 +69,9 @@ public class WriteDemo {
         while ((line = br.readLine()) != null) {
             if (lineCount % 1000000 == 0) {
                 endTime = System.currentTimeMillis();
-                LOG.info("write line:{},inner space consumer:{},use time:{}", lineCount,
+                LOG.info("writeTo line:{},inner space consumer:{},use time:{}", lineCount,
                         tsFileWriter.calculateMemSizeForAllGroup(), endTime);
-                LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+                LOG.info("writeTo line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
             }
             // String str = in.nextLine();
             TSRecord record = RecordUtils.parseSimpleTupleRecord(line, schema);
@@ -79,10 +79,10 @@ public class WriteDemo {
             lineCount++;
         }
         endTime = System.currentTimeMillis();
-        LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+        LOG.info("writeTo line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
         tsFileWriter.close();
         endTime = System.currentTimeMillis();
-        LOG.info("write total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+        LOG.info("writeTo total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
         LOG.info("src file size:{}GB", FileUtils.getLocalFileByte(inputDataFile, FileUtils.Unit.GB));
         LOG.info("src file size:{}MB", FileUtils.getLocalFileByte(outputDataFile, FileUtils.Unit.MB));
         br.close();

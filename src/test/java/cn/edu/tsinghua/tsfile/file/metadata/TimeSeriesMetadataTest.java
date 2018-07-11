@@ -5,9 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,11 +37,11 @@ public class TimeSeriesMetadataTest {
             file.delete();
         FileOutputStream fos = new FileOutputStream(file);
         TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-        ReadWriteToBytesUtils.write(metaData, out.getOutputStream());
+        ReadWriteIOUtils.write(metaData, out.getOutputStream());
         out.close();
         fos.close();
 
         FileInputStream fis = new FileInputStream(new File(PATH));
-        Utils.isTimeSeriesEqual(metaData, ReadWriteToBytesUtils.readTimeSeriesMetadata(fis));
+        Utils.isTimeSeriesEqual(metaData, ReadWriteIOUtils.readTimeSeriesMetadata(fis));
     }
 }

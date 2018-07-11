@@ -24,4 +24,6 @@ public interface AbstractFilterVisitor<R> {
     <T extends Comparable<T>> R visit(Or<T> or);
 
     <T extends Comparable<T>> R visit(NoRestriction<T> noFilter);
+
+    //TODO 为什么没有satisfy函数
 }

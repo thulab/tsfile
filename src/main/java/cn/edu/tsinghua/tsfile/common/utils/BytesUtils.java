@@ -29,12 +29,12 @@ public class BytesUtils {
      * @return byte[4] for integer
      */
     public static byte[] intToBytes(int i) {
-        byte[] result = new byte[4];
-        result[0] = (byte) ((i >> 24) & 0xFF);
-        result[1] = (byte) ((i >> 16) & 0xFF);
-        result[2] = (byte) ((i >> 8) & 0xFF);
-        result[3] = (byte) (i & 0xFF);
-        return result;
+        return new byte[] {
+                (byte) ((i >> 24) & 0xFF),
+                (byte) ((i >> 16) & 0xFF),
+                (byte) ((i >> 8) & 0xFF),
+                (byte) (i & 0xFF)
+        };
     }
 
     public static byte[] intToTwoBytes(int i) {
@@ -55,7 +55,7 @@ public class BytesUtils {
     }
 
     /**
-     * integer convert to byte array, then write four bytes to parameter desc
+     * integer convert to byte array, then writeTo four bytes to parameter desc
      * start from index:offset
      *
      * @param i      integer to convert
@@ -78,15 +78,24 @@ public class BytesUtils {
      * @param bytes input byte[]
      * @return integer
      */
+//   public static int bytesToInt(byte[] bytes) {
+//        int value = 0;
+//        // high bit to low
+//        for (int i = 0; i < 4; i++) {
+//            int shift = (4 - 1 - i) * 8;
+//            value += (bytes[i] & 0x000000FF) << shift;
+//        }
+//        return value;
+//    }
+
     public static int bytesToInt(byte[] bytes) {
-        int value = 0;
-        // high bit to low
-        for (int i = 0; i < 4; i++) {
-            int shift = (4 - 1 - i) * 8;
-            value += (bytes[i] & 0x000000FF) << shift;
-        }
-        return value;
+        return   bytes[3] & 0xFF |
+                (bytes[2] & 0xFF) << 8 |
+                (bytes[1] & 0xFF) << 16 |
+                (bytes[0] & 0xFF) << 24;
     }
+
+
 
     /**
      * convert four-bytes byte array cut from parameters to integer.
@@ -123,7 +132,7 @@ public class BytesUtils {
     }
 
     /**
-     * float convert to boolean, then write four bytes to parameter desc start
+     * float convert to boolean, then writeTo four bytes to parameter desc start
      * from index:offset
      *
      * @param x      float
@@ -277,7 +286,7 @@ public class BytesUtils {
     }
 
     /**
-     * boolean convert to byte array, then write four bytes to parameter desc
+     * boolean convert to byte array, then writeTo four bytes to parameter desc
      * start from index:offset
      *
      * @param x      input boolean
@@ -354,8 +363,10 @@ public class BytesUtils {
         return byteNum;
     }
 
+
+
     /**
-     * long convert to byte array, then write four bytes to parameter desc start
+     * long convert to byte array, then writeTo four bytes to parameter desc start
      * from index:offset
      *
      * @param num     input long variable
@@ -777,4 +788,31 @@ public class BytesUtils {
         }
         return bytes;
     }
+
+
+
+
+    //we modify the order of serialization for fitting ByteBuffer.putShort()
+    public static byte[] shortToBytes(short number){
+        int temp = number;
+        byte[] b = new byte[2];
+        for(int i = b.length-1 ; i >=0; i--){
+            b[i] = new Integer(temp &0xff).byteValue();
+            temp = temp >> 8;
+        }
+
+        return b;
+    }
+
+    //we modify the order of serialization for fitting ByteBuffer.getShort()
+    public static short bytesToShort(byte[] b){
+        short s = 0;
+        short s0 = (short)(b[1]&0xff);
+        short s1 = (short)(b[0]&0xff);
+        s1 <<= 8;
+        s = (short)(s0 | s1);
+        return s;
+    }
+
+
 }

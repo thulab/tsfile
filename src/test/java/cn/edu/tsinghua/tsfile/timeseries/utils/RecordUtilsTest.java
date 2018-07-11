@@ -49,12 +49,12 @@ public class RecordUtilsTest {
         s4.put(JsonFormatConstant.DATA_TYPE, TSDataType.DOUBLE.toString());
         s4.put(JsonFormatConstant.MEASUREMENT_ENCODING,
                 conf.valueEncoder);
-        JSONObject s5 = new JSONObject();
-        s5.put(JsonFormatConstant.MEASUREMENT_UID, "s5");
-        s5.put(JsonFormatConstant.DATA_TYPE, TSDataType.ENUMS.toString());
-        s5.put(JsonFormatConstant.MEASUREMENT_ENCODING,
-                TSEncoding.BITMAP.toString());
-        s5.put(JsonFormatConstant.ENUM_VALUES, new JSONArray("[\"MAN\",\"WOMAN\"]"));
+//        JSONObject s5 = new JSONObject();
+//        s5.put(JsonFormatConstant.MEASUREMENT_UID, "s5");
+//        s5.put(JsonFormatConstant.DATA_TYPE, TSDataType.ENUMS.toString());
+//        s5.put(JsonFormatConstant.MEASUREMENT_ENCODING,
+//                TSEncoding.BITMAP.toString());
+//        s5.put(JsonFormatConstant.ENUM_VALUES, new JSONArray("[\"MAN\",\"WOMAN\"]"));
         JSONObject s6 = new JSONObject();
         s6.put(JsonFormatConstant.MEASUREMENT_UID, "s6");
         s6.put(JsonFormatConstant.DATA_TYPE, TSDataType.BOOLEAN.toString());
@@ -70,7 +70,7 @@ public class RecordUtilsTest {
         columnGroup1.put(s2);
         columnGroup1.put(s3);
         columnGroup1.put(s4);
-        columnGroup1.put(s5);
+//        columnGroup1.put(s5);
         columnGroup1.put(s6);
         columnGroup1.put(s7);
 
@@ -145,7 +145,7 @@ public class RecordUtilsTest {
         assertEquals(record.time, 1471522347000l);
         assertEquals(record.deltaObjectId, "d1");
         List<DataPoint> tuples = record.dataPointList;
-        assertEquals(6, tuples.size());
+        assertEquals(5, tuples.size());// enum type is omitted.
         DataPoint tuple = tuples.get(0);
         assertEquals(tuple.getMeasurementId(), "s1");
         assertEquals(tuple.getType(), TSDataType.INT32);
@@ -162,11 +162,11 @@ public class RecordUtilsTest {
         assertEquals(tuple.getMeasurementId(), "s4");
         assertEquals(tuple.getType(), TSDataType.DOUBLE);
         assertEquals(tuple.getValue(), 1.128794817d);
+//        tuple = tuples.get(4);
+//        assertEquals(tuple.getMeasurementId(), "s5");
+//        assertEquals(tuple.getType(), TSDataType.ENUMS);
+//        assertEquals(tuple.getValue(), 1);
         tuple = tuples.get(4);
-        assertEquals(tuple.getMeasurementId(), "s5");
-        assertEquals(tuple.getType(), TSDataType.ENUMS);
-        assertEquals(tuple.getValue(), 1);
-        tuple = tuples.get(5);
         assertEquals(tuple.getMeasurementId(), "s6");
         assertEquals(tuple.getType(), TSDataType.BOOLEAN);
         assertEquals(tuple.getValue(), true);

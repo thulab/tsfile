@@ -1,7 +1,9 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
+import cn.edu.tsinghua.tsfile.file.header.PageHeader;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.format.PageHeader;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 
 import java.io.InputStream;
@@ -11,8 +13,8 @@ import java.io.InputStream;
  */
 public class SeriesChunkReaderWithoutFilterImpl extends SeriesChunkReader {
 
-    public SeriesChunkReaderWithoutFilterImpl(InputStream seriesChunkInputStream, TSDataType dataType, CompressionTypeName compressionTypeName) {
-        super(seriesChunkInputStream, dataType, compressionTypeName);
+    public SeriesChunkReaderWithoutFilterImpl(InputStream seriesChunkInputStream) {
+        super(seriesChunkInputStream);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunk;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
@@ -26,13 +26,13 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
         nextSeriesChunkIndex = 0;
     }
 
-    public SeriesReaderFromSingleFileByTimestampImpl(ITsRandomAccessFileReader randomAccessFileReader, Path path) throws IOException {
-        super(randomAccessFileReader, path);
+    public SeriesReaderFromSingleFileByTimestampImpl(TsFileSequenceReader tsFileReader, Path path) throws IOException {
+        super(tsFileReader, path);
     }
 
-    public SeriesReaderFromSingleFileByTimestampImpl(ITsRandomAccessFileReader randomAccessFileReader,
+    public SeriesReaderFromSingleFileByTimestampImpl(TsFileSequenceReader tsFileReader,
                                       SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
-        super(randomAccessFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
+        super(tsFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
                     long maxTimestamp = encodedSeriesChunkDescriptor.getMaxTimestamp();
                     if (maxTimestamp < currentTimestamp) {
                         continue;
-                    } else if (minTimestamp > currentTimestamp) {
+                    } else if (minTimestamp > currentTimestamp) {//TODO 为什么?
                         return false;
                     }
                 }
@@ -101,9 +101,7 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
     @Override
     protected void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException {
         SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
-        this.seriesChunkReader = new SeriesChunkReaderByTimestampImpl(memSeriesChunk.getSeriesChunkBodyStream()
-                , encodedSeriesChunkDescriptor.getDataType(),
-                encodedSeriesChunkDescriptor.getCompressionTypeName());
+        this.seriesChunkReader = new SeriesChunkReaderByTimestampImpl(memSeriesChunk.getSeriesChunkBodyStream());
     }
 
     @Override

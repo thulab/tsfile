@@ -1,20 +1,20 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
+import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
+import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
+import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
-import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 public class TimeSeriesChunkMetaDataTest {
 
@@ -27,6 +27,7 @@ public class TimeSeriesChunkMetaDataTest {
   public static final long START_TIME = 523372036854775806L;
   public static final long END_TIME = 523372036854775806L;
   public static final TSDataType DATA_TYPE = TSDataType.INT64;
+  public static final TSEncoding ENCODING_TYPE = TSEncoding.GORILLA;
   final String PATH = "target/outputTimeSeriesChunk.ksn";
 
   @Before
@@ -47,11 +48,11 @@ public class TimeSeriesChunkMetaDataTest {
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
     TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-    ReadWriteToBytesUtils.write(metaData, out.getOutputStream());
+    ReadWriteIOUtils.write(metaData, out.getOutputStream());
     out.close();
     fos.close();
 
     FileInputStream fis = new FileInputStream(new File(PATH));
-    Utils.isTimeSeriesChunkMetadataEqual(metaData, ReadWriteToBytesUtils.readTimeSeriesChunkMetaData(fis));
+    Utils.isTimeSeriesChunkMetadataEqual(metaData, ReadWriteIOUtils.readTimeSeriesChunkMetaData(fis));
   }
 }

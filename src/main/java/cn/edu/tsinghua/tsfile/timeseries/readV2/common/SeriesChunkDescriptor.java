@@ -1,13 +1,14 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.common;
 
 import cn.edu.tsinghua.tsfile.file.metadata.TsDigest;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 
 /**
  * Created by zhangjinrui on 2018/1/15.
  */
 public interface SeriesChunkDescriptor {
-    TSDataType getDataType();
+    //TSDataType getDataType();
 
     TsDigest getValueDigest();
 
@@ -17,5 +18,5 @@ public interface SeriesChunkDescriptor {
 
     long getCountOfPoints();
 
-    CompressionTypeName getCompressionTypeName();
+    //CompressionType getCompressionType();
 }

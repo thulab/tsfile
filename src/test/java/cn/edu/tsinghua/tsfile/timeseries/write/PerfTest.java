@@ -76,27 +76,27 @@ public class PerfTest {
         Random rm = new Random();
         for (int i = 0; i < ROW_COUNT; i++) {
             String string4 = ",s4," + (char) (97 + i % 26);
-            // write d1
+            // writeTo d1
             String d1 = "d1," + (startTime + i) + ",s1," + (i * 10 + 1) + ",s2," + (i * 10 + 2) + string4;
             if (rm.nextInt(1000) < 100) {
-                // LOG.info("write null to d1:" + (startTime + i));
+                // LOG.info("writeTo null to d1:" + (startTime + i));
                 d1 = "d1," + (startTime + i) + ",s1,,s2," + (i * 10 + 2) + string4;
             }
             if (i % 5 == 0)
                 d1 += ",s3," + (i * 10 + 3);
             fw.write(d1 + "\r\n");
 
-            // write d2
+            // writeTo d2
             String d2 = "d2," + (startTime + i) + ",s2," + (i * 10 + 2) + ",s3," + (i * 10 + 3) + string4;
             if (rm.nextInt(1000) < 100) {
-                // LOG.info("write null to d2:" + (startTime + i));
+                // LOG.info("writeTo null to d2:" + (startTime + i));
                 d2 = "d2," + (startTime + i) + ",s2,,s3," + (i * 10 + 3) + string4;
             }
             if (i % 5 == 0)
                 d2 += ",s1," + (i * 10 + 1);
             fw.write(d2 + "\r\n");
         }
-        // write error
+        // writeTo error
         String d =
                 "d2,3," + (startTime + ROW_COUNT) + ",s2," + (ROW_COUNT * 10 + 2) + ",s3,"
                         + (ROW_COUNT * 10 + 3);
@@ -126,13 +126,13 @@ public class PerfTest {
         // TSFileDescriptor.conf.pageSize = 100;
         innerWriter = new TsFileWriter(file, schema, TSFileDescriptor.getInstance().getConfig());
 
-        // write
+        // writeTo
         try {
             writeToFile(schema);
         } catch (WriteProcessException e) {
             e.printStackTrace();
         }
-        LOG.info("write to file successfully!!");
+        LOG.info("writeTo to file successfully!!");
     }
 
     static private Scanner getDataFile(String path) {
@@ -155,9 +155,9 @@ public class PerfTest {
         while (in.hasNextLine()) {
             if (lineCount % 1000000 == 0) {
                 endTime = System.currentTimeMillis();
-                // logger.info("write line:{},inner space consumer:{},use
+                // logger.info("writeTo line:{},inner space consumer:{},use
                 // time:{}",lineCount,innerWriter.calculateMemSizeForEachGroup(),endTime);
-                LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+                LOG.info("writeTo line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
             }
             String str = in.nextLine();
             TSRecord record = RecordUtils.parseSimpleTupleRecord(str, schema);
@@ -165,11 +165,11 @@ public class PerfTest {
             lineCount++;
         }
         endTime = System.currentTimeMillis();
-        LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+        LOG.info("writeTo line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
         innerWriter.close();
         endTime = System.currentTimeMillis();
-        LOG.info("write total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
-        LOG.info("write total:{},use time:{}ms", lineCount, (endTime - startTime) );
+        LOG.info("writeTo total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+        LOG.info("writeTo total:{},use time:{}ms", lineCount, (endTime - startTime) );
         LOG.info("src file size:{}GB", FileUtils.getLocalFileByte(inputDataFile, Unit.GB));
         LOG.info("src file size:{}MB", FileUtils.getLocalFileByte(outputDataFile, Unit.MB));
         LOG.info("src file size:{}B", FileUtils.getLocalFileByte(outputDataFile, Unit.B));

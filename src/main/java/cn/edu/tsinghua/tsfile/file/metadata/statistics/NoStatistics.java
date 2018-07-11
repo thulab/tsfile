@@ -2,6 +2,11 @@ package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 
 
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
+import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 /**
  * This statistic is used as Unsupported data type. It just return a 0-byte array while asked max or
@@ -89,7 +94,41 @@ public class NoStatistics extends Statistics<Long> {
 		return new byte[0];
 	}
 
-	@Override
+    @Override
+    public int sizeOfDatum() {
+        return 0;
+    }
+
+    @Override
+    public ByteBuffer getMaxBytebuffer() {
+        return ByteBufferUtil.bytes(0);
+    }
+
+    @Override
+    public ByteBuffer getMinBytebuffer() { return ByteBufferUtil.bytes(0); }
+
+    @Override
+    public ByteBuffer getFirstBytebuffer() {
+        return ByteBufferUtil.bytes(0);
+    }
+
+    @Override
+    public ByteBuffer getSumBytebuffer() {
+        return ByteBufferUtil.bytes(0);
+    }
+
+    @Override
+    public ByteBuffer getLastBytebuffer() {
+        return ByteBufferUtil.bytes(0);
+    }
+
+
+    @Override
+    void fill(InputStream inputStream) throws IOException {
+        //nothing
+    }
+
+    @Override
 	public void updateStats(long min, long max) {
 		throw new UnsupportedOperationException();
 	}

@@ -12,7 +12,7 @@ public class RowRecord {
     private long timestamp;
     private LinkedHashMap<Path, TsPrimitiveType> fields;
 
-    public RowRecord() {
+    private RowRecord() {
         fields = new LinkedHashMap<>();
     }
 

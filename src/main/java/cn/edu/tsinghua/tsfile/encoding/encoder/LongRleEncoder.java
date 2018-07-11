@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.encoding.encoder;
 
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.bitpacking.LongPacker;
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
 
@@ -31,7 +31,7 @@ public class LongRleEncoder extends RleEncoder<Long> {
     }
 
     /**
-     * write all values buffered in cache to OutputStream
+     * writeTo all values buffered in cache to OutputStream
      *
      * @param out - byteArrayOutputStream
      * @throws IOException cannot flush to OutputStream
@@ -39,7 +39,7 @@ public class LongRleEncoder extends RleEncoder<Long> {
     @Override
     public void flush(ByteArrayOutputStream out) throws IOException {
         // we get bit width after receiving all data
-        this.bitWidth = ReadWriteStreamUtils.getLongMaxBitWidth(values);
+        this.bitWidth = ReadWriteForEncodingUtils.getLongMaxBitWidth(values);
         packer = new LongPacker(bitWidth);
         for (Long value : values) {
             encodeValue(value);
@@ -54,14 +54,14 @@ public class LongRleEncoder extends RleEncoder<Long> {
     }
 
     /**
-     * write bytes to OutputStream using rle rle format: [header][value]
-     * @throws IOException cannot write rle run
+     * writeTo bytes to OutputStream using rle rle format: [header][value]
+     * @throws IOException cannot writeTo rle run
      */
     @Override
     protected void writeRleRun() throws IOException {
         endPreviousBitPackedRun(config.RLE_MIN_REPEATED_NUM);
-        ReadWriteStreamUtils.writeUnsignedVarInt(repeatCount << 1, byteCache);
-        ReadWriteStreamUtils.writeLongLittleEndianPaddedOnBitWidth(preValue, byteCache, bitWidth);
+        ReadWriteForEncodingUtils.writeUnsignedVarInt(repeatCount << 1, byteCache);
+        ReadWriteForEncodingUtils.writeLongLittleEndianPaddedOnBitWidth(preValue, byteCache, bitWidth);
         repeatCount = 0;
         numBufferedValues = 0;
     }
@@ -81,7 +81,7 @@ public class LongRleEncoder extends RleEncoder<Long> {
             tmpBuffer[i] = (long) bufferedValues[i];
         }
         packer.pack8Values(tmpBuffer, 0, bytes);
-        // we'll not write bit-packing group to OutputStream immediately
+        // we'll not writeTo bit-packing group to OutputStream immediately
         // we buffer them in list
         bytesBuffer.add(bytes);
     }
