@@ -4,6 +4,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 
 /**
+ *TODO  can be taken over by TimeSeriesMetadata
  * @author Jinrui Zhang
  */
 public class SeriesDescriptor {

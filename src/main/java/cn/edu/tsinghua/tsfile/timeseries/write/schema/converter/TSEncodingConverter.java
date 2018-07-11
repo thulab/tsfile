@@ -88,8 +88,7 @@ public abstract class TSEncodingConverter {
      * @param measurementId - measurement id to be added.
      * @param props         - properties of encoding
      */
-    public void initFromProps(String measurementId, Map<String, String> props) {
-    }
+    public abstract void initFromProps(String measurementId, Map<String, String> props);
 
     /**
      * For a TSEncodingConverter, check the input parameter. If it's valid, return this parameter in
@@ -275,5 +274,10 @@ public abstract class TSEncodingConverter {
 			}
 		}
 
-	}
+        @Override
+        public void initFromProps(String measurementId, Map<String, String> props) {
+
+        }
+
+    }
 }

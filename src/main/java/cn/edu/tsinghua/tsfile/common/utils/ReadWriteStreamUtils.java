@@ -81,7 +81,8 @@ public class ReadWriteStreamUtils {
 
     /**
      * write a value to stream using unsigned var int format. for example, int
-     * 123456789 has its binary format 111010-1101111-0011010-0010101, function
+     * 123456789 has its binary format 00000111-01011011-11001101-00010101 (if
+     * we omit the first 5 0, then it is 111010-1101111-0011010-0010101), function
      * writeUnsignedVarInt will split every seven bits and write them to stream
      * from low bit to high bit like: 1-0010101 1-0011010 1-1101111 0-0111010 1
      * represents has next byte to write, 0 represents number end

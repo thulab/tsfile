@@ -13,7 +13,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filterV2.visitor.AbstractFilterVisitor;
  */
 public class DigestFilterVisitor implements AbstractFilterVisitor<Boolean> {
 
-    private ThreadLocal<DigestForFilter> timestampDigest;
+    private ThreadLocal<DigestForFilter> timestampDigest;// TODO 为什么是threadlocal?
     private ThreadLocal<DigestForFilter> valueDigest;
     private ThreadLocal<Comparable<?>> minValue;
     private ThreadLocal<Comparable<?>> maxValue;
@@ -31,7 +31,7 @@ public class DigestFilterVisitor implements AbstractFilterVisitor<Boolean> {
         return filter.accept(this);
     }
 
-    private void prepareMaxAndMinValue(UnaryFilter<?> unaryFilter) {
+    private void prepareMaxAndMinValue(UnaryFilter<?> unaryFilter) {//TODO 啊？
         if (unaryFilter.getFilterType() == FilterType.TIME_FILTER) {
             this.minValue.set(timestampDigest.get().getMinValue());
             this.maxValue.set(timestampDigest.get().getMaxValue());

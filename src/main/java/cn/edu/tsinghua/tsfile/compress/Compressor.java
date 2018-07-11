@@ -1,22 +1,24 @@
 package cn.edu.tsinghua.tsfile.compress;
 
 import cn.edu.tsinghua.tsfile.common.exception.CompressionTypeNotSupportedException;
-import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
+import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * compress data according to type in schema
  */
 public abstract class Compressor {
     public static Compressor getCompressor(String name) {
-        return getCompressor(CompressionTypeName.valueOf(name));
+        return getCompressor(CompressionType.valueOf(name));
     }
 
-    public static Compressor getCompressor(CompressionTypeName name) {
+    public static Compressor getCompressor(CompressionType name) {
         if (name == null) {
             throw new CompressionTypeNotSupportedException("NULL");
         }
@@ -30,9 +32,9 @@ public abstract class Compressor {
         }
     }
 
-    public abstract byte[] compress(ListByteArrayOutputStream ListByteArray) throws IOException;
+    public abstract byte[] compress(ByteBuffer data) throws IOException;
 
-    public abstract CompressionTypeName getCodecName();
+    public abstract CompressionType getCodecName();
 
     /**
      * NoCompressor will do nothing for data and return the input data directly.
@@ -42,13 +44,13 @@ public abstract class Compressor {
     static public class NoCompressor extends Compressor {
 
         @Override
-        public byte[] compress(ListByteArrayOutputStream ListByteArray) throws IOException {
-            return ListByteArray.toByteArray();
+        public byte[] compress(ByteBuffer data) throws IOException {//FIXME why do we use bytes[] rather than bytebuffer.
+            return ByteBufferUtil.getArray(data);
         }
 
         @Override
-        public CompressionTypeName getCodecName() {
-            return CompressionTypeName.UNCOMPRESSED;
+        public CompressionType getCodecName() {
+            return CompressionType.UNCOMPRESSED;
         }
     }
 
@@ -56,16 +58,16 @@ public abstract class Compressor {
         private static final Logger LOGGER = LoggerFactory.getLogger(SnappyCompressor.class);
 
         @Override
-        public byte[] compress(ListByteArrayOutputStream listByteArray) throws IOException {
-            if (listByteArray == null) {
+        public byte[] compress(ByteBuffer data) throws IOException {
+            if (data == null) {
                 return null;
             }
-            return Snappy.compress(listByteArray.toByteArray());
+            return Snappy.compress(ByteBufferUtil.getArray(data));
         }
 
         @Override
-        public CompressionTypeName getCodecName() {
-            return CompressionTypeName.SNAPPY;
+        public CompressionType getCodecName() {
+            return CompressionType.SNAPPY;
         }
     }
 }

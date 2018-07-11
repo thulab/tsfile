@@ -1,16 +1,14 @@
 package cn.edu.tsinghua.tsfile.file.metadata.utils;
 
-import java.io.UnsupportedEncodingException;
+import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
+import cn.edu.tsinghua.tsfile.file.metadata.*;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import cn.edu.tsinghua.tsfile.file.metadata.*;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 
 public class TestHelper {
 	private static final String MAX_VALUE = "321";
@@ -64,7 +62,7 @@ public class TestHelper {
     TimeSeriesChunkMetaData metaData =
         new TimeSeriesChunkMetaData(TimeSeriesChunkMetaDataTest.MEASUREMENT_UID, TimeSeriesChunkMetaDataTest.FILE_OFFSET,
             TimeSeriesChunkMetaDataTest.COMPRESSION_TYPE, TimeSeriesChunkMetaDataTest.DATA_TYPE,
-            TimeSeriesChunkMetaDataTest.START_TIME, TimeSeriesChunkMetaDataTest.END_TIME);
+            TimeSeriesChunkMetaDataTest.START_TIME, TimeSeriesChunkMetaDataTest.END_TIME, TimeSeriesChunkMetaDataTest.ENCODING_TYPE);
     metaData.setTsDigestOffset(TimeSeriesChunkMetaDataTest.DIGEST_OFFSET);
     metaData.setNumOfPoints(TimeSeriesChunkMetaDataTest.NUM_OF_POINTS);
     metaData.setTotalByteSize(TimeSeriesChunkMetaDataTest.TOTAL_BYTE_SIZE);

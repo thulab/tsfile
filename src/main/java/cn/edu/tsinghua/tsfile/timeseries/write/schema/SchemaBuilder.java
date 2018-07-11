@@ -64,15 +64,15 @@ public class SchemaBuilder {
         return this;
     }
 
-    public SchemaBuilder addProp(String key, String value) {
-        fileSchema.addProp(key, value);
-        return this;
-    }
-
-    public SchemaBuilder setProps(Map<String, String> props) {
-        fileSchema.setProps(props);
-        return this;
-    }
+//    public SchemaBuilder addProp(String key, String value) {
+//        fileSchema.addProp(key, value);
+//        return this;
+//    }
+//
+//    public SchemaBuilder setProps(Map<String, String> props) {
+//        fileSchema.setProps(props);
+//        return this;
+//    }
 
     /**
      * get file schema after adding all series and properties

@@ -111,7 +111,8 @@ public class RowGroupMetaData {
     }
 
 
-    public int serialize(OutputStream outputStream) throws IOException {
+
+    public int serializeTo(OutputStream outputStream) throws IOException {
         int byteLen = 0;
 
         byteLen += ReadWriteToBytesUtils.writeIsNull(deltaObjectID, outputStream);
@@ -132,7 +133,8 @@ public class RowGroupMetaData {
         return byteLen;
     }
 
-    public int serialize(ByteBuffer buffer) throws IOException {
+
+    public int serializeTo(ByteBuffer buffer) throws IOException {
         int byteLen = 0;
 
         byteLen += ReadWriteToBytesUtils.writeIsNull(deltaObjectID, buffer);
@@ -153,7 +155,7 @@ public class RowGroupMetaData {
         return byteLen;
     }
 
-    public static RowGroupMetaData deserialize(InputStream inputStream) throws IOException {
+    public static RowGroupMetaData deserializeFrom(InputStream inputStream) throws IOException {
         RowGroupMetaData rowGroupMetaData = new RowGroupMetaData();
 
         if(ReadWriteToBytesUtils.readIsNull(inputStream))
@@ -175,7 +177,7 @@ public class RowGroupMetaData {
         return rowGroupMetaData;
     }
 
-    public static RowGroupMetaData deserialize(ByteBuffer buffer) throws IOException {
+    public static RowGroupMetaData deserializeFrom(ByteBuffer buffer) throws IOException {
         RowGroupMetaData rowGroupMetaData = new RowGroupMetaData();
 
         if(ReadWriteToBytesUtils.readIsNull(buffer))

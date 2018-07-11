@@ -2,6 +2,7 @@ package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ *
  * For more information, see TimeSeriesChunkMetaData in cn.edu.thu.tsfile.format package
  */
 public class TimeSeriesChunkMetaData {
@@ -32,7 +34,7 @@ public class TimeSeriesChunkMetaData {
      */
     private long tsDigestOffset;
 
-    private CompressionType compression;
+    private CompressionType compression;//FIXME put me to TimeSeriesMetaData
 
     private long numOfPoints;
 
@@ -49,18 +51,19 @@ public class TimeSeriesChunkMetaData {
 
     private TsDigest valuesStatistics;
 
-    public TimeSeriesChunkMetaData() {
-    }
+    private TSEncoding dataEncoding;//FIXME put me to TimeSeriesMetaData
+
+    private TimeSeriesChunkMetaData(){}
 
     public TimeSeriesChunkMetaData(String measurementUID, long fileOffset, CompressionType compression,
-                                   TSDataType dataType, long startTime, long endTime) {
-        this();
+                                   TSDataType dataType, long startTime, long endTime, TSEncoding dataEncoding) {
         this.measurementUID = measurementUID;
         this.fileOffset = fileOffset;
         this.compression = compression;
         this.dataType = dataType;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.dataEncoding=dataEncoding;
     }
 
     @Override
@@ -76,6 +79,17 @@ public class TimeSeriesChunkMetaData {
         this.numOfPoints = numRows;
     }
 
+    public TSEncoding getDataEncoding() {
+        return dataEncoding;
+    }
+
+    public void setDataEncoding(TSEncoding dataEncoding) {
+        this.dataEncoding = dataEncoding;
+    }
+    /**
+     *
+     * @return total byte size of all uncompressed pages in this time series chunk (including the headers)
+     */
     public long getTotalByteSize() {
         return totalByteSize;
     }
@@ -84,6 +98,9 @@ public class TimeSeriesChunkMetaData {
         this.totalByteSize = totalByteSize;
     }
 
+    /**
+     * @return Byte offset of the corresponding data in the file
+     */
     public long getFileOffset() {
         return fileOffset;
     }
@@ -129,6 +146,11 @@ public class TimeSeriesChunkMetaData {
         this.endTime = endTime;
     }
 
+    /**
+     *
+     * @return Byte offset of timseries chunk metadata in the file.
+     *          Each timeseries chunk metadata has fixed length: 68 bytes.
+     */
     public long getTsDigestOffset() {
         return tsDigestOffset;
     }
@@ -137,51 +159,56 @@ public class TimeSeriesChunkMetaData {
         this.tsDigestOffset = tsDigestOffset;
     }
 
-    public int serialize(OutputStream outputStream) throws IOException {
+    public int serializeTo(OutputStream outputStream) throws IOException {
         int byteLen = 0;
 
-        byteLen += ReadWriteToBytesUtils.writeIsNull(measurementUID, outputStream);
-        if(measurementUID != null)byteLen += ReadWriteToBytesUtils.write(measurementUID, outputStream);
+        //byteLen += ReadWriteToBytesUtils.writeIsNull(measurementUID, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(measurementUID, outputStream);
 
         byteLen += ReadWriteToBytesUtils.write(fileOffset, outputStream);
         byteLen += ReadWriteToBytesUtils.write(tsDigestOffset, outputStream);
 
-        byteLen += ReadWriteToBytesUtils.writeIsNull(compression, outputStream);
-        if(compression != null) byteLen += ReadWriteToBytesUtils.write(compression, outputStream);
+        //byteLen += ReadWriteToBytesUtils.writeIsNull(compression, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(compression, outputStream);
 
         byteLen += ReadWriteToBytesUtils.write(numOfPoints, outputStream);
         byteLen += ReadWriteToBytesUtils.write(totalByteSize, outputStream);
         byteLen += ReadWriteToBytesUtils.write(startTime, outputStream);
         byteLen += ReadWriteToBytesUtils.write(endTime, outputStream);
 
-        byteLen += ReadWriteToBytesUtils.writeIsNull(dataType, outputStream);
-        if(dataType != null) byteLen += ReadWriteToBytesUtils.write(dataType, outputStream);
+        //byteLen += ReadWriteToBytesUtils.writeIsNull(dataType, outputStream);
+        byteLen += ReadWriteToBytesUtils.write(dataType, outputStream);
+
+        byteLen += ReadWriteToBytesUtils.write(dataEncoding,outputStream);
 
         byteLen += ReadWriteToBytesUtils.writeIsNull(valuesStatistics, outputStream);
         if(valuesStatistics != null) byteLen += ReadWriteToBytesUtils.write(valuesStatistics, outputStream);
 
+
         return byteLen;
     }
 
-    public int serialize(ByteBuffer buffer) throws IOException {
+    public int serializeTo(ByteBuffer buffer) throws IOException {
         int byteLen = 0;
 
-        byteLen += ReadWriteToBytesUtils.writeIsNull(measurementUID, buffer);
-        if(measurementUID != null)byteLen += ReadWriteToBytesUtils.write(measurementUID, buffer);
+        //byteLen += ReadWriteToBytesUtils.writeIsNull(measurementUID, buffer);
+        byteLen += ReadWriteToBytesUtils.write(measurementUID, buffer);
 
         byteLen += ReadWriteToBytesUtils.write(fileOffset, buffer);
         byteLen += ReadWriteToBytesUtils.write(tsDigestOffset, buffer);
 
-        byteLen += ReadWriteToBytesUtils.writeIsNull(compression, buffer);
-        if(compression != null) byteLen += ReadWriteToBytesUtils.write(compression, buffer);
+        //byteLen += ReadWriteToBytesUtils.writeIsNull(compression, buffer);
+        byteLen += ReadWriteToBytesUtils.write(compression, buffer);
 
         byteLen += ReadWriteToBytesUtils.write(numOfPoints, buffer);
         byteLen += ReadWriteToBytesUtils.write(totalByteSize, buffer);
         byteLen += ReadWriteToBytesUtils.write(startTime, buffer);
         byteLen += ReadWriteToBytesUtils.write(endTime, buffer);
 
-        byteLen += ReadWriteToBytesUtils.writeIsNull(dataType, buffer);
-        if(dataType != null) byteLen += ReadWriteToBytesUtils.write(dataType, buffer);
+        //byteLen += ReadWriteToBytesUtils.writeIsNull(dataType, buffer);
+        byteLen += ReadWriteToBytesUtils.write(dataType, buffer);
+
+        byteLen += ReadWriteToBytesUtils.write(dataEncoding, buffer);
 
         byteLen += ReadWriteToBytesUtils.writeIsNull(valuesStatistics, buffer);
         if(valuesStatistics != null) byteLen += ReadWriteToBytesUtils.write(valuesStatistics, buffer);
@@ -189,27 +216,24 @@ public class TimeSeriesChunkMetaData {
         return byteLen;
     }
 
-    public static TimeSeriesChunkMetaData deserialize(InputStream inputStream) throws IOException {
+    public static TimeSeriesChunkMetaData deserializeFrom(InputStream inputStream) throws IOException {
         TimeSeriesChunkMetaData timeSeriesChunkMetaData = new TimeSeriesChunkMetaData();
 
-        if(ReadWriteToBytesUtils.readIsNull(inputStream))
-            timeSeriesChunkMetaData.measurementUID = ReadWriteToBytesUtils.readString(inputStream);
+        timeSeriesChunkMetaData.measurementUID = ReadWriteToBytesUtils.readString(inputStream);
 
         timeSeriesChunkMetaData.fileOffset = ReadWriteToBytesUtils.readLong(inputStream);
         timeSeriesChunkMetaData.tsDigestOffset = ReadWriteToBytesUtils.readLong(inputStream);
 
-        if(ReadWriteToBytesUtils.readIsNull(inputStream)){
-            timeSeriesChunkMetaData.compression = ReadWriteToBytesUtils.readCompressionType(inputStream);
-        }
+        timeSeriesChunkMetaData.compression = ReadWriteToBytesUtils.readCompressionType(inputStream);
+
 
         timeSeriesChunkMetaData.numOfPoints = ReadWriteToBytesUtils.readLong(inputStream);
         timeSeriesChunkMetaData.totalByteSize = ReadWriteToBytesUtils.readLong(inputStream);
         timeSeriesChunkMetaData.startTime = ReadWriteToBytesUtils.readLong(inputStream);
         timeSeriesChunkMetaData.endTime = ReadWriteToBytesUtils.readLong(inputStream);
 
-        if(ReadWriteToBytesUtils.readIsNull(inputStream)){
-            timeSeriesChunkMetaData.dataType = ReadWriteToBytesUtils.readDataType(inputStream);
-        }
+        timeSeriesChunkMetaData.dataType = ReadWriteToBytesUtils.readDataType(inputStream);
+        timeSeriesChunkMetaData.dataEncoding = ReadWriteToBytesUtils.readEncoding(inputStream);
 
         if(ReadWriteToBytesUtils.readIsNull(inputStream)) {
             timeSeriesChunkMetaData.valuesStatistics = ReadWriteToBytesUtils.readDigest(inputStream);
@@ -218,27 +242,24 @@ public class TimeSeriesChunkMetaData {
         return timeSeriesChunkMetaData;
     }
 
-    public static TimeSeriesChunkMetaData deserialize(ByteBuffer buffer) throws IOException {
+    public static TimeSeriesChunkMetaData deserializeFrom(ByteBuffer buffer) throws IOException {
         TimeSeriesChunkMetaData timeSeriesChunkMetaData = new TimeSeriesChunkMetaData();
 
-        if(ReadWriteToBytesUtils.readIsNull(buffer))
-            timeSeriesChunkMetaData.measurementUID = ReadWriteToBytesUtils.readString(buffer);
+        timeSeriesChunkMetaData.measurementUID = ReadWriteToBytesUtils.readString(buffer);
 
         timeSeriesChunkMetaData.fileOffset = ReadWriteToBytesUtils.readLong(buffer);
         timeSeriesChunkMetaData.tsDigestOffset = ReadWriteToBytesUtils.readLong(buffer);
 
-        if(ReadWriteToBytesUtils.readIsNull(buffer)){
-            timeSeriesChunkMetaData.compression = ReadWriteToBytesUtils.readCompressionType(buffer);
-        }
+        timeSeriesChunkMetaData.compression = ReadWriteToBytesUtils.readCompressionType(buffer);
 
         timeSeriesChunkMetaData.numOfPoints = ReadWriteToBytesUtils.readLong(buffer);
         timeSeriesChunkMetaData.totalByteSize = ReadWriteToBytesUtils.readLong(buffer);
         timeSeriesChunkMetaData.startTime = ReadWriteToBytesUtils.readLong(buffer);
         timeSeriesChunkMetaData.endTime = ReadWriteToBytesUtils.readLong(buffer);
 
-        if(ReadWriteToBytesUtils.readIsNull(buffer)){
-            timeSeriesChunkMetaData.dataType = ReadWriteToBytesUtils.readDataType(buffer);
-        }
+        timeSeriesChunkMetaData.dataType = ReadWriteToBytesUtils.readDataType(buffer);
+
+        timeSeriesChunkMetaData.dataEncoding = ReadWriteToBytesUtils.readEncoding(buffer);
 
         if(ReadWriteToBytesUtils.readIsNull(buffer)) {
             timeSeriesChunkMetaData.valuesStatistics = ReadWriteToBytesUtils.readDigest(buffer);

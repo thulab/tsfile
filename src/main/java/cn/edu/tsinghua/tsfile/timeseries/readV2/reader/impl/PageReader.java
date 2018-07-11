@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
+ *
  * @author Jinrui Zhang
  */
 public class PageReader implements TimeValuePairReader {
@@ -37,7 +38,7 @@ public class PageReader implements TimeValuePairReader {
     private void splitInputStreamToTimeStampAndValue(InputStream pageContent) throws IOException {
         int timeInputStreamLength = ReadWriteStreamUtils.readUnsignedVarInt(pageContent);
         byte[] buf = new byte[timeInputStreamLength];
-        int readSize = pageContent.read(buf, 0, timeInputStreamLength);
+        int readSize = pageContent.read(buf, 0, timeInputStreamLength);//TODO 这里已经把数据读到内存中了..
         if (readSize != timeInputStreamLength) {
             throw new IOException("Error when read bytes of encoded timestamps. " +
                     "Expect byte size : " + timeInputStreamLength + ". Read size : " + readSize);

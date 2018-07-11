@@ -1,7 +1,9 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
+import cn.edu.tsinghua.tsfile.file.PageHeader;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.format.PageHeader;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 
 import java.io.InputStream;
@@ -13,13 +15,13 @@ public class SeriesChunkReaderByTimestampImpl extends SeriesChunkReader {
 
     private long currentTimestamp;
 
-    public SeriesChunkReaderByTimestampImpl(InputStream seriesChunkInputStream, TSDataType dataType, CompressionTypeName compressionTypeName) {
-        super(seriesChunkInputStream, dataType, compressionTypeName);
+    public SeriesChunkReaderByTimestampImpl(InputStream seriesChunkInputStream, TSDataType dataType, CompressionType compressionType, TSEncoding dataEncoding) {
+        super(seriesChunkInputStream, dataType, compressionType, dataEncoding);
     }
 
     @Override
     public boolean pageSatisfied(PageHeader pageHeader) {
-        long maxTimestamp = pageHeader.data_page_header.max_timestamp;
+        long maxTimestamp = pageHeader.getMax_timestamp();
         //If minTimestamp > currentTimestamp, this page should NOT be skipped
         if (maxTimestamp < currentTimestamp) {
             return false;

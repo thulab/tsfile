@@ -33,7 +33,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
   private final TSDataType type;
   private final TSEncoding encoding;
   private String measurementId;
-  private TSDataTypeConverter typeConverter;
+//  private TSDataTypeConverter typeConverter;
   private TSEncodingConverter encodingConverter;
   private Compressor compressor;
   private TSFileConfig conf;
@@ -148,8 +148,6 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     StringContainer sc = new StringContainer(",");
     sc.addTail("[", measurementId, type.toString(), encoding.toString(),
         encodingConverter.toString(), compressor.getCodecName().toString());
-    if (typeConverter != null)
-      sc.addTail(typeConverter.toString());
     sc.addTail("]");
     return sc.toString();
   }

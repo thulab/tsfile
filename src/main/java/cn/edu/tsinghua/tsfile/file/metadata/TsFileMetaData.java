@@ -1,17 +1,16 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
-import cn.edu.tsinghua.tsfile.format.FileMetaData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * TSFileMetaData collects all metadata info and saves in its data structure
@@ -37,13 +36,13 @@ public class TsFileMetaData {
      */
     private String createdBy;
 
-    private long firstTimeSeriesMetadataOffset;
+    private long firstTimeSeriesMetadataOffset;//相对于file metadata开头位置 的offset
 
-    private long lastTimeSeriesMetadataOffset;
+    private long lastTimeSeriesMetadataOffset;//相对于file metadata开头位置 的offset
 
-    private long firstTsDeltaObjectMetadataOffset;
+    private long firstTsDeltaObjectMetadataOffset;//相对于file metadata开头位置 的offset
 
-    private long lastTsDeltaObjectMetadataOffset;
+    private long lastTsDeltaObjectMetadataOffset;//相对于file metadata开头位置 的offset
 
     public TsFileMetaData() {
     }
@@ -167,7 +166,7 @@ public class TsFileMetaData {
         this.lastTsDeltaObjectMetadataOffset = lastTsDeltaObjectMetadataOffset;
     }
 
-    public int serialize(OutputStream outputStream) throws IOException {
+    public int serializeTo(OutputStream outputStream) throws IOException {
         int byteLen = 0;
 
         if(deltaObjectMap == null){
@@ -193,6 +192,8 @@ public class TsFileMetaData {
         byteLen += ReadWriteToBytesUtils.writeIsNull(createdBy, outputStream);
         if(createdBy != null)byteLen += ReadWriteToBytesUtils.write(createdBy, outputStream);
 
+        //TODO: 赋值四个offset
+
         byteLen += ReadWriteToBytesUtils.write(firstTimeSeriesMetadataOffset, outputStream);
         byteLen += ReadWriteToBytesUtils.write(lastTimeSeriesMetadataOffset, outputStream);
         byteLen += ReadWriteToBytesUtils.write(firstTsDeltaObjectMetadataOffset, outputStream);
@@ -201,7 +202,7 @@ public class TsFileMetaData {
         return byteLen;
     }
 
-    public int serialize(ByteBuffer buffer) throws IOException {
+    public int serializeTo(ByteBuffer buffer) throws IOException {
         int byteLen = 0;
 
         if(deltaObjectMap == null){
@@ -235,7 +236,7 @@ public class TsFileMetaData {
         return byteLen;
     }
 
-    public static TsFileMetaData deserialize(InputStream inputStream) throws IOException {
+    public static TsFileMetaData deserializeFrom(InputStream inputStream) throws IOException {
         TsFileMetaData fileMetaData = new TsFileMetaData();
 
         int size = ReadWriteToBytesUtils.readInt(inputStream);
@@ -273,7 +274,7 @@ public class TsFileMetaData {
         return fileMetaData;
     }
 
-    public static TsFileMetaData deserialize(ByteBuffer buffer) throws IOException {
+    public static TsFileMetaData deserializeFrom(ByteBuffer buffer) throws IOException {
         TsFileMetaData fileMetaData = new TsFileMetaData();
 
         int size = ReadWriteToBytesUtils.readInt(buffer);
@@ -310,4 +311,7 @@ public class TsFileMetaData {
 
         return fileMetaData;
     }
+
+
+
 }

@@ -106,6 +106,13 @@ public class JsonConverter {
     return new MeasurementDescriptor(measurementId, type, encoding, props);
   }
 
+  public static long convertJsonToRowGroupSize(JSONObject jsonSchema) {
+    if (jsonSchema.has(JsonFormatConstant.ROW_GROUP_SIZE)) {
+      return jsonSchema.getLong(JsonFormatConstant.ROW_GROUP_SIZE);
+    }
+    return 128*1024*1024;
+  }
+
   /**
    * given a FileSchema and convert it into a JSONObject
    *
@@ -123,9 +130,9 @@ public class JsonConverter {
     for (MeasurementDescriptor measurementDescriptor : fileSchema.getDescriptor().values()) {
       jsonSchema.put(convertMeasurementDescriptorToJson(measurementDescriptor));
     }
-    fileSchema.getProps().forEach(jsonProperties::put);
+    //fileSchema.getProps().forEach(jsonProperties::put);
     ret.put(JsonFormatConstant.JSON_SCHEMA, jsonSchema);
-    ret.put(JsonFormatConstant.PROPERTIES, jsonProperties);
+    //ret.put(JsonFormatConstant.PROPERTIES, jsonProperties);
     return ret;
   }
 
@@ -138,4 +145,6 @@ public class JsonConverter {
     measurementDescriptor.getProps().forEach(measurementObj::put);
     return measurementObj;
   }
+
+
 }

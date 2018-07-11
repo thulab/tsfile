@@ -1,12 +1,12 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.page;
 
-import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.PageException;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.series.ISeriesWriter;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * Each SeriesWriter has a page writer. While memory space occupied by series writer exceeds
@@ -26,8 +26,8 @@ public interface IPageWriter {
      * @param minTimestamp  - timestamp minimum in given data
      * @throws PageException - if an PageException occurs.
      */
-    void writePage(ListByteArrayOutputStream listByteArray, int valueCount, Statistics<?> statistics,
-                   long maxTimestamp, long minTimestamp) throws PageException;
+    void writePageHeaderAndDataIntoBuff(ByteBuffer listByteArray, int valueCount, Statistics<?> statistics,
+                                        long maxTimestamp, long minTimestamp) throws PageException;
 
     /**
      * write the page to specified IOWriter
@@ -36,7 +36,7 @@ public interface IPageWriter {
      * @param statistics the statistic information provided by series writer
      * @throws IOException exception in IO
      */
-    void writeToFileWriter(TsFileIOWriter writer, Statistics<?> statistics) throws IOException;
+    void writeAllPagesOfSeriesToTsFile(TsFileIOWriter writer, Statistics<?> statistics) throws IOException;
 
     /**
      * reset exist data in page for next stage

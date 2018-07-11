@@ -1,6 +1,12 @@
 package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 
+import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 /**
  * @author CGF
@@ -66,6 +72,28 @@ public class BooleanStatistics extends Statistics<Boolean> {
 	}
 
 	@Override
+	public ByteBuffer getMaxBytebuffer() { return ByteBufferUtil.bytes(max); }
+
+	@Override
+	public ByteBuffer getMinBytebuffer() { return ByteBufferUtil.bytes(min); }
+
+	@Override
+	public ByteBuffer getFirstBytebuffer() {
+		return ByteBufferUtil.bytes(first);
+	}
+
+	@Override
+	public ByteBuffer getSumBytebuffer() {
+		return ByteBufferUtil.bytes(sum);
+	}
+
+	@Override
+	public ByteBuffer getLastBytebuffer() {
+		return ByteBufferUtil.bytes(last);
+	}
+
+
+	@Override
 	protected void mergeStatisticsValue(Statistics<?> stats) {
 		BooleanStatistics boolStats = (BooleanStatistics) stats;
 		if (isEmpty) {
@@ -110,8 +138,25 @@ public class BooleanStatistics extends Statistics<Boolean> {
 		return BytesUtils.boolToBytes(last);
 	}
 
+
+	@Override
+	public int sizeOfDatum() {
+		return 1;
+	}
+
 	@Override
 	public String toString() {
 		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + ",last:" + last + "]";
 	}
+
+	@Override
+	void fill(InputStream inputStream) throws IOException {
+		this.min = ReadWriteToBytesUtils.readBool(inputStream);
+		this.max = ReadWriteToBytesUtils.readBool(inputStream);
+		this.first = ReadWriteToBytesUtils.readBool(inputStream);
+		this.last = ReadWriteToBytesUtils.readBool(inputStream);
+		this.sum = ReadWriteToBytesUtils.readDouble(inputStream);
+	}
+
+
 }

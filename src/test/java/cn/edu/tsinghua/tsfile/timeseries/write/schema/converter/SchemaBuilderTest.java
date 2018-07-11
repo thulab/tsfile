@@ -30,20 +30,20 @@ public class SchemaBuilderTest {
         Map<String, String> props = new HashMap<>();
         props.put("enum_values", "[\"MAN\",\"WOMAN\"]");
         props.put("compressor", "SNAPPY");
-        MeasurementDescriptor descriptor = new MeasurementDescriptor("s3", TSDataType.ENUMS, TSEncoding.BITMAP, props);
-        builder.addSeries(descriptor);
+        //MeasurementDescriptor descriptor = new MeasurementDescriptor("s3", TSDataType.ENUMS, TSEncoding.BITMAP, props);
+        //builder.addSeries(descriptor);
         props.clear();
         props.put(JsonFormatConstant.MAX_POINT_NUMBER, "3");
         builder.addSeries("s4", TSDataType.DOUBLE, "RLE", props);
         builder.addSeries("s5", TSDataType.INT32, TSEncoding.TS_2DIFF, null);
         props.clear();
         props.put(JsonFormatConstant.MAX_POINT_NUMBER, "2");
-        builder.setProps(props);
-        builder.addProp("key", "value");
+//        builder.setProps(props);
+//        builder.addProp("key", "value");
         FileSchema fileSchema = builder.build();
 
-        assertEquals("value", fileSchema.getProp("key"));
-        assertEquals("{max_point_number=2, key=value}", fileSchema.getProps().toString());
+       // assertEquals("value", fileSchema.getProp("key"));
+       // assertEquals("{max_point_number=2, key=value}", fileSchema.getProps().toString());
 
         Collection<MeasurementDescriptor> measurements = fileSchema.getDescriptor().values();
         String[] measureDesStrings =

@@ -1,8 +1,7 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
-import cn.edu.tsinghua.tsfile.format.Digest;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +53,7 @@ public class TsDigest {
     }
 
 
-    public int serialize(){
+    public int serializeTo(){
         int len=0;
         if(statistics.size()>0){
 
@@ -62,7 +61,7 @@ public class TsDigest {
         return len;
     }
 
-    public int serialize(OutputStream outputStream) throws IOException {
+    public int serializeTo(OutputStream outputStream) throws IOException {
         int byteLen = 0;
 
         if(statistics == null){
@@ -78,7 +77,7 @@ public class TsDigest {
         return byteLen;
     }
 
-    public int serialize(ByteBuffer buffer) throws IOException {
+    public int serializeTo(ByteBuffer buffer) throws IOException {
         int byteLen = 0;
 
         if(statistics == null){
@@ -94,7 +93,7 @@ public class TsDigest {
         return byteLen;
     }
 
-    public static TsDigest deserialize(InputStream inputStream) throws IOException {
+    public static TsDigest deserializeFrom(InputStream inputStream) throws IOException {
         TsDigest digest = new TsDigest();
 
         int size = ReadWriteToBytesUtils.readInt(inputStream);
@@ -113,7 +112,7 @@ public class TsDigest {
         return digest;
     }
 
-    public static TsDigest deserialize(ByteBuffer buffer) throws IOException {
+    public static TsDigest deserializeFrom(ByteBuffer buffer) throws IOException {
         TsDigest digest = new TsDigest();
 
         int size = ReadWriteToBytesUtils.readInt(buffer);

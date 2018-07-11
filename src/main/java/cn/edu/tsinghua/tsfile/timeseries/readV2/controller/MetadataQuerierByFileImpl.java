@@ -2,9 +2,11 @@ package cn.edu.tsinghua.tsfile.timeseries.readV2.controller;
 
 import cn.edu.tsinghua.tsfile.common.exception.cache.CacheException;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
-import cn.edu.tsinghua.tsfile.file.metadata.*;
-import cn.edu.tsinghua.tsfile.file.metadata.converter.TsFileMetaDataConverter;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
+import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
+import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
+import cn.edu.tsinghua.tsfile.file.metadata.TsDeltaObjectMetadata;
+import cn.edu.tsinghua.tsfile.file.metadata.TsFileMetaData;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteByteStreamUtils;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.utils.cache.LRUCache;
@@ -27,8 +29,8 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
     private ITsRandomAccessFileReader randomAccessFileReader;
     private TsFileMetaData fileMetaData;
 
-    private LRUCache<String, List<RowGroupMetaData>> rowGroupMetadataCache;
-    private LRUCache<Path, List<EncodedSeriesChunkDescriptor>> seriesChunkDescriptorCache;
+    private LRUCache<String, List<RowGroupMetaData>> rowGroupMetadataCache;//TODO: 完全没用啊。。。 都在fileMetadata里 已经在内存中了。。
+    private LRUCache<Path, List<EncodedSeriesChunkDescriptor>> seriesChunkDescriptorCache;//TODO: 完全没用啊。。。 都在fileMetadata里 已经在内存中了。。
 
     public MetadataQuerierByFileImpl(ITsRandomAccessFileReader randomAccessFileReader) throws IOException {
         this.randomAccessFileReader = randomAccessFileReader;
@@ -67,11 +69,12 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
         randomAccessFileReader.seek(l - MAGIC_LENGTH - FOOTER_LENGTH);
         int fileMetaDataLength = randomAccessFileReader.readInt();
         randomAccessFileReader.seek(l - MAGIC_LENGTH - FOOTER_LENGTH - fileMetaDataLength);
+
+        //FIXME can modify the logic
         byte[] buf = new byte[fileMetaDataLength];
         randomAccessFileReader.read(buf, 0, buf.length);
-
         ByteArrayInputStream metadataInputStream = new ByteArrayInputStream(buf);
-        this.fileMetaData = new TsFileMetaDataConverter().toTsFileMetadata(ReadWriteThriftFormatUtils.readFileMetaData(metadataInputStream));
+        this.fileMetaData = ReadWriteByteStreamUtils.readFileMetaData(metadataInputStream);
     }
 
     @Override
@@ -83,13 +86,18 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
         }
     }
 
+    @Override
+    public TsFileMetaData getWholeFileMetadata() {
+        return fileMetaData;
+    }
+
     private List<EncodedSeriesChunkDescriptor> loadSeriesChunkDescriptor(Path path) throws CacheException {
         List<RowGroupMetaData> rowGroupMetaDataList = rowGroupMetadataCache.get(path.getDeltaObjectToString());
         List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList = new ArrayList<>();
         for (RowGroupMetaData rowGroupMetaData : rowGroupMetaDataList) {
             List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataListInOneRowGroup = rowGroupMetaData.getTimeSeriesChunkMetaDataList();
             for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataListInOneRowGroup) {
-                if (path.getMeasurementToString().equals(timeSeriesChunkMetaData.getProperties().getMeasurementUID())) {
+                if (path.getMeasurementToString().equals(timeSeriesChunkMetaData.getMeasurementUID())) {
                     encodedSeriesChunkDescriptorList.add(generateSeriesChunkDescriptorByMetadata(timeSeriesChunkMetaData));
                 }
             }
@@ -99,23 +107,20 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
 
     private EncodedSeriesChunkDescriptor generateSeriesChunkDescriptorByMetadata(TimeSeriesChunkMetaData timeSeriesChunkMetaData) {
         EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor = new EncodedSeriesChunkDescriptor(
-                timeSeriesChunkMetaData.getProperties().getFileOffset(),
+                timeSeriesChunkMetaData.getFileOffset(),
                 timeSeriesChunkMetaData.getTotalByteSize(),
-                timeSeriesChunkMetaData.getProperties().getCompression(),
-                timeSeriesChunkMetaData.getVInTimeSeriesChunkMetaData().getDataType(),
-                timeSeriesChunkMetaData.getVInTimeSeriesChunkMetaData().getDigest(),
-                timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getStartTime(),
-                timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getEndTime(),
-                timeSeriesChunkMetaData.getNumRows(),
-                timeSeriesChunkMetaData.getVInTimeSeriesChunkMetaData().getEnumValues());
+                timeSeriesChunkMetaData.getCompression(),
+                timeSeriesChunkMetaData.getDataType(),
+                timeSeriesChunkMetaData.getDigest(),
+                timeSeriesChunkMetaData.getStartTime(),
+                timeSeriesChunkMetaData.getEndTime(),
+                timeSeriesChunkMetaData.getNumOfPoints(),
+                timeSeriesChunkMetaData.getDataEncoding());
         return encodedSeriesChunkDescriptor;
     }
 
     private List<RowGroupMetaData> loadRowGroupMetadata(String deltaObjectID) throws IOException {
         TsDeltaObjectMetadata deltaObject = fileMetaData.getDeltaObject(deltaObjectID);
-        TsRowGroupBlockMetaData rowGroupBlockMetaData = new TsRowGroupBlockMetaData();
-        rowGroupBlockMetaData.convertToTSF(ReadWriteThriftFormatUtils.readRowGroupBlockMetaData(this.randomAccessFileReader,
-                deltaObject.offset, deltaObject.metadataBlockSize));
-        return rowGroupBlockMetaData.getRowGroups();
+        return deltaObject.getRowGroups();
     }
 }

@@ -2,11 +2,10 @@ package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
 import cn.edu.tsinghua.tsfile.compress.UnCompressor;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
+import cn.edu.tsinghua.tsfile.file.PageHeader;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.tsinghua.tsfile.format.Encoding;
-import cn.edu.tsinghua.tsfile.format.PageHeader;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.TimeValuePairReader;
 
@@ -20,22 +19,24 @@ import java.io.InputStream;
 public abstract class SeriesChunkReader implements TimeValuePairReader {
 
     protected TSDataType dataType;
+    protected TSEncoding dataEncoding;
     private InputStream seriesChunkInputStream;
 
     private boolean pageReaderInitialized;
     private PageReader pageReader;
     private UnCompressor unCompressor;
-    private Encoding defaultTimestampEncoding;
+    private TSEncoding defaultTimestampEncoding;
     private boolean hasCachedTimeValuePair;
     private TimeValuePair cachedTimeValuePair;
 
 
-    public SeriesChunkReader(InputStream seriesChunkInputStream, TSDataType dataType, CompressionType compressionTypeName) {
+    public SeriesChunkReader(InputStream seriesChunkInputStream, TSDataType dataType, CompressionType compressionTypeName, TSEncoding dataEncoding) {
         this.seriesChunkInputStream = seriesChunkInputStream;
         this.dataType = dataType;
+        this.dataEncoding=dataEncoding;
         this.unCompressor = UnCompressor.getUnCompressor(compressionTypeName);
         this.pageReaderInitialized = false;
-        defaultTimestampEncoding = Encoding.TS_2DIFF;
+        defaultTimestampEncoding = TSEncoding.TS_2DIFF;
     }
 
     @Override
@@ -79,13 +80,13 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
         while (hasNextPageInStream() && !gotNextPageReader) {
             PageHeader pageHeader = getNextPageHeader();
             if (pageSatisfied(pageHeader)) {
-                Decoder valueDecoder = Decoder.getDecoderByType(pageHeader.getData_page_header().getEncoding(), dataType);
+                Decoder valueDecoder = Decoder.getDecoderByType(dataEncoding, dataType);
                 //TODO: How to get defaultTimeDecoder by TSConfig rather than hard code here ?
                 Decoder defaultTimeDecoder = Decoder.getDecoderByType(defaultTimestampEncoding, TSDataType.INT64);
-                pageReader = constructPageReaderForNextPage(pageHeader.getCompressed_page_size(), valueDecoder, defaultTimeDecoder);
+                pageReader = constructPageReaderForNextPage(pageHeader.getCompressedSize(), valueDecoder, defaultTimeDecoder);
                 gotNextPageReader = true;
             } else {
-                skipBytesInStreamByLength(pageHeader.getCompressed_page_size());
+                skipBytesInStreamByLength(pageHeader.getCompressedSize());
             }
         }
         return gotNextPageReader;
@@ -110,7 +111,7 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
     private PageReader constructPageReaderForNextPage(int compressedPageBodyLength, Decoder valueDecoder, Decoder timeDecoder)
             throws IOException {
         byte[] compressedPageBody = new byte[compressedPageBodyLength];
-        int readLength = seriesChunkInputStream.read(compressedPageBody, 0, compressedPageBodyLength);
+        int readLength = seriesChunkInputStream.read(compressedPageBody, 0, compressedPageBodyLength);//TODO 这里已经全部读取到内存中了
         if (readLength != compressedPageBodyLength) {
             throw new IOException("unexpected byte read length when read compressedPageBody. Expected:"
                     + compressedPageBody + ". Actual:" + readLength);
@@ -121,7 +122,7 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
     }
 
     private PageHeader getNextPageHeader() throws IOException {
-        return ReadWriteThriftFormatUtils.readPageHeader(seriesChunkInputStream);
+        return PageHeader.deserializeFrom(seriesChunkInputStream, dataType);
     }
 
     @Override

@@ -1,21 +1,13 @@
 package cn.edu.tsinghua.tsfile.file.metadata.utils;
 
-import static org.junit.Assert.*;
+import cn.edu.tsinghua.tsfile.file.metadata.*;
 
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import cn.edu.tsinghua.tsfile.file.metadata.*;
-import cn.edu.tsinghua.tsfile.format.TimeInTimeSeriesChunkMetaData;
-import cn.edu.tsinghua.tsfile.format.TimeSeries;
-import cn.edu.tsinghua.tsfile.format.ValueInTimeSeriesChunkMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TsDeltaObjectMetadata;
-import cn.edu.tsinghua.tsfile.format.DeltaObject;
-import cn.edu.tsinghua.tsfile.format.FileMetaData;
-import cn.edu.tsinghua.tsfile.format.RowGroupBlockMetaData;
+import static org.junit.Assert.*;
 
 public class Utils {
 	public static void isListEqual(List<?> listA, List<?> listB, String name) {

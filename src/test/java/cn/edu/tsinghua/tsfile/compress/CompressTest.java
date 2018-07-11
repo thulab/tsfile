@@ -1,6 +1,5 @@
 package cn.edu.tsinghua.tsfile.compress;
 
-import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
 import cn.edu.tsinghua.tsfile.common.utils.PublicBAOS;
 import cn.edu.tsinghua.tsfile.compress.UnCompressor.NoUnCompressor;
 import cn.edu.tsinghua.tsfile.compress.UnCompressor.SnappyUnCompressor;
@@ -10,6 +9,7 @@ import org.junit.Test;
 import org.xerial.snappy.Snappy;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,8 +36,8 @@ public class CompressTest {
 		out.write(inputString.getBytes("UTF-8"));
 		Compressor.NoCompressor compressor = new Compressor.NoCompressor();
 		NoUnCompressor unCompressor = new NoUnCompressor();
-		ListByteArrayOutputStream compressed = compressor.compress(ListByteArrayOutputStream.from(out));
-		byte[] uncompressed = unCompressor.uncompress(compressed.toByteArray());
+		byte[] compressed = compressor.compress(ByteBuffer.wrap(out.getBuf()));
+		byte[] uncompressed = unCompressor.uncompress(compressed);
 		String result = new String(uncompressed, "UTF-8");
 		assertEquals(inputString, result);
 	}
@@ -48,8 +48,8 @@ public class CompressTest {
 		out.write(inputString.getBytes("UTF-8"));
 		Compressor.SnappyCompressor compressor = new Compressor.SnappyCompressor();
 		SnappyUnCompressor unCompressor = new SnappyUnCompressor();
-		ListByteArrayOutputStream compressed = compressor.compress(ListByteArrayOutputStream.from(out));
-		byte[] uncompressed = unCompressor.uncompress(compressed.toByteArray());
+		byte[] compressed = compressor.compress(ByteBuffer.wrap(out.getBuf()));
+		byte[] uncompressed = unCompressor.uncompress(compressed);
 		String result = new String(uncompressed, "UTF-8");
 		assertEquals(inputString, result);
 	}

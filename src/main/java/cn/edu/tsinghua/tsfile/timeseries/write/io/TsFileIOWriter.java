@@ -1,33 +1,26 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.io;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import cn.edu.tsinghua.tsfile.file.metadata.*;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteByteStreamUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.constant.StatisticConstant;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
+import cn.edu.tsinghua.tsfile.common.utils.PublicBAOS;
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.file.metadata.TsDeltaObjectMetadata;
-import cn.edu.tsinghua.tsfile.file.metadata.converter.TsFileMetaDataConverter;
+import cn.edu.tsinghua.tsfile.file.metadata.*;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteByteStreamUtils;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.*;
 
 /**
  * TSFileIOWriter is used to construct metadata and write data stored in memory
@@ -38,7 +31,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 public class TsFileIOWriter {
 
     public static final byte[] magicStringBytes;
-    public static final TsFileMetaDataConverter metadataConverter = new TsFileMetaDataConverter();
+    //public static final TsFileMetaDataConverter metadataConverter = new TsFileMetaDataConverter();
     private static final Logger LOG = LoggerFactory.getLogger(TsFileIOWriter.class);
 
     static {
@@ -97,17 +90,19 @@ public class TsFileIOWriter {
         this.rowGroupMetaDatas = rowGroups;
     }
 
+
     /**
-     * Writes given <code>ListByteArrayOutputStream</code> to output stream.
+     * Writes given bytes to output stream.
      * This method is called when total memory size exceeds the row group size
      * threshold.
      *
      * @param bytes - data of several pages which has been packed
      * @throws IOException if an I/O error occurs.
      */
-    public void writeBytesToStream(ListByteArrayOutputStream bytes) throws IOException {
-        bytes.writeAllTo(out.getOutputStream());
+    public void writeBytesToStream(PublicBAOS bytes) throws IOException {
+        bytes.writeTo(out.getOutputStream());
     }
+
 
     private void startFile() throws IOException {
         out.write(magicStringBytes);
@@ -134,10 +129,10 @@ public class TsFileIOWriter {
      * @param minTime              - minimum timestamp of the whole series in this stage
      * @throws IOException if I/O error occurs
      */
-    public void startSeries(MeasurementDescriptor descriptor, CompressionType compressionCodecName,
-                            TSDataType tsDataType, Statistics<?> statistics, long maxTime, long minTime) throws IOException {
-        LOG.debug("start series:{}", descriptor);
-        currentChunkMetaData = new TimeSeriesChunkMetaData(descriptor.getMeasurementId(), out.getPos(), compressionCodecName, tsDataType, minTime, maxTime);
+    public void startChunk(MeasurementDescriptor descriptor, CompressionType compressionCodecName,
+                           TSDataType tsDataType, Statistics<?> statistics, long maxTime, long minTime) throws IOException {
+        LOG.debug("start series chunk:{}", descriptor);
+        currentChunkMetaData = new TimeSeriesChunkMetaData(descriptor.getMeasurementId(), out.getPos(), compressionCodecName, tsDataType, minTime, maxTime, descriptor.getEncodingType());
         TsDigest tsDigest = new TsDigest();
         Map<String, ByteBuffer> statisticsMap = new HashMap<>();
         // TODO add your statistics
@@ -151,8 +146,8 @@ public class TsFileIOWriter {
         currentChunkMetaData.setDigest(tsDigest);
     }
 
-    public void endSeries(long size, long totalValueCount) {
-        LOG.debug("end series:{},totalvalue:{}", currentChunkMetaData, totalValueCount);
+    public void endChunk(long size, long totalValueCount) {
+        LOG.debug("end series  chunk:{},totalvalue:{}", currentChunkMetaData, totalValueCount);
         currentChunkMetaData.setTotalByteSize(size);
         currentChunkMetaData.setNumOfPoints(totalValueCount);
         currentRowGroupMetaData.addTimeSeriesChunkMetaData(currentChunkMetaData);
@@ -220,7 +215,13 @@ public class TsFileIOWriter {
 
         TsFileMetaData tsFileMetaData = new TsFileMetaData(tsDeltaObjectMetadataMap, timeSeriesList,
                 TSFileConfig.currentVersion);
-        serializeTsFileMetadata(tsFileMetaData);
+
+        long footerIndex = out.getPos();
+        LOG.debug("serializeTo the footer,file pos:{}", footerIndex);
+        int size=ReadWriteByteStreamUtils.writeFileMetaData(tsFileMetaData, out);
+        LOG.debug("serializeTo the footer finished, file pos:{}", out.getPos());
+        ReadWriteToBytesUtils.write(size,out.getOutputStream());//write the size of the file metadata.
+        out.write(magicStringBytes);
         out.close();
         LOG.info("output stream is closed");
     }
@@ -237,15 +238,14 @@ public class TsFileIOWriter {
 
     private void serializeTsFileMetadata(TsFileMetaData footer) throws IOException {
         long footerIndex = out.getPos();
-        LOG.debug("serialize the footer,file pos:{}", footerIndex);
+        LOG.debug("serializeTo the footer,file pos:{}", footerIndex);
         ReadWriteByteStreamUtils.writeFileMetaData(footer, out);
-        LOG.debug("serialize the footer finished, file pos:{}", out.getPos());
-        out.write(BytesUtils.longToBytes(footer.getFirstTimeSeriesMetadataOffset()));
-        out.write(BytesUtils.longToBytes(footer.getLastTimeSeriesMetadataOffset()));
-        out.write(BytesUtils.longToBytes(footer.getFirstTsDeltaObjectMetadataOffset()));
-        out.write(BytesUtils.longToBytes(footer.getLastTsDeltaObjectMetadataOffset()));
-        out.write(BytesUtils.intToBytes(footer.getCurrentVersion()));
-        out.write(magicStringBytes);
+        LOG.debug("serializeTo the footer finished, file pos:{}", out.getPos());
+//        out.write(BytesUtils.longToBytes(footer.getFirstTimeSeriesMetadataOffset()));
+//        out.write(BytesUtils.longToBytes(footer.getLastTimeSeriesMetadataOffset()));
+//        out.write(BytesUtils.longToBytes(footer.getFirstTsDeltaObjectMetadataOffset()));
+//        out.write(BytesUtils.longToBytes(footer.getLastTsDeltaObjectMetadataOffset()));
+//        out.write(BytesUtils.intToBytes(footer.getCurrentVersion()));
     }
 
     /**

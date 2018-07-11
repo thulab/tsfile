@@ -90,7 +90,7 @@ public class TsDeltaObjectMetadata {
         this.endTime = endTime;
     }
 
-    public int serialize(OutputStream outputStream) throws IOException {
+    public int serializeTo(OutputStream outputStream) throws IOException {
         int byteLen = 0;
 
         byteLen += ReadWriteToBytesUtils.write(offset, outputStream);
@@ -109,7 +109,7 @@ public class TsDeltaObjectMetadata {
         return byteLen;
     }
 
-    public int serialize(ByteBuffer buffer) throws IOException {
+    public int serializeTo(ByteBuffer buffer) throws IOException {
         int byteLen = 0;
 
         byteLen += ReadWriteToBytesUtils.write(offset, buffer);
@@ -128,7 +128,7 @@ public class TsDeltaObjectMetadata {
         return byteLen;
     }
 
-    public static TsDeltaObjectMetadata deserialize(InputStream inputStream) throws IOException {
+    public static TsDeltaObjectMetadata deserializeFrom(InputStream inputStream) throws IOException {
         TsDeltaObjectMetadata deltaObjectMetadata = new TsDeltaObjectMetadata();
 
         deltaObjectMetadata.offset = ReadWriteToBytesUtils.readLong(inputStream);
@@ -148,7 +148,7 @@ public class TsDeltaObjectMetadata {
         return deltaObjectMetadata;
     }
 
-    public static TsDeltaObjectMetadata deserialize(ByteBuffer buffer) throws IOException {
+    public static TsDeltaObjectMetadata deserializeFrom(ByteBuffer buffer) throws IOException {
         TsDeltaObjectMetadata deltaObjectMetadata = new TsDeltaObjectMetadata();
 
         deltaObjectMetadata.offset = ReadWriteToBytesUtils.readLong(buffer);

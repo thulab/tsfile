@@ -103,7 +103,7 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
         SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
         this.seriesChunkReader = new SeriesChunkReaderByTimestampImpl(memSeriesChunk.getSeriesChunkBodyStream()
                 , encodedSeriesChunkDescriptor.getDataType(),
-                encodedSeriesChunkDescriptor.getCompressionTypeName());
+                encodedSeriesChunkDescriptor.getCompressionType(), encodedSeriesChunkDescriptor.getDataEncoding());
     }
 
     @Override

@@ -31,7 +31,7 @@ public class SeriesReaderFromSingleFileWithoutFilterImpl extends SeriesReaderFro
         SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
         this.seriesChunkReader = new SeriesChunkReaderWithoutFilterImpl(memSeriesChunk.getSeriesChunkBodyStream(),
                 memSeriesChunk.getEncodedSeriesChunkDescriptor().getDataType(),
-                memSeriesChunk.getEncodedSeriesChunkDescriptor().getCompressionTypeName());
+                memSeriesChunk.getEncodedSeriesChunkDescriptor().getCompressionType(), encodedSeriesChunkDescriptor.getDataEncoding());
     }
 
     @Override

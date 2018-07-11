@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.tsfile.timeseries.read;
+package cn.edu.tsinghua.tsfile.common.utils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

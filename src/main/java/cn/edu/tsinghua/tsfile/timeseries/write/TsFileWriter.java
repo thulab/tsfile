@@ -130,6 +130,18 @@ public class TsFileWriter {
   }
 
   /**
+   * add new measurements according to json string.
+   * @param measurement
+
+   *
+   * @throws WriteProcessException if the json is illegal or the measurement exists
+   */
+  public void addMeasurementsByJson(JSONObject measurement) throws WriteProcessException {
+    addMeasurement(JsonConverter.convertJsonToMeasureMentDescriptor(measurement));
+  }
+
+
+  /**
    * Confirm whether the record is legal. If legal, add it into this RecordWriter.
    *
    * @param record

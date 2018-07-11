@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.utils;
 
+import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.file.metadata.*;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
@@ -21,59 +22,10 @@ public class ReadWriteToBytesUtils {
     public static int SHORT_LEN = 2;
     public static int INT_LEN = 4;
     public static int LONG_LEN = 8;
+    public static int DOUBLE_LEN = 8;
+    public static int FLOAT_LEN = 4;
+    public static int BOOLEAN_LEN = 1;
 
-    public static byte[] shortToByteArray(short number){
-        int temp = number;
-        byte[] b = new byte[2];
-        for(int i =0; i < b.length; i++){
-            b[i] = new Integer(temp &0xff).byteValue();
-            temp = temp >> 8;
-        }
-        return b;
-    }
-
-    public static short byteArrayToShort(byte[] b){
-        short s = 0;
-        short s0 = (short)(b[0]&0xff);
-        short s1 = (short)(b[1]&0xff);
-        s1 <<= 8;
-        s = (short)(s0 | s1);
-        return s;
-    }
-
-    public static byte[] intToByteArray(int a) {
-        return new byte[] {
-                (byte) ((a >> 24) & 0xFF),
-                (byte) ((a >> 16) & 0xFF),
-                (byte) ((a >> 8) & 0xFF),
-                (byte) (a & 0xFF)
-        };
-    }
-
-    public static int byteArrayToInt(byte[] b) {
-        return   b[3] & 0xFF |
-                (b[2] & 0xFF) << 8 |
-                (b[1] & 0xFF) << 16 |
-                (b[0] & 0xFF) << 24;
-    }
-
-    public static byte[] longToByteArray(long s) {
-        byte[] targets = new byte[8];
-        for (int i = 0; i < 8; i++) {
-            int offset = (targets.length - 1 - i) * 8;
-            targets[i] = (byte) ((s >>> offset) & 0xff);
-        }
-        return targets;
-    }
-
-    public static long byteArrayToLong(byte[] b){
-        long num = 0;
-        for (int ix = 0; ix < 8; ++ix) {
-            num <<= 8;
-            num |= (b[ix] & 0xff);
-        }
-        return num;
-    }
 
     public static int write(Boolean flag, OutputStream outputStream) throws IOException {
         if(flag)outputStream.write(1);
@@ -113,7 +65,7 @@ public class ReadWriteToBytesUtils {
     }
 
     public static int write(short n, OutputStream outputStream) throws IOException {
-        byte[] bytes = shortToByteArray(n);
+        byte[] bytes = BytesUtils.shortToBytes(n);
         outputStream.write(bytes);
         return bytes.length;
     }
@@ -125,7 +77,7 @@ public class ReadWriteToBytesUtils {
     public static short readShort(InputStream inputStream) throws IOException {
         byte[] bytes = new byte[SHORT_LEN];
         inputStream.read(bytes);
-        return byteArrayToShort(bytes);
+        return BytesUtils.bytesToShort(bytes);
     }
     public static short readShort(ByteBuffer buffer) throws IOException {
         short n = buffer.getShort();
@@ -133,7 +85,7 @@ public class ReadWriteToBytesUtils {
     }
 
     public static int write(int n, OutputStream outputStream) throws IOException {
-        byte[] bytes = intToByteArray(n);
+        byte[] bytes = BytesUtils.intToBytes(n);
         outputStream.write(bytes);
         return bytes.length;
     }
@@ -142,10 +94,34 @@ public class ReadWriteToBytesUtils {
         return INT_LEN;
     }
 
+    public static int write(float n, OutputStream outputStream) throws IOException {
+        byte[] bytes= BytesUtils.floatToBytes(n);
+        outputStream.write(bytes);
+        return FLOAT_LEN;
+    }
+
+    public static float readFloat(InputStream inputStream) throws IOException {
+        byte[] bytes= new byte[FLOAT_LEN];
+        inputStream.read(bytes);
+        return BytesUtils.bytesToFloat(bytes);
+    }
+
+    public static int write(double n, OutputStream outputStream) throws IOException {
+        byte[] bytes= BytesUtils.doubleToBytes(n);
+        outputStream.write(bytes);
+        return DOUBLE_LEN;
+    }
+
+    public static double readDouble(InputStream inputStream) throws IOException {
+        byte[] bytes= new byte[DOUBLE_LEN];
+        inputStream.read(bytes);
+        return BytesUtils.bytesToDouble(bytes);
+    }
+
     public static int readInt(InputStream inputStream) throws IOException {
         byte[] bytes = new byte[INT_LEN];
         inputStream.read(bytes);
-        return byteArrayToInt(bytes);
+        return BytesUtils.bytesToInt(bytes);
     }
     public static int readInt(ByteBuffer buffer) throws IOException {
         int n = buffer.getInt();
@@ -153,7 +129,7 @@ public class ReadWriteToBytesUtils {
     }
 
     public static int write(long n, OutputStream outputStream) throws IOException {
-        byte[] bytes = longToByteArray(n);
+        byte[] bytes = BytesUtils.longToBytes(n);
         outputStream.write(bytes);
         return bytes.length;
     }
@@ -165,7 +141,7 @@ public class ReadWriteToBytesUtils {
     public static long readLong(InputStream inputStream) throws IOException {
         byte[] bytes = new byte[LONG_LEN];
         inputStream.read(bytes);
-        return byteArrayToLong(bytes);
+        return BytesUtils.bytesToLong(bytes);
     }
     public static long readLong(ByteBuffer buffer) throws IOException {
         long n = buffer.getLong();
@@ -218,6 +194,81 @@ public class ReadWriteToBytesUtils {
         len += bytes.length;
         return len;
     }
+
+    /**
+     * write a value to stream using unsigned var int format. for example, int
+     * 123456789 has its binary format 111010-1101111-0011010-0010101, function
+     * writeUnsignedVarInt will split every seven bits and write them to stream
+     * from low bit to high bit like: 1-0010101 1-0011010 1-1101111 0-0111010 1
+     * represents has next byte to write, 0 represents number end
+     *
+     *
+     *
+     * @param value value to write into stream
+     * @param buffer where to store the result. buffer.remaining() needs to >= 32.
+     *               Notice: (1) this function does not check buffer's remaining().
+     *              (2) the position will be updated.
+     * @return the number of bytes that the value consume.
+     * @throws IOException exception in IO
+     */
+    public static int writeUnsignedVarInt(int value, ByteBuffer buffer) throws IOException {
+        int position=1;
+        while ((value & 0xFFFFFF80) != 0L) {
+            buffer.put((byte)((value & 0x7F) | 0x80));
+            value >>>= 7;
+            position++;
+        }
+        buffer.put((byte)(value & 0x7F));
+        return position;
+    }
+
+    /**
+     * read an unsigned var int in stream and transform it to int format
+     *
+     * @param in stream to read an unsigned var int
+     * @return integer value
+     * @throws IOException exception in IO
+     */
+    public static int readUnsignedVarInt(InputStream in) throws IOException {
+        int value = 0;
+        int i = 0;
+        int b;
+        while (((b = in.read()) & 0x80) != 0) {
+            value |= (b & 0x7F) << i;
+            i += 7;
+        }
+        return value | (b << i);
+    }
+
+    /**
+     * unlike InputStream.read(bytes), this method makes sure that you can read length bytes or reach to the end of the stream.
+     * @param inputStream
+     * @param length
+     * @return
+     * @throws IOException
+     */
+    public static byte[] readBytes(InputStream inputStream, int length) throws IOException {
+        byte[] bytes=new byte[length];
+        int offset=0;
+        int len=0;
+        while((len=inputStream.read(bytes,offset, bytes.length-offset))!=-1){
+            offset+=len;
+        }
+        return bytes;
+    }
+
+    /**
+     * unlike InputStream.read(bytes), this method makes sure that you can read length bytes or reach to the end of the stream.
+     * @param inputStream
+     * @param length
+     * @return
+     * @throws IOException
+     */
+    public static byte[] readBytesWithSelfDescriptionLength(InputStream inputStream) throws IOException {
+        int length=readInt(inputStream);
+        return readBytes(inputStream,length);
+    }
+
 
     public static ByteBuffer readByteBuffer(InputStream inputStream) throws IOException {
         int byteLength = readInt(inputStream);
@@ -403,18 +454,18 @@ public class ReadWriteToBytesUtils {
     }
 
     public static int write(TsDigest digest, OutputStream outputStream) throws IOException {
-        return digest.serialize(outputStream);
+        return digest.serializeTo(outputStream);
     }
     public static int write(TsDigest digest, ByteBuffer buffer) throws IOException {
-        return digest.serialize(buffer);
+        return digest.serializeTo(buffer);
     }
 
     public static TsDigest readDigest(InputStream inputStream) throws IOException {
-        TsDigest tsDigest = TsDigest.deserialize(inputStream);
+        TsDigest tsDigest = TsDigest.deserializeFrom(inputStream);
         return tsDigest;
     }
     public static TsDigest readDigest(ByteBuffer buffer) throws IOException {
-        TsDigest tsDigest = TsDigest.deserialize(buffer);
+        TsDigest tsDigest = TsDigest.deserializeFrom(buffer);
         return tsDigest;
     }
 
@@ -435,66 +486,66 @@ public class ReadWriteToBytesUtils {
     }
 
     public static int write(TimeSeriesChunkMetaData timeSeriesChunkMetaData, OutputStream outputStream) throws IOException {
-        return timeSeriesChunkMetaData.serialize(outputStream);
+        return timeSeriesChunkMetaData.serializeTo(outputStream);
     }
     public static int write(TimeSeriesChunkMetaData timeSeriesChunkMetaData, ByteBuffer buffer) throws IOException {
-        return timeSeriesChunkMetaData.serialize(buffer);
+        return timeSeriesChunkMetaData.serializeTo(buffer);
     }
 
     public static TimeSeriesChunkMetaData readTimeSeriesChunkMetaData(InputStream inputStream) throws IOException {
-        TimeSeriesChunkMetaData timeSeriesChunkMetaData = TimeSeriesChunkMetaData.deserialize(inputStream);
+        TimeSeriesChunkMetaData timeSeriesChunkMetaData = TimeSeriesChunkMetaData.deserializeFrom(inputStream);
         return timeSeriesChunkMetaData;
     }
     public static TimeSeriesChunkMetaData readTimeSeriesChunkMetaData(ByteBuffer buffer) throws IOException {
-        TimeSeriesChunkMetaData timeSeriesChunkMetaData = TimeSeriesChunkMetaData.deserialize(buffer);
+        TimeSeriesChunkMetaData timeSeriesChunkMetaData = TimeSeriesChunkMetaData.deserializeFrom(buffer);
         return timeSeriesChunkMetaData;
     }
 
     public static int write(RowGroupMetaData rowGroupMetaData, OutputStream outputStream) throws IOException {
-        return rowGroupMetaData.serialize(outputStream);
+        return rowGroupMetaData.serializeTo(outputStream);
     }
     public static int write(RowGroupMetaData rowGroupMetaData, ByteBuffer buffer) throws IOException {
-        return rowGroupMetaData.serialize(buffer);
+        return rowGroupMetaData.serializeTo(buffer);
     }
 
     public static RowGroupMetaData readRowGroupMetaData(InputStream inputStream) throws IOException {
-        RowGroupMetaData rowGroupMetaData = RowGroupMetaData.deserialize(inputStream);
+        RowGroupMetaData rowGroupMetaData = RowGroupMetaData.deserializeFrom(inputStream);
         return rowGroupMetaData;
     }
     public static RowGroupMetaData readRowGroupMetaData(ByteBuffer buffer) throws IOException {
-        RowGroupMetaData rowGroupMetaData = RowGroupMetaData.deserialize(buffer);
+        RowGroupMetaData rowGroupMetaData = RowGroupMetaData.deserializeFrom(buffer);
         return rowGroupMetaData;
     }
 
     public static int write(TsDeltaObjectMetadata deltaObjectMetadata, OutputStream outputStream) throws IOException {
-        return deltaObjectMetadata.serialize(outputStream);
+        return deltaObjectMetadata.serializeTo(outputStream);
     }
     public static int write(TsDeltaObjectMetadata deltaObjectMetadata, ByteBuffer buffer) throws IOException {
-        return deltaObjectMetadata.serialize(buffer);
+        return deltaObjectMetadata.serializeTo(buffer);
     }
 
     public static TsDeltaObjectMetadata readDeltaObjectMetadata(InputStream inputStream) throws IOException {
-        TsDeltaObjectMetadata deltaObjectMetadata = TsDeltaObjectMetadata.deserialize(inputStream);
+        TsDeltaObjectMetadata deltaObjectMetadata = TsDeltaObjectMetadata.deserializeFrom(inputStream);
         return deltaObjectMetadata;
     }
     public static TsDeltaObjectMetadata readDeltaObjectMetadata(ByteBuffer buffer) throws IOException {
-        TsDeltaObjectMetadata deltaObjectMetadata = TsDeltaObjectMetadata.deserialize(buffer);
+        TsDeltaObjectMetadata deltaObjectMetadata = TsDeltaObjectMetadata.deserializeFrom(buffer);
         return deltaObjectMetadata;
     }
 
     public static int write(TsFileMetaData tsFileMetaData, OutputStream outputStream) throws IOException {
-        return tsFileMetaData.serialize(outputStream);
+        return tsFileMetaData.serializeTo(outputStream);
     }
     public static int write(TsFileMetaData tsFileMetaData, ByteBuffer buffer) throws IOException {
-        return tsFileMetaData.serialize(buffer);
+        return tsFileMetaData.serializeTo(buffer);
     }
 
     public static TsFileMetaData readTsFileMetaData(InputStream inputStream) throws IOException {
-        TsFileMetaData tsFileMetaData = TsFileMetaData.deserialize(inputStream);
+        TsFileMetaData tsFileMetaData = TsFileMetaData.deserializeFrom(inputStream);
         return tsFileMetaData;
     }
     public static TsFileMetaData readTsFileMetaData(ByteBuffer buffer) throws IOException {
-        TsFileMetaData tsFileMetaData = TsFileMetaData.deserialize(buffer);
+        TsFileMetaData tsFileMetaData = TsFileMetaData.deserializeFrom(buffer);
         return tsFileMetaData;
     }
 }

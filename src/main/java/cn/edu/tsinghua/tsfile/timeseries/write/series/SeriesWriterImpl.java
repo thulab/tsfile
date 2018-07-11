@@ -40,17 +40,17 @@ public class SeriesWriterImpl implements ISeriesWriter {
 
     /**
      * value count on of a page. It will be reset after calling
-     * {@code writePage()}
+     * {@code writePageHeaderAndDataIntoBuff()}
      */
     private int valueCount;
     private int valueCountForNextSizeCheck;
     /**
-     * statistic on a page. It will be reset after calling {@code writePage()}
+     * statistic on a page. It will be reset after calling {@code writePageHeaderAndDataIntoBuff()}
      */
     private Statistics<?> pageStatistics;
     /**
      * statistic on a stage. It will be reset after calling
-     * {@code writeToFileWriter()}
+     * {@code writeAllPagesOfSeriesToTsFile()}
      */
     private Statistics<?> seriesStatistics;
     private long time;
@@ -187,12 +187,12 @@ public class SeriesWriterImpl implements ISeriesWriter {
      */
     private void writePage() {
         try {
-            pageWriter.writePage(dataValueWriter.getBytes(), valueCount, pageStatistics, time, minTimestamp);
+            pageWriter.writePageHeaderAndDataIntoBuff(dataValueWriter.getBytes(), valueCount, pageStatistics, time, minTimestamp);
             this.seriesStatistics.mergeStatistics(this.pageStatistics);
         } catch (IOException e) {
             LOG.error("meet error in dataValueWriter.getBytes(),ignore this page, {}", e.getMessage());
         } catch (PageException e) {
-            LOG.error("meet error in pageWriter.writePage,ignore this page, error message:{}", e.getMessage());
+            LOG.error("meet error in pageWriter.writePageHeaderAndDataIntoBuff,ignore this page, error message:{}", e.getMessage());
         } finally {
             // clear start time stamp for next initializing
             minTimestamp = -1;
@@ -207,7 +207,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         if (valueCount > 0) {
             writePage();
         }
-        pageWriter.writeToFileWriter(tsfileWriter, seriesStatistics);
+        pageWriter.writeAllPagesOfSeriesToTsFile(tsfileWriter, seriesStatistics);
         pageWriter.reset();
         // reset series_statistics
         this.seriesStatistics = Statistics.getStatsByType(dataType);

@@ -1,8 +1,13 @@
 package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 
+import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
+import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 
 /**
  * Statistics for BigDecimal type
@@ -13,7 +18,7 @@ public class BigDecimalStatistics extends Statistics<BigDecimal> {
 	private BigDecimal max;
 	private BigDecimal min;
 	private BigDecimal first;
-	private double sum;
+	private double sum;//FIXME why not BigDecimal?
 	private BigDecimal last;
 
 	@Override
@@ -111,13 +116,53 @@ public class BigDecimalStatistics extends Statistics<BigDecimal> {
 	}
 
 	@Override
+	public ByteBuffer getMaxBytebuffer() {
+		return ByteBufferUtil.bytes(max.doubleValue());
+	}
+
+	@Override
+	public ByteBuffer getMinBytebuffer() { return ByteBufferUtil.bytes(min.doubleValue()); }
+
+	@Override
+	public ByteBuffer getFirstBytebuffer() {
+		return ByteBufferUtil.bytes(first.doubleValue());
+	}
+
+	@Override
+	public ByteBuffer getSumBytebuffer() {
+		return ByteBufferUtil.bytes(sum);
+	}
+
+	@Override
+	public ByteBuffer getLastBytebuffer() {
+		return ByteBufferUtil.bytes(last.doubleValue());
+	}
+
+
+	@Override
 	public void setMinMaxFromBytes(byte[] minBytes, byte[] maxBytes) {
 		max = new BigDecimal(BytesUtils.bytesToDouble(maxBytes));
 		min = new BigDecimal(BytesUtils.bytesToDouble(minBytes));
 	}
 
 	@Override
+	public int sizeOfDatum() {
+		return 8;
+	}
+
+	@Override
 	public String toString() {
 		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + ",last:" + last + "]";
 	}
+
+	@Override
+	void fill(InputStream inputStream) throws IOException {
+
+		this.min = BigDecimal.valueOf(ReadWriteToBytesUtils.readDouble(inputStream));
+		this.max = BigDecimal.valueOf(ReadWriteToBytesUtils.readDouble(inputStream));
+		this.first = BigDecimal.valueOf(ReadWriteToBytesUtils.readDouble(inputStream));
+		this.last = BigDecimal.valueOf(ReadWriteToBytesUtils.readDouble(inputStream));
+		this.sum = ReadWriteToBytesUtils.readDouble(inputStream);
+	}
+
 }

@@ -36,13 +36,49 @@ public class FileSchema {
   private List<TimeSeriesMetadata> tsMetadata = new ArrayList<>();
   private int currentMaxByteSizeInOneRow;
 
-  private Map<String, String> additionalProperties = new HashMap<>();
+
+
+
+//  private Map<String, String> additionalProperties = new HashMap<>();
 
   public FileSchema() {
     this.measurementNameDescriptorMap = new HashMap<>();
-    this.additionalProperties = new HashMap<>();
+    //this.additionalProperties = new HashMap<>();
   }
 
+  /**
+   *            example:
+   *             <pre>
+   *   {
+   *   "measurement_id": "sensor_cpu_50",
+   *   "data_type": "INT32",
+   *   "encoding": "RLE"
+   *   }
+   *
+   *   {"schema":
+   *    [
+   *     {
+   *      "measurement_id": "sensor_1",
+   *      "data_type": "FLOAT",
+   *      "encoding": "RLE"
+   *     },
+   *     {
+   *       "measurement_id": "sensor_2",
+   *       "data_type": "INT32",
+   *       "encoding": "TS_2DIFF"
+   *     },
+   *     {
+   *       "measurement_id": "sensor_3",
+   *       "data_type": "INT32",
+   *       "encoding": "TS_2DIFF"
+   *     }
+   *    ]
+   *   };
+   *
+   *             </pre>
+   * @param jsonSchema
+   * @throws InvalidJsonSchemaException
+   */
   public FileSchema(JSONObject jsonSchema) throws InvalidJsonSchemaException {
     this(JsonConverter.converterJsonToMeasurementDescriptors(jsonSchema),
         JsonConverter.convertJsonToSchemaProperties(jsonSchema));
@@ -51,42 +87,42 @@ public class FileSchema {
   public FileSchema(Map<String, MeasurementDescriptor> measurements,
       Map<String, String> additionalProperties) {
     this();
-    this.additionalProperties = additionalProperties;
+   // this.additionalProperties = additionalProperties;
     this.registerMeasurements(measurements);
   }
 
-  /**
-   * Add a property to {@code props}. <br>
-   * If the key exists, this method will update the value of the key.
-   *
-   * @param key
-   *          key of property
-   * @param value
-   *          value of property
-   */
-  public void addProp(String key, String value) {
-    additionalProperties.put(key, value);
-  }
-
-  public boolean hasProp(String key) {
-    return additionalProperties.containsKey(key);
-  }
-
-  public Map<String, String> getProps() {
-    return additionalProperties;
-  }
-
-  public void setProps(Map<String, String> props) {
-    this.additionalProperties.clear();
-    this.additionalProperties.putAll(props);
-  }
-
-  public String getProp(String key) {
-    if (additionalProperties.containsKey(key))
-      return additionalProperties.get(key);
-    else
-      return null;
-  }
+//  /**
+//   * Add a property to {@code props}. <br>
+//   * If the key exists, this method will update the value of the key.
+//   *
+//   * @param key
+//   *          key of property
+//   * @param value
+//   *          value of property
+//   */
+//  public void addProp(String key, String value) {
+//    additionalProperties.put(key, value);
+//  }
+//
+//  public boolean hasProp(String key) {
+//    return additionalProperties.containsKey(key);
+//  }
+//
+//  public Map<String, String> getProps() {
+//    return additionalProperties;
+//  }
+//
+//  public void setProps(Map<String, String> props) {
+//    this.additionalProperties.clear();
+//    this.additionalProperties.putAll(props);
+//  }
+//
+//  public String getProp(String key) {
+//    if (additionalProperties.containsKey(key))
+//      return additionalProperties.get(key);
+//    else
+//      return null;
+//  }
 
   public int getCurrentRowMaxSize() {
     return currentMaxByteSizeInOneRow;
@@ -149,4 +185,5 @@ public class FileSchema {
   public boolean hasMeasurement(String measurementId) {
     return measurementNameDescriptorMap.containsKey(measurementId);
   }
+
 }
