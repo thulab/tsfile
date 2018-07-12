@@ -68,7 +68,7 @@ public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
     protected int numBufferedValues;
 
     /**
-     * we will write all bytes using bit-packing to OutputStream once. Before that, all bytes are
+     * we will writeTo all bytes using bit-packing to OutputStream once. Before that, all bytes are
      * saved in list
      */
     protected List<byte[]> bytesBuffer;
@@ -143,7 +143,7 @@ public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
         } else {
             endPreviousBitPackedRun(config.RLE_MIN_REPEATED_NUM);
         }
-        //write length
+        //writeTo length
         ReadWriteStreamUtils.writeUnsignedVarInt(byteCache.size(), out);
         byteCache.writeTo(out);
         reset();
@@ -154,7 +154,7 @@ public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
      * rle format: {@code
      * [header][value]
      * header: (repeated value) << 1}
-     * @throws IOException cannot write RLE run
+     * @throws IOException cannot writeTo RLE run
      */
     protected abstract void writeRleRun() throws IOException;
 
@@ -179,7 +179,7 @@ public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
     }
 
     /**
-     * End a bit-packing run write all bit-packing group to OutputStream bit-packing format:
+     * End a bit-packing run writeTo all bit-packing group to OutputStream bit-packing format:
      * {@code
      * [header][lastBitPackedNum][bit-packing group]+
      * [bit-packing group]+ are saved in List<byte[]> bytesBuffer
@@ -204,7 +204,7 @@ public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
 
     /**
      * Encode T value using rle or bit-packing.
-     * It may not write to OutputStream immediately
+     * It may not writeTo to OutputStream immediately
      *
      * @param value - value to encode
      */
@@ -220,15 +220,15 @@ public abstract class RleEncoder<T extends Comparable<T>> extends Encoder {
             if (repeatCount >= config.RLE_MIN_REPEATED_NUM && repeatCount <= config.RLE_MAX_REPEATED_NUM) {
                 // value occurs more than RLE_MIN_REPEATED_NUM times but less than EncodingConfig.RLE_MAX_REPEATED_NUM
                 // we'll use rle, so just keep on counting repeats for now
-                // we'll write current value to OutputStream when we encounter a different value
+                // we'll writeTo current value to OutputStream when we encounter a different value
                 return;
             } else if (repeatCount == config.RLE_MAX_REPEATED_NUM + 1) {
                 // value occurs more than EncodingConfig.RLE_MAX_REPEATED_NUM
-                // we'll write current rle run to stream and keep on counting current value
+                // we'll writeTo current rle run to stream and keep on counting current value
                 repeatCount = config.RLE_MAX_REPEATED_NUM;
                 try {
                     writeRleRun();
-                    LOGGER.debug("tsfile-encoding RleEncoder : write full rle run to stream");
+                    LOGGER.debug("tsfile-encoding RleEncoder : writeTo full rle run to stream");
                 } catch (IOException e) {
                     LOGGER.error(
                             " error occurs when writing full rle run to OutputStram when repeatCount = {}."

@@ -18,8 +18,8 @@ public class ReadWriteByteStreamUtils {
 //        }
 //        tsDeltaObjectMetadata.setOffset(out.getPos());
 //        for (RowGroupMetaData rowGroupMetaData : rowGroupMetadataList) {
-//            out.getOutputStream().write(BytesUtils.longToBytes(rowGroupMetaData.getMetadataOffset()));
-//            out.getOutputStream().write(BytesUtils.intToBytes(rowGroupMetaData.getMetadataSize()));
+//            out.getOutputStream().writeTo(BytesUtils.longToBytes(rowGroupMetaData.getMetadataOffset()));
+//            out.getOutputStream().writeTo(BytesUtils.intToBytes(rowGroupMetaData.getMetadataSize()));
 //        }
 //        tsDeltaObjectMetadata.setMetadataBlockSize((int) (out.getPos() - tsDeltaObjectMetadata.getOffset()));
         tsDeltaObjectMetadata.serializeTo(out.getOutputStream());
@@ -32,7 +32,7 @@ public class ReadWriteByteStreamUtils {
 //        }
 //        rowGroupMetaData.setMetadataOffset(out.getPos());
 //        for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList) {
-//            out.getOutputStream().write(BytesUtils.longToBytes(timeSeriesChunkMetaData.getTsDigestOffset()));
+//            out.getOutputStream().writeTo(BytesUtils.longToBytes(timeSeriesChunkMetaData.getTsDigestOffset()));
 //        }
 //        rowGroupMetaData.setMetadataSize((int) (out.getPos() - rowGroupMetaData.getMetadataOffset()));
         rowGroupMetaData.serializeTo(out.getOutputStream());
@@ -43,16 +43,16 @@ public class ReadWriteByteStreamUtils {
 //        long offsetOfDigest = writeDigest(valuesStatistics, out);
 //        timeSeriesChunkMetaData.setTsDigestOffset(out.getPos());
 //        int digestSize = (int) (out.getPos() - offsetOfDigest);
-//        out.getOutputStream().write(BytesUtils.longToBytes(Long.valueOf(timeSeriesChunkMetaData.getMeasurementUID())));
-//        out.getOutputStream().write(BytesUtils.longToBytes(timeSeriesChunkMetaData.getFileOffset()));
-//        out.getOutputStream().write(BytesUtils.intToBytes(timeSeriesChunkMetaData.getCompression().ordinal()));
-//        out.getOutputStream().write(BytesUtils.longToBytes(timeSeriesChunkMetaData.getNumOfPoints()));
-//        out.getOutputStream().write(BytesUtils.longToBytes(timeSeriesChunkMetaData.getTotalByteSize()));
-//        out.getOutputStream().write(BytesUtils.longToBytes(timeSeriesChunkMetaData.getStartTime()));
-//        out.getOutputStream().write(BytesUtils.longToBytes(timeSeriesChunkMetaData.getEndTime()));
-//        out.getOutputStream().write(BytesUtils.intToBytes(timeSeriesChunkMetaData.getDataType().ordinal()));
-//        out.getOutputStream().write(BytesUtils.longToBytes(offsetOfDigest));
-//        out.getOutputStream().write(BytesUtils.intToBytes(digestSize));
+//        out.getOutputStream().writeTo(BytesUtils.longToBytes(Long.valueOf(timeSeriesChunkMetaData.getMeasurementUID())));
+//        out.getOutputStream().writeTo(BytesUtils.longToBytes(timeSeriesChunkMetaData.getFileOffset()));
+//        out.getOutputStream().writeTo(BytesUtils.intToBytes(timeSeriesChunkMetaData.getCompression().ordinal()));
+//        out.getOutputStream().writeTo(BytesUtils.longToBytes(timeSeriesChunkMetaData.getNumOfPoints()));
+//        out.getOutputStream().writeTo(BytesUtils.longToBytes(timeSeriesChunkMetaData.getTotalByteSize()));
+//        out.getOutputStream().writeTo(BytesUtils.longToBytes(timeSeriesChunkMetaData.getStartTime()));
+//        out.getOutputStream().writeTo(BytesUtils.longToBytes(timeSeriesChunkMetaData.getEndTime()));
+//        out.getOutputStream().writeTo(BytesUtils.intToBytes(timeSeriesChunkMetaData.getDataType().ordinal()));
+//        out.getOutputStream().writeTo(BytesUtils.longToBytes(offsetOfDigest));
+//        out.getOutputStream().writeTo(BytesUtils.intToBytes(digestSize));
         timeSeriesChunkMetaData.serializeTo(out.getOutputStream());
     }
 
@@ -66,7 +66,7 @@ public class ReadWriteByteStreamUtils {
 //            offsetMap.put(entry.getKey(), out.getPos());
 //            byte[] data = new byte[byteBuffer.remaining()];
 //            byteBuffer.get(data, 0, data.length);
-//            out.getOutputStream().write(data);
+//            out.getOutputStream().writeTo(data);
 //        }
 //        iterator = statistics.entrySet().iterator();
 //        long offsetOfDigest = out.getPos();
@@ -74,9 +74,9 @@ public class ReadWriteByteStreamUtils {
 //            Map.Entry<String, ByteBuffer> entry = iterator.next();
 //            long offset = offsetMap.get(entry.getKey());
 //            ByteBuffer byteBuffer = entry.getValue();
-//            out.getOutputStream().write(BytesUtils.longToBytes(Long.valueOf(entry.getKey())));
-//            out.getOutputStream().write(BytesUtils.longToBytes(offset));
-//            out.getOutputStream().write(BytesUtils.intToBytes(byteBuffer.remaining()));
+//            out.getOutputStream().writeTo(BytesUtils.longToBytes(Long.valueOf(entry.getKey())));
+//            out.getOutputStream().writeTo(BytesUtils.longToBytes(offset));
+//            out.getOutputStream().writeTo(BytesUtils.intToBytes(byteBuffer.remaining()));
 //        }
 //        return offsetOfDigest;
         return tsDigest.serializeTo(out.getOutputStream());
@@ -91,8 +91,8 @@ public class ReadWriteByteStreamUtils {
 //            if (i == timeSeriesList.size() - 1) {
 //                tsFileMetadata.setLastTimeSeriesMetadataOffset(out.getPos());
 //            }
-//            out.getOutputStream().write(BytesUtils.longToBytes(Long.valueOf(timeSeriesList.get(i).getMeasurementUID())));
-//            out.getOutputStream().write(BytesUtils.intToBytes(timeSeriesList.get(i).getType().ordinal()));
+//            out.getOutputStream().writeTo(BytesUtils.longToBytes(Long.valueOf(timeSeriesList.get(i).getMeasurementUID())));
+//            out.getOutputStream().writeTo(BytesUtils.intToBytes(timeSeriesList.get(i).getType().ordinal()));
 //        }
 //        tsFileMetadata.setFirstTsDeltaObjectMetadataOffset(out.getPos());
 //        Map<String, TsDeltaObjectMetadata> deltaObjectMap = tsFileMetadata.getDeltaObjectMap();
@@ -100,14 +100,14 @@ public class ReadWriteByteStreamUtils {
 //        while (iterator.hasNext()) {
 //            Map.Entry<String, TsDeltaObjectMetadata> entry = iterator.next();
 //            TsDeltaObjectMetadata currentTsDeltaObjectMetadata = entry.getValue();
-//            out.getOutputStream().write(BytesUtils.longToBytes(Long.valueOf(entry.getKey())));
-//            out.getOutputStream().write(BytesUtils.longToBytes(currentTsDeltaObjectMetadata.getOffset()));
-//            out.getOutputStream().write(BytesUtils.intToBytes(currentTsDeltaObjectMetadata.getMetadataBlockSize()));
-//            out.getOutputStream().write(BytesUtils.longToBytes(currentTsDeltaObjectMetadata.getStartTime()));
-//            out.getOutputStream().write(BytesUtils.longToBytes(currentTsDeltaObjectMetadata.getEndTime()));
+//            out.getOutputStream().writeTo(BytesUtils.longToBytes(Long.valueOf(entry.getKey())));
+//            out.getOutputStream().writeTo(BytesUtils.longToBytes(currentTsDeltaObjectMetadata.getOffset()));
+//            out.getOutputStream().writeTo(BytesUtils.intToBytes(currentTsDeltaObjectMetadata.getMetadataBlockSize()));
+//            out.getOutputStream().writeTo(BytesUtils.longToBytes(currentTsDeltaObjectMetadata.getStartTime()));
+//            out.getOutputStream().writeTo(BytesUtils.longToBytes(currentTsDeltaObjectMetadata.getEndTime()));
 //        }
 //        tsFileMetadata.setLastTsDeltaObjectMetadataOffset(out.getPos() - 36); //TsDeltaObjectMetadata has fixed length: 36 bytes.
-//        out.getOutputStream().write(BytesUtils.StringToBytes(tsFileMetadata.getCreatedBy()));
+//        out.getOutputStream().writeTo(BytesUtils.StringToBytes(tsFileMetadata.getCreatedBy()));
         return tsFileMetadata.serializeTo(out.getOutputStream());
     }
 

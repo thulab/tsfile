@@ -30,7 +30,7 @@
 //
 ///**
 // * ConverterUtils is a utility class. It provide conversion between tsfile and
-// * thrift metadata class. It also provides function that read/write page header
+// * thrift metadata class. It also provides function that read/writeTo page header
 // * from/to stream
 // *
 // * @author XuYi xuyi556677@163.com
@@ -39,17 +39,17 @@
 //	private static final Logger LOGGER = LoggerFactory.getLogger(ReadWriteThriftFormatUtils.class);
 //
 //	/**
-//	 * write file metadata(thrift format) to stream
+//	 * writeTo file metadata(thrift format) to stream
 //	 *
 //	 * @param fileMetadata
-//	 *            file metadata to write
+//	 *            file metadata to writeTo
 //	 * @param to
 //	 *            OutputStream
 //	 * @throws IOException
-//	 *             cannot write file metadata to OutputStream
+//	 *             cannot writeTo file metadata to OutputStream
 //	 */
 //	public static void writeFileMetaData(FileMetaData fileMetadata, OutputStream to) throws IOException {
-//		write(fileMetadata, to);
+//		writeTo(fileMetadata, to);
 //	}
 //
 //	/**
@@ -66,7 +66,7 @@
 //	}
 //
 //	public static void writeRowGroupBlockMetadata(RowGroupBlockMetaData metadata, OutputStream to) throws IOException {
-//		write(metadata, to);
+//		writeTo(metadata, to);
 //	}
 //
 //	public static RowGroupBlockMetaData readRowGroupBlockMetaData(InputStream from) throws IOException {
@@ -84,7 +84,7 @@
 //	}
 //
 //	/**
-//	 * write DataPageHeader to output stream. For more information about
+//	 * writeTo DataPageHeader to output stream. For more information about
 //	 * DataPageHeader, see PageHeader and DataPageHeader in tsfile-format
 //	 *
 //	 * @param uncompressedSize
@@ -106,7 +106,7 @@
 //	 * @param min_timestamp
 //	 *            min timestamp
 //	 * @throws IOException
-//	 *             cannot write data page header to OutputStream
+//	 *             cannot writeTo data page header to OutputStream
 //	 */
 //	public static void writeDataPageHeader(int uncompressedSize, int compressedSize, int numValues,
 //			Statistics<?> statistics, int numRows, TSEncoding encoding, OutputStream to, long max_timestamp,
@@ -139,20 +139,20 @@
 //	}
 //
 //	/**
-//	 * write page header(thrift format) to stream
+//	 * writeTo page header(thrift format) to stream
 //	 *
 //	 * @param pageHeader
 //	 *            input page header
 //	 * @param to
 //	 *            OutputStream
 //	 * @throws IOException
-//	 *             cannot write page header to OutputStream
+//	 *             cannot writeTo page header to OutputStream
 //	 */
 //	public static void writePageHeader(PageHeader pageHeader, OutputStream to) throws IOException {
 //		try {
-//			pageHeader.write(protocol(to));
+//			pageHeader.writeTo(protocol(to));
 //		} catch (TException e) {
-//			LOGGER.error("tsfile-file Utils: can not write {}", pageHeader, e);
+//			LOGGER.error("tsfile-file Utils: can not writeTo {}", pageHeader, e);
 //			throw new IOException(e);
 //		}
 //	}
@@ -188,12 +188,12 @@
 //	 * @throws IOException
 //	 *             exception in IO
 //	 */
-//	public static void write(TBase<?, ?> tbase, OutputStream to) throws IOException {
+//	public static void writeTo(TBase<?, ?> tbase, OutputStream to) throws IOException {
 //		try {
 //			TSerializer serializer = new TSerializer(new TCompactProtocol.Factory());
-//			to.write(serializer.serialize(tbase));
+//			to.writeTo(serializer.serialize(tbase));
 //		} catch (TException e) {
-//			LOGGER.error("tsfile-file Utils: can not write {}", tbase, e);
+//			LOGGER.error("tsfile-file Utils: can not writeTo {}", tbase, e);
 //			throw new IOException(e);
 //		}
 //	}
@@ -242,7 +242,7 @@
 //	 * @param to
 //	 *            Outputstream
 //	 * @throws IOException
-//	 *             cannot write dictionary page header to OutputStream
+//	 *             cannot writeTo dictionary page header to OutputStream
 //	 */
 //	@Deprecated
 //	public void writeDictionaryPageHeader(int uncompressedSize, int compressedSize, int numValues, TSEncoding encoding,

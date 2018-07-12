@@ -89,7 +89,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         pageStatistics.updateStats(value);
         if (minTimestamp == -1)
             minTimestamp = time;
-        checkPageSize();
+        checkPageSizeAndMayOpenANewPage();
     }
 
     @Override
@@ -100,7 +100,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         pageStatistics.updateStats(value);
         if (minTimestamp == -1)
             minTimestamp = time;
-        checkPageSize();
+        checkPageSizeAndMayOpenANewPage();
     }
 
     @Override
@@ -111,7 +111,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         pageStatistics.updateStats(value);
         if (minTimestamp == -1)
             minTimestamp = time;
-        checkPageSize();
+        checkPageSizeAndMayOpenANewPage();
     }
 
     @Override
@@ -122,7 +122,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         pageStatistics.updateStats(value);
         if (minTimestamp == -1)
             minTimestamp = time;
-        checkPageSize();
+        checkPageSizeAndMayOpenANewPage();
     }
 
     @Override
@@ -133,7 +133,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         pageStatistics.updateStats(value);
         if (minTimestamp == -1)
             minTimestamp = time;
-        checkPageSize();
+        checkPageSizeAndMayOpenANewPage();
     }
 
     @Override
@@ -144,7 +144,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         pageStatistics.updateStats(value);
         if (minTimestamp == -1)
             minTimestamp = time;
-        checkPageSize();
+        checkPageSizeAndMayOpenANewPage();
     }
 
     @Override
@@ -155,23 +155,23 @@ public class SeriesWriterImpl implements ISeriesWriter {
         pageStatistics.updateStats(value);
         if (minTimestamp == -1)
             minTimestamp = time;
-        checkPageSize();
+        checkPageSizeAndMayOpenANewPage();
     }
 
     /**
      * check occupied memory size, if it exceeds the PageSize threshold, flush
      * them to given OutputStream.
      */
-    private void checkPageSize() {
+    private void checkPageSizeAndMayOpenANewPage() {
         if (valueCount == pageCountUpperBound) {
-            LOG.debug("current line count reaches the upper bound, write page {}", desc);
+            LOG.debug("current line count reaches the upper bound, writeTo page {}", desc);
             writePage();
         } else if (valueCount >= valueCountForNextSizeCheck) {
             // not checking the memory used for every value
             long currentColumnSize = dataValueWriter.estimateMaxMemSize();
             if (currentColumnSize > psThres) {
-                // we will write the current page
-                LOG.debug("enough size, write page {}", desc);
+                // we will writeTo the current page
+                LOG.debug("enough size, writeTo page {}", desc);
                 writePage();
             } else {
                 LOG.debug("{}:{} not enough size, now: {}, change to {}", deltaObjectId, desc, valueCount,

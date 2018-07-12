@@ -38,7 +38,7 @@
 //     * Inputs an OutputStream as parameter. Writes the complete contents in <code>list</code> to
 //     * the specified output stream argument.
 //     *
-//     * @param out the output stream to write the data.
+//     * @param out the output stream to writeTo the data.
 //     * @throws IOException if an I/O error occurs.
 //     */
 //    public void writeAllTo(OutputStream out) throws IOException {
@@ -57,7 +57,7 @@
 //
 //    /**
 //     * Creates a new <code>PublicBAOS</code> which specified size is the current
-//     * total size and write the current contents in <code>list</code> into it.
+//     * total size and writeTo the current contents in <code>list</code> into it.
 //     *
 //     * @return the current contents of this class, as a byte array.
 //     * @throws IOException if an I/O error occurs.

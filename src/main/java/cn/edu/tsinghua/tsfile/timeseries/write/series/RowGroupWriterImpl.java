@@ -46,7 +46,7 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
             String measurementId = point.getMeasurementId();
             if (!dataSeriesWriters.containsKey(measurementId))
                 throw new NoMeasurementException("time " + time + ", measurement id " + measurementId + " not found!");
-            point.write(time, dataSeriesWriters.get(measurementId));
+            point.writeTo(time, dataSeriesWriters.get(measurementId));
 
         }
     }

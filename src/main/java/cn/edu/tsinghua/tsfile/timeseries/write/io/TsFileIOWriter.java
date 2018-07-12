@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 /**
- * TSFileIOWriter is used to construct metadata and write data stored in memory
+ * TSFileIOWriter is used to construct metadata and writeTo data stored in memory
  * to output stream.
  *
  * @author kangrong
@@ -43,10 +43,6 @@ public class TsFileIOWriter {
     private RowGroupMetaData currentRowGroupMetaData;
     private TimeSeriesChunkMetaData currentChunkMetaData;
 
-
-    public TsFileIOWriter() {
-
-    }
 
     public void setIOWriter(ITsRandomAccessFileWriter out) {
         this.out = out;
@@ -162,7 +158,7 @@ public class TsFileIOWriter {
     }
 
     /**
-     * write {@linkplain TsFileMetaData TSFileMetaData} to output stream and
+     * writeTo {@linkplain TsFileMetaData TSFileMetaData} to output stream and
      * close it.
      *
      * @param schema FileSchema
@@ -220,7 +216,7 @@ public class TsFileIOWriter {
         LOG.debug("serializeTo the footer,file pos:{}", footerIndex);
         int size=ReadWriteByteStreamUtils.writeFileMetaData(tsFileMetaData, out);
         LOG.debug("serializeTo the footer finished, file pos:{}", out.getPos());
-        ReadWriteToBytesUtils.write(size,out.getOutputStream());//write the size of the file metadata.
+        ReadWriteToBytesUtils.write(size,out.getOutputStream());//writeTo the size of the file metadata.
         out.write(magicStringBytes);
         out.close();
         LOG.info("output stream is closed");
@@ -241,11 +237,11 @@ public class TsFileIOWriter {
         LOG.debug("serializeTo the footer,file pos:{}", footerIndex);
         ReadWriteByteStreamUtils.writeFileMetaData(footer, out);
         LOG.debug("serializeTo the footer finished, file pos:{}", out.getPos());
-//        out.write(BytesUtils.longToBytes(footer.getFirstTimeSeriesMetadataOffset()));
-//        out.write(BytesUtils.longToBytes(footer.getLastTimeSeriesMetadataOffset()));
-//        out.write(BytesUtils.longToBytes(footer.getFirstTsDeltaObjectMetadataOffset()));
-//        out.write(BytesUtils.longToBytes(footer.getLastTsDeltaObjectMetadataOffset()));
-//        out.write(BytesUtils.intToBytes(footer.getCurrentVersion()));
+//        out.writeTo(BytesUtils.longToBytes(footer.getFirstTimeSeriesMetadataOffset()));
+//        out.writeTo(BytesUtils.longToBytes(footer.getLastTimeSeriesMetadataOffset()));
+//        out.writeTo(BytesUtils.longToBytes(footer.getFirstTsDeltaObjectMetadataOffset()));
+//        out.writeTo(BytesUtils.longToBytes(footer.getLastTsDeltaObjectMetadataOffset()));
+//        out.writeTo(BytesUtils.intToBytes(footer.getCurrentVersion()));
     }
 
     /**
@@ -258,7 +254,7 @@ public class TsFileIOWriter {
         if (diff <= Integer.MAX_VALUE) {
             out.write(new byte[(int) diff]);
         } else {
-            throw new IOException("write too much blank byte array!array size:" + diff);
+            throw new IOException("writeTo too much blank byte array!array size:" + diff);
         }
     }
 

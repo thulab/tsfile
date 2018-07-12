@@ -46,12 +46,12 @@ public class BitmapEncoder extends Encoder {
 
 
     /**
-     * Each time encoder receives a value, encoder doesn't write it to OutputStream immediately.
+     * Each time encoder receives a value, encoder doesn't writeTo it to OutputStream immediately.
      * Encoder stores current value in a list. When all value is received, flush() method will be
      * invoked. Encoder encodes all values and writes them to OutputStream
      *
      * @param value value to encode
-     * @param out   OutputStream to write encoded stream
+     * @param out   OutputStream to writeTo encoded stream
      * @throws IOException cannot encode value
      * @see Encoder#encode(int, java.io.ByteArrayOutputStream)
      */
@@ -61,9 +61,9 @@ public class BitmapEncoder extends Encoder {
     }
 
     /**
-     * When all data received, encoder now encodes values in list and write them to OutputStream
+     * When all data received, encoder now encodes values in list and writeTo them to OutputStream
      *
-     * @param out OutputStream to write encoded stream
+     * @param out OutputStream to writeTo encoded stream
      * @throws IOException cannot flush to OutputStream
      * @see Encoder#flush(java.io.ByteArrayOutputStream)
      */

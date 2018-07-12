@@ -36,7 +36,7 @@ public class PageWriterImpl implements IPageWriter {
 
 
     /**
-     * write the page header and data into the PageWriter's outputstream
+     * writeTo the page header and data into the PageWriter's outputstream
      * @param data the data of the page
      * @param valueCount    - the amount of values in that page
      * @param statistics    - the statistics for that page
@@ -64,7 +64,7 @@ public class PageWriterImpl implements IPageWriter {
         }
         int compressedSize = compressedBytes.length;
         //PublicBAOS tempOutputStream = new PublicBAOS(estimateMaxPageHeaderSize() + compressedSize);
-        // write the page header to IOWriter
+        // writeTo the page header to IOWriter
         try {
 //            ReadWriteThriftFormatUtils.writeDataPageHeader(uncompressedSize, compressedSize, valueCount, statistics,
 //                    valueCount, desc.getEncodingType(), tempOutputStream, maxTimestamp, minTimestamp);
@@ -81,7 +81,7 @@ public class PageWriterImpl implements IPageWriter {
         } catch (IOException e) {
             throw new PageException("meet IO Exception in buffer append,but we cannot understand it:" + e.getMessage());
         }
-        LOG.debug("page {}:write page from seriesWriter, valueCount:{}, stats:{},size:{}", desc, valueCount, statistics,
+        LOG.debug("page {}:writeTo page from seriesWriter, valueCount:{}, stats:{},size:{}", desc, valueCount, statistics,
                 estimateMaxPageMemSize());
     }
 
@@ -98,10 +98,10 @@ public class PageWriterImpl implements IPageWriter {
         writer.startChunk(desc, compressor.getCodecName(), desc.getType(), statistics, maxTimestamp, minTimestamp);
         long totalByteSize = writer.getPos();
         writer.writeBytesToStream(buf);
-        LOG.debug("write series to file finished:{}", desc);
+        LOG.debug("writeTo series to file finished:{}", desc);
         long size = writer.getPos() - totalByteSize;
         writer.endChunk(size, totalValueCount);
-        LOG.debug("page {}:write page to fileWriter,type:{},maxTime:{},minTime:{},nowPos:{},stats:{}",
+        LOG.debug("page {}:writeTo page to fileWriter,type:{},maxTime:{},minTime:{},nowPos:{},stats:{}",
                 desc.getMeasurementId(), desc.getType(), maxTimestamp, minTimestamp, writer.getPos(), statistics);
     }
 

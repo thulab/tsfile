@@ -30,7 +30,7 @@ public interface IPageWriter {
                                         long maxTimestamp, long minTimestamp) throws PageException;
 
     /**
-     * write the page to specified IOWriter
+     * writeTo the page to specified IOWriter
      *
      * @param writer the specified IOWriter
      * @param statistics the statistic information provided by series writer
@@ -44,7 +44,8 @@ public interface IPageWriter {
     void reset();
 
     /**
-     * @return the max possible allocated size
+     *
+     * @return the max possible allocated size currently
      */
     long estimateMaxPageMemSize();
 }

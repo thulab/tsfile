@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * TsFileWriter is the entrance for writing processing. It receives a record and send it to
- * responding row group write. It checks memory size for all writing processing along its strategy
+ * responding row group writeTo. It checks memory size for all writing processing along its strategy
  * and flush data stored in memory to OutputStream. At the end of writing, user should call
  * {@code close()} method to flush the last data outside and close the normal outputStream and error
  * outputStream.
@@ -105,7 +105,7 @@ public class TsFileWriter {
           "add measurement error: the potential size of one row is too large");
     this.rowGroupSizeThreshold = primaryRowGroupSize - oneRowMaxSize;
     try {
-      checkMemorySize();
+      checkMemorySizeAndMayFlushGroup();
     } catch (IOException e) {
       throw new WriteProcessException(e.getMessage());
     }
@@ -169,14 +169,14 @@ public class TsFileWriter {
   }
 
   /**
-   * write a record in type of T.
+   * writeTo a record in type of T.
    * 
    * @param record
    *          - record responding a data line
    * @throws IOException
    *           exception in IO
    * @throws WriteProcessException
-   *           exception in write process
+   *           exception in writeTo process
    * @return true -size of tsfile or metadata reaches the threshold. 
    * false - otherwise
    */
@@ -184,13 +184,13 @@ public class TsFileWriter {
     if (checkIsTimeSeriesExist(record)) {
       groupWriters.get(record.deltaObjectId).write(record.time, record.dataPointList);
       ++recordCount;
-      return checkMemorySize();
+      return checkMemorySizeAndMayFlushGroup();
     }
 	return false;
   }
 
   /**
-   * calculate total memory size occupied by all RowGroupWriter instances.
+   * calculate total memory size occupied by all RowGroupWriter instances currently.
    *
    * @return total memory size used
    */
@@ -211,13 +211,13 @@ public class TsFileWriter {
    * @return true - size of tsfile or metadata reaches the threshold. 
    * false - otherwise
    */
-  protected boolean checkMemorySize() throws IOException {
+  protected boolean checkMemorySizeAndMayFlushGroup() throws IOException {
     if (recordCount >= recordCountForNextMemCheck) {
       long memSize = calculateMemSizeForAllGroup();
       if (memSize > rowGroupSizeThreshold) {
         LOG.info("start_write_row_group, memory space occupy:" + memSize);
         recordCountForNextMemCheck = rowGroupSizeThreshold / oneRowMaxSize;
-        return flushRowGroup(false);
+        return flushAllRowGroups(false);
       } else {
         recordCountForNextMemCheck = recordCount
             + (rowGroupSizeThreshold - memSize) / oneRowMaxSize;
@@ -228,7 +228,7 @@ public class TsFileWriter {
   }
 
   /**
-   * flush the data in all series writers and their page writers to outputStream.
+   * flush the data in all series writers of all rowgroup writers and their page writers to outputStream.
    * 
    * @param isFillRowGroup
    *          whether to fill RowGroup
@@ -237,7 +237,7 @@ public class TsFileWriter {
    * @return true - size of tsfile or metadata reaches the threshold. 
    * false - otherwise. But this function just return false, the Override of IoTDB may return true.
    */
-  protected boolean flushRowGroup(boolean isFillRowGroup) throws IOException {
+  protected boolean flushAllRowGroups(boolean isFillRowGroup) throws IOException {
     // at the present stage, just flush one block
     if (recordCount > 0) {
       long totalMemStart = deltaFileWriter.getPos();
@@ -255,7 +255,7 @@ public class TsFileWriter {
             actualTotalRowGroupSize, primaryRowGroupSize - actualTotalRowGroupSize);
       } else
         LOG.info("total row group size:{}, row group is not filled", actualTotalRowGroupSize);
-      LOG.info("write row group end");
+      LOG.info("writeTo row group end");
       recordCount = 0;
       reset();
     }
@@ -274,7 +274,7 @@ public class TsFileWriter {
   }
 
   /**
-   * calling this method to write the last data remaining in memory and close the normal and error
+   * calling this method to writeTo the last data remaining in memory and close the normal and error
    * OutputStream.
    *
    * @throws IOException
@@ -283,7 +283,7 @@ public class TsFileWriter {
   public void close() throws IOException {
     LOG.info("start close file");
     calculateMemSizeForAllGroup();
-    flushRowGroup(false);
+    flushAllRowGroups(false);
     deltaFileWriter.endFile(this.schema);
   }
 }
