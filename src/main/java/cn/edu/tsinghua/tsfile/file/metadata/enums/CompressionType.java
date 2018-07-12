@@ -37,6 +37,8 @@ public enum CompressionType {
             }
         }
 
+        public static int getSerializedSize(){ return Short.BYTES;}
+
         public static CompressionType findByShortName(String name){
             if (name == null) {
                 return UNCOMPRESSED;

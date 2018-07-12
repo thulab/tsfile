@@ -2,8 +2,8 @@ package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 
 import cn.edu.tsinghua.tsfile.common.exception.UnknownColumnTypeException;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -181,6 +181,18 @@ public abstract class Statistics<T> {
      */
     abstract void fill(InputStream inputStream) throws IOException;
 
+
+    public int getSerializedSize() {
+        if(sizeOfDatum()==0){
+            return 0;
+        }
+        else if(sizeOfDatum()!=-1) {
+            return sizeOfDatum() * 4 + 8;
+        }else{
+            return 4*Integer.BYTES + getMaxBytes().length + getMinBytes().length +getFirstBytes().length+getLastBytes().length +getSumBytes().length;
+        }
+    }
+
     public int serialize(OutputStream outputStream) throws IOException {
         int length=0;
         if(sizeOfDatum()==0){
@@ -196,21 +208,22 @@ public abstract class Statistics<T> {
         }else{
             byte[] tmp=getMaxBytes();
             length+=tmp.length;
-            ReadWriteToBytesUtils.write(tmp.length,outputStream);
+            length+=ReadWriteIOUtils.write(tmp.length,outputStream);
             outputStream.write(tmp);
             tmp=getMinBytes();
             length+=tmp.length;
-            ReadWriteToBytesUtils.write(tmp.length,outputStream);
+            length+=ReadWriteIOUtils.write(tmp.length,outputStream);
             outputStream.write(tmp);
             tmp=getFirstBytes();
             length+=tmp.length;
-            ReadWriteToBytesUtils.write(tmp.length,outputStream);
+            length+=ReadWriteIOUtils.write(tmp.length,outputStream);
             outputStream.write(tmp);
             tmp=getLastBytes();
             length+=tmp.length;
-            ReadWriteToBytesUtils.write(tmp.length,outputStream);
+            length+=ReadWriteIOUtils.write(tmp.length,outputStream);
             outputStream.write(tmp);
             outputStream.write(getSumBytes());
+            length+=8;
         }
         return length;
     }
@@ -242,4 +255,6 @@ public abstract class Statistics<T> {
         statistics.fill(inputStream);
         return statistics;
     }
+
+
 }

@@ -32,7 +32,29 @@ public abstract class Compressor {
         }
     }
 
-    public abstract byte[] compress(ByteBuffer data) throws IOException;
+    public abstract byte[] compress(byte[] data) throws IOException;
+
+    /**
+     *
+     * @param data
+     * @param offset
+     * @param length
+     * @param compressed
+     * @return byte length of compressed data.
+     * @throws IOException
+     */
+    public abstract  int  compress(byte[] data, int offset, int length, byte[] compressed) throws IOException;
+
+    /**
+     * If the data is large, this function is better than byte[].
+     * @param data MUST be DirectByteBuffer  for Snappy.
+     * @param compressed MUST be DirectByteBuffer for Snappy.
+     * @return byte length of compressed data.
+     * @throws IOException
+     */
+    public abstract int compress(ByteBuffer data, ByteBuffer compressed) throws IOException;
+
+    public abstract  int getMaxBytesForCompression(int uncompressedDataSize);
 
     public abstract CompressionType getCodecName();
 
@@ -44,8 +66,23 @@ public abstract class Compressor {
     static public class NoCompressor extends Compressor {
 
         @Override
-        public byte[] compress(ByteBuffer data) throws IOException {//FIXME why do we use bytes[] rather than bytebuffer.
-            return ByteBufferUtil.getArray(data);
+        public byte[] compress(byte[] data) throws IOException {//FIXME why do we use bytes[] rather than bytebuffer.
+            return data;
+        }
+
+        @Override
+        public int compress(byte[] data, int offset, int length, byte[] compressed) throws IOException {
+            throw new IOException("No Compressor does not support compression function");
+        }
+
+        @Override
+        public int compress(ByteBuffer data, ByteBuffer compressed) throws IOException {//FIXME why do we use bytes[] rather than bytebuffer.
+            throw new IOException("No Compressor does not support compression function");
+        }
+
+        @Override
+        public int getMaxBytesForCompression(int uncompressedDataSize) {
+            return uncompressedDataSize;
         }
 
         @Override
@@ -58,11 +95,26 @@ public abstract class Compressor {
         private static final Logger LOGGER = LoggerFactory.getLogger(SnappyCompressor.class);
 
         @Override
-        public byte[] compress(ByteBuffer data) throws IOException {
+        public byte[] compress(byte[] data) throws IOException {
             if (data == null) {
                 return null;
             }
-            return Snappy.compress(ByteBufferUtil.getArray(data));
+            return Snappy.compress(data);
+        }
+
+        @Override
+        public int compress(byte[] data, int offset, int length, byte[] compressed) throws IOException {
+            return Snappy.compress(data, offset, length, compressed, 0);
+        }
+
+        @Override
+        public int compress(ByteBuffer data, ByteBuffer compressed) throws IOException {
+             return Snappy.compress(data, compressed);
+        }
+
+        @Override
+        public int getMaxBytesForCompression(int uncompressedDataSize) {
+            return Snappy.maxCompressedLength(uncompressedDataSize);
         }
 
         @Override

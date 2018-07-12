@@ -30,18 +30,18 @@ public class SinglePrecisionEncoder extends GorillaEncoder{
         		int nextValue = Float.floatToIntBits(value);
         		int tmp = nextValue ^ preValue;
         		if(tmp == 0){
-    				// case: write '0'
+    				// case: writeTo '0'
         			writeBit(false, out);
         		} else{
         			int leadingZeroNumTmp = Integer.numberOfLeadingZeros(tmp);
             		int tailingZeroNumTmp = Integer.numberOfTrailingZeros(tmp);
             		if(leadingZeroNumTmp >= leadingZeroNum && tailingZeroNumTmp >= tailingZeroNum){
-    					// case: write '10' and effective bits without first leadingZeroNum '0' and last tailingZeroNum '0'
+    					// case: writeTo '10' and effective bits without first leadingZeroNum '0' and last tailingZeroNum '0'
             			writeBit(true, out);
             			writeBit(false, out);
             			writeBits(tmp, out, TSFileConfig.FLOAT_LENGTH - 1 - leadingZeroNum, tailingZeroNum);     
             		} else{
-    					// case: write '11', leading zero num of value, effective bits len and effective bit value
+    					// case: writeTo '11', leading zero num of value, effective bits len and effective bit value
             			writeBit(true, out);
             			writeBit(true, out);
             			writeBits(leadingZeroNumTmp, out, TSFileConfig.FLAOT_LEADING_ZERO_LENGTH - 1, 0);

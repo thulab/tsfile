@@ -1,7 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
-import cn.edu.tsinghua.tsfile.common.constant.StatisticConstant;
-import cn.edu.tsinghua.tsfile.file.PageHeader;
+import cn.edu.tsinghua.tsfile.file.header.PageHeader;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
@@ -23,9 +22,8 @@ public class SeriesChunkReaderWithFilterImpl extends SeriesChunkReader {
     private DigestFilterVisitor digestFilterVisitor;
     private TimeValuePairFilterVisitor<Boolean> timeValuePairFilterVisitor;
 
-    public SeriesChunkReaderWithFilterImpl(InputStream seriesChunkInputStream, TSDataType dataType,
-                                           CompressionType compressionType, TSEncoding dataEncoding, Filter<?> filter) {
-        super(seriesChunkInputStream, dataType, compressionType, dataEncoding);
+    public SeriesChunkReaderWithFilterImpl(InputStream seriesChunkInputStream, Filter<?> filter) {
+        super(seriesChunkInputStream);
         this.filter = filter;
         this.timeValuePairFilterVisitor = new TimeValuePairFilterVisitorImpl();
         this.digestFilterVisitor = new DigestFilterVisitor();
@@ -39,7 +37,7 @@ public class SeriesChunkReaderWithFilterImpl extends SeriesChunkReader {
         DigestForFilter valueDigest = new DigestForFilter(
                 pageHeader.getStatistics().getMinBytebuffer(),
                 pageHeader.getStatistics().getMaxBytebuffer(),
-                dataType);
+                chunkHeader.getDataType());
         return digestFilterVisitor.satisfy(timeDigest, valueDigest, filter);
     }
 

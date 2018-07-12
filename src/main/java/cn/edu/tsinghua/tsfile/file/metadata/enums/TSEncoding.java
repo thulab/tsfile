@@ -26,4 +26,5 @@ public enum TSEncoding {
             default: return 0;
         }
     }
+    public static int getSerializedSize(){ return Short.BYTES;}
 }

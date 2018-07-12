@@ -2,7 +2,7 @@ package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 
 import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -152,11 +152,11 @@ public class DoubleStatistics extends Statistics<Double> {
 
 	@Override
 	void fill(InputStream inputStream) throws IOException {
-		this.min = ReadWriteToBytesUtils.readDouble(inputStream);
-		this.max = ReadWriteToBytesUtils.readDouble(inputStream);
-		this.first = ReadWriteToBytesUtils.readDouble(inputStream);
-		this.last = ReadWriteToBytesUtils.readDouble(inputStream);
-		this.sum = ReadWriteToBytesUtils.readDouble(inputStream);
+		this.min = ReadWriteIOUtils.readDouble(inputStream);
+		this.max = ReadWriteIOUtils.readDouble(inputStream);
+		this.first = ReadWriteIOUtils.readDouble(inputStream);
+		this.last = ReadWriteIOUtils.readDouble(inputStream);
+		this.sum = ReadWriteIOUtils.readDouble(inputStream);
 	}
 
 }

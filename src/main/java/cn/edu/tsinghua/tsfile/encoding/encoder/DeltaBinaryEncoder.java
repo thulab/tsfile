@@ -58,7 +58,7 @@ abstract public class DeltaBinaryEncoder extends Encoder {
 
 
     /**
-     * write all data into {@code encodingBlockBuffer}.
+     * writeTo all data into {@code encodingBlockBuffer}.
      */
     private void writeDataWithMinWidth() {
         for (int i = 0; i < writeIndex; i++) {
@@ -85,7 +85,7 @@ abstract public class DeltaBinaryEncoder extends Encoder {
             calcTwoDiff(i);
         }
         writeWidth = calculateBitWidthsForDeltaBlockBuffer();
-        // System.out.println("write width:"+writeWidth);
+        // System.out.println("writeTo width:"+writeWidth);
         writeHeaderToBytes();
         writeDataWithMinWidth();
 

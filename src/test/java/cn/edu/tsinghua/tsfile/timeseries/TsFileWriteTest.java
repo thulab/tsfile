@@ -17,7 +17,8 @@ import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.IntDataPoint;
 public class TsFileWriteTest {
 
     public static void main(String args[]) throws IOException, WriteProcessException {
-        String path = "src/test/resources/test.ts";
+        //String path = "src/test/resources/test.ts";
+        String path = "test.ts";
         String s = "{\n" +
                 "    \"schema\": [\n" +
                 "        {\n" +

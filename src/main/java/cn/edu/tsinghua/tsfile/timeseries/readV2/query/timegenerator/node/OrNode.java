@@ -27,10 +27,19 @@ public class OrNode implements Node {
         if (hasCachedLeftValue || hasCachedRightValue) {
             return true;
         }
+//        //FIXME for debugging
+//        boolean left = leftChild.hasNext();
+//        if(left) return true;
+//        boolean right = rightChild.hasNext();
+//        return right;
         return leftChild.hasNext() || rightChild.hasNext();
     }
 
     private boolean hasLeftValue() throws IOException {
+//        //FIXME for debugging
+//        if(hasCachedLeftValue) return true;
+//        boolean left = leftChild.hasNext();
+//        return  left;
         return hasCachedLeftValue || leftChild.hasNext();
     }
 
@@ -43,6 +52,10 @@ public class OrNode implements Node {
     }
 
     private boolean hasRightValue() throws IOException {
+//        //FIXME for debugging
+//        if (hasCachedRightValue) return true;
+//        boolean right = rightChild.hasNext();
+//        return  right;
         return hasCachedRightValue || rightChild.hasNext();
     }
 

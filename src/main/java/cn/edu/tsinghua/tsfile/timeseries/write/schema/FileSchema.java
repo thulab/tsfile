@@ -79,6 +79,7 @@ public class FileSchema {
    * @param jsonSchema
    * @throws InvalidJsonSchemaException
    */
+  @Deprecated
   public FileSchema(JSONObject jsonSchema) throws InvalidJsonSchemaException {
     this(JsonConverter.converterJsonToMeasurementDescriptors(jsonSchema),
         JsonConverter.convertJsonToSchemaProperties(jsonSchema));

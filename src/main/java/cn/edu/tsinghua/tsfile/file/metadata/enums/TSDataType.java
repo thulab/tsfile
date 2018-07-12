@@ -4,6 +4,7 @@ public enum TSDataType {
     BOOLEAN, INT32, INT64, FLOAT, DOUBLE, TEXT;
 
     public static TSDataType deserialize(short i){
+        assert i <6;
         switch (i){
             case 0: return BOOLEAN;
             case 1: return INT32;
@@ -25,4 +26,5 @@ public enum TSDataType {
             default: return -1;
         }
     }
+    public static int getSerializedSize(){ return Short.BYTES;}
 }

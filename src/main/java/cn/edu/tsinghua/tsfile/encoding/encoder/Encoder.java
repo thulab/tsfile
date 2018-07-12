@@ -15,6 +15,8 @@ import java.math.BigDecimal;
  * @author Zhang Jinrui
  */
 public abstract class Encoder {
+    public static final String MAX_STRING_LENGTH = "max_string_length";
+    public static final String MAX_POINT_NUMBER = "max_point_number";
 
     public TSEncoding type;
 

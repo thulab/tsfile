@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.encoding.encoder;
 
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.bitpacking.IntPacker;
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
 
@@ -41,7 +41,7 @@ public class IntRleEncoder extends RleEncoder<Integer> {
 	}
 
     /**
-     * write all values buffered in cache to OutputStream
+     * writeTo all values buffered in cache to OutputStream
      *
      * @param out - byteArrayOutputStream
      * @throws IOException cannot flush to OutputStream
@@ -49,7 +49,7 @@ public class IntRleEncoder extends RleEncoder<Integer> {
     @Override
     public void flush(ByteArrayOutputStream out) throws IOException {
         // we get bit width after receiving all data
-        this.bitWidth = ReadWriteStreamUtils.getIntMaxBitWidth(values);
+        this.bitWidth = ReadWriteForEncodingUtils.getIntMaxBitWidth(values);
         packer = new IntPacker(bitWidth);
         for (Integer value : values) {
             encodeValue(value);
@@ -64,14 +64,14 @@ public class IntRleEncoder extends RleEncoder<Integer> {
     }
 
     /**
-     * write bytes to OutputStream using rle
+     * writeTo bytes to OutputStream using rle
      * rle format: [header][value]
      */
     @Override
     protected void writeRleRun() throws IOException {
         endPreviousBitPackedRun(config.RLE_MIN_REPEATED_NUM);
-        ReadWriteStreamUtils.writeUnsignedVarInt(repeatCount << 1, byteCache);
-        ReadWriteStreamUtils.writeIntLittleEndianPaddedOnBitWidth(preValue, byteCache, bitWidth);
+        ReadWriteForEncodingUtils.writeUnsignedVarInt(repeatCount << 1, byteCache);
+        ReadWriteForEncodingUtils.writeIntLittleEndianPaddedOnBitWidth(preValue, byteCache, bitWidth);
         repeatCount = 0;
         numBufferedValues = 0;
     }
@@ -93,7 +93,7 @@ public class IntRleEncoder extends RleEncoder<Integer> {
             tmpBuffer[i] = (int) bufferedValues[i];
         }
         packer.pack8Values(tmpBuffer, 0, bytes);
-        // we'll not write bit-packing group to OutputStream immediately
+        // we'll not writeTo bit-packing group to OutputStream immediately
         // we buffer them in list
         bytesBuffer.add(bytes);
     }

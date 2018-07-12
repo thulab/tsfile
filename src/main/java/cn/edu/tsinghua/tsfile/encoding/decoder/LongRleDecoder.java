@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.encoding.decoder;
 
 import cn.edu.tsinghua.tsfile.common.exception.TSFileDecodingException;
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.bitpacking.LongPacker;
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
 import org.slf4j.Logger;
@@ -86,7 +86,7 @@ public class LongRleDecoder extends RleDecoder {
 
     @Override
     protected void readNumberInRLE() throws IOException {
-        currentValue = ReadWriteStreamUtils.readLongLittleEndianPaddedOnBitWidth(byteCache, bitWidth);
+        currentValue = ReadWriteForEncodingUtils.readLongLittleEndianPaddedOnBitWidth(byteCache, bitWidth);
     }
 
     @Override

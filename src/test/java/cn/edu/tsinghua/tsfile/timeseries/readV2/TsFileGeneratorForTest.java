@@ -3,6 +3,7 @@ package cn.edu.tsinghua.tsfile.timeseries.readV2;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
+import cn.edu.tsinghua.tsfile.encoding.encoder.Encoder;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils;
@@ -12,6 +13,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.TsFileWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.SchemaBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Ignore;
@@ -22,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Scanner;
 
 @Ignore
@@ -36,14 +39,14 @@ public class TsFileGeneratorForTest {
     public static String inputDataFile;
     public static String outputDataFile = "src/test/resources/testTsFile.ts";
     public static String errorOutputDataFile;
-    public static JSONObject jsonSchema;
+    //public static JSONObject jsonSchema;
 
     public static final long START_TIMESTAMP = 1480562618000L;
 
-    public static void generateFile(int rc, int rs, int ps) throws IOException, InterruptedException, WriteProcessException {
-        rowCount = rc;
-        rowGroupSize = rs;
-        pageSize = ps;
+    public static void generateFile(int row_count, int row_group_size, int page_size) throws IOException, InterruptedException, WriteProcessException {
+        rowCount = row_count;
+        rowGroupSize = row_group_size;
+        pageSize = page_size;
         prepare();
         write();
     }
@@ -51,7 +54,7 @@ public class TsFileGeneratorForTest {
     public static void prepare() throws IOException {
         inputDataFile = "src/test/resources/perTestInputData";
         errorOutputDataFile = "src/test/resources/perTestErrorOutputData.ksn";
-        jsonSchema = generateTestData();
+        //jsonSchema = generateTestData();
         generateSampleInputDataFile();
     }
 
@@ -76,7 +79,7 @@ public class TsFileGeneratorForTest {
 
         long startTime = START_TIMESTAMP;
         for (int i = 0; i < rowCount; i++) {
-            // write d1
+            // writeTo d1
             String d1 = "d1," + (startTime + i) + ",s1," + (i * 10 + 1) + ",s2," + (i * 10 + 2);
             if (i % 5 == 0)
                 d1 += ",s3," + (i * 10 + 3);
@@ -90,10 +93,10 @@ public class TsFileGeneratorForTest {
                 d1 += ",s7," + ((int) (i / 10.0) * 100) / 100.0;
             fw.write(d1 + "\r\n");
 
-            // write d2
+            // writeTo d2
             String d2 = "d2," + (startTime + i) + ",s2," + (i * 10 + 2) + ",s3," + (i * 10 + 3);
             if (i % 20 < 5) {
-                // LOG.info("write null to d2:" + (startTime + i));
+                // LOG.info("writeTo null to d2:" + (startTime + i));
                 d2 = "d2," + (startTime + i) + ",s2,,s3," + (i * 10 + 3);
             }
             if (i % 5 == 0)
@@ -102,7 +105,7 @@ public class TsFileGeneratorForTest {
                 d2 += ",s4," + "dog" + i % 4;
             fw.write(d2 + "\r\n");
         }
-        // write error
+        // writeTo error
         String d =
                 "d2,3," + (startTime + rowCount) + ",s2," + (rowCount * 10 + 2) + ",s3,"
                         + (rowCount * 10 + 3);
@@ -121,18 +124,20 @@ public class TsFileGeneratorForTest {
             errorFile.delete();
 
         //LOG.info(jsonSchema.toString());
-        FileSchema schema = new FileSchema(jsonSchema);
-        TSFileDescriptor.getInstance().getConfig().groupSizeInByte = rowGroupSize;
+        //FileSchema schema = new FileSchema(jsonSchema);
+        FileSchema schema = generateTestSchema();
+
+                TSFileDescriptor.getInstance().getConfig().groupSizeInByte = rowGroupSize;
         TSFileDescriptor.getInstance().getConfig().maxNumberOfPointsInPage = pageSize;
         innerWriter = new TsFileWriter(file, schema, TSFileDescriptor.getInstance().getConfig());
 
-        // write
+        // writeTo
         try {
             writeToFile(schema);
         } catch (WriteProcessException e) {
             e.printStackTrace();
         }
-        LOG.info("write to file successfully!!");
+        LOG.info("writeTo to file successfully!!");
     }
 
     private static JSONObject generateTestData() {
@@ -189,6 +194,19 @@ public class TsFileGeneratorForTest {
         return jsonSchema;
     }
 
+
+    private static FileSchema generateTestSchema() {
+        SchemaBuilder schemaBuilder=new SchemaBuilder();
+        schemaBuilder.addSeries("s1", TSDataType.INT32, TSEncoding.RLE);
+        schemaBuilder.addSeries("s2", TSDataType.INT64, TSEncoding.PLAIN);
+        schemaBuilder.addSeries("s3", TSDataType.INT64, TSEncoding.TS_2DIFF);
+        schemaBuilder.addSeries("s4", TSDataType.TEXT, TSEncoding.PLAIN, Collections.singletonMap(Encoder.MAX_STRING_LENGTH, "20"));
+        schemaBuilder.addSeries("s5", TSDataType.BOOLEAN, TSEncoding.RLE);
+        schemaBuilder.addSeries("s6", TSDataType.FLOAT, TSEncoding.RLE, Collections.singletonMap(Encoder.MAX_POINT_NUMBER, "5"));
+        schemaBuilder.addSeries("s7", TSDataType.DOUBLE, TSEncoding.GORILLA);
+        return schemaBuilder.build();
+    }
+
     static public void writeToFile(FileSchema schema) throws InterruptedException, IOException, WriteProcessException {
         Scanner in = getDataFile(inputDataFile);
         long lineCount = 0;
@@ -198,9 +216,9 @@ public class TsFileGeneratorForTest {
         while (in.hasNextLine()) {
             if (lineCount % 1000000 == 0) {
                 endTime = System.currentTimeMillis();
-                // logger.info("write line:{},inner space consumer:{},use
+                // logger.info("writeTo line:{},inner space consumer:{},use
                 // time:{}",lineCount,innerWriter.calculateMemSizeForEachGroup(),endTime);
-                LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+                LOG.info("writeTo line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
             }
             String str = in.nextLine();
             TSRecord record = RecordUtils.parseSimpleTupleRecord(str, schema);
@@ -208,11 +226,11 @@ public class TsFileGeneratorForTest {
             lineCount++;
         }
         endTime = System.currentTimeMillis();
-        LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+        LOG.info("writeTo line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
         innerWriter.close();
         in.close();
         endTime = System.currentTimeMillis();
-        LOG.info("write total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+        LOG.info("writeTo total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
         LOG.info("src file size:{}GB", FileUtils.getLocalFileByte(inputDataFile, Unit.GB));
         LOG.info("out file size:{}MB", FileUtils.getLocalFileByte(outputDataFile, Unit.MB));
     }

@@ -2,41 +2,45 @@ package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
 import cn.edu.tsinghua.tsfile.compress.UnCompressor;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
-import cn.edu.tsinghua.tsfile.file.PageHeader;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
+import cn.edu.tsinghua.tsfile.file.header.ChunkHeader;
+import cn.edu.tsinghua.tsfile.file.header.PageHeader;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.TimeValuePairReader;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 /**
  * @author Jinrui Zhang
  */
 public abstract class SeriesChunkReader implements TimeValuePairReader {
 
-    protected TSDataType dataType;
-    protected TSEncoding dataEncoding;
     private InputStream seriesChunkInputStream;
 
     private boolean pageReaderInitialized;
-    private PageReader pageReader;
+    private PageDataReader pageReader;
     private UnCompressor unCompressor;
-    private TSEncoding defaultTimestampEncoding;
+//    private TSEncoding defaultTimestampEncoding;
     private boolean hasCachedTimeValuePair;
     private TimeValuePair cachedTimeValuePair;
+     ChunkHeader chunkHeader;
+    Decoder valueDecoder;
+    //TODO: How to get defaultTimeDecoder by TSConfig rather than hard code here ?
+    Decoder timeDecoder = Decoder.getDecoderByType(TSEncoding.TS_2DIFF, TSDataType.INT64);
 
-
-    public SeriesChunkReader(InputStream seriesChunkInputStream, TSDataType dataType, CompressionType compressionTypeName, TSEncoding dataEncoding) {
+    public SeriesChunkReader(InputStream seriesChunkInputStream) {
         this.seriesChunkInputStream = seriesChunkInputStream;
-        this.dataType = dataType;
-        this.dataEncoding=dataEncoding;
-        this.unCompressor = UnCompressor.getUnCompressor(compressionTypeName);
         this.pageReaderInitialized = false;
-        defaultTimestampEncoding = TSEncoding.TS_2DIFF;
+        try {
+            chunkHeader=ChunkHeader.deserializeFrom(seriesChunkInputStream);
+            this.unCompressor = UnCompressor.getUnCompressor(chunkHeader.getCompressionType());
+            valueDecoder = Decoder.getDecoderByType(chunkHeader.getEncodingType(), chunkHeader.getDataType());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -80,10 +84,7 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
         while (hasNextPageInStream() && !gotNextPageReader) {
             PageHeader pageHeader = getNextPageHeader();
             if (pageSatisfied(pageHeader)) {
-                Decoder valueDecoder = Decoder.getDecoderByType(dataEncoding, dataType);
-                //TODO: How to get defaultTimeDecoder by TSConfig rather than hard code here ?
-                Decoder defaultTimeDecoder = Decoder.getDecoderByType(defaultTimestampEncoding, TSDataType.INT64);
-                pageReader = constructPageReaderForNextPage(pageHeader.getCompressedSize(), valueDecoder, defaultTimeDecoder);
+                pageReader = constructPageReaderForNextPage(pageHeader.getCompressedSize());
                 gotNextPageReader = true;
             } else {
                 skipBytesInStreamByLength(pageHeader.getCompressedSize());
@@ -108,7 +109,7 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
         seriesChunkInputStream.skip(length);
     }
 
-    private PageReader constructPageReaderForNextPage(int compressedPageBodyLength, Decoder valueDecoder, Decoder timeDecoder)
+    private PageDataReader constructPageReaderForNextPage(int compressedPageBodyLength)
             throws IOException {
         byte[] compressedPageBody = new byte[compressedPageBodyLength];
         int readLength = seriesChunkInputStream.read(compressedPageBody, 0, compressedPageBodyLength);//TODO 这里已经全部读取到内存中了
@@ -116,13 +117,13 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
             throw new IOException("unexpected byte read length when read compressedPageBody. Expected:"
                     + compressedPageBody + ". Actual:" + readLength);
         }
-        PageReader pageReader = new PageReader(new ByteArrayInputStream(unCompressor.uncompress(compressedPageBody)),
-                dataType, valueDecoder, timeDecoder);
+        PageDataReader pageReader = new PageDataReader(ByteBuffer.wrap(unCompressor.uncompress(compressedPageBody)),
+                chunkHeader.getDataType(), valueDecoder, timeDecoder);
         return pageReader;
     }
 
     private PageHeader getNextPageHeader() throws IOException {
-        return PageHeader.deserializeFrom(seriesChunkInputStream, dataType);
+        return PageHeader.deserializeFrom(seriesChunkInputStream, chunkHeader.getDataType());
     }
 
     @Override

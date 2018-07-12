@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 
 /**
+ * @deprecated  using TsFileWriter instead.
  * RandomAccessOutputStream implements the tsfile file writer interface and extends OutputStream. <br>
  * The main difference between RandomAccessOutputStream and general OutputStream
  * is:RandomAccessOutputStream provide method {@code getPos} for random accessing. It also
@@ -13,6 +14,7 @@ import java.io.RandomAccessFile;
  *
  * @author kangrong
  */
+@Deprecated
 public class TsRandomAccessFileWriter implements ITsRandomAccessFileWriter {
 	private static final String DEFAULT_FILE_MODE = "rw";
 	private RandomAccessFile out;
@@ -57,7 +59,8 @@ public class TsRandomAccessFileWriter implements ITsRandomAccessFileWriter {
 
 	@Override
 	public long getPos() throws IOException {
-		return out.length();
+		//return out.length();//WTF???
+		return out.getFilePointer();
 	}
 
 	@Override

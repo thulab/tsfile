@@ -16,44 +16,30 @@ public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor {
     private String filePath;
     private long offsetInFile;
     private long lengthOfBytes;
-    private CompressionType compressionType;
+//    private CompressionType compressionType;
     private TSDataType dataType;
     private TsDigest valueDigest;
     private long minTimestamp;
     private long maxTimestamp;
     private long countOfPoints;
-    private TSEncoding dataEncoding;
-    private List<String> enumValueList;
+   // private TSEncoding dataEncoding;
+    //private List<String> enumValueList;
+    private String measurementID;
 
-    public EncodedSeriesChunkDescriptor(long offsetInFile, long lengthOfBytes, CompressionType compressionType,
-                                        TSDataType dataType, TsDigest valueDigest, long minTimestamp, long maxTimestamp, long countOfPoints, TSEncoding dataEncoding) {
+    public EncodedSeriesChunkDescriptor(String measurementID, long offsetInFile, long lengthOfBytes, //CompressionType compressionType,
+                                        TSDataType dataType,
+                                        TsDigest valueDigest, long minTimestamp, long maxTimestamp, long countOfPoints//, TSEncoding dataEncoding
+    ) {
+        this.measurementID=measurementID;
         this.offsetInFile = offsetInFile;
         this.lengthOfBytes = lengthOfBytes;
-        this.compressionType = compressionType;
+//        this.compressionType = compressionType;
         this.dataType = dataType;
         this.valueDigest = valueDigest;
         this.minTimestamp = minTimestamp;
         this.maxTimestamp = maxTimestamp;
         this.countOfPoints = countOfPoints;
-        this.dataEncoding = dataEncoding;
-    }
-
-    public EncodedSeriesChunkDescriptor(long offsetInFile, long lengthOfBytes, CompressionType compressionType,
-                                        TSDataType dataType, TsDigest valueDigest, long minTimestamp, long maxTimestamp, long countOfPoints, List<String> enumValueList, TSEncoding dataEncoding) {
-        this(offsetInFile, lengthOfBytes, compressionType, dataType, valueDigest, minTimestamp, maxTimestamp, countOfPoints, dataEncoding);
-        this.enumValueList = enumValueList;
-    }
-
-    public EncodedSeriesChunkDescriptor(String filePath, long offsetInFile, long lengthOfBytes, CompressionType compressionType,
-                                        TSDataType dataType, TsDigest valueDigest, long minTimestamp, long maxTimestamp, long countOfPoints, TSEncoding dataEncoding) {
-        this(offsetInFile, lengthOfBytes, compressionType, dataType, valueDigest, minTimestamp, maxTimestamp, countOfPoints, dataEncoding);
-        this.filePath = filePath;
-    }
-
-    public EncodedSeriesChunkDescriptor(String filePath, long offsetInFile, long lengthOfBytes, CompressionType compressionTypeName,
-                                        TSDataType dataType, TsDigest valueDigest, long minTimestamp, long maxTimestamp, long countOfPoints, List<String> enumValueList, TSEncoding dataEncoding) {
-        this(filePath, offsetInFile, lengthOfBytes, compressionTypeName, dataType, valueDigest, minTimestamp, maxTimestamp, countOfPoints, dataEncoding);
-        this.enumValueList = enumValueList;
+//        this.dataEncoding = dataEncoding;
     }
 
     public boolean equals(Object object) {
@@ -84,10 +70,10 @@ public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor {
         return lengthOfBytes;
     }
 
-    public CompressionType getCompressionType() {
-        return compressionType;
-    }
-
+//    public CompressionType getCompressionType() {
+//        return compressionType;
+//    }
+//
     public TSDataType getDataType() {
         return dataType;
     }
@@ -108,18 +94,21 @@ public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor {
         return countOfPoints;
     }
 
-    public List<String> getEnumValueList() {
-        return enumValueList;
+//    public List<String> getEnumValueList() {
+//        return enumValueList;
+//    }
+
+    public String getMeasurementID() {
+        return measurementID;
     }
 
-
-    public TSEncoding getDataEncoding() {
-        return dataEncoding;
-    }
-
-    public void setDataEncoding(TSEncoding dataEncoding) {
-        this.dataEncoding = dataEncoding;
-    }
+//    public TSEncoding getDataEncoding() {
+//        return dataEncoding;
+//    }
+//
+//    public void setDataEncoding(TSEncoding dataEncoding) {
+//        this.dataEncoding = dataEncoding;
+//    }
 
     @Override
     public String toString() {
@@ -127,14 +116,14 @@ public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor {
                 "filePath='" + filePath + '\'' +
                 ", offsetInFile=" + offsetInFile +
                 ", lengthOfBytes=" + lengthOfBytes +
-                ", compressionType=" + compressionType +
+//                ", compressionType=" + compressionType +
                 ", dataType=" + dataType +
                 ", valueDigest=" + valueDigest +
                 ", minTimestamp=" + minTimestamp +
                 ", maxTimestamp=" + maxTimestamp +
                 ", countOfPoints=" + countOfPoints +
-                ", enumValueList=" + enumValueList +
-                ", dataEncoding=" + dataEncoding +
+//                ", enumValueList=" + enumValueList +
+//                ", dataEncoding=" + dataEncoding +
                 '}';
     }
 }

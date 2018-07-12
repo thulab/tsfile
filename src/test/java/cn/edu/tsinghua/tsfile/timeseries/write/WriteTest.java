@@ -3,7 +3,6 @@ package cn.edu.tsinghua.tsfile.timeseries.write;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessLocalFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
 import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
@@ -13,7 +12,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -117,7 +115,7 @@ public class WriteTest {
 
         // first stage:int, long, float, double, boolean, enums
         for (int i = 0; i < ROW_COUNT; i++) {
-            // write d1
+            // writeTo d1
             String d1 = "d1," + (startTime + i) + ",s1," + (i * 10 + 1) + ",s2," + (i * 10 + 2);
             if (rm.nextInt(1000) < 100) {
                 d1 = "d1," + (startTime + i) + ",s1,,s2," + (i * 10 + 2) + ",s4,HIGH";
@@ -126,7 +124,7 @@ public class WriteTest {
                 d1 += ",s3," + (i * 10 + 3);
             fw.write(d1 + "\r\n");
 
-            // write d2
+            // writeTo d2
             String d2 = "d2," + (startTime + i) + ",s2," + (i * 10 + 2) + ",s3," + (i * 10 + 3);
             if (rm.nextInt(1000) < 100) {
                 d2 = "d2," + (startTime + i) + ",s2,,s3," + (i * 10 + 3) + ",s5,MAN";
@@ -135,7 +133,7 @@ public class WriteTest {
                 d2 += ",s1," + (i * 10 + 1);
             fw.write(d2 + "\r\n");
         }
-        // write error
+        // writeTo error
         String d =
                 "d2,3," + (startTime + ROW_COUNT) + ",s2," + (ROW_COUNT * 10 + 2) + ",s3,"
                         + (ROW_COUNT * 10 + 3);
@@ -152,10 +150,7 @@ public class WriteTest {
         } catch (WriteProcessException e) {
             e.printStackTrace();
         }
-        LOG.info("write processing has finished");
-
-        TsRandomAccessLocalFileReader input = new TsRandomAccessLocalFileReader(outputDataFile);
-
+        LOG.info("writeTo processing has finished");
 
     }
 
@@ -169,7 +164,7 @@ public class WriteTest {
         }
         while (true) {
             if (lineCount % stageSize == 0) {
-                LOG.info("write line:{},use time:{}s", lineCount,
+                LOG.info("writeTo line:{},use time:{}s", lineCount,
                         (System.currentTimeMillis() - startTime) / 1000);
                 stageState++;
                 LOG.info("stage:" + stageState);
@@ -199,7 +194,7 @@ public class WriteTest {
         } catch (IOException e) {
             fail("close writer failed");
         }
-        LOG.info("stage size: {}, write {} group data", stageSize, lineCount);
+        LOG.info("stage size: {}, writeTo {} group data", stageSize, lineCount);
     }
 
     private String[][] stageDeltaObjectIds = {{"d1", "d2", "d3"}, {"d1"}, {"d2", "d3"}};

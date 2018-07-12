@@ -3,6 +3,7 @@ package cn.edu.tsinghua.tsfile.timeseries.write.schema.converter;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.edu.tsinghua.tsfile.encoding.encoder.TSEncodingBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaExcept
  *
  * @author kangrong
  * @see TSDataTypeConverter TSDataTypeConverter
- * @see TSEncodingConverter TSEncodingConverter
+ * @see TSEncodingBuilder TSEncodingBuilder
  */
 public class JsonConverter {
 

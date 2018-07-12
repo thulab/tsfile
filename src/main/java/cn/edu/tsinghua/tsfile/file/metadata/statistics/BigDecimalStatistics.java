@@ -2,7 +2,7 @@ package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 
 import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -158,11 +158,11 @@ public class BigDecimalStatistics extends Statistics<BigDecimal> {
 	@Override
 	void fill(InputStream inputStream) throws IOException {
 
-		this.min = BigDecimal.valueOf(ReadWriteToBytesUtils.readDouble(inputStream));
-		this.max = BigDecimal.valueOf(ReadWriteToBytesUtils.readDouble(inputStream));
-		this.first = BigDecimal.valueOf(ReadWriteToBytesUtils.readDouble(inputStream));
-		this.last = BigDecimal.valueOf(ReadWriteToBytesUtils.readDouble(inputStream));
-		this.sum = ReadWriteToBytesUtils.readDouble(inputStream);
+		this.min = BigDecimal.valueOf(ReadWriteIOUtils.readDouble(inputStream));
+		this.max = BigDecimal.valueOf(ReadWriteIOUtils.readDouble(inputStream));
+		this.first = BigDecimal.valueOf(ReadWriteIOUtils.readDouble(inputStream));
+		this.last = BigDecimal.valueOf(ReadWriteIOUtils.readDouble(inputStream));
+		this.sum = ReadWriteIOUtils.readDouble(inputStream);
 	}
 
 }

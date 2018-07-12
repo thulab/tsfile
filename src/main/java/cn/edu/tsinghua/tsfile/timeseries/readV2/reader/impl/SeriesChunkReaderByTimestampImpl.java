@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
-import cn.edu.tsinghua.tsfile.file.PageHeader;
+import cn.edu.tsinghua.tsfile.file.header.PageHeader;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
@@ -15,8 +15,8 @@ public class SeriesChunkReaderByTimestampImpl extends SeriesChunkReader {
 
     private long currentTimestamp;
 
-    public SeriesChunkReaderByTimestampImpl(InputStream seriesChunkInputStream, TSDataType dataType, CompressionType compressionType, TSEncoding dataEncoding) {
-        super(seriesChunkInputStream, dataType, compressionType, dataEncoding);
+    public SeriesChunkReaderByTimestampImpl(InputStream seriesChunkInputStream) {
+        super(seriesChunkInputStream);
     }
 
     @Override

@@ -1,12 +1,12 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,11 +48,11 @@ public class TimeSeriesChunkMetaDataTest {
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
     TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-    ReadWriteToBytesUtils.write(metaData, out.getOutputStream());
+    ReadWriteIOUtils.write(metaData, out.getOutputStream());
     out.close();
     fos.close();
 
     FileInputStream fis = new FileInputStream(new File(PATH));
-    Utils.isTimeSeriesChunkMetadataEqual(metaData, ReadWriteToBytesUtils.readTimeSeriesChunkMetaData(fis));
+    Utils.isTimeSeriesChunkMetadataEqual(metaData, ReadWriteIOUtils.readTimeSeriesChunkMetaData(fis));
   }
 }

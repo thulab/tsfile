@@ -10,8 +10,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
-import cn.edu.tsinghua.tsfile.timeseries.write.schema.converter.TSDataTypeConverter;
-import cn.edu.tsinghua.tsfile.timeseries.write.schema.converter.TSEncodingConverter;
+import cn.edu.tsinghua.tsfile.encoding.encoder.TSEncodingBuilder;
 import java.util.Collections;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -22,7 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class describes a measurement's information registered in {@linkplain FileSchema FilSchema},
  * including measurement id, data type, encoding and compressor type. For each TSEncoding,
- * MeasurementDescriptor maintains respective TSEncodingConverter; For TSDataType, only ENUM has
+ * MeasurementDescriptor maintains respective TSEncodingBuilder; For TSDataType, only ENUM has
  * TSDataTypeConverter up to now.
  *
  * @author kangrong
@@ -34,7 +33,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
   private final TSEncoding encoding;
   private String measurementId;
 //  private TSDataTypeConverter typeConverter;
-  private TSEncodingConverter encodingConverter;
+  private TSEncodingBuilder encodingConverter;
   private Compressor compressor;
   private TSFileConfig conf;
   private Map<String, String> props;
@@ -43,6 +42,15 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     this(measurementId, type, encoding, Collections.emptyMap());
   }
 
+  /**
+   *
+   * @param measurementId
+   * @param type
+   * @param encoding
+   * @param props         information in encoding method.
+   *                      For RLE, Encoder.MAX_POINT_NUMBER
+   *                      For PLAIN, Encoder.MAX_STRING_LENGTH
+   */
   public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding,
       Map<String, String> props) {
     this.type = type;
@@ -51,8 +59,8 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     this.props = props == null? Collections.emptyMap(): props;
     this.conf = TSFileDescriptor.getInstance().getConfig();
     // initialize TSEncoding. e.g. set max error for PLA and SDT
-    encodingConverter = TSEncodingConverter.getConverter(encoding);
-    encodingConverter.initFromProps(measurementId, props);
+    encodingConverter = TSEncodingBuilder.getConverter(encoding);
+    encodingConverter.initFromProps(props);
     if (props != null && props.containsKey(JsonFormatConstant.COMPRESS_TYPE)) {
       this.compressor = Compressor.getCompressor(props.get(JsonFormatConstant.COMPRESS_TYPE));
     } else {
@@ -111,11 +119,11 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
     TSEncoding timeSeriesEncoder = TSEncoding.valueOf(conf.timeSeriesEncoder);
     TSDataType timeType = TSDataType.valueOf(conf.timeSeriesDataType);
-    return TSEncodingConverter.getConverter(timeSeriesEncoder).getEncoder(measurementId, timeType);
+    return TSEncodingBuilder.getConverter(timeSeriesEncoder).getEncoder(timeType);
   }
 
   public Encoder getValueEncoder() {
-    return encodingConverter.getEncoder(measurementId, type);
+    return encodingConverter.getEncoder(type);
   }
 
   public Compressor getCompressor() {

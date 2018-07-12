@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.basis;
 
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.MetadataQuerier;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.MetadataQuerierByFileImpl;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
@@ -16,15 +16,17 @@ import java.io.IOException;
  */
 public class ReadOnlyTsFile {
 
-    private ITsRandomAccessFileReader randomAccessFileReader;
+    //private ITsRandomAccessFileReader randomAccessFileReader;
+    private TsFileSequenceReader fileReader;
+
     private MetadataQuerier metadataQuerier;
     private SeriesChunkLoader seriesChunkLoader;
     private QueryExecutorRouter queryExecutorRouter;
 
-    public ReadOnlyTsFile(ITsRandomAccessFileReader randomAccessFileReader) throws IOException {
-        this.randomAccessFileReader = randomAccessFileReader;
-        this.metadataQuerier = new MetadataQuerierByFileImpl(randomAccessFileReader);
-        this.seriesChunkLoader = new SeriesChunkLoaderImpl(randomAccessFileReader);
+    public ReadOnlyTsFile(TsFileSequenceReader fileReader) throws IOException {
+        this.fileReader = fileReader;
+        this.metadataQuerier = new MetadataQuerierByFileImpl(fileReader);
+        this.seriesChunkLoader = new SeriesChunkLoaderImpl(fileReader);
         queryExecutorRouter = new QueryExecutorRouter(metadataQuerier, seriesChunkLoader);
     }
 
@@ -33,6 +35,6 @@ public class ReadOnlyTsFile {
     }
 
     public void close() throws IOException {
-        randomAccessFileReader.close();
+        fileReader.close();
     }
 }

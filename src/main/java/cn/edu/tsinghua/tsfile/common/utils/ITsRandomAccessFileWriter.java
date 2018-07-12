@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
+ * @deprecated
  * TSRandomAccessFileWriter is an interface for TSFile writer. Each output should implements this
  * interface whatever os file system or HDFS.<br>
  * The main difference between RandomAccessOutputStream and general OutputStream
@@ -12,6 +13,7 @@ import java.io.OutputStream;
  *
  * @author kangrong
  */
+@Deprecated
 public interface ITsRandomAccessFileWriter {
     long getPos() throws IOException;
 

@@ -2,7 +2,7 @@ package cn.edu.tsinghua.tsfile.timeseries.write.series;
 
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
 import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
 import cn.edu.tsinghua.tsfile.encoding.decoder.PlainDecoder;
 import cn.edu.tsinghua.tsfile.encoding.encoder.PlainEncoder;
@@ -51,7 +51,7 @@ public class ValueWriterTest {
             ByteArrayInputStream in = new ByteArrayInputStream(ByteBufferUtil.getArray(input));
             writer.reset();
             assertEquals(0, writer.estimateMaxMemSize());
-            int timeSize = ReadWriteStreamUtils.readUnsignedVarInt(in);
+            int timeSize = ReadWriteForEncodingUtils.readUnsignedVarInt(in);
             byte[] timeBytes = new byte[timeSize];
             int ret = in.read(timeBytes);
             if(ret != timeBytes.length)

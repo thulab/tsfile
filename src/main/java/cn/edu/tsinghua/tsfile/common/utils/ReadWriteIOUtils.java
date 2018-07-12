@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.tsfile.file.utils;
+package cn.edu.tsinghua.tsfile.common.utils;
 
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.file.metadata.*;
@@ -9,6 +9,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
  *
  * @author East
  */
-public class ReadWriteToBytesUtils {
+public class ReadWriteIOUtils {
 
     public static int SHORT_LEN = 2;
     public static int INT_LEN = 4;
@@ -195,50 +196,52 @@ public class ReadWriteToBytesUtils {
         return len;
     }
 
-    /**
-     * write a value to stream using unsigned var int format. for example, int
-     * 123456789 has its binary format 111010-1101111-0011010-0010101, function
-     * writeUnsignedVarInt will split every seven bits and write them to stream
-     * from low bit to high bit like: 1-0010101 1-0011010 1-1101111 0-0111010 1
-     * represents has next byte to write, 0 represents number end
-     *
-     *
-     *
-     * @param value value to write into stream
-     * @param buffer where to store the result. buffer.remaining() needs to >= 32.
-     *               Notice: (1) this function does not check buffer's remaining().
-     *              (2) the position will be updated.
-     * @return the number of bytes that the value consume.
-     * @throws IOException exception in IO
-     */
-    public static int writeUnsignedVarInt(int value, ByteBuffer buffer) throws IOException {
-        int position=1;
-        while ((value & 0xFFFFFF80) != 0L) {
-            buffer.put((byte)((value & 0x7F) | 0x80));
-            value >>>= 7;
-            position++;
-        }
-        buffer.put((byte)(value & 0x7F));
-        return position;
-    }
+//    /**
+//     * writeTo a value to stream using unsigned var int format. for example, int
+//     * 123456789 has its binary format 111010-1101111-0011010-0010101, function
+//     * writeUnsignedVarInt will split every seven bits and writeTo them to stream
+//     * from low bit to high bit like: 1-0010101 1-0011010 1-1101111 0-0111010 1
+//     * represents has next byte to writeTo, 0 represents number end
+//     *
+//     *
+//     *
+//     * @param value value to writeTo into stream
+//     * @param buffer where to store the result. buffer.remaining() needs to >= 32.
+//     *               Notice: (1) this function does not check buffer's remaining().
+//     *              (2) the position will be updated.
+//     * @return the number of bytes that the value consume.
+//     * @throws IOException exception in IO
+//     */
+//    public static int writeUnsignedVarInt(int value, ByteBuffer buffer) throws IOException {
+//        int position=1;
+//        while ((value & 0xFFFFFF80) != 0L) {
+//            buffer.put((byte)((value & 0x7F) | 0x80));
+//            value >>>= 7;
+//            position++;
+//        }
+//        buffer.put((byte)(value & 0x7F));
+//        return position;
+//    }
 
-    /**
-     * read an unsigned var int in stream and transform it to int format
-     *
-     * @param in stream to read an unsigned var int
-     * @return integer value
-     * @throws IOException exception in IO
-     */
-    public static int readUnsignedVarInt(InputStream in) throws IOException {
-        int value = 0;
-        int i = 0;
-        int b;
-        while (((b = in.read()) & 0x80) != 0) {
-            value |= (b & 0x7F) << i;
-            i += 7;
-        }
-        return value | (b << i);
-    }
+
+
+//    /**
+//     * read an unsigned var int in stream and transform it to int format
+//     *
+//     * @param in stream to read an unsigned var int
+//     * @return integer value
+//     * @throws IOException exception in IO
+//     */
+//    public static int readUnsignedVarInt(InputStream in) throws IOException {
+//        int value = 0;
+//        int i = 0;
+//        int b;
+//        while (((b = in.read()) & 0x80) != 0) {
+//            value |= (b & 0x7F) << i;
+//            i += 7;
+//        }
+//        return value | (b << i);
+//    }
 
     /**
      * unlike InputStream.read(bytes), this method makes sure that you can read length bytes or reach to the end of the stream.
@@ -251,7 +254,7 @@ public class ReadWriteToBytesUtils {
         byte[] bytes=new byte[length];
         int offset=0;
         int len=0;
-        while((len=inputStream.read(bytes,offset, bytes.length-offset))!=-1){
+        while(bytes.length-offset>0 && (len=inputStream.read(bytes,offset, bytes.length-offset))!=-1){
             offset+=len;
         }
         return bytes;
@@ -270,108 +273,147 @@ public class ReadWriteToBytesUtils {
     }
 
 
-    public static ByteBuffer readByteBuffer(InputStream inputStream) throws IOException {
-        int byteLength = readInt(inputStream);
-        byte[] bytes = new byte[byteLength];
-        inputStream.read(bytes);
-        ByteBuffer byteBuffer = ByteBuffer.allocate(byteLength);
+    public static ByteBuffer readByteBufferWithSelfDescriptionLength(InputStream inputStream) throws IOException {
+        byte[] bytes = readBytesWithSelfDescriptionLength(inputStream);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(bytes.length);
         byteBuffer.put(bytes);
-
+        byteBuffer.flip();
         return byteBuffer;
     }
-    public static ByteBuffer readByteBuffer(ByteBuffer buffer) throws IOException {
+
+    public static ByteBuffer readByteBufferWithSelfDescriptionLength(ByteBuffer buffer) throws IOException {
         int byteLength = readInt(buffer);
         byte[] bytes = new byte[byteLength];
         buffer.get(bytes);
         ByteBuffer byteBuffer = ByteBuffer.allocate(byteLength);
         byteBuffer.put(bytes);
+        byteBuffer.flip();
 
         return byteBuffer;
     }
 
-    public static int write(List list, TSDataType dataType, OutputStream outputStream) throws IOException {
-        int len = 0;
 
-        len += write(list.size(), outputStream);
-        for(Object one : list){
-            switch (dataType){
-                case INT32:
-                    len += write((int)one, outputStream);
-                    break;
-                case TEXT:
-                    len += write((String)one, outputStream);
-                    break;
-                default:
-                    throw new IOException(String.format("Unsupported data type for {}", dataType.toString()));
-            }
+    public static int readAsPossible(FileChannel channel, long position, ByteBuffer buffer) throws IOException{
+        int length=0;
+        int read;
+        while(buffer.hasRemaining()&& (read=channel.read(buffer,position))!=-1){
+            length+=read;
+            position+=read;
+            read=channel.read(buffer,position);
         }
-
-        return len;
+        return length;
     }
-    public static int write(List list, TSDataType dataType, ByteBuffer buffer) throws IOException {
-        int len = 0;
 
-        if(list == null){
-            len += write(list.size(), buffer);
-            return len;
+    public static int readAsPossible(FileChannel channel, ByteBuffer buffer) throws IOException{
+        int length=0;
+        int read;
+        while(buffer.hasRemaining()&& (read=channel.read(buffer))!=-1){
+            length+=read;
+            //read=channel.read(buffer);
         }
+        return length;
+    }
 
-        len += write(list.size(), buffer);
-        for(Object one : list){
-            switch (dataType){
-                case INT32:
-                    len += write((int)one, buffer);
-                    break;
-                case TEXT:
-                    len += write((String)one, buffer);
-                    break;
-                default:
-                    throw new IOException(String.format("Unsupported data type for {}", dataType.toString()));
-            }
+    public static int readAsPossible(FileChannel channel, ByteBuffer buffer, int len) throws IOException{
+        int length=0;
+        int limit=buffer.limit();
+        buffer.limit(buffer.position()+len);
+        int read;
+        while(length<len && buffer.hasRemaining()&& (read=channel.read(buffer))!=-1){
+            length+=read;
+            //read=channel.read(buffer);
         }
-
-        return len;
+        buffer.limit(limit);
+        return length;
     }
 
-    public static List<Integer> readIntegerList(InputStream inputStream) throws IOException {
-        int size = readInt(inputStream);
-        if(size <= 0)return null;
+//    public static int write(List list, TSDataType dataType, OutputStream outputStream) throws IOException {
+//        int len = 0;
+//
+//        len += write(list.size(), outputStream);
+//        for(Object one : list){
+//            switch (dataType){
+//                case INT32:
+//                    len += write((int)one, outputStream);
+//                    break;
+//                case TEXT:
+//                    len += write((String)one, outputStream);
+//                    break;
+//                default:
+//                    throw new IOException(String.format("Unsupported data type for {}", dataType.toString()));
+//            }
+//        }
+//
+//        return len;
+//    }
+//    public static int write(List list, TSDataType dataType, ByteBuffer buffer) throws IOException {
+//        int len = 0;
+//
+//        if(list == null){
+//            len += write(list.size(), buffer);
+//            return len;
+//        }
+//
+//        len += write(list.size(), buffer);
+//        for(Object one : list){
+//            switch (dataType){
+//                case INT32:
+//                    len += write((int)one, buffer);
+//                    break;
+//                case TEXT:
+//                    len += write((String)one, buffer);
+//                    break;
+//                default:
+//                    throw new IOException(String.format("Unsupported data type for {}", dataType.toString()));
+//            }
+//        }
+//
+//        return len;
+//    }
 
-        List<Integer> list = new ArrayList<>();
-        for(int i = 0;i < size;i++)
-            list.add(readInt(inputStream));
+//    public static List<Integer> readIntegerList(InputStream inputStream) throws IOException {
+//        int size = readInt(inputStream);
+//        if(size <= 0)return null;
+//
+//        List<Integer> list = new ArrayList<>();
+//        for(int i = 0;i < size;i++)
+//            list.add(readInt(inputStream));
+//
+//        return list;
+//    }
+//    public static List<Integer> readIntegerList(ByteBuffer buffer) throws IOException {
+//        int size = readInt(buffer);
+//        if(size <= 0)return null;
+//
+//        List<Integer> list = new ArrayList<>();
+//        for(int i = 0;i < size;i++)
+//            list.add(readInt(buffer));
+//        return list;
+//    }
+//
+//    public static List<String> readStringList(InputStream inputStream) throws IOException {
+//        List<String> list = new ArrayList<>();
+//        int size = readInt(inputStream);
+//
+//        for(int i = 0;i < size;i++)
+//            list.add(readString(inputStream));
+//
+//        return list;
+//    }
+//    public static List<String> readStringList(ByteBuffer buffer) throws IOException {
+//        int size = readInt(buffer);
+//        if(size <= 0)return null;
+//
+//        List<String> list = new ArrayList<>();
+//        for(int i = 0;i < size;i++)
+//            list.add(readString(buffer));
+//
+//        return list;
+//    }
 
-        return list;
-    }
-    public static List<Integer> readIntegerList(ByteBuffer buffer) throws IOException {
-        int size = readInt(buffer);
-        if(size <= 0)return null;
 
-        List<Integer> list = new ArrayList<>();
-        for(int i = 0;i < size;i++)
-            list.add(readInt(buffer));
-        return list;
-    }
+    //TODO 下面的代码都没有意义
 
-    public static List<String> readStringList(InputStream inputStream) throws IOException {
-        List<String> list = new ArrayList<>();
-        int size = readInt(inputStream);
-
-        for(int i = 0;i < size;i++)
-            list.add(readString(inputStream));
-
-        return list;
-    }
-    public static List<String> readStringList(ByteBuffer buffer) throws IOException {
-        int size = readInt(buffer);
-        if(size <= 0)return null;
-
-        List<String> list = new ArrayList<>();
-        for(int i = 0;i < size;i++)
-            list.add(readString(buffer));
-
-        return list;
-    }
 
     public static int write(CompressionType compressionType, OutputStream outputStream) throws IOException {
         short n = compressionType.serialize();
@@ -524,28 +566,9 @@ public class ReadWriteToBytesUtils {
         return deltaObjectMetadata.serializeTo(buffer);
     }
 
-    public static TsDeltaObjectMetadata readDeltaObjectMetadata(InputStream inputStream) throws IOException {
-        TsDeltaObjectMetadata deltaObjectMetadata = TsDeltaObjectMetadata.deserializeFrom(inputStream);
-        return deltaObjectMetadata;
-    }
-    public static TsDeltaObjectMetadata readDeltaObjectMetadata(ByteBuffer buffer) throws IOException {
-        TsDeltaObjectMetadata deltaObjectMetadata = TsDeltaObjectMetadata.deserializeFrom(buffer);
-        return deltaObjectMetadata;
-    }
 
-    public static int write(TsFileMetaData tsFileMetaData, OutputStream outputStream) throws IOException {
-        return tsFileMetaData.serializeTo(outputStream);
-    }
-    public static int write(TsFileMetaData tsFileMetaData, ByteBuffer buffer) throws IOException {
-        return tsFileMetaData.serializeTo(buffer);
-    }
 
-    public static TsFileMetaData readTsFileMetaData(InputStream inputStream) throws IOException {
-        TsFileMetaData tsFileMetaData = TsFileMetaData.deserializeFrom(inputStream);
-        return tsFileMetaData;
-    }
-    public static TsFileMetaData readTsFileMetaData(ByteBuffer buffer) throws IOException {
-        TsFileMetaData tsFileMetaData = TsFileMetaData.deserializeFrom(buffer);
-        return tsFileMetaData;
-    }
+
+
+
 }

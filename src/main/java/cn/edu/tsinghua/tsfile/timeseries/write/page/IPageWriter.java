@@ -24,19 +24,22 @@ public interface IPageWriter {
      * @param statistics    - the statistics for that page
      * @param maxTimestamp  - timestamp maximum in given data
      * @param minTimestamp  - timestamp minimum in given data
+     * @return  byte size of the page header and uncompressed data in the page body.
      * @throws PageException - if an PageException occurs.
      */
-    void writePageHeaderAndDataIntoBuff(ByteBuffer listByteArray, int valueCount, Statistics<?> statistics,
-                                        long maxTimestamp, long minTimestamp) throws PageException;
+    int writePageHeaderAndDataIntoBuff(ByteBuffer listByteArray, int valueCount, Statistics<?> statistics,
+                                       long maxTimestamp, long minTimestamp) throws PageException;
 
     /**
-     * write the page to specified IOWriter
+     * writeTo the page to specified IOWriter
      *
      * @param writer the specified IOWriter
      * @param statistics the statistic information provided by series writer
+     * @param numberOfPages number of Pages this chunk has
+     * @return  the data size of this chunk
      * @throws IOException exception in IO
      */
-    void writeAllPagesOfSeriesToTsFile(TsFileIOWriter writer, Statistics<?> statistics) throws IOException;
+    long writeAllPagesOfSeriesToTsFile(TsFileIOWriter writer, Statistics<?> statistics, int numberOfPages) throws IOException;
 
     /**
      * reset exist data in page for next stage
@@ -44,7 +47,14 @@ public interface IPageWriter {
     void reset();
 
     /**
-     * @return the max possible allocated size
+     *
+     * @return the max possible allocated size currently
      */
     long estimateMaxPageMemSize();
+
+    /**
+     *
+     * @return current data size that the writer has serialized.
+     */
+    long getCurrentDataSize();
 }

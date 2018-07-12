@@ -2,8 +2,6 @@ package cn.edu.tsinghua.tsfile.timeseries.readV2.query.executor;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
-import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessLocalFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.TimeFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.ValueFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.basic.Filter;
@@ -14,6 +12,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.SeriesFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.factory.FilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileGeneratorForTest;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.MetadataQuerierByFileImpl;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoaderImpl;
@@ -39,7 +38,7 @@ public class QueryExecutorTest {
 
 
     private static final String FILE_PATH = TsFileGeneratorForTest.outputDataFile;
-    private ITsRandomAccessFileReader randomAccessFileReader;
+    private TsFileSequenceReader fileReader;
     private MetadataQuerierByFileImpl metadataQuerierByFile;
     private SeriesChunkLoader seriesChunkLoader;
     private int rowCount = 10000;
@@ -49,15 +48,16 @@ public class QueryExecutorTest {
     public void before() throws InterruptedException, WriteProcessException, IOException {
         TSFileDescriptor.getInstance().getConfig().timeSeriesEncoder = "TS_2DIFF";
         TsFileGeneratorForTest.generateFile(rowCount, 16 * 1024 * 1024, 10000);
-        randomAccessFileReader = new TsRandomAccessLocalFileReader(FILE_PATH);
-        metadataQuerierByFile = new MetadataQuerierByFileImpl(randomAccessFileReader);
-        seriesChunkLoader = new SeriesChunkLoaderImpl(randomAccessFileReader);
+        fileReader = new TsFileSequenceReader(FILE_PATH);
+        fileReader.open();
+        metadataQuerierByFile = new MetadataQuerierByFileImpl(fileReader);
+        seriesChunkLoader = new SeriesChunkLoaderImpl(fileReader);
         queryExecutorWithQueryFilter = new QueryWithQueryFilterExecutorImpl(seriesChunkLoader, metadataQuerierByFile);
     }
 
     @After
     public void after() throws IOException {
-        randomAccessFileReader.close();
+        fileReader.close();
         TsFileGeneratorForTest.after();
     }
 

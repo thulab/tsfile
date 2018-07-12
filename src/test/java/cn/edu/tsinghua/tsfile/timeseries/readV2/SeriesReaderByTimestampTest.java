@@ -1,8 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
-import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessLocalFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.MetadataQuerierByFileImpl;
@@ -28,7 +26,7 @@ import java.util.List;
 public class SeriesReaderByTimestampTest {
 
     private static final String FILE_PATH = TsFileGeneratorForSeriesReaderByTimestamp.outputDataFile;
-    private ITsRandomAccessFileReader randomAccessFileReader;
+    private TsFileSequenceReader fileReader;
     private MetadataQuerierByFileImpl metadataQuerierByFile;
     private int rowCount = 1000000;
 
@@ -36,19 +34,21 @@ public class SeriesReaderByTimestampTest {
     public void before() throws InterruptedException, WriteProcessException, IOException {
         TSFileDescriptor.getInstance().getConfig().timeSeriesEncoder = "TS_2DIFF";
         TsFileGeneratorForSeriesReaderByTimestamp.generateFile(rowCount, 10 * 1024 * 1024, 10000);
-        randomAccessFileReader = new TsRandomAccessLocalFileReader(FILE_PATH);
-        metadataQuerierByFile = new MetadataQuerierByFileImpl(randomAccessFileReader);
+        fileReader = new TsFileSequenceReader(FILE_PATH);//TODO remove this class
+        fileReader.open();
+        metadataQuerierByFile = new MetadataQuerierByFileImpl(fileReader);
+
     }
 
     @After
     public void after() throws IOException {
-        randomAccessFileReader.close();
+        fileReader.close();
         TsFileGeneratorForSeriesReaderByTimestamp.after();
     }
 
     @Test
     public void readByTimestamp() throws IOException {
-        SeriesChunkLoaderImpl seriesChunkLoader = new SeriesChunkLoaderImpl(randomAccessFileReader);
+        SeriesChunkLoaderImpl seriesChunkLoader = new SeriesChunkLoaderImpl(fileReader);
         List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d1.s1"));
         SeriesReader seriesReader = new SeriesReaderFromSingleFileWithoutFilterImpl(seriesChunkLoader, encodedSeriesChunkDescriptorList);
 

@@ -145,7 +145,7 @@ public class RecordUtilsTest {
         assertEquals(record.time, 1471522347000l);
         assertEquals(record.deltaObjectId, "d1");
         List<DataPoint> tuples = record.dataPointList;
-        assertEquals(6, tuples.size());
+        assertEquals(5, tuples.size());// enum type is omitted.
         DataPoint tuple = tuples.get(0);
         assertEquals(tuple.getMeasurementId(), "s1");
         assertEquals(tuple.getType(), TSDataType.INT32);
@@ -166,7 +166,7 @@ public class RecordUtilsTest {
 //        assertEquals(tuple.getMeasurementId(), "s5");
 //        assertEquals(tuple.getType(), TSDataType.ENUMS);
 //        assertEquals(tuple.getValue(), 1);
-        tuple = tuples.get(5);
+        tuple = tuples.get(4);
         assertEquals(tuple.getMeasurementId(), "s6");
         assertEquals(tuple.getType(), TSDataType.BOOLEAN);
         assertEquals(tuple.getValue(), true);

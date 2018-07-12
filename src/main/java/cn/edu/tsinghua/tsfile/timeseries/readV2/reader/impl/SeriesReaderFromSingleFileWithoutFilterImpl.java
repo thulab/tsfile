@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunk;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
@@ -18,20 +18,18 @@ public class SeriesReaderFromSingleFileWithoutFilterImpl extends SeriesReaderFro
         super(seriesChunkLoader, encodedSeriesChunkDescriptorList);
     }
 
-    public SeriesReaderFromSingleFileWithoutFilterImpl(ITsRandomAccessFileReader randomAccessFileReader, Path path) throws IOException {
-        super(randomAccessFileReader, path);
+    public SeriesReaderFromSingleFileWithoutFilterImpl(TsFileSequenceReader tsFileReader, Path path) throws IOException {
+        super(tsFileReader, path);
     }
 
-    public SeriesReaderFromSingleFileWithoutFilterImpl(ITsRandomAccessFileReader randomAccessFileReader,
+    public SeriesReaderFromSingleFileWithoutFilterImpl(TsFileSequenceReader tsFileReader,
                                       SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
-        super(randomAccessFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
+        super(tsFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
     }
 
     protected void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException {
         SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
-        this.seriesChunkReader = new SeriesChunkReaderWithoutFilterImpl(memSeriesChunk.getSeriesChunkBodyStream(),
-                memSeriesChunk.getEncodedSeriesChunkDescriptor().getDataType(),
-                memSeriesChunk.getEncodedSeriesChunkDescriptor().getCompressionType(), encodedSeriesChunkDescriptor.getDataEncoding());
+        this.seriesChunkReader = new SeriesChunkReaderWithoutFilterImpl(memSeriesChunk.getSeriesChunkBodyStream());
     }
 
     @Override

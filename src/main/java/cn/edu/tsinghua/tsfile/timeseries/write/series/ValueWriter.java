@@ -2,15 +2,15 @@ package cn.edu.tsinghua.tsfile.timeseries.write.series;
 
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
 import cn.edu.tsinghua.tsfile.common.utils.PublicBAOS;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.encoder.Encoder;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 
 /**
- * This function is used to write time-value into a time series. It consists of a time encoder, a
+ * This function is used to writeTo time-value into a time series. It consists of a time encoder, a
  * value encoder and respective OutputStream.
  *
  * @author kangrong
@@ -92,7 +92,7 @@ public class ValueWriter {
 //     */
 //    public ListByteArrayOutputStream getBytes() throws IOException {
 //        prepareEndWriteOnePage();
-//        ReadWriteStreamUtils.writeUnsignedVarInt(timeOut.size(), timeSizeOut);
+//        ReadWriteForEncodingUtils.writeUnsignedVarInt(timeOut.size(), timeSizeOut);
 //        return new ListByteArrayOutputStream(timeSizeOut, timeOut, valueOut);
 //    }
 
@@ -105,7 +105,7 @@ public class ValueWriter {
     public ByteBuffer getBytes() throws IOException {
         prepareEndWriteOnePage();
         ByteBuffer buffer= ByteBuffer.allocate(timeOut.size()+valueOut.size()+32);
-        int length1=ReadWriteToBytesUtils.writeUnsignedVarInt(timeOut.size(),buffer);//FIXME: why do we use a var-length int.
+        int length1=ReadWriteForEncodingUtils.writeUnsignedVarInt(timeOut.size(),buffer);//FIXME: why do we use a var-length int.
         buffer.put(timeOut.getBuf(),0, timeOut.size());
         buffer.put(valueOut.getBuf(),0, valueOut.size());
         buffer.flip();

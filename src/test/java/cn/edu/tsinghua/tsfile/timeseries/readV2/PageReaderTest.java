@@ -7,7 +7,7 @@ import cn.edu.tsinghua.tsfile.encoding.decoder.*;
 import cn.edu.tsinghua.tsfile.encoding.encoder.*;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl.PageReader;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl.PageDataReader;
 import cn.edu.tsinghua.tsfile.timeseries.write.series.ValueWriter;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,7 +15,6 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 
 /**
  * Created by zhangjinrui on 2017/12/21.
@@ -143,7 +142,7 @@ public class PageReaderTest {
 
                 InputStream page = new ByteArrayInputStream(ByteBufferUtil.getArray(valueWriter.getBytes()));
 
-                PageReader pageReader = new PageReader(page, dataType, decoder, new DeltaBinaryDecoder.LongDeltaDecoder());
+                PageDataReader pageReader = new PageDataReader(page, dataType, decoder, new DeltaBinaryDecoder.LongDeltaDecoder());
 
                 int index = 0;
                 long startTimestamp = System.currentTimeMillis();

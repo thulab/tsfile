@@ -26,7 +26,21 @@ public interface ISeriesWriter {
 
     void write(long time, Binary value) throws IOException;
 
+
     void writeToFileWriter(TsFileIOWriter tsfileWriter) throws IOException;
 
     long estimateMaxSeriesMemSize();
+
+    /**
+     * return the serialized size of the chunk header + all pages
+     */
+    long getCurrentChunkSize();
+
+    /**
+     * prepare to flush data into file.
+     *
+     */
+    void preFlush();
+
+    int getNumOfPages();
 }

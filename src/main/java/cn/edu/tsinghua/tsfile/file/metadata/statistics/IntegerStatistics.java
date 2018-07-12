@@ -2,7 +2,7 @@ package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 
 import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -155,10 +155,10 @@ public class IntegerStatistics extends Statistics<Integer> {
 
 	@Override
 	void fill(InputStream inputStream) throws IOException {
-		this.min = ReadWriteToBytesUtils.readInt(inputStream);
-		this.max = ReadWriteToBytesUtils.readInt(inputStream);
-		this.first = ReadWriteToBytesUtils.readInt(inputStream);
-		this.last = ReadWriteToBytesUtils.readInt(inputStream);
-		this.sum = ReadWriteToBytesUtils.readDouble(inputStream);
+		this.min = ReadWriteIOUtils.readInt(inputStream);
+		this.max = ReadWriteIOUtils.readInt(inputStream);
+		this.first = ReadWriteIOUtils.readInt(inputStream);
+		this.last = ReadWriteIOUtils.readInt(inputStream);
+		this.sum = ReadWriteIOUtils.readDouble(inputStream);
 	}
 }

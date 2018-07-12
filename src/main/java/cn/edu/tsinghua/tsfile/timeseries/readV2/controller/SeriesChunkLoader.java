@@ -11,5 +11,11 @@ import java.io.IOException;
  * Created by zhangjinrui on 2017/12/26.
  */
 public interface SeriesChunkLoader {
+    /**
+     * 将该chunk的数据从磁盘上全部读出并放在内存中返回。
+     * @param encodedSeriesChunkDescriptor
+     * @return
+     * @throws IOException
+     */
     SeriesChunk getMemSeriesChunk(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException;
 }

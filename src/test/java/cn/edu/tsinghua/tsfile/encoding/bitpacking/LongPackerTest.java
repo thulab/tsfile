@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import org.junit.Test;
 
 /**
@@ -63,7 +63,7 @@ public class LongPackerTest {
 			bpStart *= 3;
 		}
 		bpList.add(0L);
-		int bpBitWidth = ReadWriteStreamUtils.getLongMaxBitWidth(bpList);
+		int bpBitWidth = ReadWriteForEncodingUtils.getLongMaxBitWidth(bpList);
 
 		LongPacker packer = new LongPacker(bpBitWidth);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

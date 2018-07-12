@@ -18,7 +18,7 @@ public class TestHelper {
 	private static final String LAST_VALUE = "222";
 
     public static TsFileMetaData createSimpleFileMetaData() {
-        TsFileMetaData metaData = new TsFileMetaData(generateDeltaObjectMetadataMap(), null, TsFileMetaDataTest.VERSION);
+        TsFileMetaData metaData = new TsFileMetaData(generateDeltaObjectMetadataMap(), new ArrayList<>(), TsFileMetaDataTest.VERSION);
         metaData.addTimeSeriesMetaData(TestHelper.createSimpleTimeSeriesMetaData());
         metaData.addTimeSeriesMetaData(TestHelper.createSimpleTimeSeriesMetaData());
         metaData.setCreatedBy(TsFileMetaDataTest.CREATED_BY);
@@ -39,8 +39,8 @@ public class TestHelper {
 
     public static TsDeltaObjectMetadata createSimpleDeltaObjectMetaData() {
         TsDeltaObjectMetadata metaData = new TsDeltaObjectMetadata();
-        metaData.setOffset(TsDeltaObjectMetadataTest.OFFSET);
-        metaData.setMetadataBlockSize(TsDeltaObjectMetadataTest.METADATA_BLOCK_SIZE);
+        //metaData.setOffset(TsDeltaObjectMetadataTest.OFFSET);
+        //metaData.setMetadataBlockSize(TsDeltaObjectMetadataTest.METADATA_BLOCK_SIZE);
         metaData.setStartTime(TsDeltaObjectMetadataTest.START_TIME);
         metaData.setEndTime(TsDeltaObjectMetadataTest.END_TIME);
         metaData.addRowGroupMetaData(TestHelper.createSimpleRowGroupMetaData());
@@ -50,22 +50,23 @@ public class TestHelper {
 
     public static RowGroupMetaData createSimpleRowGroupMetaData() {
     RowGroupMetaData metaData = new RowGroupMetaData(RowGroupMetaDataTest.DELTA_OBJECT_UID,
-            RowGroupMetaDataTest.TOTAL_BYTE_SIZE, new ArrayList<>());
+            RowGroupMetaDataTest.TOTAL_BYTE_SIZE, 12, new ArrayList<>());
     metaData.addTimeSeriesChunkMetaData(TestHelper.createSimpleTimeSeriesChunkMetaData());
     metaData.addTimeSeriesChunkMetaData(TestHelper.createSimpleTimeSeriesChunkMetaData());
-    metaData.setMetadataOffset(RowGroupMetaDataTest.METADATA_OFFSET);
-    metaData.setMetadataSize(RowGroupMetaDataTest.METADATA_SIZE);
+    //metaData.setMetadataOffset(RowGroupMetaDataTest.METADATA_OFFSET);
+    //metaData.setMetadataSize(RowGroupMetaDataTest.METADATA_SIZE);
     return metaData;
     }
 
     public static TimeSeriesChunkMetaData createSimpleTimeSeriesChunkMetaData() {
     TimeSeriesChunkMetaData metaData =
         new TimeSeriesChunkMetaData(TimeSeriesChunkMetaDataTest.MEASUREMENT_UID, TimeSeriesChunkMetaDataTest.FILE_OFFSET,
-            TimeSeriesChunkMetaDataTest.COMPRESSION_TYPE, TimeSeriesChunkMetaDataTest.DATA_TYPE,
-            TimeSeriesChunkMetaDataTest.START_TIME, TimeSeriesChunkMetaDataTest.END_TIME, TimeSeriesChunkMetaDataTest.ENCODING_TYPE);
-    metaData.setTsDigestOffset(TimeSeriesChunkMetaDataTest.DIGEST_OFFSET);
+            //TimeSeriesChunkMetaDataTest.COMPRESSION_TYPE, TimeSeriesChunkMetaDataTest.DATA_TYPE,
+            TimeSeriesChunkMetaDataTest.START_TIME, TimeSeriesChunkMetaDataTest.END_TIME//, TimeSeriesChunkMetaDataTest.ENCODING_TYPE
+        );
+    //metaData.setTsDigestOffset(TimeSeriesChunkMetaDataTest.DIGEST_OFFSET);
     metaData.setNumOfPoints(TimeSeriesChunkMetaDataTest.NUM_OF_POINTS);
-    metaData.setTotalByteSize(TimeSeriesChunkMetaDataTest.TOTAL_BYTE_SIZE);
+    metaData.setTotalByteSizeOfPagesOnDisk(TimeSeriesChunkMetaDataTest.TOTAL_BYTE_SIZE);
     metaData.setDigest(new TsDigest());
     return metaData;
     }

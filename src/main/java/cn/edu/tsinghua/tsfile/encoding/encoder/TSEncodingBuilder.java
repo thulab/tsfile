@@ -1,13 +1,10 @@
-package cn.edu.tsinghua.tsfile.timeseries.write.schema.converter;
+package cn.edu.tsinghua.tsfile.encoding.encoder;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.tsinghua.tsfile.common.exception.UnSupportedDataTypeException;
-import cn.edu.tsinghua.tsfile.common.exception.metadata.MetadataArgsErrorException;
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
-import cn.edu.tsinghua.tsfile.encoding.decoder.DoublePrecisionDecoder;
-import cn.edu.tsinghua.tsfile.encoding.encoder.*;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import org.slf4j.Logger;
@@ -16,31 +13,31 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 /**
- * Each subclass of TSEncodingConverter responds a enumerate value in
+ * Each subclass of TSEncodingBuilder responds a enumerate value in
  * {@linkplain TSEncoding TSEncoding}, which stores several
  * configuration related to responding encoding type to generate
  * {@linkplain Encoder Encoder} instance.<br>
- * Each TSEncoding has a responding TSEncodingConverter. The design referring to visit pattern
+ * Each TSEncoding has a responding TSEncodingBuilder. The design referring to visit pattern
  * provides same outer interface for different TSEncodings and gets rid of the duplicate switch-case
  * code.
  *
  * @author kangrong
  */
-public abstract class TSEncodingConverter {
-    private static final Logger LOG = LoggerFactory.getLogger(TSEncodingConverter.class);
+public abstract class TSEncodingBuilder {
+    private static final Logger LOG = LoggerFactory.getLogger(TSEncodingBuilder.class);
     protected final TSFileConfig conf;
 
-    public TSEncodingConverter() {
+    public TSEncodingBuilder() {
         this.conf = TSFileDescriptor.getInstance().getConfig();
     }
 
     /**
-     * return responding TSEncodingConverter from a TSEncoding
+     * return responding TSEncodingBuilder from a TSEncoding
      *
      * @param type - given encoding type
-     * @return - responding TSEncodingConverter
+     * @return - responding TSEncodingBuilder
      */
-    public static TSEncodingConverter getConverter(TSEncoding type) {
+    public static TSEncodingBuilder getConverter(TSEncoding type) {
         switch (type) {
             case PLAIN:
                 return new PLAIN();
@@ -55,74 +52,45 @@ public abstract class TSEncodingConverter {
         }
     }
 
-    /**
-     * check the validity of input parameter. If it's valid, return this parameter in its
-     * appropriate type.
-     *
-     * @param encoding - encoding type
-     * @param pmKey    - argument key in JSON object key-value pair
-     * @param value    - argument value in JSON object key-value pair in type of String
-     * @return - argument value in JSON object key-value pair in its suitable type
-     * @throws MetadataArgsErrorException throw exception when metadata has wrong args
-     */
-    public static Object checkParameter(TSEncoding encoding, String pmKey, String value)
-            throws MetadataArgsErrorException {
-        return getConverter(encoding).checkParameter(pmKey, value);
-    }
 
     /**
      * return a series's encoder with different types and parameters according to its measurement id
      * and data type
-     *
-     * @param measurementId - given measurement id
      * @param type          - given data type
      * @return - return a {@linkplain Encoder Encoder}
      */
-    public abstract Encoder getEncoder(String measurementId, TSDataType type);
+    public abstract Encoder getEncoder(TSDataType type);
 
     /**
      * for TSEncoding, JSON is a kind of type for initialization. {@code InitFromJsonObject} gets
      * values from JSON object which will be used latter.<br>
      * if this type has extra parameters to construct, override it.
      *
-     * @param measurementId - measurement id to be added.
      * @param props         - properties of encoding
      */
-    public abstract void initFromProps(String measurementId, Map<String, String> props);
+    public abstract void initFromProps(Map<String, String> props);
 
-    /**
-     * For a TSEncodingConverter, check the input parameter. If it's valid, return this parameter in
-     * its appropriate type. This method needs to be extended.
-     *
-     * @param pmKey - argument key in JSON object key-value pair
-     * @param value - argument value in JSON object key-value pair in type of String
-     * @return - default return is null which means this data type needn't the parameter
-     * @throws MetadataArgsErrorException throw exception when metadata has wrong args
-     */
-    public Object checkParameter(String pmKey, String value) throws MetadataArgsErrorException {
-        throw new MetadataArgsErrorException("don't need args:{}" + pmKey);
-    }
 
     @Override
     public String toString() {
         return "";
     }
 
-    public static class PLAIN extends TSEncodingConverter {
-        private int maxStringLength;
+    public static class PLAIN extends TSEncodingBuilder {
+        private int maxStringLength = conf.maxStringLength;
 
         @Override
-        public Encoder getEncoder(String measurementId, TSDataType type) {
+        public Encoder getEncoder(TSDataType type) {
             return new PlainEncoder(EndianType.LITTLE_ENDIAN, type, maxStringLength);
         }
 
         @Override
-        public void initFromProps(String measurementId, Map<String, String> props) {
+        public void initFromProps(Map<String, String> props) {
             // set max error from initialized map or default value if not set
-            if (props == null || !props.containsKey(JsonFormatConstant.MAX_STRING_LENGTH)) {
+            if (props == null || !props.containsKey(Encoder.MAX_STRING_LENGTH)) {
                 maxStringLength = conf.maxStringLength;
             } else {
-                maxStringLength = Integer.valueOf(props.get(JsonFormatConstant.MAX_STRING_LENGTH));
+                maxStringLength = Integer.valueOf(props.get(Encoder.MAX_STRING_LENGTH));
                 if (maxStringLength < 0) {
                     maxStringLength = conf.maxStringLength;
                     LOG.warn(
@@ -133,11 +101,11 @@ public abstract class TSEncodingConverter {
         }
     }
 
-    public static class RLE extends TSEncodingConverter {
-        private int maxPointNumber = 0;
+    public static class RLE extends TSEncodingBuilder {
+        private int maxPointNumber  = conf.floatPrecision;
 
         @Override
-        public Encoder getEncoder(String measurementId, TSDataType type) {
+        public Encoder getEncoder(TSDataType type) {
             switch (type) {
                 case INT32:
                 case BOOLEAN:
@@ -158,12 +126,12 @@ public abstract class TSEncodingConverter {
          * decimal digits for float or double data.
          */
         @Override
-        public void initFromProps(String measurementId, Map<String, String> props) {
+        public void initFromProps(Map<String, String> props) {
             // set max error from initialized map or default value if not set
-            if (props == null || !props.containsKey(JsonFormatConstant.MAX_POINT_NUMBER)) {
+            if (props == null || !props.containsKey(Encoder.MAX_POINT_NUMBER)) {
                 maxPointNumber = conf.floatPrecision;
             } else {
-                maxPointNumber = Integer.valueOf(props.get(JsonFormatConstant.MAX_POINT_NUMBER));
+                maxPointNumber = Integer.valueOf(props.get(Encoder.MAX_POINT_NUMBER));
                 if (maxPointNumber < 0) {
                     maxPointNumber = conf.floatPrecision;
                     LOG.warn(
@@ -174,33 +142,16 @@ public abstract class TSEncodingConverter {
         }
 
         @Override
-        /**
-         * RLE could specify <b>max_point_number</b> as parameter, which means the maximum
-         * decimal digits for float or double data.
-         */
-        public Object checkParameter(String pmKey, String value) throws MetadataArgsErrorException {
-            if (JsonFormatConstant.MAX_POINT_NUMBER.equals(pmKey)) {
-                try {
-                    return Integer.valueOf(value);
-                } catch (NumberFormatException e) {
-                    throw new MetadataArgsErrorException("paramter " + pmKey
-                            + " meets error integer format :" + value);
-                }
-            } else
-                throw new MetadataArgsErrorException("don't need args:{}" + pmKey);
-        }
-
-        @Override
         public String toString() {
             return JsonFormatConstant.MAX_POINT_NUMBER + ":" + maxPointNumber;
         }
     }
 
-    public static class TS_2DIFF extends TSEncodingConverter {
+    public static class TS_2DIFF extends TSEncodingBuilder {
         private int maxPointNumber = 0;
 
         @Override
-        public Encoder getEncoder(String measurementId, TSDataType type) {
+        public Encoder getEncoder(TSDataType type) {
             switch (type) {
                 case INT32:
                     return new DeltaBinaryEncoder.IntDeltaEncoder();
@@ -220,13 +171,13 @@ public abstract class TSEncodingConverter {
          * TS_2DIFF could specify <b>max_point_number</b> in given JSON Object, which means the maximum
          * decimal digits for float or double data.
          */
-        public void initFromProps(String measurementId, Map<String, String> props) {
+        public void initFromProps(Map<String, String> props) {
             // set max error from initialized map or default value if not set
             TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
-            if (props == null || !props.containsKey(JsonFormatConstant.MAX_POINT_NUMBER)) {
+            if (props == null || !props.containsKey(Encoder.MAX_POINT_NUMBER)) {
                 maxPointNumber = conf.floatPrecision;
             } else {
-                maxPointNumber = Integer.valueOf(props.get(JsonFormatConstant.MAX_POINT_NUMBER));
+                maxPointNumber = Integer.valueOf(props.get(Encoder.MAX_POINT_NUMBER));
                 if (maxPointNumber < 0) {
                     maxPointNumber = conf.floatPrecision;
                     LOG.warn(
@@ -237,33 +188,16 @@ public abstract class TSEncodingConverter {
         }
 
         @Override
-        /**
-         * TS_2DIFF could specify <b>max_point_number</b> as parameter, which means the maximum
-         * decimal digits for float or double data.
-         */
-        public Object checkParameter(String pmKey, String value) throws MetadataArgsErrorException {
-            if (JsonFormatConstant.MAX_POINT_NUMBER.equals(pmKey)) {
-                try {
-                    return Integer.valueOf(value);
-                } catch (NumberFormatException e) {
-                    throw new MetadataArgsErrorException("paramter " + pmKey
-                            + " meets error integer format :" + value);
-                }
-            } else
-                throw new MetadataArgsErrorException("don't need args:{}" + pmKey);
-        }
-
-        @Override
         public String toString() {
             return JsonFormatConstant.MAX_POINT_NUMBER + ":" + maxPointNumber;
         }
 
     }
 
-	public static class GORILLA extends TSEncodingConverter {
+	public static class GORILLA extends TSEncodingBuilder {
 
 		@Override
-		public Encoder getEncoder(String measurementId, TSDataType type) {
+		public Encoder getEncoder(TSDataType type) {
 			switch (type) {
 			case FLOAT:
 				return new SinglePrecisionEncoder();
@@ -275,7 +209,7 @@ public abstract class TSEncodingConverter {
 		}
 
         @Override
-        public void initFromProps(String measurementId, Map<String, String> props) {
+        public void initFromProps(Map<String, String> props) {
 
         }
 

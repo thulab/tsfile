@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.encoding.encoder;
 
 import cn.edu.tsinghua.tsfile.common.exception.TSFileEncodingException;
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
@@ -117,7 +117,7 @@ public class FloatEncoder extends Encoder {
 
     private void saveMaxPointNumber(ByteArrayOutputStream out) throws IOException {
         if (!isMaxPointNumberSaved) {
-            ReadWriteStreamUtils.writeUnsignedVarInt(maxPointNumber, out);
+            ReadWriteForEncodingUtils.writeUnsignedVarInt(maxPointNumber, out);
             isMaxPointNumberSaved = true;
         }
     }

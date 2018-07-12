@@ -1,8 +1,8 @@
-package cn.edu.tsinghua.tsfile.file;
+package cn.edu.tsinghua.tsfile.file.header;
 
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +17,17 @@ public class PageHeader {
     long max_timestamp;
     long min_timestamp;
 
+    private int serializedSize;//this filed does not need to be sieralized.
+
+    public static int calculatePageHeaderSize(TSDataType type) {
+        return 3 * Integer.BYTES +2 * Long.BYTES + Statistics.getStatsByType(type).getSerializedSize();
+    }
+
+    public int getSerializedSize() {
+        return serializedSize;
+    }
+
+
     public PageHeader(int uncompressedSize, int compressedSize, int numOfValues, Statistics<?> statistics, long max_timestamp, long min_timestamp) {
         this.uncompressedSize = uncompressedSize;
         this.compressedSize = compressedSize;
@@ -24,7 +35,9 @@ public class PageHeader {
         this.statistics = statistics;
         this.max_timestamp = max_timestamp;
         this.min_timestamp = min_timestamp;
+        serializedSize= 3 * Integer.BYTES +2 * Long.BYTES + statistics.getSerializedSize();
     }
+
 
     private PageHeader(){}
 
@@ -79,25 +92,38 @@ public class PageHeader {
 
     public int serializeTo(OutputStream outputStream) throws IOException {
         int length=0;
-        length+=ReadWriteToBytesUtils.write(uncompressedSize,outputStream);
-        length+=ReadWriteToBytesUtils.write(compressedSize,outputStream);
-        length+=ReadWriteToBytesUtils.write(numOfValues,outputStream);
-        length+=ReadWriteToBytesUtils.write(max_timestamp, outputStream);
-        length+=ReadWriteToBytesUtils.write(min_timestamp,outputStream);
+        length+=ReadWriteIOUtils.write(uncompressedSize,outputStream);
+        length+=ReadWriteIOUtils.write(compressedSize,outputStream);
+        length+=ReadWriteIOUtils.write(numOfValues,outputStream);
+        length+=ReadWriteIOUtils.write(max_timestamp, outputStream);
+        length+=ReadWriteIOUtils.write(min_timestamp,outputStream);
         length+=statistics.serialize(outputStream);
+        assert length == getSerializedSize();
         return length;
     }
 
     public static PageHeader deserializeFrom(InputStream inputStream, TSDataType dataType) throws IOException {
-        PageHeader header=new PageHeader();
-        header.uncompressedSize = ReadWriteToBytesUtils.readInt(inputStream);
-        header.compressedSize = ReadWriteToBytesUtils.readInt(inputStream);
-        header.numOfValues = ReadWriteToBytesUtils.readInt(inputStream);
-        header.max_timestamp = ReadWriteToBytesUtils.readInt(inputStream);
-        header.min_timestamp = ReadWriteToBytesUtils.readInt(inputStream);
-        header.statistics = Statistics.deserialize(inputStream, dataType);
-        return header;
+        int uncompressedSize = ReadWriteIOUtils.readInt(inputStream);
+        int compressedSize = ReadWriteIOUtils.readInt(inputStream);
+        int numOfValues = ReadWriteIOUtils.readInt(inputStream);
+        long max_timestamp = ReadWriteIOUtils.readLong(inputStream);
+        long min_timestamp = ReadWriteIOUtils.readLong(inputStream);
+        Statistics statistics = Statistics.deserialize(inputStream, dataType);
+        return new PageHeader(uncompressedSize, compressedSize, numOfValues, statistics, max_timestamp, min_timestamp);
     }
 
+
+    @Override
+    public String toString() {
+        return "PageHeader{" +
+                "uncompressedSize=" + uncompressedSize +
+                ", compressedSize=" + compressedSize +
+                ", numOfValues=" + numOfValues +
+                ", statistics=" + statistics +
+                ", max_timestamp=" + max_timestamp +
+                ", min_timestamp=" + min_timestamp +
+                ", serializedSize=" + serializedSize +
+                '}';
+    }
 }
 

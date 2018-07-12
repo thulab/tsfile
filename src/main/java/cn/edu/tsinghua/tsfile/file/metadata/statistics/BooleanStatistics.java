@@ -2,7 +2,7 @@ package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 
 import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -151,11 +151,11 @@ public class BooleanStatistics extends Statistics<Boolean> {
 
 	@Override
 	void fill(InputStream inputStream) throws IOException {
-		this.min = ReadWriteToBytesUtils.readBool(inputStream);
-		this.max = ReadWriteToBytesUtils.readBool(inputStream);
-		this.first = ReadWriteToBytesUtils.readBool(inputStream);
-		this.last = ReadWriteToBytesUtils.readBool(inputStream);
-		this.sum = ReadWriteToBytesUtils.readDouble(inputStream);
+		this.min = ReadWriteIOUtils.readBool(inputStream);
+		this.max = ReadWriteIOUtils.readBool(inputStream);
+		this.first = ReadWriteIOUtils.readBool(inputStream);
+		this.last = ReadWriteIOUtils.readBool(inputStream);
+		this.sum = ReadWriteIOUtils.readDouble(inputStream);
 	}
 
 

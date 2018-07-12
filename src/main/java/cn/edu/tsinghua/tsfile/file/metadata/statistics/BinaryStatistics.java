@@ -3,7 +3,7 @@ package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
 import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -151,10 +151,10 @@ public class BinaryStatistics extends Statistics<Binary> {
 
 	@Override
 	void fill(InputStream inputStream) throws IOException {
-		this.min = new Binary(ReadWriteToBytesUtils.readBytesWithSelfDescriptionLength(inputStream));
-		this.max = new Binary(ReadWriteToBytesUtils.readBytesWithSelfDescriptionLength(inputStream));
-		this.first = new Binary(ReadWriteToBytesUtils.readBytesWithSelfDescriptionLength(inputStream));
-		this.last = new Binary(ReadWriteToBytesUtils.readBytesWithSelfDescriptionLength(inputStream));
-		this.sum = ReadWriteToBytesUtils.readDouble(inputStream);
+		this.min = new Binary(ReadWriteIOUtils.readBytesWithSelfDescriptionLength(inputStream));
+		this.max = new Binary(ReadWriteIOUtils.readBytesWithSelfDescriptionLength(inputStream));
+		this.first = new Binary(ReadWriteIOUtils.readBytesWithSelfDescriptionLength(inputStream));
+		this.last = new Binary(ReadWriteIOUtils.readBytesWithSelfDescriptionLength(inputStream));
+		this.sum = ReadWriteIOUtils.readDouble(inputStream);
 	}
 }

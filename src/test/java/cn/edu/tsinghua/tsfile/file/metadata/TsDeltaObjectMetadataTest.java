@@ -1,10 +1,9 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.file.metadata.TsDeltaObjectMetadata;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,11 +39,11 @@ public class TsDeltaObjectMetadataTest {
             file.delete();
         FileOutputStream fos = new FileOutputStream(file);
         TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-        ReadWriteToBytesUtils.write(metaData, out.getOutputStream());
+        ReadWriteIOUtils.write(metaData, out.getOutputStream());
         out.close();
         fos.close();
 
         FileInputStream fis = new FileInputStream(new File(PATH));
-        Utils.isDeltaObjectEqual(metaData, ReadWriteToBytesUtils.readDeltaObjectMetadata(fis));
+        Utils.isDeltaObjectEqual(metaData, TsDeltaObjectMetadata.deserializeFrom(fis));
     }
 }

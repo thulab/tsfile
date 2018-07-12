@@ -1,9 +1,8 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.controller;
 
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
-import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessLocalFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileGeneratorForTest;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.MemSeriesChunk;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
@@ -22,7 +21,7 @@ import java.util.List;
 public class SeriesChunkLoaderTest {
 
     private static final String FILE_PATH = TsFileGeneratorForTest.outputDataFile;
-    private ITsRandomAccessFileReader randomAccessFileReader;
+    private TsFileSequenceReader fileReader;
 
     @Before
     public void before() throws InterruptedException, WriteProcessException, IOException {
@@ -31,17 +30,18 @@ public class SeriesChunkLoaderTest {
 
     @After
     public void after() throws IOException {
-        randomAccessFileReader.close();
+        fileReader.close();
         TsFileGeneratorForTest.after();
     }
 
     @Test
     public void test() throws IOException {
-        randomAccessFileReader = new TsRandomAccessLocalFileReader(FILE_PATH);
-        MetadataQuerierByFileImpl metadataQuerierByFile = new MetadataQuerierByFileImpl(randomAccessFileReader);
+        fileReader = new TsFileSequenceReader(FILE_PATH);
+        fileReader.open();
+        MetadataQuerierByFileImpl metadataQuerierByFile = new MetadataQuerierByFileImpl(fileReader);
         List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d2.s1"));
 
-        SeriesChunkLoaderImpl seriesChunkLoader = new SeriesChunkLoaderImpl(randomAccessFileReader);
+        SeriesChunkLoaderImpl seriesChunkLoader = new SeriesChunkLoaderImpl(fileReader);
         for (EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor : encodedSeriesChunkDescriptorList) {
             MemSeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
             Assert.assertEquals(encodedSeriesChunkDescriptor.getLengthOfBytes(), memSeriesChunk.getSeriesChunkBodyStream().available());

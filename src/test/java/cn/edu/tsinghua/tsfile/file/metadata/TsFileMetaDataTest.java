@@ -3,7 +3,6 @@ package cn.edu.tsinghua.tsfile.file.metadata;
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,11 +40,11 @@ public class TsFileMetaDataTest {
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
     TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-    ReadWriteToBytesUtils.write(tsfMetaData, out.getOutputStream());
+    tsfMetaData.serializeTo(out.getOutputStream());
     out.close();
     fos.close();
 
     FileInputStream fis = new FileInputStream(new File(PATH));
-    Utils.isFileMetaDataEqual(tsfMetaData, ReadWriteToBytesUtils.readTsFileMetaData(fis));
+    Utils.isFileMetaDataEqual(tsfMetaData, TsFileMetaData.deserializeFrom(fis));
     }
 }

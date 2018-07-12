@@ -3,12 +3,14 @@ package cn.edu.tsinghua.tsfile.common.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.List;
 
 /***
- * Utils to read/write stream
+ * Utils to read/writeTo stream
  */
-public class ReadWriteStreamUtils {
+public class ReadWriteForEncodingUtils {
 
     /**
      * check all number in a int list and find max bit width
@@ -79,15 +81,35 @@ public class ReadWriteStreamUtils {
         return value | (b << i);
     }
 
+
+
     /**
-     * write a value to stream using unsigned var int format. for example, int
+     * read an unsigned var int in stream and transform it to int format
+     *
+     * @param in stream to read an unsigned var int
+     * @return integer value
+     * @throws IOException exception in IO
+     */
+    public static int readUnsignedVarInt(ByteBuffer in) throws IOException {
+        int value = 0;
+        int i = 0;
+        int b=0;
+        while (in.hasRemaining() && ((b = in.get()) & 0x80) != 0) {
+            value |= (b & 0x7F) << i;
+            i += 7;
+        }
+        return value | (b << i);
+    }
+
+    /**
+     * writeTo a value to stream using unsigned var int format. for example, int
      * 123456789 has its binary format 00000111-01011011-11001101-00010101 (if
      * we omit the first 5 0, then it is 111010-1101111-0011010-0010101), function
-     * writeUnsignedVarInt will split every seven bits and write them to stream
+     * writeUnsignedVarInt will split every seven bits and writeTo them to stream
      * from low bit to high bit like: 1-0010101 1-0011010 1-1101111 0-0111010 1
-     * represents has next byte to write, 0 represents number end
+     * represents has next byte to writeTo, 0 represents number end
      *
-     * @param value value to write into stream
+     * @param value value to writeTo into stream
      * @param out   output stream
      * @throws IOException exception in IO
      */
@@ -100,9 +122,37 @@ public class ReadWriteStreamUtils {
     }
 
     /**
-     * write integer value using special bit to output stream
+     * writeTo a value to stream using unsigned var int format. for example, int
+     * 123456789 has its binary format 111010-1101111-0011010-0010101, function
+     * writeUnsignedVarInt will split every seven bits and writeTo them to stream
+     * from low bit to high bit like: 1-0010101 1-0011010 1-1101111 0-0111010 1
+     * represents has next byte to writeTo, 0 represents number end
      *
-     * @param value    value to write to stream
+     *
+     *
+     * @param value value to writeTo into stream
+     * @param buffer where to store the result. buffer.remaining() needs to >= 32.
+     *               Notice: (1) this function does not check buffer's remaining().
+     *              (2) the position will be updated.
+     * @return the number of bytes that the value consume.
+     * @throws IOException exception in IO
+     */
+    public static int writeUnsignedVarInt(int value, ByteBuffer buffer) throws IOException {
+        int position=1;
+        while ((value & 0xFFFFFF80) != 0L) {
+            buffer.put((byte)((value & 0x7F) | 0x80));
+            value >>>= 7;
+            position++;
+        }
+        buffer.put((byte)(value & 0x7F));
+        return position;
+    }
+
+
+    /**
+     * writeTo integer value using special bit to output stream
+     *
+     * @param value    value to writeTo to stream
      * @param out      output stream
      * @param bitWidth bit length
      * @throws IOException exception in IO
@@ -123,9 +173,9 @@ public class ReadWriteStreamUtils {
     }
 
     /**
-     * write long value using special bit to output stream
+     * writeTo long value using special bit to output stream
      *
-     * @param value    value to write to stream
+     * @param value    value to writeTo to stream
      * @param out      output stream
      * @param bitWidth bit length
      * @throws IOException exception in IO

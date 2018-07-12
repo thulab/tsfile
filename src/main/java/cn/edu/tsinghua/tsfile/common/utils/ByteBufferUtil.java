@@ -95,7 +95,7 @@ public class ByteBufferUtil
     }
 
     /**
-     * You should almost never use this.  Instead, use the write* methods to avoid copies.
+     * You should almost never use this.  Instead, use the writeTo* methods to avoid copies.
      */
     public static byte[] getArray(ByteBuffer buffer)
     {

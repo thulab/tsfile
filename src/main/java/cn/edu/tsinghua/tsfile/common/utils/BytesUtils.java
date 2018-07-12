@@ -55,7 +55,7 @@ public class BytesUtils {
     }
 
     /**
-     * integer convert to byte array, then write four bytes to parameter desc
+     * integer convert to byte array, then writeTo four bytes to parameter desc
      * start from index:offset
      *
      * @param i      integer to convert
@@ -132,7 +132,7 @@ public class BytesUtils {
     }
 
     /**
-     * float convert to boolean, then write four bytes to parameter desc start
+     * float convert to boolean, then writeTo four bytes to parameter desc start
      * from index:offset
      *
      * @param x      float
@@ -286,7 +286,7 @@ public class BytesUtils {
     }
 
     /**
-     * boolean convert to byte array, then write four bytes to parameter desc
+     * boolean convert to byte array, then writeTo four bytes to parameter desc
      * start from index:offset
      *
      * @param x      input boolean
@@ -366,7 +366,7 @@ public class BytesUtils {
 
 
     /**
-     * long convert to byte array, then write four bytes to parameter desc start
+     * long convert to byte array, then writeTo four bytes to parameter desc start
      * from index:offset
      *
      * @param num     input long variable
@@ -792,11 +792,11 @@ public class BytesUtils {
 
 
 
-
+    //we modify the order of serialization for fitting ByteBuffer.putShort()
     public static byte[] shortToBytes(short number){
         int temp = number;
         byte[] b = new byte[2];
-        for(int i =0; i < b.length; i++){
+        for(int i = b.length-1 ; i >=0; i--){
             b[i] = new Integer(temp &0xff).byteValue();
             temp = temp >> 8;
         }
@@ -804,10 +804,11 @@ public class BytesUtils {
         return b;
     }
 
+    //we modify the order of serialization for fitting ByteBuffer.getShort()
     public static short bytesToShort(byte[] b){
         short s = 0;
-        short s0 = (short)(b[0]&0xff);
-        short s1 = (short)(b[1]&0xff);
+        short s0 = (short)(b[1]&0xff);
+        short s1 = (short)(b[0]&0xff);
         s1 <<= 8;
         s = (short)(s0 | s1);
         return s;

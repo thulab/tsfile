@@ -2,16 +2,15 @@ package cn.edu.tsinghua.tsfile.timeseries.write.io;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.constant.StatisticConstant;
-import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.common.utils.PublicBAOS;
-import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
+import cn.edu.tsinghua.tsfile.common.utils.*;
+import cn.edu.tsinghua.tsfile.file.header.ChunkHeader;
+import cn.edu.tsinghua.tsfile.file.header.RowGroupHeader;
 import cn.edu.tsinghua.tsfile.file.metadata.*;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteByteStreamUtils;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteToBytesUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import org.slf4j.Logger;
@@ -23,7 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 /**
- * TSFileIOWriter is used to construct metadata and write data stored in memory
+ * TSFileIOWriter is used to construct metadata and writeTo data stored in memory
  * to output stream.
  *
  * @author kangrong
@@ -43,10 +42,6 @@ public class TsFileIOWriter {
     private RowGroupMetaData currentRowGroupMetaData;
     private TimeSeriesChunkMetaData currentChunkMetaData;
 
-
-    public TsFileIOWriter() {
-
-    }
 
     public void setIOWriter(ITsRandomAccessFileWriter out) {
         this.out = out;
@@ -112,10 +107,16 @@ public class TsFileIOWriter {
      * start a {@linkplain RowGroupMetaData RowGroupMetaData}.
      *
      * @param deltaObjectId delta object id
+     * @param dataSize the serialized size of all chunks
+     * @return the serialized size of RowGroupHeader
      */
-    public void startRowGroup(String deltaObjectId) {
-        LOG.debug("start row group:{}", deltaObjectId);
-        currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId,  0, new ArrayList<>());
+    public int startFlushRowGroup(String deltaObjectId, long dataSize, int numberOfChunks)  throws IOException{
+        LOG.debug("start row group:{}, file position {}", deltaObjectId, out.getPos());
+        currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId,  0, out.getPos(), new ArrayList<>());
+        RowGroupHeader header=new RowGroupHeader(deltaObjectId,dataSize, numberOfChunks);
+        header.serializeTo(out.getOutputStream());
+        LOG.debug("finishing writing row group header {}, file position {}", header, out.getPos());
+        return header.getSerializedSize();
     }
 
     /**
@@ -127,12 +128,20 @@ public class TsFileIOWriter {
      * @param statistics           - statistic of the whole series
      * @param maxTime              - maximum timestamp of the whole series in this stage
      * @param minTime              - minimum timestamp of the whole series in this stage
+     * @param  datasize            -  the serialized size of all pages
+     * @return  the serialized size of CHunkHeader
      * @throws IOException if I/O error occurs
      */
-    public void startChunk(MeasurementDescriptor descriptor, CompressionType compressionCodecName,
-                           TSDataType tsDataType, Statistics<?> statistics, long maxTime, long minTime) throws IOException {
-        LOG.debug("start series chunk:{}", descriptor);
-        currentChunkMetaData = new TimeSeriesChunkMetaData(descriptor.getMeasurementId(), out.getPos(), compressionCodecName, tsDataType, minTime, maxTime, descriptor.getEncodingType());
+    public int startFlushChunk(MeasurementDescriptor descriptor, CompressionType compressionCodecName,
+                               TSDataType tsDataType, TSEncoding encodingType, Statistics<?> statistics, long maxTime, long minTime, int datasize, int numOfPages) throws IOException {
+        LOG.debug("start series chunk:{}, file position {}", descriptor, out.getPos());
+
+        currentChunkMetaData = new  TimeSeriesChunkMetaData(descriptor.getMeasurementId(), out.getPos(), minTime, maxTime);
+
+        ChunkHeader header=new ChunkHeader(descriptor.getMeasurementId(), datasize, tsDataType, compressionCodecName, encodingType, numOfPages);
+        header.serializeTo(out.getOutputStream());
+        LOG.debug("finish series chunk:{} header, file position {}", header, out.getPos());
+
         TsDigest tsDigest = new TsDigest();
         Map<String, ByteBuffer> statisticsMap = new HashMap<>();
         // TODO add your statistics
@@ -144,13 +153,17 @@ public class TsFileIOWriter {
         tsDigest.setStatistics(statisticsMap);
 
         currentChunkMetaData.setDigest(tsDigest);
+
+        return header.getSerializedSize();
     }
 
+
+
     public void endChunk(long size, long totalValueCount) {
-        LOG.debug("end series  chunk:{},totalvalue:{}", currentChunkMetaData, totalValueCount);
-        currentChunkMetaData.setTotalByteSize(size);
+        currentChunkMetaData.setTotalByteSizeOfPagesOnDisk(size);
         currentChunkMetaData.setNumOfPoints(totalValueCount);
         currentRowGroupMetaData.addTimeSeriesChunkMetaData(currentChunkMetaData);
+        LOG.debug("end series chunk:{},totalvalue:{}", currentChunkMetaData, totalValueCount);
         currentChunkMetaData = null;
     }
 
@@ -162,7 +175,7 @@ public class TsFileIOWriter {
     }
 
     /**
-     * write {@linkplain TsFileMetaData TSFileMetaData} to output stream and
+     * writeTo {@linkplain TsFileMetaData TSFileMetaData} to output stream and
      * close it.
      *
      * @param schema FileSchema
@@ -208,19 +221,19 @@ public class TsFileIOWriter {
                 }
             }
             // flush tsRowGroupBlockMetaDatas in order
-            ReadWriteByteStreamUtils.writeRowGroupBlockMetadata(currentTsDeltaObjectMetadata, out);
             currentTsDeltaObjectMetadata.setStartTime(startTime);
             currentTsDeltaObjectMetadata.setEndTime(endTime);
+            //ReadWriteByteStreamUtils.writeRowGroupBlockMetadata(currentTsDeltaObjectMetadata, out);
         }
 
         TsFileMetaData tsFileMetaData = new TsFileMetaData(tsDeltaObjectMetadataMap, timeSeriesList,
                 TSFileConfig.currentVersion);
 
         long footerIndex = out.getPos();
-        LOG.debug("serializeTo the footer,file pos:{}", footerIndex);
-        int size=ReadWriteByteStreamUtils.writeFileMetaData(tsFileMetaData, out);
-        LOG.debug("serializeTo the footer finished, file pos:{}", out.getPos());
-        ReadWriteToBytesUtils.write(size,out.getOutputStream());//write the size of the file metadata.
+        LOG.debug("start to flush the footer,file pos:{}", footerIndex);
+        int size=tsFileMetaData.serializeTo(out.getOutputStream());
+        LOG.debug("finish flushing the footer {}, file pos:{}", tsFileMetaData, out.getPos());
+        ReadWriteIOUtils.write(size,out.getOutputStream());//writeTo the size of the file metadata.
         out.write(magicStringBytes);
         out.close();
         LOG.info("output stream is closed");
@@ -239,13 +252,14 @@ public class TsFileIOWriter {
     private void serializeTsFileMetadata(TsFileMetaData footer) throws IOException {
         long footerIndex = out.getPos();
         LOG.debug("serializeTo the footer,file pos:{}", footerIndex);
-        ReadWriteByteStreamUtils.writeFileMetaData(footer, out);
+
+        footer.serializeTo(out.getOutputStream());
         LOG.debug("serializeTo the footer finished, file pos:{}", out.getPos());
-//        out.write(BytesUtils.longToBytes(footer.getFirstTimeSeriesMetadataOffset()));
-//        out.write(BytesUtils.longToBytes(footer.getLastTimeSeriesMetadataOffset()));
-//        out.write(BytesUtils.longToBytes(footer.getFirstTsDeltaObjectMetadataOffset()));
-//        out.write(BytesUtils.longToBytes(footer.getLastTsDeltaObjectMetadataOffset()));
-//        out.write(BytesUtils.intToBytes(footer.getCurrentVersion()));
+//        out.writeTo(BytesUtils.longToBytes(footer.getFirstTimeSeriesMetadataOffset()));
+//        out.writeTo(BytesUtils.longToBytes(footer.getLastTimeSeriesMetadataOffset()));
+//        out.writeTo(BytesUtils.longToBytes(footer.getFirstTsDeltaObjectMetadataOffset()));
+//        out.writeTo(BytesUtils.longToBytes(footer.getLastTsDeltaObjectMetadataOffset()));
+//        out.writeTo(BytesUtils.intToBytes(footer.getCurrentVersion()));
     }
 
     /**
@@ -258,7 +272,7 @@ public class TsFileIOWriter {
         if (diff <= Integer.MAX_VALUE) {
             out.write(new byte[(int) diff]);
         } else {
-            throw new IOException("write too much blank byte array!array size:" + diff);
+            throw new IOException("writeTo too much blank byte array!array size:" + diff);
         }
     }
 

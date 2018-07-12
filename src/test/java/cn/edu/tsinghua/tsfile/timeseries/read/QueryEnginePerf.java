@@ -131,13 +131,13 @@ public class QueryEnginePerf {
 		// TSFileDescriptor.conf.pageSize = 100;
 		innerWriter = new TsFileWriter(file, schema, TSFileDescriptor.getInstance().getConfig());
 
-		// write
+		// writeTo
 		try {
 			writeToFile(schema);
 		} catch (WriteProcessException e) {
 			e.printStackTrace();
 		}
-		LOG.info("write to file successfully!!");
+		LOG.info("writeTo to file successfully!!");
 	}
 
 	private static JSONObject generateTestData() {
@@ -176,9 +176,9 @@ public class QueryEnginePerf {
 		while (in.hasNextLine()) {
 			if (lineCount % 1000000 == 0) {
 				endTime = System.currentTimeMillis();
-				// logger.info("write line:{},inner space consumer:{},use
+				// logger.info("writeTo line:{},inner space consumer:{},use
 				// time:{}",lineCount,innerWriter.calculateMemSizeForEachGroup(),endTime);
-				LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+				LOG.info("writeTo line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
 			}
 			String str = in.nextLine();
 			TSRecord record = RecordUtils.parseSimpleTupleRecord(str, schema);
@@ -186,11 +186,11 @@ public class QueryEnginePerf {
 			lineCount++;
 		}
 		endTime = System.currentTimeMillis();
-		LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+		LOG.info("writeTo line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
 		innerWriter.close();
 		in.close();
 		endTime = System.currentTimeMillis();
-		LOG.info("write total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+		LOG.info("writeTo total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
 		LOG.info("src file size:{}GB", FileUtils.getLocalFileByte(inputDataFile, Unit.GB));
 		LOG.info("src file size:{}MB", FileUtils.getLocalFileByte(outputDataFile, Unit.MB));
 	}

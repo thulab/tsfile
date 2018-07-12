@@ -1,7 +1,8 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
 import cn.edu.tsinghua.tsfile.common.exception.UnSupportedDataTypeException;
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ByteBufferBackedInputStream;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
@@ -12,22 +13,32 @@ import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.TimeValuePairReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 /**
  *
  * @author Jinrui Zhang
  */
-public class PageReader implements TimeValuePairReader {
+public class PageDataReader implements TimeValuePairReader {
 
     private TSDataType dataType;
     private Decoder valueDecoder;
     private Decoder timeDecoder;
-    private InputStream timestampInputStream;
-    private InputStream valueInputStream;
+    private InputStream timestampInputStream;//FIXME change to bytebuffer
+    private InputStream valueInputStream;//FIXME change to bytebuffer
     private boolean hasOneCachedTimeValuePair;
     private TimeValuePair cachedTimeValuePair;
 
-    public PageReader(InputStream pageContent, TSDataType dataType, Decoder valueDecoder, Decoder timeDecoder) throws IOException {
+
+    public PageDataReader(ByteBuffer pageData, TSDataType dataType, Decoder valueDecoder, Decoder timeDecoder) throws IOException {
+        this.dataType = dataType;
+        this.valueDecoder = valueDecoder;
+        this.timeDecoder = timeDecoder;
+        hasOneCachedTimeValuePair = false;
+        splitDataToTimeStampAndValue(pageData);
+    }
+
+    public PageDataReader(InputStream pageContent, TSDataType dataType, Decoder valueDecoder, Decoder timeDecoder) throws IOException {
         this.dataType = dataType;
         this.valueDecoder = valueDecoder;
         this.timeDecoder = timeDecoder;
@@ -36,7 +47,7 @@ public class PageReader implements TimeValuePairReader {
     }
 
     private void splitInputStreamToTimeStampAndValue(InputStream pageContent) throws IOException {
-        int timeInputStreamLength = ReadWriteStreamUtils.readUnsignedVarInt(pageContent);
+        int timeInputStreamLength = ReadWriteForEncodingUtils.readUnsignedVarInt(pageContent);
         byte[] buf = new byte[timeInputStreamLength];
         int readSize = pageContent.read(buf, 0, timeInputStreamLength);//TODO 这里已经把数据读到内存中了..
         if (readSize != timeInputStreamLength) {
@@ -46,6 +57,19 @@ public class PageReader implements TimeValuePairReader {
         this.timestampInputStream = new ByteArrayInputStream(buf);
         this.valueInputStream = pageContent;
     }
+
+    private void splitDataToTimeStampAndValue(ByteBuffer pageData) throws IOException {
+        int timeInputStreamLength = ReadWriteForEncodingUtils.readUnsignedVarInt(pageData);
+        ByteBuffer timeDataBuffer= pageData.slice();
+        timeDataBuffer.limit(timeInputStreamLength);
+        timestampInputStream= new ByteBufferBackedInputStream(timeDataBuffer);
+
+        ByteBuffer valueDataBuffer= pageData.slice();
+        valueDataBuffer.position(timeInputStreamLength);
+        valueInputStream = new ByteBufferBackedInputStream(valueDataBuffer);
+
+    }
+
 
     @Override
     public boolean hasNext() throws IOException {
@@ -106,4 +130,6 @@ public class PageReader implements TimeValuePairReader {
         }
         throw new UnSupportedDataTypeException("Unsupported data type :" + dataType);
     }
+
+
 }

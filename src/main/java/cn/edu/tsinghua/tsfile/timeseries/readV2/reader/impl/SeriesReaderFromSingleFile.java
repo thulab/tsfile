@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.MetadataQuerierByFileImpl;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
@@ -24,20 +24,21 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
     protected boolean seriesChunkReaderInitialized;
     protected int currentReadSeriesChunkIndex;
 
-    protected ITsRandomAccessFileReader randomAccessFileReader;
+    //protected ITsRandomAccessFileReader randomAccessFileReader;
+    protected TsFileSequenceReader fileReader;
 
-    public SeriesReaderFromSingleFile(ITsRandomAccessFileReader randomAccessFileReader, Path path) throws IOException {
-        this.randomAccessFileReader = randomAccessFileReader;
-        this.seriesChunkLoader = new SeriesChunkLoaderImpl(randomAccessFileReader);
-        this.encodedSeriesChunkDescriptorList = new MetadataQuerierByFileImpl(randomAccessFileReader).getSeriesChunkDescriptorList(path);
+    public SeriesReaderFromSingleFile(TsFileSequenceReader fileReader, Path path) throws IOException {
+        this.fileReader = fileReader;
+        this.seriesChunkLoader = new SeriesChunkLoaderImpl(fileReader);
+        this.encodedSeriesChunkDescriptorList = new MetadataQuerierByFileImpl(fileReader).getSeriesChunkDescriptorList(path);
         this.currentReadSeriesChunkIndex = -1;
         this.seriesChunkReaderInitialized = false;
     }
 
-    public SeriesReaderFromSingleFile(ITsRandomAccessFileReader randomAccessFileReader,
+    public SeriesReaderFromSingleFile(TsFileSequenceReader fileReader,
                                       SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
         this(seriesChunkLoader, encodedSeriesChunkDescriptorList);
-        this.randomAccessFileReader = randomAccessFileReader;
+        this.fileReader = fileReader;
     }
 
     /**
@@ -91,8 +92,8 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
     protected abstract boolean seriesChunkSatisfied(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor);
 
     public void close() throws IOException {
-        if (randomAccessFileReader != null) {
-            randomAccessFileReader.close();
+        if (fileReader != null) {
+            fileReader.close();
         }
     }
 }

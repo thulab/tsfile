@@ -52,15 +52,15 @@ public class ReadWriteStreamUtilsTest {
   public void testGetIntMinBitWidth() {
     List<Integer> uvIntList = new ArrayList<Integer>();
     uvIntList.add(0);
-    assertEquals(1, ReadWriteStreamUtils.getIntMaxBitWidth(uvIntList));
+    assertEquals(1, ReadWriteForEncodingUtils.getIntMaxBitWidth(uvIntList));
     uvIntList.add(1);
-    assertEquals(1, ReadWriteStreamUtils.getIntMaxBitWidth(uvIntList));
+    assertEquals(1, ReadWriteForEncodingUtils.getIntMaxBitWidth(uvIntList));
     int uvInt = 123;
     for (int i = 0; i < 10; i++) {
       uvIntList.add(uvInt);
       uvIntList.add(uvInt - 1);
       assertEquals(32 - Integer.numberOfLeadingZeros(uvInt),
-          ReadWriteStreamUtils.getIntMaxBitWidth(uvIntList));
+          ReadWriteForEncodingUtils.getIntMaxBitWidth(uvIntList));
       uvInt *= 3;
     }
   }
@@ -69,15 +69,15 @@ public class ReadWriteStreamUtilsTest {
   public void testGetLongMinBitWidth() {
     List<Long> uvLongList = new ArrayList<Long>();
     uvLongList.add(0L);
-    assertEquals(1, ReadWriteStreamUtils.getLongMaxBitWidth(uvLongList));
+    assertEquals(1, ReadWriteForEncodingUtils.getLongMaxBitWidth(uvLongList));
     uvLongList.add(1L);
-    assertEquals(1, ReadWriteStreamUtils.getLongMaxBitWidth(uvLongList));
+    assertEquals(1, ReadWriteForEncodingUtils.getLongMaxBitWidth(uvLongList));
     long uvLong = 123;
     for (int i = 0; i < 10; i++) {
       uvLongList.add(uvLong);
       uvLongList.add(uvLong - 1);
       assertEquals(64 - Long.numberOfLeadingZeros(uvLong),
-          ReadWriteStreamUtils.getLongMaxBitWidth(uvLongList));
+          ReadWriteForEncodingUtils.getLongMaxBitWidth(uvLongList));
       uvLong *= 7;
     }
   }
@@ -86,9 +86,9 @@ public class ReadWriteStreamUtilsTest {
   public void testReadUnsignedVarInt() throws IOException {
     for (int uVarInt : unsignedVarIntList) {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      ReadWriteStreamUtils.writeUnsignedVarInt(uVarInt, baos);
+      ReadWriteForEncodingUtils.writeUnsignedVarInt(uVarInt, baos);
       ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-      int value_read = ReadWriteStreamUtils.readUnsignedVarInt(bais);
+      int value_read = ReadWriteForEncodingUtils.readUnsignedVarInt(bais);
       assertEquals(value_read, uVarInt);
     }
   }
@@ -116,10 +116,10 @@ public class ReadWriteStreamUtilsTest {
     for (int value : littleEndianIntList) {
       int bitWidth = 32 - Integer.numberOfLeadingZeros(value);
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      ReadWriteStreamUtils.writeIntLittleEndianPaddedOnBitWidth(value, baos, bitWidth);
+      ReadWriteForEncodingUtils.writeIntLittleEndianPaddedOnBitWidth(value, baos, bitWidth);
       ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 
-      int value_read = ReadWriteStreamUtils.readIntLittleEndianPaddedOnBitWidth(bais, bitWidth);
+      int value_read = ReadWriteForEncodingUtils.readIntLittleEndianPaddedOnBitWidth(bais, bitWidth);
       // System.out.println(bitWidth+"/"+value_read+"/"+value);
       assertEquals(value_read, value);
     }
@@ -130,10 +130,10 @@ public class ReadWriteStreamUtilsTest {
     for (long value : littleEndianLongList) {
       int bitWidth = 64 - Long.numberOfLeadingZeros(value);
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      ReadWriteStreamUtils.writeLongLittleEndianPaddedOnBitWidth(value, baos, bitWidth);
+      ReadWriteForEncodingUtils.writeLongLittleEndianPaddedOnBitWidth(value, baos, bitWidth);
       ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 
-      long value_read = ReadWriteStreamUtils.readLongLittleEndianPaddedOnBitWidth(bais, bitWidth);
+      long value_read = ReadWriteForEncodingUtils.readLongLittleEndianPaddedOnBitWidth(bais, bitWidth);
       // System.out.println(bitWidth+"/"+value_read+"/"+value);
       assertEquals(value_read, value);
     }
