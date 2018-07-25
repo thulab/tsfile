@@ -198,7 +198,7 @@ public class TsFileSequenceReader {
             RowGroupHeader rowGroupHeader=reader.readRowGroupHeader();
             System.out.println("position: " + reader.channel.position());
             System.out.println("row group: " + rowGroupHeader.getDeltaObjectID());
-            for(int i=0; i<rowGroupHeader.getSerializedSize();i++){
+            for(int i=0; i<rowGroupHeader.getNumberOfChunks();i++){
                 ChunkHeader header=reader.readChunkHeader();
                 System.out.println("position: " + reader.channel.position());
                 System.out.println("chunk: "+ header.getMeasurementID());
