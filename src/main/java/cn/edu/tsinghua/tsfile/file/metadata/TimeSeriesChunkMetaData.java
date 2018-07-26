@@ -27,7 +27,7 @@ public class TimeSeriesChunkMetaData {
      */
     private long fileOffsetOfCorrespondingData;
     /**
-     * total byte size of all  pages in this time series chunk (including the headers)
+     * total byte size of all pages in this time series chunk (including the headers)
      */
     private long totalByteSizeOfPagesOnDisk;
 

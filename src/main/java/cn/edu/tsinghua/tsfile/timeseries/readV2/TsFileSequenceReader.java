@@ -32,6 +32,19 @@ public class TsFileSequenceReader {
     public TsFileSequenceReader(String file){
         this.path= Paths.get(file);
     }
+
+    public int getFileMetadtaSize() {
+        return fileMetadtaSize;
+    }
+
+    public int getFileSize() throws IOException {
+        return (int) channel.size();
+    }
+
+    public int getPosition() throws IOException {
+        return (int) channel.position();
+    }
+
     /**
      * After open the file, the reader position is at the end of the  magic string in the header.
      * @return
