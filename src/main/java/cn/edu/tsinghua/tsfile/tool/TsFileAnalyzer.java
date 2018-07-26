@@ -1,20 +1,13 @@
 package cn.edu.tsinghua.tsfile.tool;
 
-import cn.edu.tsinghua.tsfile.compress.UnCompressor;
-import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
 import cn.edu.tsinghua.tsfile.file.header.ChunkHeader;
 import cn.edu.tsinghua.tsfile.file.header.PageHeader;
 import cn.edu.tsinghua.tsfile.file.header.RowGroupHeader;
 import cn.edu.tsinghua.tsfile.file.metadata.*;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl.PageDataReader;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -23,15 +16,14 @@ import java.util.*;
  */
 public class TsFileAnalyzer {
 
-    private static final int FOOTER_LENGTH = Integer.BYTES;
     private static final int MAGIC_LENGTH = TsFileIOWriter.magicStringBytes.length;
     private static final double SCALE = 0.05;
     private static final int BOX_NUM = 20;
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-    private String tsFilePath;
     private TsFileSequenceReader tsFileReader;
 
+    private String tsFilePath;
     private int fileSize;
     private int dataSize;
     private int metadataSize;
@@ -52,11 +44,9 @@ public class TsFileAnalyzer {
     private List<Integer> pageContentList;
 
     private FileWriter outputWriter;
-    private int tageNum = 0;
+    private int tageNum;
 
-    public TsFileAnalyzer(String tsFilePath) throws IOException {
-        this.tsFilePath = tsFilePath;
-
+    public TsFileAnalyzer() throws IOException {
         dataSize = 0;
         metadataSize = 0;
         filePathNum = 0;
@@ -73,7 +63,29 @@ public class TsFileAnalyzer {
         pageContentList = new ArrayList<>();
     }
 
-    public void analyze() throws IOException {
+    private void init(){
+        dataSize = 0;
+        metadataSize = 0;
+        filePathNum = 0;
+        fileRowNum = 0;
+        fileTimestampMin = Long.MAX_VALUE;
+        fileTimestampMax = Long.MIN_VALUE;
+        deltaObjectMetaDataSizeList.clear();
+        deltaObjectMetaDataContentList.clear();
+        rowGroupMetaDataSizeList.clear();
+        rowGroupMetaDataContentList.clear();
+        timeSeriesChunkMetaDataSizeList.clear();
+        timeSeriesChunkMetaDataContentList.clear();
+        pageSizeList.clear();
+        pageContentList.clear();
+    }
+
+    public void analyze(String tsFilePath) throws IOException {
+        System.out.println("analyze start");
+
+        init();
+        this.tsFilePath = tsFilePath;
+
         tsFileReader = new TsFileSequenceReader(tsFilePath);
         tsFileReader.open();
 
@@ -117,9 +129,6 @@ public class TsFileAnalyzer {
                         fileTimestampMin = pageHeader.getMin_timestamp();
                     if (fileTimestampMax < pageHeader.getMax_timestamp())
                         fileTimestampMax = pageHeader.getMax_timestamp();
-                    System.out.println(111111);
-                    System.out.println(pageHeader.getMax_timestamp());
-                    System.out.println(pageHeader.getMin_timestamp());
 
                     pageSizeList.add(pageHeader.getCompressedSize());
                     pageContentList.add(pageHeader.getNumOfValues());
@@ -133,6 +142,7 @@ public class TsFileAnalyzer {
         }
 
         tsFileReader.close();
+        System.out.println("analyze complete");
     }
 
     private void writeTag() throws IOException {
@@ -276,6 +286,7 @@ public class TsFileAnalyzer {
     }
 
     public void output(String filename) throws IOException {
+        tageNum = 0;
         outputWriter = new FileWriter(filename);
 
         // file
@@ -341,18 +352,23 @@ public class TsFileAnalyzer {
         outputWriter.close();
     }
 
+    /**
+     * This main mathod shows how to use TsFileAnalyzer, which includes two major step.
+     * First, call analyze(inputPath) to analyze the target TsFile; Then, call output(outputPath)
+     * to output the info of the TsFile.
+     * @param args inputPath and outputPath
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
-//        if (args == null || args.length < 2) {
-//            System.out.println("[ERROR] Too few params input, please input path for both tsfile and output report.");
-//            return;
-//        }
-//
-//        String inputFilePath = args[0];
-//        String outputFilePath = args[1];
-        String inputFilePath = "test.ts";
-        String outputFilePath = "report.txt";
-        TsFileAnalyzer analyzer = new TsFileAnalyzer(inputFilePath);
-        analyzer.analyze();
+        if (args == null || args.length < 2) {
+            System.out.println("[ERROR] Too few params input, please input path for both tsfile and output report.");
+            return;
+        }
+
+        String inputFilePath = args[0];
+        String outputFilePath = args[1];
+        TsFileAnalyzer analyzer = new TsFileAnalyzer();
+        analyzer.analyze(inputFilePath);
         analyzer.output(outputFilePath);
     }
 }
