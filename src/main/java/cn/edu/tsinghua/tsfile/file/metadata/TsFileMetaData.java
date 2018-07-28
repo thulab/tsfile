@@ -2,7 +2,7 @@ package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import com.sun.istack.internal.NotNull;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,7 +53,7 @@ public class TsFileMetaData {
      * @param timeSeriesList       - time series info list
      * @param currentVersion       - current version
      */
-    public TsFileMetaData(Map<String, TsDeltaObjectMetadata> deltaObjectMap, @NotNull  List<TimeSeriesMetadata> timeSeriesList, int currentVersion) {
+    public TsFileMetaData(Map<String, TsDeltaObjectMetadata> deltaObjectMap, List<TimeSeriesMetadata> timeSeriesList, int currentVersion) {
         this.deltaObjectMap = deltaObjectMap;
         this.timeSeriesList = timeSeriesList;
         this.timeSeriesMetadataMap=new HashMap<>(timeSeriesList.size());
