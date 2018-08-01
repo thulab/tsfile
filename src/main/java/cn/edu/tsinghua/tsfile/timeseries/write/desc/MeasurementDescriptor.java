@@ -2,19 +2,20 @@ package cn.edu.tsinghua.tsfile.timeseries.write.desc;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
-import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.tsinghua.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.tsinghua.tsfile.compress.Compressor;
 import cn.edu.tsinghua.tsfile.encoding.encoder.Encoder;
+import cn.edu.tsinghua.tsfile.encoding.encoder.TSEncodingBuilder;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
-import cn.edu.tsinghua.tsfile.encoding.encoder.TSEncodingBuilder;
-import java.util.Collections;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.Map;
 
 
 
@@ -39,7 +40,10 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
   private Map<String, String> props;
 
   public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding) {
-    this(measurementId, type, encoding, Collections.emptyMap());
+    this(measurementId, type, encoding, CompressionType.valueOf(TSFileDescriptor.getInstance().getConfig().compressor), Collections.emptyMap());
+  }
+  public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding, CompressionType compressionType) {
+    this(measurementId, type, encoding, compressionType, Collections.emptyMap());
   }
 
   /**
@@ -51,7 +55,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
    *                      For RLE, Encoder.MAX_POINT_NUMBER
    *                      For PLAIN, Encoder.MAX_STRING_LENGTH
    */
-  public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding,
+  public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding,  CompressionType compressionType,
       Map<String, String> props) {
     this.type = type;
     this.measurementId = measurementId;
@@ -61,12 +65,13 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     // initialize TSEncoding. e.g. set max error for PLA and SDT
     encodingConverter = TSEncodingBuilder.getConverter(encoding);
     encodingConverter.initFromProps(props);
-    if (props != null && props.containsKey(JsonFormatConstant.COMPRESS_TYPE)) {
-      this.compressor = Compressor.getCompressor(props.get(JsonFormatConstant.COMPRESS_TYPE));
-    } else {
-      this.compressor = Compressor
-          .getCompressor(TSFileDescriptor.getInstance().getConfig().compressor);
-    }
+//    if (props != null && props.containsKey(JsonFormatConstant.COMPRESS_TYPE)) {
+//      this.compressor = Compressor.getCompressor(props.get(JsonFormatConstant.COMPRESS_TYPE));
+//    } else {
+//      this.compressor = Compressor
+//          .getCompressor(TSFileDescriptor.getInstance().getConfig().compressor);
+//    }
+    this.compressor = Compressor.getCompressor(compressionType);
   }
 
   public String getMeasurementId() {

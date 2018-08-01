@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.schema;
 
-import cn.edu.tsinghua.tsfile.common.constant.SystemConstant;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
@@ -30,9 +30,9 @@ public class SchemaBuilder {
      *                      For PLAIN, Encoder.MAX_STRING_LENGTH
      * @return this
      */
-    public SchemaBuilder addSeries(String measurementId, TSDataType dataType, TSEncoding tsEncoding,
+    public SchemaBuilder addSeries(String measurementId, TSDataType dataType, TSEncoding tsEncoding, CompressionType type,
                                    Map<String, String> props) {
-        MeasurementDescriptor md = new MeasurementDescriptor(measurementId, dataType, tsEncoding, props);
+        MeasurementDescriptor md = new MeasurementDescriptor(measurementId, dataType, tsEncoding, type, props);
         fileSchema.registerMeasurement(md);
         return this;
     }

@@ -1,20 +1,21 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.schema.converter;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
+import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.tsinghua.tsfile.encoding.encoder.TSEncodingBuilder;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
-import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
-import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
-import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -31,7 +32,8 @@ import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaExcept
  *        {
  *          "measurement_id": "s1",
  *          "data_type": "INT32",
- *          "encoding": "RLE"
+ *          "encoding": "RLE",
+ *          "compressor": "SNAPPY"
  *         },
  *         ...
  *     ],
@@ -86,7 +88,8 @@ public class JsonConverter {
       JSONObject measurementObj) {
     if (!measurementObj.has(JsonFormatConstant.MEASUREMENT_UID)
         && !measurementObj.has(JsonFormatConstant.DATA_TYPE)
-        && !measurementObj.has(JsonFormatConstant.MEASUREMENT_ENCODING)) {
+        && !measurementObj.has(JsonFormatConstant.MEASUREMENT_ENCODING)
+        && !measurementObj.has(JsonFormatConstant.COMPRESS_TYPE)) {
       LOG.warn(
           "The format of given json is error. Give up to register this measurement. Given json:{}",
           measurementObj);
@@ -98,13 +101,16 @@ public class JsonConverter {
     // encoding information
     TSEncoding encoding = TSEncoding
         .valueOf(measurementObj.getString(JsonFormatConstant.MEASUREMENT_ENCODING));
+    CompressionType compressionType = measurementObj.has(JsonFormatConstant.COMPRESS_TYPE)?
+            CompressionType.valueOf(measurementObj.getString(JsonFormatConstant.COMPRESS_TYPE)):
+            CompressionType.valueOf(TSFileDescriptor.getInstance().getConfig().compressor);
     // all information of one series
     Map<String, String> props = new HashMap<>();
     for (Object key : measurementObj.keySet()) {
       String value = measurementObj.get(key.toString()).toString();
       props.put(key.toString(), value);
     }
-    return new MeasurementDescriptor(measurementId, type, encoding, props);
+    return new MeasurementDescriptor(measurementId, type, encoding, compressionType, props);
   }
 
   public static long convertJsonToRowGroupSize(JSONObject jsonSchema) {

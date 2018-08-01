@@ -4,6 +4,7 @@ import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.tsinghua.tsfile.encoding.encoder.Encoder;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils;
@@ -200,9 +201,9 @@ public class TsFileGeneratorForTest {
         schemaBuilder.addSeries("s1", TSDataType.INT32, TSEncoding.RLE);
         schemaBuilder.addSeries("s2", TSDataType.INT64, TSEncoding.PLAIN);
         schemaBuilder.addSeries("s3", TSDataType.INT64, TSEncoding.TS_2DIFF);
-        schemaBuilder.addSeries("s4", TSDataType.TEXT, TSEncoding.PLAIN, Collections.singletonMap(Encoder.MAX_STRING_LENGTH, "20"));
+        schemaBuilder.addSeries("s4", TSDataType.TEXT, TSEncoding.PLAIN,  CompressionType.UNCOMPRESSED, Collections.singletonMap(Encoder.MAX_STRING_LENGTH, "20"));
         schemaBuilder.addSeries("s5", TSDataType.BOOLEAN, TSEncoding.RLE);
-        schemaBuilder.addSeries("s6", TSDataType.FLOAT, TSEncoding.RLE, Collections.singletonMap(Encoder.MAX_POINT_NUMBER, "5"));
+        schemaBuilder.addSeries("s6", TSDataType.FLOAT, TSEncoding.RLE, CompressionType.SNAPPY, Collections.singletonMap(Encoder.MAX_POINT_NUMBER, "5"));
         schemaBuilder.addSeries("s7", TSDataType.DOUBLE, TSEncoding.GORILLA);
         return schemaBuilder.build();
     }

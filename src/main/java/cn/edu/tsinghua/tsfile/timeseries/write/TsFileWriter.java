@@ -120,6 +120,7 @@ public class TsFileWriter {
      *                    "measurement_id": "sensor_cpu_50",
      *                    "data_type": "INT32",
      *                    "encoding": "RLE"
+     *                    "compressor": "SNAPPY"
      *                    }
      *                             </pre>
      * @throws WriteProcessException if the json is illegal or the measurement exists

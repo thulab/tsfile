@@ -97,6 +97,7 @@ public class TSFileConfig {
     /**
      * Data compression method, TsFile supports UNCOMPRESSED or SNAPPY.
      * Default value is UNCOMPRESSED which means no compression
+     *
      */
     public String compressor = "UNCOMPRESSED";
 

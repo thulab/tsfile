@@ -74,4 +74,5 @@ public enum CompressionType {
                 default: return "";
             }
         }
+
 }

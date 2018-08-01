@@ -27,7 +27,28 @@ public abstract class UnCompressor {
         }
     }
 
+    public abstract int getUncompressedLength(byte[] array, int offset, int length) throws IOException;
+
+    /**
+     *
+     * @param buffer MUST be DirectByteBuffer
+     * @return
+     * @throws IOException
+     */
+    public abstract int getUncompressedLength(ByteBuffer buffer) throws IOException;
+
     public abstract byte[] uncompress(byte[] byteArray);
+
+    /**
+     *
+     * @param byteArray
+     * @param offset
+     * @param length
+     * @param output
+     * @param outOffset
+     * @return the valid length of the output array
+     */
+    public abstract  int uncompress(byte[] byteArray, int offset, int length, byte[] output, int outOffset)  throws IOException ;
 
     /**
      * if the data is large, using this function is better.
@@ -35,7 +56,7 @@ public abstract class UnCompressor {
      * @param uncompressed MUST be DirectByteBuffer
      * @return
      */
-    public abstract int uncompress(ByteBuffer compressed, ByteBuffer uncompressed);
+    public abstract int uncompress(ByteBuffer compressed, ByteBuffer uncompressed)   throws IOException ;
 
 //    /**
 //     * if the data is large, using this function is better.
@@ -49,15 +70,31 @@ public abstract class UnCompressor {
     static public class NoUnCompressor extends UnCompressor {
 
         @Override
+        public int getUncompressedLength(byte[] array, int offset, int length) {
+            return length;
+        }
+
+        @Override
+        public int getUncompressedLength(ByteBuffer buffer) {
+            return buffer.remaining();
+        }
+
+        @Override
         public byte[] uncompress(byte[] byteArray) {
             return byteArray;
         }
 
         @Override
-        public int uncompress(ByteBuffer compressed, ByteBuffer uncompressed) {
-            int pos=uncompressed.position();
-            uncompressed.put(compressed);
-            return uncompressed.position()-pos;
+        public int uncompress(byte[] byteArray, int offset, int length, byte[] output, int outOffset)  throws IOException {
+            throw new IOException("NoUnCompressor does not support this method.");
+        }
+
+        @Override
+        public int uncompress(ByteBuffer compressed, ByteBuffer uncompressed)   throws IOException {
+//            int pos=uncompressed.position();
+//            uncompressed.put(compressed);
+//            return uncompressed.position()-pos;
+            throw new IOException("NoUnCompressor does not support this method.");
         }
 
 //        @Override
@@ -77,6 +114,16 @@ public abstract class UnCompressor {
         private static final Logger LOGGER = LoggerFactory.getLogger(SnappyUnCompressor.class);
 
         @Override
+        public int getUncompressedLength(byte[] array, int offset, int length) throws IOException {
+            return Snappy.uncompressedLength(array, offset, length);
+        }
+
+        @Override
+        public int getUncompressedLength(ByteBuffer buffer) throws IOException {
+            return Snappy.uncompressedLength(buffer);
+        }
+
+        @Override
         public byte[] uncompress(byte[] bytes) {
             if (bytes == null) {
                 return null;
@@ -90,6 +137,12 @@ public abstract class UnCompressor {
                         bytes, e);
             }
             return null;
+        }
+
+        @Override
+        public int uncompress(byte[] byteArray, int offset, int length, byte[] output, int outOffset) throws IOException {
+            Snappy.uncompressedLength(byteArray, offset, length);
+            return Snappy.uncompress(byteArray, offset, length, output, outOffset);
         }
 
 

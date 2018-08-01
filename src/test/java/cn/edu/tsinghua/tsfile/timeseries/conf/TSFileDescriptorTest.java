@@ -1,8 +1,9 @@
 package cn.edu.tsinghua.tsfile.timeseries.conf;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
+import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
 /**
  * Note that this test case should run separately.
  * @author XuYi
@@ -49,5 +50,10 @@ public class TSFileDescriptorTest {
 //	assertEquals(config.valueEncoder, "RLE");
 //	assertEquals(config.compressor, "SNAPPY");
 //    }
+    @Test
+    public void test(){
+        System.out.println(CompressionType.UNCOMPRESSED);
+        System.out.println(CompressionType.SNAPPY);
+    }
 
 }
