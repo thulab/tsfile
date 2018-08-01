@@ -1,17 +1,18 @@
 package cn.edu.tsinghua.tsfile.timeseries.write;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Random;
-import java.util.Scanner;
-
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
+import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils;
+import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils.Unit;
+import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -20,12 +21,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils;
-import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils.Unit;
-import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
-import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Random;
+import java.util.Scanner;
 
 /**
  * This is used for performance test, no asserting. User could change {@code ROW_COUNT} for larger
@@ -35,7 +36,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
  */
 public class PerfTest {
     private static final Logger LOG = LoggerFactory.getLogger(PerfTest.class);
-    public static final int ROW_COUNT = 100;
+    public static final int ROW_COUNT = 1000;//0000;
     public static TsFileWriter innerWriter;
     static public String inputDataFile;
     static public String outputDataFile;
@@ -45,6 +46,11 @@ public class PerfTest {
 
     @Before
     public void prepare() throws IOException {
+        LoggerContext loggerContext= (LoggerContext) LoggerFactory.getILoggerFactory();
+        //设置全局日志级别
+        ch.qos.logback.classic.Logger logger=loggerContext.getLogger("root");
+        logger.setLevel(Level.toLevel("info"));
+
         inputDataFile = "src/test/resources/perTestInputData";
         outputDataFile = "src/test/resources/perTestOutputData.ksn";
         errorOutputDataFile = "src/test/resources/perTestErrorOutputData.ksn";
@@ -63,6 +69,10 @@ public class PerfTest {
         file = new File(errorOutputDataFile);
         if (file.exists())
             file.delete();
+        LoggerContext loggerContext= (LoggerContext) LoggerFactory.getILoggerFactory();
+        //设置全局日志级别
+        ch.qos.logback.classic.Logger logger=loggerContext.getLogger("root");
+        logger.setLevel(Level.toLevel("debug"));
     }
     
     static private void generateSampleInputDataFile() throws IOException {
@@ -111,7 +121,7 @@ public class PerfTest {
         write();
     }
 
-    static public void write() throws IOException, InterruptedException, WriteProcessException {
+    static private void write() throws IOException, InterruptedException, WriteProcessException {
         File file = new File(outputDataFile);
         File errorFile = new File(errorOutputDataFile);
         if (file.exists())
@@ -146,7 +156,7 @@ public class PerfTest {
         }
     }
 
-    static public void writeToFile(FileSchema schema) throws InterruptedException, IOException, WriteProcessException {
+    static private void writeToFile(FileSchema schema) throws InterruptedException, IOException, WriteProcessException {
         Scanner in = getDataFile(inputDataFile);
         long lineCount = 0;
         long startTime = System.currentTimeMillis();
@@ -170,9 +180,9 @@ public class PerfTest {
         endTime = System.currentTimeMillis();
         LOG.info("writeTo total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
         LOG.info("writeTo total:{},use time:{}ms", lineCount, (endTime - startTime) );
-        LOG.info("src file size:{}GB", FileUtils.getLocalFileByte(inputDataFile, Unit.GB));
-        LOG.info("src file size:{}MB", FileUtils.getLocalFileByte(outputDataFile, Unit.MB));
-        LOG.info("src file size:{}B", FileUtils.getLocalFileByte(outputDataFile, Unit.B));
+        LOG.info("src file size:{} GB", FileUtils.getLocalFileByte(inputDataFile, Unit.GB));
+        LOG.info("tsfile size:{} MB", FileUtils.getLocalFileByte(outputDataFile, Unit.MB));
+        LOG.info("tsfile size:{} B", FileUtils.getLocalFileByte(outputDataFile, Unit.B));
     }
 
     private static JSONObject generateTestData() {
