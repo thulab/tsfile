@@ -18,11 +18,11 @@ public class SeriesChunkReaderWithoutFilterImpl extends SeriesChunkReader {
 
     @Override
     public boolean pageSatisfied(PageHeader pageHeader) {
-        return true;
+        return pageHeader.data_page_header.max_timestamp > getMaxTombstoneTime();
     }
 
     @Override
     public boolean timeValuePairSatisfied(TimeValuePair timeValuePair) {
-        return true;
+        return timeValuePair.getTimestamp() > getMaxTombstoneTime();
     }
 }

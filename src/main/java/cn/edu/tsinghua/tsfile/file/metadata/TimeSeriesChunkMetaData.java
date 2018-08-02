@@ -53,6 +53,18 @@ public class TimeSeriesChunkMetaData
     private TInTimeSeriesChunkMetaData tInTimeSeriesChunkMetaData;
     private VInTimeSeriesChunkMetaData vInTimeSeriesChunkMetaData;
 
+    /**
+     * The maximum time of the tombstones that take effect on this chunk. Only data with larger timestamps than this
+     * should be exposed to user.
+     */
+    private long maxTombstoneTime;
+
+    /**
+     * The time when the RowGroup of this chunk is closed. This will not be written out and will only be set when read together
+     * with its RowGroup during querying.
+     */
+    private long writtenTime;
+
     public TimeSeriesChunkMetaData() {
         properties = new TimeSeriesChunkProperties();
         jsonMetaData = new ArrayList<String>();
@@ -221,5 +233,21 @@ public class TimeSeriesChunkMetaData
 
     public void setVInTimeSeriesChunkMetaData(VInTimeSeriesChunkMetaData vInTimeSeriesChunkMetaData) {
         this.vInTimeSeriesChunkMetaData = vInTimeSeriesChunkMetaData;
+    }
+
+    public long getMaxTombstoneTime() {
+        return maxTombstoneTime;
+    }
+
+    public void setMaxTombstoneTime(long maxTombstoneTime) {
+        this.maxTombstoneTime = maxTombstoneTime;
+    }
+
+    public long getWrittenTime() {
+        return writtenTime;
+    }
+
+    public void setWrittenTime(long writtenTime) {
+        this.writtenTime = writtenTime;
     }
 }

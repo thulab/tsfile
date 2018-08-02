@@ -32,6 +32,7 @@ public class SeriesReaderFromSingleFileWithoutFilterImpl extends SeriesReaderFro
         this.seriesChunkReader = new SeriesChunkReaderWithoutFilterImpl(memSeriesChunk.getSeriesChunkBodyStream(),
                 memSeriesChunk.getEncodedSeriesChunkDescriptor().getDataType(),
                 memSeriesChunk.getEncodedSeriesChunkDescriptor().getCompressionTypeName());
+        this.seriesChunkReader.setMaxTombstoneTime(encodedSeriesChunkDescriptor.getMaxTombstoneTime());
     }
 
     @Override

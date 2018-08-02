@@ -38,6 +38,11 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
      */
     private String deltaObjectType;
 
+    /**
+     * The time when endRowgroup() is called.
+     */
+    private long writtenTime;
+
     public RowGroupMetaData() {
         timeSeriesChunkMetaDataList = new ArrayList<TimeSeriesChunkMetaData>();
     }
@@ -80,7 +85,7 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
             }
             cn.edu.tsinghua.tsfile.format.RowGroupMetaData metaDataInThrift =
                     new cn.edu.tsinghua.tsfile.format.RowGroupMetaData(timeSeriesChunkMetaDataListInThrift,
-                    		deltaObjectID, totalByteSize, numOfRows, deltaObjectType);
+                    		deltaObjectID, totalByteSize, numOfRows, deltaObjectType, writtenTime);
             metaDataInThrift.setFile_path(path);
             return metaDataInThrift;
         } catch (Exception e) {
@@ -100,6 +105,7 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
             totalByteSize = metaDataInThrift.getTotal_byte_size();
             path = metaDataInThrift.getFile_path();
             deltaObjectType = metaDataInThrift.getDelta_object_type();
+            writtenTime = metaDataInThrift.getWrittenTime();
             List<cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData> timeSeriesChunkMetaDataListInThrift = metaDataInThrift.getTsc_metadata();
             if (timeSeriesChunkMetaDataListInThrift == null) {
                 timeSeriesChunkMetaDataList = null;
@@ -177,5 +183,13 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
 
     public void setDeltaObjectType(String deltaObjectType) {
         this.deltaObjectType = deltaObjectType;
+    }
+
+    public long getWrittenTime() {
+        return writtenTime;
+    }
+
+    public void setWrittenTime(long writtenTime) {
+        this.writtenTime = writtenTime;
     }
 }
