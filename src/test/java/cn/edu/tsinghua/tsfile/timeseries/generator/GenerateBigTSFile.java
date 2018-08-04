@@ -106,7 +106,7 @@ public class GenerateBigTSFile {
                 currentSpace =
                         (long) FileUtils.getLocalFileByte(outputDataFile, FileUtils.Unit.B)
                                 + writer.calculateMemSizeForAllGroup();
-                LOG.info("writeTo line:{},use time:{}s, space:{}", lineCount,
+                LOG.info("write line:{},use time:{}s, space:{}", lineCount,
                         (endTime - startTime) / 1000,
                         FileUtils.transformUnit(currentSpace, FileUtils.Unit.MB));
 
@@ -125,7 +125,7 @@ public class GenerateBigTSFile {
         }
         writer.close();
         endTime = System.currentTimeMillis();
-        LOG.info("writeTo total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+        LOG.info("write total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
         LOG.info("src file size:{}MB", FileUtils.getLocalFileByte(outputDataFile, FileUtils.Unit.MB));
     }
 
@@ -192,7 +192,7 @@ public class GenerateBigTSFile {
         sensorSet.add("s0");
         sensorSet.add("s1");
         sensorSet.add("s2");
-        // writeTo file
+        // write file
         writer = new TsFileWriter(new File(outputDataFile), fileSchema, conf);
         System.out.println("setRowGroupSize: " + setRowGroupSize + ",total target:" + size);
         writeToFile(size);

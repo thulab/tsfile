@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 /**
  * This is a abstract class representing a data point. DataPoint consists of a
  * measurement id and a data type. subclass of DataPoint need override method
- * {@code writeTo(long time, ISeriesWriter writer)} .Every subclass has its data
+ * {@code write(long time, ISeriesWriter writer)} .Every subclass has its data
  * type and overrides a setting method for its data type.
  *
  * @author kangrong
@@ -63,7 +63,7 @@ public abstract class DataPoint {
     }
 
     /**
-     * writeTo to seriesWriter and return the series name
+     * write to seriesWriter and return the series name
      *
      * @param time timestamp
      * @param writer writer

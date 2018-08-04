@@ -31,7 +31,7 @@ public class LongRleEncoder extends RleEncoder<Long> {
     }
 
     /**
-     * writeTo all values buffered in cache to OutputStream
+     * write all values buffered in cache to OutputStream
      *
      * @param out - byteArrayOutputStream
      * @throws IOException cannot flush to OutputStream
@@ -54,8 +54,8 @@ public class LongRleEncoder extends RleEncoder<Long> {
     }
 
     /**
-     * writeTo bytes to OutputStream using rle rle format: [header][value]
-     * @throws IOException cannot writeTo rle run
+     * write bytes to OutputStream using rle rle format: [header][value]
+     * @throws IOException cannot write rle run
      */
     @Override
     protected void writeRleRun() throws IOException {
@@ -81,7 +81,7 @@ public class LongRleEncoder extends RleEncoder<Long> {
             tmpBuffer[i] = (long) bufferedValues[i];
         }
         packer.pack8Values(tmpBuffer, 0, bytes);
-        // we'll not writeTo bit-packing group to OutputStream immediately
+        // we'll not write bit-packing group to OutputStream immediately
         // we buffer them in list
         bytesBuffer.add(bytes);
     }

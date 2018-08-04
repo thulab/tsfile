@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 
 /**
- * This function is used to writeTo time-value into a time series. It consists of a time encoder, a
+ * This function is used to write time-value into a time series. It consists of a time encoder, a
  * value encoder and respective OutputStream.
  *
  * @author kangrong

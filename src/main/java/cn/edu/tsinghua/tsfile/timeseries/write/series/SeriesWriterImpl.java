@@ -171,14 +171,14 @@ public class SeriesWriterImpl implements ISeriesWriter {
      */
     private void checkPageSizeAndMayOpenANewPage() {
         if (valueCount == pageCountUpperBound) {
-            LOG.debug("current line count reaches the upper bound, writeTo page {}", desc);
+            LOG.debug("current line count reaches the upper bound, write page {}", desc);
             writePage();
         } else if (valueCount >= valueCountForNextSizeCheck) {
             // not checking the memory used for every value
             long currentColumnSize = dataValueWriter.estimateMaxMemSize();
             if (currentColumnSize > psThres) {
-                // we will writeTo the current page
-                LOG.debug("enough size, writeTo page {}", desc);
+                // we will write the current page
+                LOG.debug("enough size, write page {}", desc);
                 writePage();
             } else {
                 LOG.debug("{}:{} not enough size, now: {}, change to {}", deltaObjectId, desc, valueCount,

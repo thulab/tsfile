@@ -41,7 +41,7 @@ public class PageWriterImpl implements IPageWriter {
 
 
     /**
-     * writeTo the page header and data into the PageWriter's outputstream
+     * write the page header and data into the PageWriter's outputstream
      * @param data the data of the page
      * @param valueCount    - the amount of values in that page
      * @param statistics    - the statistics for that page
@@ -98,7 +98,7 @@ public class PageWriterImpl implements IPageWriter {
 
         int headerSize=0;
         //PublicBAOS tempOutputStream = new PublicBAOS(estimateMaxPageHeaderSize() + compressedSize);
-        // writeTo the page header to IOWriter
+        // write the page header to IOWriter
         try {
 //            ReadWriteThriftFormatUtils.writeDataPageHeader(uncompressedSize, compressedSize, valueCount, statistics,
 //                    valueCount, desc.getEncodingType(), tempOutputStream, maxTimestamp, minTimestamp);
@@ -131,7 +131,7 @@ public class PageWriterImpl implements IPageWriter {
         } catch (IOException e) {
             throw new PageException("meet IO Exception in buffer append,but we cannot understand it:" + e.getMessage());
         }
-//        LOG.debug("page {}:writeTo page from seriesWriter, valueCount:{}, stats:{},size:{}", desc, valueCount, statistics,
+//        LOG.debug("page {}:write page from seriesWriter, valueCount:{}, stats:{},size:{}", desc, valueCount, statistics,
 //                estimateMaxPageMemSize());
         return headerSize+uncompressedSize;
     }
@@ -158,7 +158,7 @@ public class PageWriterImpl implements IPageWriter {
         assert  size == buf.size();
 
         writer.endChunk(size + headerSize, totalValueCount);
-//        LOG.debug("page {}:writeTo page to fileWriter,type:{},maxTime:{},minTime:{},nowPos:{},stats:{}",
+//        LOG.debug("page {}:write page to fileWriter,type:{},maxTime:{},minTime:{},nowPos:{},stats:{}",
 //                desc.getMeasurementId(), desc.getType(), maxTimestamp, minTimestamp, writer.getPos(), statistics);
         return headerSize + size;
     }

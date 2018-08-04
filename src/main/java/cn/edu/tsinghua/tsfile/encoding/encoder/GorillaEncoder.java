@@ -1,8 +1,8 @@
 package cn.edu.tsinghua.tsfile.encoding.encoder;
 
-import java.io.ByteArrayOutputStream;
-
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
+
+import java.io.ByteArrayOutputStream;
 
 /**
  * Gorilla encoding. For more information about how it works, 
@@ -12,7 +12,7 @@ public abstract class GorillaEncoder extends Encoder{
 	// flag to indicate whether the first value is saved
 	protected boolean flag;
 	protected int leadingZeroNum, tailingZeroNum;
-	// 8-bit buffer of bits to writeTo out
+	// 8-bit buffer of bits to write out
 	protected byte buffer;
 	// number of bits remaining in buffer
 	protected int numberLeftInBuffer;
@@ -27,7 +27,7 @@ public abstract class GorillaEncoder extends Encoder{
         buffer <<= 1;
         if (b) buffer |= 1;
 
-        // if buffer is full (8 bits), writeTo out as a single byte
+        // if buffer is full (8 bits), write out as a single byte
         numberLeftInBuffer++;
         if (numberLeftInBuffer == 8) clearBuffer(out);
 	}

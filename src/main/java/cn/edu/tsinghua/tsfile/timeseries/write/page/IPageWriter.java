@@ -31,7 +31,7 @@ public interface IPageWriter {
                                        long maxTimestamp, long minTimestamp) throws PageException;
 
     /**
-     * writeTo the page to specified IOWriter
+     * write the page to specified IOWriter
      *
      * @param writer the specified IOWriter
      * @param statistics the statistic information provided by series writer

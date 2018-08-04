@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 /**
- * TSFileIOWriter is used to construct metadata and writeTo data stored in memory
+ * TSFileIOWriter is used to construct metadata and write data stored in memory
  * to output stream.
  *
  * @author kangrong
@@ -175,7 +175,7 @@ public class TsFileIOWriter {
     }
 
     /**
-     * writeTo {@linkplain TsFileMetaData TSFileMetaData} to output stream and
+     * write {@linkplain TsFileMetaData TSFileMetaData} to output stream and
      * close it.
      *
      * @param schema FileSchema
@@ -233,7 +233,7 @@ public class TsFileIOWriter {
         LOG.debug("start to flush the footer,file pos:{}", footerIndex);
         int size=tsFileMetaData.serializeTo(out.getOutputStream());
         LOG.debug("finish flushing the footer {}, file pos:{}", tsFileMetaData, out.getPos());
-        ReadWriteIOUtils.write(size,out.getOutputStream());//writeTo the size of the file metadata.
+        ReadWriteIOUtils.write(size,out.getOutputStream());//write the size of the file metadata.
         out.write(magicStringBytes);
         out.close();
         LOG.info("output stream is closed");
@@ -255,11 +255,11 @@ public class TsFileIOWriter {
 
         footer.serializeTo(out.getOutputStream());
         LOG.debug("serializeTo the footer finished, file pos:{}", out.getPos());
-//        out.writeTo(BytesUtils.longToBytes(footer.getFirstTimeSeriesMetadataOffset()));
-//        out.writeTo(BytesUtils.longToBytes(footer.getLastTimeSeriesMetadataOffset()));
-//        out.writeTo(BytesUtils.longToBytes(footer.getFirstTsDeltaObjectMetadataOffset()));
-//        out.writeTo(BytesUtils.longToBytes(footer.getLastTsDeltaObjectMetadataOffset()));
-//        out.writeTo(BytesUtils.intToBytes(footer.getCurrentVersion()));
+//        out.write(BytesUtils.longToBytes(footer.getFirstTimeSeriesMetadataOffset()));
+//        out.write(BytesUtils.longToBytes(footer.getLastTimeSeriesMetadataOffset()));
+//        out.write(BytesUtils.longToBytes(footer.getFirstTsDeltaObjectMetadataOffset()));
+//        out.write(BytesUtils.longToBytes(footer.getLastTsDeltaObjectMetadataOffset()));
+//        out.write(BytesUtils.intToBytes(footer.getCurrentVersion()));
     }
 
     /**
@@ -272,7 +272,7 @@ public class TsFileIOWriter {
         if (diff <= Integer.MAX_VALUE) {
             out.write(new byte[(int) diff]);
         } else {
-            throw new IOException("writeTo too much blank byte array!array size:" + diff);
+            throw new IOException("write too much blank byte array!array size:" + diff);
         }
     }
 

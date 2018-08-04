@@ -15,7 +15,7 @@ public abstract class GorillaDecoder extends Decoder {
 	protected boolean flag;
 	protected int leadingZeroNum, tailingZeroNum;
 	protected boolean isEnd;
-	// 8-bit buffer of bits to writeTo out
+	// 8-bit buffer of bits to write out
 	protected int buffer;
 	// number of bits remaining in buffer
 	protected int numberLeftInBuffer;

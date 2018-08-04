@@ -33,7 +33,7 @@ public class DeltaBinaryEncoderLongTest {
 
   @Test
   public void testBasic() throws IOException {
-    System.out.println("writeTo basic");
+    System.out.println("write basic");
     long data[] = new long[ROW_NUM];
     for (int i = 0; i < ROW_NUM; i++)
       data[i] = i * i * BASIC_FACTOR;
@@ -42,7 +42,7 @@ public class DeltaBinaryEncoderLongTest {
 
   @Test
   public void testBoundInt() throws IOException {
-    System.out.println("writeTo bounded int");
+    System.out.println("write bounded int");
     long data[] = new long[ROW_NUM];
     for (int i = 2; i < 21; i++) {
       boundInt(i, data);
@@ -58,7 +58,7 @@ public class DeltaBinaryEncoderLongTest {
 
   @Test
   public void testRandom() throws IOException {
-    System.out.println("writeTo random");
+    System.out.println("write random");
     long data[] = new long[ROW_NUM];
     for (int i = 0; i < ROW_NUM; i++)
       data[i] = ran.nextLong();
@@ -67,7 +67,7 @@ public class DeltaBinaryEncoderLongTest {
 
   @Test
   public void testMaxMin() throws IOException {
-    System.out.println("writeTo maxmin");
+    System.out.println("write maxmin");
     long data[] = new long[ROW_NUM];
     for (int i = 0; i < ROW_NUM; i++)
       data[i] = (i & 1) == 0 ? Long.MAX_VALUE : Long.MIN_VALUE;

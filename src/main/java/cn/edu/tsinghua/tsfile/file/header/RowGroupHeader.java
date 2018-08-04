@@ -10,6 +10,11 @@ public class RowGroupHeader {
     String deltaObjectID;
     long dataSize;
     int numberOfChunks;
+    /**
+     * The time when endRowgroup() is called.
+     */
+    private long writtenTime;
+
 
     private int serializedSize ;//this filed does not need to be sieralized.
 

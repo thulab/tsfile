@@ -80,7 +80,7 @@ public class TsFileGeneratorForTest {
 
         long startTime = START_TIMESTAMP;
         for (int i = 0; i < rowCount; i++) {
-            // writeTo d1
+            // write d1
             String d1 = "d1," + (startTime + i) + ",s1," + (i * 10 + 1) + ",s2," + (i * 10 + 2);
             if (i % 5 == 0)
                 d1 += ",s3," + (i * 10 + 3);
@@ -94,10 +94,10 @@ public class TsFileGeneratorForTest {
                 d1 += ",s7," + ((int) (i / 10.0) * 100) / 100.0;
             fw.write(d1 + "\r\n");
 
-            // writeTo d2
+            // write d2
             String d2 = "d2," + (startTime + i) + ",s2," + (i * 10 + 2) + ",s3," + (i * 10 + 3);
             if (i % 20 < 5) {
-                // LOG.info("writeTo null to d2:" + (startTime + i));
+                // LOG.info("write null to d2:" + (startTime + i));
                 d2 = "d2," + (startTime + i) + ",s2,,s3," + (i * 10 + 3);
             }
             if (i % 5 == 0)
@@ -106,7 +106,7 @@ public class TsFileGeneratorForTest {
                 d2 += ",s4," + "dog" + i % 4;
             fw.write(d2 + "\r\n");
         }
-        // writeTo error
+        // write error
         String d =
                 "d2,3," + (startTime + rowCount) + ",s2," + (rowCount * 10 + 2) + ",s3,"
                         + (rowCount * 10 + 3);
@@ -132,13 +132,13 @@ public class TsFileGeneratorForTest {
         TSFileDescriptor.getInstance().getConfig().maxNumberOfPointsInPage = pageSize;
         innerWriter = new TsFileWriter(file, schema, TSFileDescriptor.getInstance().getConfig());
 
-        // writeTo
+        // write
         try {
             writeToFile(schema);
         } catch (WriteProcessException e) {
             e.printStackTrace();
         }
-        LOG.info("writeTo to file successfully!!");
+        LOG.info("write to file successfully!!");
     }
 
     private static JSONObject generateTestData() {
@@ -217,9 +217,9 @@ public class TsFileGeneratorForTest {
         while (in.hasNextLine()) {
             if (lineCount % 1000000 == 0) {
                 endTime = System.currentTimeMillis();
-                // logger.info("writeTo line:{},inner space consumer:{},use
+                // logger.info("write line:{},inner space consumer:{},use
                 // time:{}",lineCount,innerWriter.calculateMemSizeForEachGroup(),endTime);
-                LOG.info("writeTo line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+                LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
             }
             String str = in.nextLine();
             TSRecord record = RecordUtils.parseSimpleTupleRecord(str, schema);
@@ -227,11 +227,11 @@ public class TsFileGeneratorForTest {
             lineCount++;
         }
         endTime = System.currentTimeMillis();
-        LOG.info("writeTo line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+        LOG.info("write line:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
         innerWriter.close();
         in.close();
         endTime = System.currentTimeMillis();
-        LOG.info("writeTo total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
+        LOG.info("write total:{},use time:{}s", lineCount, (endTime - startTime) / 1000);
         LOG.info("src file size:{}GB", FileUtils.getLocalFileByte(inputDataFile, Unit.GB));
         LOG.info("out file size:{}MB", FileUtils.getLocalFileByte(outputDataFile, Unit.MB));
     }

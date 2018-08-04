@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * TsFileWriter is the entrance for writing processing. It receives a record and send it to
- * responding row group writeTo. It checks memory size for all writing processing along its strategy
+ * responding row group write. It checks memory size for all writing processing along its strategy
  * and flush data stored in memory to OutputStream. At the end of writing, user should call
  * {@code close()} method to flush the last data outside and close the normal outputStream and error
  * outputStream.
@@ -167,13 +167,13 @@ public class TsFileWriter {
     }
 
     /**
-     * writeTo a record in type of T.
+     * write a record in type of T.
      *
      * @param record - record responding a data line
      * @return true -size of tsfile or metadata reaches the threshold.
      * false - otherwise
      * @throws IOException           exception in IO
-     * @throws WriteProcessException exception in writeTo process
+     * @throws WriteProcessException exception in write process
      */
     public boolean write(TSRecord record) throws IOException, WriteProcessException {
         if (checkIsTimeSeriesExist(record)) {
@@ -256,7 +256,7 @@ public class TsFileWriter {
                         actualTotalRowGroupSize, primaryRowGroupSize - actualTotalRowGroupSize);
             } else
                 LOG.info("total row group size:{}, row group is not filled", actualTotalRowGroupSize);
-            LOG.info("writeTo row group end");
+            LOG.info("write row group end");
             recordCount = 0;
             reset();
         }
@@ -275,7 +275,7 @@ public class TsFileWriter {
     }
 
     /**
-     * calling this method to writeTo the last data remaining in memory and close the normal and error
+     * calling this method to write the last data remaining in memory and close the normal and error
      * OutputStream.
      *
      * @throws IOException exception in IO

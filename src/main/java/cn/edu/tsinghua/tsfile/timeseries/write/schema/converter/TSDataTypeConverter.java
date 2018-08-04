@@ -45,7 +45,7 @@ public abstract class TSDataTypeConverter {
          */
         public int parseValue(String v) {
             if (v == null || "".equals(v)) {
-                LOG.warn("writeTo enum null, String:{}", v);
+                LOG.warn("write enum null, String:{}", v);
                 return -1;
             }
             if (tsfileEnum == null) {

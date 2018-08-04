@@ -41,7 +41,7 @@ public class IntRleEncoder extends RleEncoder<Integer> {
 	}
 
     /**
-     * writeTo all values buffered in cache to OutputStream
+     * write all values buffered in cache to OutputStream
      *
      * @param out - byteArrayOutputStream
      * @throws IOException cannot flush to OutputStream
@@ -64,7 +64,7 @@ public class IntRleEncoder extends RleEncoder<Integer> {
     }
 
     /**
-     * writeTo bytes to OutputStream using rle
+     * write bytes to OutputStream using rle
      * rle format: [header][value]
      */
     @Override
@@ -93,7 +93,7 @@ public class IntRleEncoder extends RleEncoder<Integer> {
             tmpBuffer[i] = (int) bufferedValues[i];
         }
         packer.pack8Values(tmpBuffer, 0, bytes);
-        // we'll not writeTo bit-packing group to OutputStream immediately
+        // we'll not write bit-packing group to OutputStream immediately
         // we buffer them in list
         bytesBuffer.add(bytes);
     }
