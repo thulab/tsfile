@@ -1,9 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
 import cn.edu.tsinghua.tsfile.file.header.PageHeader;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 
 import java.io.InputStream;
@@ -19,11 +16,11 @@ public class SeriesChunkReaderWithoutFilterImpl extends SeriesChunkReader {
 
     @Override
     public boolean pageSatisfied(PageHeader pageHeader) {
-        return true;
+        return  pageHeader.getMax_timestamp() > getMaxTombstoneTime();
     }
 
     @Override
     public boolean timeValuePairSatisfied(TimeValuePair timeValuePair) {
-        return true;
+        return timeValuePair.getTimestamp() > getMaxTombstoneTime();
     }
 }

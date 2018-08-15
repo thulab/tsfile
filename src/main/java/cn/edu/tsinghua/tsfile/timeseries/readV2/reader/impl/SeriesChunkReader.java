@@ -26,7 +26,9 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
 //    private TSEncoding defaultTimestampEncoding;
     private boolean hasCachedTimeValuePair;
     private TimeValuePair cachedTimeValuePair;
-     ChunkHeader chunkHeader;
+	private long maxTombstoneTime;
+	
+    ChunkHeader chunkHeader;
     Decoder valueDecoder;
     //TODO: How to get defaultTimeDecoder by TSConfig rather than hard code here ?
     Decoder timeDecoder = Decoder.getDecoderByType(TSEncoding.TS_2DIFF, TSDataType.INT64);
@@ -60,7 +62,7 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
 
             while (pageReader.hasNext()) {
                 TimeValuePair timeValuePair = pageReader.next();
-                if (timeValuePairSatisfied(timeValuePair)) {
+                if (timeValuePairSatisfied(timeValuePair)  && timeValuePair.getTimestamp() > maxTombstoneTime) {
                     this.hasCachedTimeValuePair = true;
                     this.cachedTimeValuePair = timeValuePair;
                     return true;
@@ -134,5 +136,12 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
     @Override
     public void close() throws IOException {
 
+    }
+    public void setMaxTombstoneTime(long maxTombStoneTime) {
+        this.maxTombstoneTime = maxTombStoneTime;
+    }
+
+    public long getMaxTombstoneTime() {
+        return this.maxTombstoneTime;
     }
 }

@@ -43,6 +43,8 @@ public class SeriesChunkReaderWithFilterImpl extends SeriesChunkReader {
 
     @Override
     public boolean timeValuePairSatisfied(TimeValuePair timeValuePair) {
+        if (timeValuePair.getTimestamp() < getMaxTombstoneTime())
+            return false;
         return timeValuePairFilterVisitor.satisfy(timeValuePair, filter);
     }
 }

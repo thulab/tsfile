@@ -1,11 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.common;
 
 import cn.edu.tsinghua.tsfile.file.metadata.TsDigest;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
-
-import java.util.List;
 
 /**
  * TODO this class can be taken over by TimeSeriesChunkMetadata
@@ -25,6 +21,7 @@ public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor {
    // private TSEncoding dataEncoding;
     //private List<String> enumValueList;
     private String measurementID;
+    private long maxTombstoneTime;
 
     public EncodedSeriesChunkDescriptor(String measurementID, long offsetInFile, long lengthOfBytes, //CompressionType compressionType,
                                         TSDataType dataType,
@@ -109,6 +106,15 @@ public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor {
 //    public void setDataEncoding(TSEncoding dataEncoding) {
 //        this.dataEncoding = dataEncoding;
 //    }
+
+
+    public long getMaxTombstoneTime() {
+        return maxTombstoneTime;
+    }
+
+    public void setMaxTombstoneTime(long maxTombstoneTime) {
+        this.maxTombstoneTime = maxTombstoneTime;
+    }
 
     @Override
     public String toString() {
