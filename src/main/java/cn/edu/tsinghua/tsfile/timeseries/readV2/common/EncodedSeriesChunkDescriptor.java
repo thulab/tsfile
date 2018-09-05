@@ -21,6 +21,7 @@ public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor {
     private long maxTimestamp;
     private long countOfPoints;
     private List<String> enumValueList;
+    private long maxTombstoneTime;
 
     public EncodedSeriesChunkDescriptor(long offsetInFile, long lengthOfBytes, CompressionTypeName compressionTypeName,
                                         TSDataType dataType, TsDigest valueDigest, long minTimestamp, long maxTimestamp, long countOfPoints) {
@@ -122,5 +123,13 @@ public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor {
                 ", countOfPoints=" + countOfPoints +
                 ", enumValueList=" + enumValueList +
                 '}';
+    }
+
+    public long getMaxTombstoneTime() {
+        return maxTombstoneTime;
+    }
+
+    public void setMaxTombstoneTime(long maxTombstoneTime) {
+        this.maxTombstoneTime = maxTombstoneTime;
     }
 }

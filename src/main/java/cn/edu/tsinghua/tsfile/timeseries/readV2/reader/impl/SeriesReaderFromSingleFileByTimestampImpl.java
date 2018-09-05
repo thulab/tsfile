@@ -116,6 +116,7 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
         this.seriesChunkReader = new SeriesChunkReaderByTimestampImpl(memSeriesChunk.getSeriesChunkBodyStream()
                 , encodedSeriesChunkDescriptor.getDataType(),
                 encodedSeriesChunkDescriptor.getCompressionTypeName());
+        this.seriesChunkReader.setMaxTombstoneTime(encodedSeriesChunkDescriptor.getMaxTombstoneTime());
     }
 
     @Override

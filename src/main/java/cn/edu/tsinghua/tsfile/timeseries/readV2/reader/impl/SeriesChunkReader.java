@@ -28,6 +28,7 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
     private Encoding defaultTimestampEncoding;
     protected boolean hasCachedTimeValuePair;
     protected TimeValuePair cachedTimeValuePair;
+    private long maxTombstoneTime;
 
 
     public SeriesChunkReader(InputStream seriesChunkInputStream, TSDataType dataType, CompressionTypeName compressionTypeName) {
@@ -55,7 +56,7 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
 
             while (pageReader.hasNext()) {
                 TimeValuePair timeValuePair = pageReader.next();
-                if (timeValuePairSatisfied(timeValuePair)) {
+                if (timeValuePairSatisfied(timeValuePair) && timeValuePair.getTimestamp() > maxTombstoneTime) {
                     this.hasCachedTimeValuePair = true;
                     this.cachedTimeValuePair = timeValuePair;
                     return true;
@@ -132,5 +133,13 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
     @Override
     public void close() throws IOException {
 
+    }
+
+    public void setMaxTombstoneTime(long maxTombStoneTime) {
+        this.maxTombstoneTime = maxTombStoneTime;
+    }
+
+    public long getMaxTombstoneTime() {
+        return this.maxTombstoneTime;
     }
 }

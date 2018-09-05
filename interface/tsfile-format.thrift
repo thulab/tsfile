@@ -318,6 +318,8 @@ struct RowGroupMetaData {
   5: optional string file_path;
 
   6: required string delta_object_type;
+
+  7: required i64 writtenTime;
 }
 
 struct RowGroupBlockMetaData {

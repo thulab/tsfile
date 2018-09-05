@@ -74,7 +74,7 @@ public class RowGroupMetaDataTest {
   public void testConvertToTSF() throws UnsupportedEncodingException {
     cn.edu.tsinghua.tsfile.format.RowGroupMetaData rowGroupMetaData =
         new cn.edu.tsinghua.tsfile.format.RowGroupMetaData(null, DELTA_OBJECT_UID, TOTAL_BYTE_SIZE,
-            MAX_NUM_ROWS, DELTA_OBJECT_TYPE);
+            MAX_NUM_ROWS, DELTA_OBJECT_TYPE, System.currentTimeMillis());
     RowGroupMetaData metaData = new RowGroupMetaData();
     metaData.convertToTSF(rowGroupMetaData);
     Utils.isRowGroupMetaDataEqual(metaData, metaData.convertToThrift());
