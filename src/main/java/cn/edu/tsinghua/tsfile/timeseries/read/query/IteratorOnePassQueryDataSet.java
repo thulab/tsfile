@@ -1,20 +1,20 @@
 package cn.edu.tsinghua.tsfile.timeseries.read.query;
 
+import cn.edu.tsinghua.tsfile.timeseries.read.support.OldRowRecord;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Field;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.RowRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
 
-public abstract class IteratorQueryDataSet extends QueryDataSet {
-    private static final Logger logger = LoggerFactory.getLogger(IteratorQueryDataSet.class);
+public abstract class IteratorOnePassQueryDataSet extends OnePassQueryDataSet {
+    private static final Logger logger = LoggerFactory.getLogger(IteratorOnePassQueryDataSet.class);
     public LinkedHashMap<Path, DynamicOneColumnData> retMap;
     private LinkedHashMap<Path, Boolean> hasMoreRet;
 
-    public IteratorQueryDataSet(List<Path> paths) throws IOException {
+    public IteratorOnePassQueryDataSet(List<Path> paths) throws IOException {
         hasMoreRet = new LinkedHashMap<>();
         retMap = new LinkedHashMap<>();
         timeMap = new HashMap<>();
@@ -42,7 +42,7 @@ public abstract class IteratorQueryDataSet extends QueryDataSet {
             deltaObjectIds = new String[size];
             measurementIds = new String[size];
         } else {
-            LOG.error("QueryDataSet init row record occurs error! the size of ret is 0.");
+            LOG.error("OnePassQueryDataSet init row record occurs error! the size of ret is 0.");
         }
 
         int i = 0;
@@ -70,7 +70,7 @@ public abstract class IteratorQueryDataSet extends QueryDataSet {
     }
 
     //modified by hadoop
-    public RowRecord getNextRecord() {
+    public OldRowRecord getNextRecord() {
         if (!ifInit) {
             initForRecord();
             ifInit = true;
@@ -81,7 +81,7 @@ public abstract class IteratorQueryDataSet extends QueryDataSet {
         }
 
         Long minTime = heapGet();
-        RowRecord r = new RowRecord(minTime, null, null);
+        OldRowRecord r = new OldRowRecord(minTime, null, null);
         for (Path p : retMap.keySet()) {
             Field f;
             DynamicOneColumnData res = retMap.get(p);

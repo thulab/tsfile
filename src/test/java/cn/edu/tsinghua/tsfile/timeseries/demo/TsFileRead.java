@@ -11,7 +11,7 @@ package cn.edu.tsinghua.tsfile.timeseries.demo;
         import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterFactory;
         import cn.edu.tsinghua.tsfile.timeseries.filter.definition.filterseries.FilterSeriesType;
         import cn.edu.tsinghua.tsfile.timeseries.read.TsRandomAccessLocalFileReader;
-        import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryDataSet;
+        import cn.edu.tsinghua.tsfile.timeseries.read.query.OnePassQueryDataSet;
         import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 
         import java.io.IOException;
@@ -30,9 +30,9 @@ public class TsFileRead {
         paths.add(new Path("device_1.sensor_1"));
         paths.add(new Path("device_1.sensor_2"));
         paths.add(new Path("device_1.sensor_3"));
-        QueryDataSet queryDataSet = readTsFile.query(paths, null, null);
-        while (queryDataSet.hasNextRecord()) {
-            System.out.println(queryDataSet.getNextRecord());
+        OnePassQueryDataSet onePassQueryDataSet = readTsFile.query(paths, null, null);
+        while (onePassQueryDataSet.hasNextRecord()) {
+            System.out.println(onePassQueryDataSet.getNextRecord());
         }
         System.out.println("------------");
 
@@ -45,9 +45,9 @@ public class TsFileRead {
         paths.add(new Path("device_1.sensor_1"));
         paths.add(new Path("device_1.sensor_2"));
         paths.add(new Path("device_1.sensor_3"));
-        queryDataSet = readTsFile.query(paths, timeFilter, null);
-        while (queryDataSet.hasNextRecord()) {
-            System.out.println(queryDataSet.getNextRecord());
+        onePassQueryDataSet = readTsFile.query(paths, timeFilter, null);
+        while (onePassQueryDataSet.hasNextRecord()) {
+            System.out.println(onePassQueryDataSet.getNextRecord());
         }
         System.out.println("------------");
 
@@ -60,9 +60,9 @@ public class TsFileRead {
         paths.add(new Path("device_1.sensor_1"));
         paths.add(new Path("device_1.sensor_2"));
         paths.add(new Path("device_1.sensor_3"));
-        queryDataSet = readTsFile.query(paths, null, valueFilter);
-        while (queryDataSet.hasNextRecord()) {
-            System.out.println(queryDataSet.getNextRecord());
+        onePassQueryDataSet = readTsFile.query(paths, null, valueFilter);
+        while (onePassQueryDataSet.hasNextRecord()) {
+            System.out.println(onePassQueryDataSet.getNextRecord());
         }
         System.out.println("------------");
 
@@ -77,9 +77,9 @@ public class TsFileRead {
         paths.add(new Path("device_1.sensor_1"));
         paths.add(new Path("device_1.sensor_2"));
         paths.add(new Path("device_1.sensor_3"));
-        queryDataSet = readTsFile.query(paths, timeFilter, valueFilter);
-        while (queryDataSet.hasNextRecord()) {
-            System.out.println(queryDataSet.getNextRecord());
+        onePassQueryDataSet = readTsFile.query(paths, timeFilter, valueFilter);
+        while (onePassQueryDataSet.hasNextRecord()) {
+            System.out.println(onePassQueryDataSet.getNextRecord());
         }
     }
 }

@@ -7,9 +7,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.CrossSeriesFilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
-import cn.edu.tsinghua.tsfile.timeseries.read.RecordReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
-import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,7 +43,7 @@ public class HadoopQueryEngine extends QueryEngine {
         return new ArrayList<>(sensorIdSet);
     }
 
-    public QueryDataSet queryWithSpecificRowGroups(List<String> deviceIdList, List<String> sensorIdList, FilterExpression timeFilter, FilterExpression freqFilter, FilterExpression valueFilter) throws IOException{
+    public OnePassQueryDataSet queryWithSpecificRowGroups(List<String> deviceIdList, List<String> sensorIdList, FilterExpression timeFilter, FilterExpression freqFilter, FilterExpression valueFilter) throws IOException{
         if(deviceIdList == null)deviceIdList = initDeviceIdList();
         if(sensorIdList == null)sensorIdList = initSensorIdList();
 
@@ -68,8 +66,8 @@ public class HadoopQueryEngine extends QueryEngine {
         throw new IOException("Query Not Support Exception");
     }
 
-    private QueryDataSet queryWithoutFilter(List<Path> paths) throws IOException {
-        return new IteratorQueryDataSet(paths) {
+    private OnePassQueryDataSet queryWithoutFilter(List<Path> paths) throws IOException {
+        return new IteratorOnePassQueryDataSet(paths) {
             @Override
             public DynamicOneColumnData getMoreRecordsForOneColumn(Path p, DynamicOneColumnData res) throws IOException {
                 return recordReader.getValueInOneColumnWithoutException(res, FETCH_SIZE, p.getDeltaObjectToString(), p.getMeasurementToString());
@@ -77,11 +75,11 @@ public class HadoopQueryEngine extends QueryEngine {
         };
     }
 
-    private QueryDataSet readOneColumnValueUseFilter(List<Path> paths, SingleSeriesFilterExpression timeFilter,
-                                                     SingleSeriesFilterExpression freqFilter, SingleSeriesFilterExpression valueFilter) throws IOException {
+    private OnePassQueryDataSet readOneColumnValueUseFilter(List<Path> paths, SingleSeriesFilterExpression timeFilter,
+                                                            SingleSeriesFilterExpression freqFilter, SingleSeriesFilterExpression valueFilter) throws IOException {
         logger.debug("start read one column data with filter");
 
-        return new IteratorQueryDataSet(paths) {
+        return new IteratorOnePassQueryDataSet(paths) {
             @Override
             public DynamicOneColumnData getMoreRecordsForOneColumn(Path p, DynamicOneColumnData res) throws IOException {
                 return recordReader.getValuesUseFilter(res, FETCH_SIZE, p.getDeltaObjectToString(), p.getMeasurementToString()
@@ -90,8 +88,8 @@ public class HadoopQueryEngine extends QueryEngine {
         };
     }
 
-    private QueryDataSet crossColumnQuery(List<Path> paths, SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
-                                          CrossSeriesFilterExpression valueFilter) throws IOException {
+    private OnePassQueryDataSet crossColumnQuery(List<Path> paths, SingleSeriesFilterExpression timeFilter, SingleSeriesFilterExpression freqFilter,
+                                                 CrossSeriesFilterExpression valueFilter) throws IOException {
         CrossQueryTimeGenerator timeQueryDataSet = new CrossQueryTimeGenerator(timeFilter, freqFilter, valueFilter, FETCH_SIZE) {
             @Override
             public DynamicOneColumnData getDataInNextBatch(DynamicOneColumnData res, int fetchSize,
@@ -100,7 +98,7 @@ public class HadoopQueryEngine extends QueryEngine {
             }
         };
 
-        return new CrossQueryIteratorDataSet(timeQueryDataSet) {
+        return new CrossOnePassQueryIteratorDataSet(timeQueryDataSet) {
             @Override
             public boolean getMoreRecords() throws IOException {
                 try {

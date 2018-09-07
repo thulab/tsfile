@@ -75,7 +75,7 @@ public abstract class BatchReadRecordGenerator {
 
     /**
      * Calculate the fetchSize number RowRecords.
-     * Invoking this method will remove the top value in heap until the RowRecord number reach to fetchSize.
+     * Invoking this method will remove the top value in heap until the OldRowRecord number reach to fetchSize.
      *
      * @throws ProcessorException exception in read process
      * @throws IOException exception in IO
