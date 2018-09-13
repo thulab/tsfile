@@ -26,8 +26,8 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
     private PageReader pageReader;
     private UnCompressor unCompressor;
     private Encoding defaultTimestampEncoding;
-    protected boolean hasCachedTimeValuePair;
-    protected TimeValuePair cachedTimeValuePair;
+    private boolean hasCachedTimeValuePair;
+    private TimeValuePair cachedTimeValuePair;
     private long maxTombstoneTime;
 
 

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import cn.edu.tsinghua.tsfile.timeseries.read.query.OnePassQueryDataSet;
 import org.json.JSONObject;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
@@ -19,6 +18,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.read.management.SeriesSchema;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
+import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryDataSet;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryEngine;
 import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.TsFileWriter;
@@ -198,8 +198,8 @@ public class TsFile {
   }
 
 
-  public OnePassQueryDataSet query(List<Path> paths, FilterExpression timeFilter,
-                                   FilterExpression valueFilter) throws IOException {
+  public QueryDataSet query(List<Path> paths, FilterExpression timeFilter,
+      FilterExpression valueFilter) throws IOException {
     checkStatus(READ);
     if (paths.size() == 1 && valueFilter instanceof SingleSeriesFilterExpression
         && paths.get(0).getDeltaObjectToString()
@@ -214,8 +214,8 @@ public class TsFile {
   }
 
 
-  public OnePassQueryDataSet query(List<Path> paths, FilterExpression timeFilter,
-                                   FilterExpression valueFilter, Map<String, Long> params) throws IOException {
+  public QueryDataSet query(List<Path> paths, FilterExpression timeFilter,
+      FilterExpression valueFilter, Map<String, Long> params) throws IOException {
     checkStatus(READ);
     return queryEngine.query(paths, timeFilter, null, valueFilter, params);
   }

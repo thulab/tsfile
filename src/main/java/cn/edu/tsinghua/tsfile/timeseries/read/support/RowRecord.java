@@ -16,12 +16,12 @@ import java.util.List;
  *
  * @author Jinrui Zhang
  */
-public class OldRowRecord {
+public class RowRecord {
     public long timestamp;
     public String deltaObjectId;
     public List<Field> fields;
 
-    public OldRowRecord(long timestamp, String deltaObjectId, String deltaObjectType) {
+    public RowRecord(long timestamp, String deltaObjectId, String deltaObjectType) {
         this.timestamp = timestamp;
         this.deltaObjectId = deltaObjectId;
         this.fields = new ArrayList<Field>();

@@ -5,11 +5,11 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
-import cn.edu.tsinghua.tsfile.timeseries.read.query.OnePassQueryDataSet;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryEngine;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Field;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.OldRowRecord;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.RowRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
+import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryDataSet;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -72,11 +72,11 @@ public class ReadTest {
 
     @Test
     public void queryOneMeasurementWithoutFilterTest() throws IOException {
-        OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(configOneSeriesWithNoFilter, fileName);
+        QueryDataSet queryDataSet = QueryEngine.query(configOneSeriesWithNoFilter, fileName);
 
         int count = 0;
-        while (onePassQueryDataSet.hasNextRecord()) {
-            OldRowRecord r = onePassQueryDataSet.getNextRecord();
+        while (queryDataSet.hasNextRecord()) {
+            RowRecord r = queryDataSet.getNextRecord();
             if (count == 0) {
                 assertEquals(r.timestamp, 1480562618010L);
             }
@@ -90,10 +90,10 @@ public class ReadTest {
 
     @Test
     public void queryTwoMeasurementsWithoutFilterTest() throws IOException {
-        OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(configTwoSeriesWithNoFilter, fileName);
+        QueryDataSet queryDataSet = QueryEngine.query(configTwoSeriesWithNoFilter, fileName);
         int count = 0;
-        while (onePassQueryDataSet.hasNextRecord()) {
-            OldRowRecord r = onePassQueryDataSet.getNextRecord();
+        while (queryDataSet.hasNextRecord()) {
+            RowRecord r = queryDataSet.getNextRecord();
             if (count == 0) {
                 if (count == 0) {
                     assertEquals(1480562618005L, r.timestamp);
@@ -103,7 +103,7 @@ public class ReadTest {
         }
         assertEquals(count, 750);
 //		// verify d1.s1
-//		DynamicOneColumnData d1s1Data = onePassQueryDataSet.mapRet.get("d1.s1");
+//		DynamicOneColumnData d1s1Data = queryDataSet.mapRet.get("d1.s1");
 //		assertEquals(d1s1Data.length, 500);
 //		assertEquals(d1s1Data.getTime(0), 1480562618010L);
 //		assertEquals(d1s1Data.getInt(0), 101);
@@ -111,7 +111,7 @@ public class ReadTest {
 //		assertEquals(d1s1Data.getInt(d1s1Data.length - 1), 9991);
 //
 //		// verify d2.s2
-//		DynamicOneColumnData d2s2Data = onePassQueryDataSet.mapRet.get("d2.s2");
+//		DynamicOneColumnData d2s2Data = queryDataSet.mapRet.get("d2.s2");
 //		assertEquals(d2s2Data.length, 750);
 //		assertEquals(d2s2Data.getTime(500), 1480562618670L);
 //		assertEquals(d2s2Data.getLong(500), 6702L);
@@ -121,10 +121,10 @@ public class ReadTest {
 
     @Test
     public void queryTwoMeasurementsWithSingleFilterTest() throws IOException {
-        OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(configWithTwoSeriesTimeValueNoCrossFilter2, fileName);
+        QueryDataSet queryDataSet = QueryEngine.query(configWithTwoSeriesTimeValueNoCrossFilter2, fileName);
 
-        while (onePassQueryDataSet.hasNextRecord()) {
-            OldRowRecord r = onePassQueryDataSet.getNextRecord();
+        while (queryDataSet.hasNextRecord()) {
+            RowRecord r = queryDataSet.getNextRecord();
             System.out.println(r);
         }
 
@@ -132,13 +132,13 @@ public class ReadTest {
 
     @Test
     public void queryWithTwoSeriesTimeValueFilterCrossTest() throws IOException {
-        OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(configWithTwoSeriesTimeValueCrossFilter, fileName);
+        QueryDataSet queryDataSet = QueryEngine.query(configWithTwoSeriesTimeValueCrossFilter, fileName);
 
         // time filter & value filter
         // verify d1.s1, d2.s1
         int cnt = 1;
-        while (onePassQueryDataSet.hasNextRecord()) {
-            OldRowRecord r = onePassQueryDataSet.getNextRecord();
+        while (queryDataSet.hasNextRecord()) {
+            RowRecord r = queryDataSet.getNextRecord();
             if (cnt == 1) {
                 assertEquals(r.timestamp, 1480562618973L);
             } else if (cnt == 2) {
@@ -154,7 +154,7 @@ public class ReadTest {
 
     @Test
     public void queryWithCrossSeriesTimeValueFilterTest() throws IOException {
-        OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(configWithCrossSeriesTimeValueFilter, fileName);
+        QueryDataSet queryDataSet = QueryEngine.query(configWithCrossSeriesTimeValueFilter, fileName);
         // time filter & value filter
         // verify d1.s1, d2.s1
         /**
@@ -164,8 +164,8 @@ public class ReadTest {
          1480562618956	9561	9562
          */
         int cnt = 1;
-        while (onePassQueryDataSet.hasNextRecord()) {
-            OldRowRecord r = onePassQueryDataSet.getNextRecord();
+        while (queryDataSet.hasNextRecord()) {
+            RowRecord r = queryDataSet.getNextRecord();
             if (cnt == 1) {
                 assertEquals(r.timestamp, 1480562618950L);
             } else if (cnt == 2) {
@@ -180,7 +180,7 @@ public class ReadTest {
         }
         assertEquals(cnt, 5);
 
-        OnePassQueryDataSet onePassQueryDataSetOrOpe = QueryEngine.query(configWithCrossSeriesTimeValueFilterOrOpe, fileName);
+        QueryDataSet queryDataSetOrOpe = QueryEngine.query(configWithCrossSeriesTimeValueFilterOrOpe, fileName);
         // time filter & value filter
         // verify d1.s1, d2.s1
         /**
@@ -196,8 +196,8 @@ public class ReadTest {
          1480562618933	9331	9332
          */
         cnt = 1;
-        while (onePassQueryDataSetOrOpe.hasNextRecord()) {
-            OldRowRecord r = onePassQueryDataSetOrOpe.getNextRecord();
+        while (queryDataSetOrOpe.hasNextRecord()) {
+            RowRecord r = queryDataSetOrOpe.getNextRecord();
             //System.out.println(r);
             if (cnt == 4) {
                 assertEquals(r.timestamp, 1480562618913L);
@@ -211,10 +211,10 @@ public class ReadTest {
 
     // @Test
     public void queryBooleanTest() throws IOException {
-        OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(booleanConfig, fileName);
+        QueryDataSet queryDataSet = QueryEngine.query(booleanConfig, fileName);
         int cnt = 1;
-        while (onePassQueryDataSet.hasNextRecord()) {
-            OldRowRecord r = onePassQueryDataSet.getNextRecord();
+        while (queryDataSet.hasNextRecord()) {
+            RowRecord r = queryDataSet.getNextRecord();
             if (cnt == 1) {
                 assertEquals(r.getTime(), 1480562618972L);
                 Field f1 = r.getFields().get(0);
@@ -231,10 +231,10 @@ public class ReadTest {
 
     @Test
     public void queryStringTest() throws IOException {
-        OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(lessStringConfig, fileName);
+        QueryDataSet queryDataSet = QueryEngine.query(lessStringConfig, fileName);
         int cnt = 0;
-        while (onePassQueryDataSet.hasNextRecord()) {
-            OldRowRecord r = onePassQueryDataSet.getNextRecord();
+        while (queryDataSet.hasNextRecord()) {
+            RowRecord r = queryDataSet.getNextRecord();
             if (cnt == 1) {
                 assertEquals(r.getTime(), 1480562618976L);
                 Field f1 = r.getFields().get(0);
@@ -245,10 +245,10 @@ public class ReadTest {
         }
         Assert.assertEquals(cnt, 0);
 
-        onePassQueryDataSet = QueryEngine.query(greatStringConfig, fileName);
+        queryDataSet = QueryEngine.query(greatStringConfig, fileName);
         cnt = 0;
-        while (onePassQueryDataSet.hasNextRecord()) {
-            OldRowRecord r = onePassQueryDataSet.getNextRecord();
+        while (queryDataSet.hasNextRecord()) {
+            RowRecord r = queryDataSet.getNextRecord();
             if (cnt == 0) {
                 assertEquals(r.getTime(), 1480562618976L);
                 Field f1 = r.getFields().get(0);
@@ -262,10 +262,10 @@ public class ReadTest {
 
     @Test
     public void queryFloatTest() throws IOException {
-        OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(floatConfig, fileName);
+        QueryDataSet queryDataSet = QueryEngine.query(floatConfig, fileName);
         int cnt = 0;
-        while (onePassQueryDataSet.hasNextRecord()) {
-            OldRowRecord r = onePassQueryDataSet.getNextRecord();
+        while (queryDataSet.hasNextRecord()) {
+            RowRecord r = queryDataSet.getNextRecord();
             if (cnt == 1) {
                 assertEquals(r.getTime(), 1480562618980L);
                 Field f1 = r.getFields().get(0);
@@ -282,10 +282,10 @@ public class ReadTest {
 
     @Test
     public void queryDoubleTest() throws IOException {
-        OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(doubleConfig, fileName);
+        QueryDataSet queryDataSet = QueryEngine.query(doubleConfig, fileName);
         int cnt = 1;
-        while (onePassQueryDataSet.hasNextRecord()) {
-            OldRowRecord r = onePassQueryDataSet.getNextRecord();
+        while (queryDataSet.hasNextRecord()) {
+            RowRecord r = queryDataSet.getNextRecord();
             if (cnt == 1) {
                 assertEquals(r.getTime(), 1480562618022L);
                 Field f1 = r.getFields().get(0);

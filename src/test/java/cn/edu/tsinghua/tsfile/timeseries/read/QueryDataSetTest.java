@@ -3,11 +3,11 @@ package cn.edu.tsinghua.tsfile.timeseries.read;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.DynamicOneColumnData;
-import cn.edu.tsinghua.tsfile.timeseries.read.query.OnePassQueryDataSet;
+import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryDataSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class OnePassQueryDataSetTest {
+public class QueryDataSetTest {
 
     @Test
     public void emptyQueryDataTest() {
@@ -49,15 +49,15 @@ public class OnePassQueryDataSetTest {
             data2.putFloat(i);
         }
 
-        OnePassQueryDataSet onePassQueryDataSet = new OnePassQueryDataSet();
-        onePassQueryDataSet.mapRet.put("d1.s1", data1);
-        onePassQueryDataSet.mapRet.put("d1.s2", data2);
+        QueryDataSet queryDataSet = new QueryDataSet();
+        queryDataSet.mapRet.put("d1.s1", data1);
+        queryDataSet.mapRet.put("d1.s2", data2);
 
         int cnt = 0;
-        while (onePassQueryDataSet.hasNextRecord()) {
-            Assert.assertEquals(ret[cnt], onePassQueryDataSet.getNextRecord().toString());
+        while (queryDataSet.hasNextRecord()) {
+            Assert.assertEquals(ret[cnt], queryDataSet.getNextRecord().toString());
             cnt ++;
-            // System.out.println(onePassQueryDataSet.getNextRecord());
+            // System.out.println(queryDataSet.getNextRecord());
         }
     }
 }

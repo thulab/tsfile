@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.read.query;
 
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Field;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.OldRowRecord;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.RowRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,17 +9,17 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 
 /**
- * This class is the subclass of {@code OnePassQueryDataSet}. It is used to store
+ * This class is the subclass of {@code QueryDataSet}. It is used to store
  * and fetch more records for batch query in TsFile's SingleFileQuery.
  *
  * @author Jinrui Zhang
  */
-public abstract class CrossOnePassQueryIteratorDataSet extends OnePassQueryDataSet {
-    private static final Logger LOG = LoggerFactory.getLogger(CrossOnePassQueryIteratorDataSet.class);
+public abstract class CrossQueryIteratorDataSet extends QueryDataSet {
+    private static final Logger LOG = LoggerFactory.getLogger(CrossQueryIteratorDataSet.class);
     //special for save time values when processing cross getIndex
     private boolean hasReadAll;
 
-    public CrossOnePassQueryIteratorDataSet(CrossQueryTimeGenerator timeGenerator) throws IOException {
+    public CrossQueryIteratorDataSet(CrossQueryTimeGenerator timeGenerator) throws IOException {
         this.crossQueryTimeGenerator = timeGenerator;
         mapRet = new LinkedHashMap<>();
         hasReadAll = getMoreRecords();
@@ -34,7 +34,7 @@ public abstract class CrossOnePassQueryIteratorDataSet extends OnePassQueryDataS
 
     public boolean hasNextRecord() {
         if (!ifInit) {
-            // hasReadAll is true represents that there is no records in this OnePassQueryDataSet
+            // hasReadAll is true represents that there is no records in this QueryDataSet
             if (hasReadAll) {
                 return false;
             }
@@ -61,13 +61,13 @@ public abstract class CrossOnePassQueryIteratorDataSet extends OnePassQueryDataS
         return false;
     }
 
-    public OldRowRecord getNextRecord() {
+    public RowRecord getNextRecord() {
         if (!hasNextRecord()) {
             return null;
         }
 
         Long minTime = heapGet();
-        OldRowRecord r = new OldRowRecord(minTime, null, null);
+        RowRecord r = new RowRecord(minTime, null, null);
         for (int i = 0; i < size; i++) {
             if (i == 0) {
                 r.setDeltaObjectId(deltaObjectIds[i]);

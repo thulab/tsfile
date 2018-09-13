@@ -2,22 +2,17 @@ package cn.edu.tsinghua.tsfile.timeseries.read.query;
 
 import cn.edu.tsinghua.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Field;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.OldRowRecord;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.RowRecord;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.query.QueryDataSet;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.RowRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-public class OnePassQueryDataSet implements QueryDataSet{
-    protected static final Logger LOG = LoggerFactory.getLogger(OnePassQueryDataSet.class);
+public class QueryDataSet {
+    protected static final Logger LOG = LoggerFactory.getLogger(QueryDataSet.class);
     protected static final char PATH_SPLITTER = '.';
 
     /**
@@ -60,10 +55,10 @@ public class OnePassQueryDataSet implements QueryDataSet{
     protected HashMap<Long, Integer> timeMap; // timestamp occurs time
     protected int size;
     protected boolean ifInit = false;
-    protected OldRowRecord currentRecord = null;
+    protected RowRecord currentRecord = null;
     private Map<String, Object> deltaMap; // this variable is used for IoTDb
 
-    public OnePassQueryDataSet() {
+    public QueryDataSet() {
         mapRet = new LinkedHashMap<>();
     }
 
@@ -79,7 +74,7 @@ public class OnePassQueryDataSet implements QueryDataSet{
             emptyTimeIdxs = new int[size];
             timeMap = new HashMap<>();
         } else {
-            LOG.error("OnePassQueryDataSet init row record occurs error! the size of ret is 0.");
+            LOG.error("QueryDataSet init row record occurs error! the size of ret is 0.");
             heap = new PriorityQueue<>();
         }
 
@@ -129,7 +124,7 @@ public class OnePassQueryDataSet implements QueryDataSet{
         return false;
     }
 
-    public OldRowRecord getNextRecord() {
+    public RowRecord getNextRecord() {
         if (!ifInit) {
             initForRecord();
             ifInit = true;
@@ -140,7 +135,7 @@ public class OnePassQueryDataSet implements QueryDataSet{
             return null;
         }
 
-        OldRowRecord record = new OldRowRecord(minTime, null, null);
+        RowRecord record = new RowRecord(minTime, null, null);
         for (int i = 0; i < size; i++) {
             if (i == 0) {
                 record.setDeltaObjectId(deltaObjectIds[i]);
@@ -181,56 +176,16 @@ public class OnePassQueryDataSet implements QueryDataSet{
         return record;
     }
 
-
-    @Override
-    public boolean hasNext() throws IOException {
-        return hasNextRecord();
-    }
-
-    @Override
-    public RowRecord next() throws IOException {
-        OldRowRecord oldRowRecord = getNextRecord();
-        return OnePassQueryDataSet.convertToNew(oldRowRecord);
-    }
-
-    public static RowRecord convertToNew(OldRowRecord oldRowRecord) {
-        RowRecord rowRecord = new RowRecord(oldRowRecord.timestamp);
-        for(Field field: oldRowRecord.fields) {
-            String path = field.deltaObjectId + field.measurementId;
-
-            if(field.isNull()) {
-                rowRecord.putField(new Path(path), null);
-            } else {
-                TsPrimitiveType value;
-                switch (field.dataType) {
-                    case TEXT:
-                        value = new TsPrimitiveType.TsBinary(field.getBinaryV());
-                        break;
-                    case FLOAT:
-                        value = new TsPrimitiveType.TsFloat(field.getFloatV());
-                        break;
-                    case INT32:
-                        value = new TsPrimitiveType.TsInt(field.getIntV());
-                        break;
-                    case INT64:
-                        value = new TsPrimitiveType.TsLong(field.getLongV());
-                        break;
-                    case DOUBLE:
-                        value = new TsPrimitiveType.TsDouble(field.getDoubleV());
-                        break;
-                    case BOOLEAN:
-                        value = new TsPrimitiveType.TsBoolean(field.getBoolV());
-                        break;
-                    default:
-                        throw new UnSupportedDataTypeException("UnSupported datatype: " + String.valueOf(field.dataType));
-                }
-                rowRecord.putField(new Path(path), value);
-            }
+    public boolean next() {
+        if (hasNextRecord()) {
+            currentRecord = getNextRecord();
+            return true;
         }
-        return rowRecord;
+        currentRecord = null;
+        return false;
     }
 
-    public OldRowRecord getCurrentRecord() {
+    public RowRecord getCurrentRecord() {
         if (!ifInit) {
             initForRecord();
             ifInit = true;

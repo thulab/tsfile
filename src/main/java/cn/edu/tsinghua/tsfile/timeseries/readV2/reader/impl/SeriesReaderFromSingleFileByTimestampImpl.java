@@ -7,7 +7,6 @@ import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunk;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.SeriesReaderByTimeStamp;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.List;
 /**
  * Created by zhangjinrui on 2017/12/26.
  */
-public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromSingleFile implements SeriesReaderByTimeStamp {
+public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromSingleFile {
 
     private long currentTimestamp;
     private boolean hasCacheLastTimeValuePair;
@@ -25,43 +24,38 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
     public SeriesReaderFromSingleFileByTimestampImpl(SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
         super(seriesChunkLoader, encodedSeriesChunkDescriptorList);
         nextSeriesChunkIndex = 0;
-        currentTimestamp = Long.MIN_VALUE;
     }
 
     public SeriesReaderFromSingleFileByTimestampImpl(ITsRandomAccessFileReader randomAccessFileReader, Path path) throws IOException {
         super(randomAccessFileReader, path);
-        currentTimestamp = Long.MIN_VALUE;
     }
 
     public SeriesReaderFromSingleFileByTimestampImpl(ITsRandomAccessFileReader randomAccessFileReader,
                                       SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
         super(randomAccessFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
-        currentTimestamp = Long.MIN_VALUE;
     }
 
     @Override
     public boolean hasNext() throws IOException {
-        if (hasCacheLastTimeValuePair && cachedTimeValuePair.getTimestamp() >= currentTimestamp) {
+        if (seriesChunkReaderInitialized && seriesChunkReader.hasNext()) {
             return true;
-        }
-        if (seriesChunkReaderInitialized) {
-            ((SeriesChunkReaderByTimestampImpl) seriesChunkReader).setCurrentTimestamp(currentTimestamp);
-            if(seriesChunkReader.hasNext()){
-                return true;
-            }
         }
         while (nextSeriesChunkIndex < encodedSeriesChunkDescriptorList.size()) {
             if (!seriesChunkReaderInitialized) {
                 EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor = encodedSeriesChunkDescriptorList.get(nextSeriesChunkIndex);
-                //maxTime >= currentTime
                 if (seriesChunkSatisfied(encodedSeriesChunkDescriptor)) {
                     initSeriesChunkReader(encodedSeriesChunkDescriptor);
                     ((SeriesChunkReaderByTimestampImpl) seriesChunkReader).setCurrentTimestamp(currentTimestamp);
                     seriesChunkReaderInitialized = true;
                     nextSeriesChunkIndex++;
                 } else {
-                    //maxTime < currentTime, skip this seriesChunk
-                    continue;
+                    long minTimestamp = encodedSeriesChunkDescriptor.getMinTimestamp();
+                    long maxTimestamp = encodedSeriesChunkDescriptor.getMaxTimestamp();
+                    if (maxTimestamp < currentTimestamp) {
+                        continue;
+                    } else if (minTimestamp > currentTimestamp) {
+                        return false;
+                    }
                 }
             }
             if (seriesChunkReader.hasNext()) {
@@ -73,23 +67,12 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
         return false;
     }
 
-    @Override
-    public TimeValuePair next() throws IOException {
-        if (hasCacheLastTimeValuePair) {
-            hasCacheLastTimeValuePair = false;
-            return cachedTimeValuePair;
-        }
-        return seriesChunkReader.next();
-    }
-
     /**
      * @param timestamp
      * @return If there is no TimeValuePair whose timestamp equals to given timestamp, then return null.
      * @throws IOException
      */
-    @Override
     public TsPrimitiveType getValueInTimestamp(long timestamp) throws IOException {
-        this.currentTimestamp = timestamp;
         if (hasCacheLastTimeValuePair) {
             if (cachedTimeValuePair.getTimestamp() == timestamp) {
                 hasCacheLastTimeValuePair = false;
@@ -98,12 +81,17 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
                 return null;
             }
         }
-        if(hasNext()){
-            cachedTimeValuePair = next();
-            if (cachedTimeValuePair.getTimestamp() == timestamp) {
-                return cachedTimeValuePair.getValue();
-            } else if (cachedTimeValuePair.getTimestamp() > timestamp) {
+        if (seriesChunkReaderInitialized) {
+            ((SeriesChunkReaderByTimestampImpl) seriesChunkReader).setCurrentTimestamp(timestamp);
+        }
+        this.currentTimestamp = timestamp;
+        while (hasNext()) {
+            TimeValuePair timeValuePair = next();
+            if (timeValuePair.getTimestamp() == timestamp) {
+                return timeValuePair.getValue();
+            } else if (timeValuePair.getTimestamp() > timestamp) {
                 hasCacheLastTimeValuePair = true;
+                cachedTimeValuePair = timeValuePair;
                 return null;
             }
         }
@@ -121,7 +109,11 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
 
     @Override
     protected boolean seriesChunkSatisfied(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) {
+        long minTimestamp = encodedSeriesChunkDescriptor.getMinTimestamp();
         long maxTimestamp = encodedSeriesChunkDescriptor.getMaxTimestamp();
-        return  maxTimestamp >= currentTimestamp;
+        if (minTimestamp <= currentTimestamp && currentTimestamp <= maxTimestamp) {
+            return true;
+        }
+        return false;
     }
 }
