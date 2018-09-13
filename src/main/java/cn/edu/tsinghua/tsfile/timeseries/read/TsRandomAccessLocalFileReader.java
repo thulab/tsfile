@@ -19,6 +19,10 @@ public class TsRandomAccessLocalFileReader implements ITsRandomAccessFileReader 
     this.raf = new RandomAccessFile(filePath, "r");
   }
 
+  public TsRandomAccessLocalFileReader(RandomAccessFile raf) {
+    this.raf = raf;
+  }
+
   @Override
   public void seek(long offset) throws IOException {
     this.raf.seek(offset);
