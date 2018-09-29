@@ -200,8 +200,8 @@ public abstract class Statistics<T> {
         }
         else if(sizeOfDatum()!=-1) {
             length = sizeOfDatum() * 4 + 8;
-            outputStream.write(getMaxBytes());
             outputStream.write(getMinBytes());
+            outputStream.write(getMaxBytes());
             outputStream.write(getFirstBytes());
             outputStream.write(getLastBytes());
             outputStream.write(getSumBytes());
