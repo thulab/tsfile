@@ -12,8 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
- * Encoder for float or double value using rle or two diff
- * according to following grammar:
+ * Encoder for float or double value using rle or two-diff according to following grammar:
  * <pre>
  * {@code
  * float encoder: <maxPointvalue> <encoded-data>
@@ -54,8 +53,7 @@ public class FloatEncoder extends Encoder {
                 encoder = new LongRleEncoder(EndianType.LITTLE_ENDIAN);
                 LOGGER.debug("tsfile-encoding FloatEncoder: init encoder using long-rle and double");
             } else {
-                throw new TSFileEncodingException(
-                        String.format("data type %s is not supported by FloatEncoder", dataType));
+                throw new TSFileEncodingException(String.format("data type %s is not supported by FloatEncoder", dataType));
             }
         } else if (encodingType == TSEncoding.TS_2DIFF) {
             if (dataType == TSDataType.FLOAT) {
@@ -65,12 +63,10 @@ public class FloatEncoder extends Encoder {
                 encoder = new DeltaBinaryEncoder.LongDeltaEncoder();
                 LOGGER.debug("tsfile-encoding FloatEncoder: init encoder using long-delta and double");
             } else {
-                throw new TSFileEncodingException(
-                        String.format("data type %s is not supported by FloatEncoder", dataType));
+                throw new TSFileEncodingException(String.format("data type %s is not supported by FloatEncoder", dataType));
             }
         } else {
-            throw new TSFileEncodingException(
-                    String.format("%s encoding is not supported by FloatEncoder", encodingType));
+            throw new TSFileEncodingException(String.format("%s encoding is not supported by FloatEncoder", encodingType));
         }
     }
 

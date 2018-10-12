@@ -13,7 +13,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-
 /**
  * @author Zhang Jinrui
  */
@@ -49,8 +48,6 @@ public class PlainEncoder extends Encoder {
                     "tsfile-encoding PlainEncoder: current version does not support short value encoding");
             throw new TSFileEncodingException(
                     "tsfile-encoding PlainEncoder: current version does not support short value encoding");
-            // out.write((value >> 8) & 0xFF);
-            // out.write((value >> 0) & 0xFF);
         }
     }
 
@@ -66,10 +63,6 @@ public class PlainEncoder extends Encoder {
                     "tsfile-encoding PlainEncoder: current version does not support int value encoding");
             throw new TSFileEncodingException(
                     "tsfile-encoding PlainEncoder: current version does not support int value encoding");
-            // out.write((value >> 24) & 0xFF);
-            // out.write((value >> 16) & 0xFF);
-            // out.write((value >> 8) & 0xFF);
-            // out.write((value >> 0) & 0xFF);
         }
     }
 
@@ -90,11 +83,9 @@ public class PlainEncoder extends Encoder {
                         "tsfile-encoding PlainEncoder: current version does not support long value encoding");
                 throw new TSFileEncodingException(
                         "tsfile-encoding PlainEncoder: current version does not support long value encoding");
-//        out.write(bufferBig);
             }
         } catch (IOException e) {
-            LOGGER.error("tsfile-encoding PlainEncoder: error occurs when encode long value {}", value,
-                    e);
+            LOGGER.error("tsfile-encoding PlainEncoder: error occurs when encode long value {}", value, e);
         }
     }
 

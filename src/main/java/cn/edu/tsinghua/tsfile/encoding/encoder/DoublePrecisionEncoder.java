@@ -76,7 +76,7 @@ public class DoublePrecisionEncoder extends GorillaEncoder {
 	
     @Override
     public int getOneItemMaxSize() {
-    		// case '11'
+    	// case '11'
 		// 2bit + 6bit + 7bit + 64bit = 79bit 
         return 10;
     }

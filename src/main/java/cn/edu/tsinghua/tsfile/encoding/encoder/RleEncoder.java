@@ -17,8 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Encodes values using a combination of run length encoding and bit packing,
- * according to the following grammar:
+ * Encodes values using a combination of run length encoding and bit packing according to the following grammar:
  * <pre>
  * {@code
  * rle-bit-packing-hybrid: <length> <bitwidth> <encoded-data>

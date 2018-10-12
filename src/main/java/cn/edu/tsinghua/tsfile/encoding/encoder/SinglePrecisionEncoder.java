@@ -7,7 +7,6 @@ import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 
 /**
  * Encoder for int value using gorilla encoding
- *
  */
 public class SinglePrecisionEncoder extends GorillaEncoder{
 	private int preValue;
@@ -71,8 +70,8 @@ public class SinglePrecisionEncoder extends GorillaEncoder{
 	
     @Override
     public int getOneItemMaxSize() {
-    		// case '11'
-    		// 2bit + 5bit + 6bit + 32bit = 45bit 
+    	// case '11'
+    	// 2bit + 5bit + 6bit + 32bit = 45bit 
         return 6;
     }
 

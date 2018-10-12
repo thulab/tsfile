@@ -5,8 +5,8 @@ import java.io.ByteArrayOutputStream;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 
 /**
- * Gorilla encoding. For more information about how it works, 
- * please see http://www.vldb.org/pvldb/vol8/p1816-teller.pdf
+ * Gorilla encoding. 
+ * For more information about how it works, please refer to http://www.vldb.org/pvldb/vol8/p1816-teller.pdf
  */
 public abstract class GorillaEncoder extends Encoder{
 	// flag to indicate whether the first value is saved
