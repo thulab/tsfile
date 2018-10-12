@@ -148,7 +148,7 @@
                         </goals>
                         <configuration>
                             <encoding>UTF-8</encoding>
-                            <configFile>${project.basedir}/eclipse-java-google-style.xml</configFile>
+                            <configFile>${project.basedir}/code-style.xml</configFile>
                         </configuration>
                     </execution>
                 </executions>
