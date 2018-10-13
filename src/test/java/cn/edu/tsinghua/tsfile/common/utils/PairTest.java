@@ -1,10 +1,8 @@
 package cn.edu.tsinghua.tsfile.common.utils;
 
 import static org.junit.Assert.*;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.Test;
 
 public class PairTest {

@@ -5,20 +5,21 @@ import java.io.ByteArrayInputStream;
 /**
  * Created by zhangjinrui on 2017/12/25.
  */
-public class MemSeriesChunk implements SeriesChunk{
-    private EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor;
-    private ByteArrayInputStream seriesChunkBodyStream;
+public class MemSeriesChunk implements SeriesChunk {
+  private EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor;
+  private ByteArrayInputStream seriesChunkBodyStream;
 
-    public MemSeriesChunk(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor, ByteArrayInputStream seriesChunkBodyStream) {
-        this.encodedSeriesChunkDescriptor = encodedSeriesChunkDescriptor;
-        this.seriesChunkBodyStream = seriesChunkBodyStream;
-    }
+  public MemSeriesChunk(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor,
+      ByteArrayInputStream seriesChunkBodyStream) {
+    this.encodedSeriesChunkDescriptor = encodedSeriesChunkDescriptor;
+    this.seriesChunkBodyStream = seriesChunkBodyStream;
+  }
 
-    public EncodedSeriesChunkDescriptor getEncodedSeriesChunkDescriptor() {
-        return encodedSeriesChunkDescriptor;
-    }
+  public EncodedSeriesChunkDescriptor getEncodedSeriesChunkDescriptor() {
+    return encodedSeriesChunkDescriptor;
+  }
 
-    public ByteArrayInputStream getSeriesChunkBodyStream() {
-        return seriesChunkBodyStream;
-    }
+  public ByteArrayInputStream getSeriesChunkBodyStream() {
+    return seriesChunkBodyStream;
+  }
 }

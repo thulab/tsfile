@@ -12,34 +12,34 @@ import java.util.Map;
  * @author kangrong
  */
 public class TSFileEnum {
-    private int index = 1;
-    private Map<String, Integer> enumMap = new LinkedHashMap<>();
+  private int index = 1;
+  private Map<String, Integer> enumMap = new LinkedHashMap<>();
 
-    public void addTSFileEnum(String value) {
-        enumMap.put(value, index++);
-    }
+  public void addTSFileEnum(String value) {
+    enumMap.put(value, index++);
+  }
 
-    /**
-     * just like java enum's ordinal
-     *
-     * @param value a string appearing in enum.
-     * @return the responding index in TSFileEnum
-     */
-    public int enumOrdinal(String value) {
-        return enumMap.getOrDefault(value, -1);
-    }
+  /**
+   * just like java enum's ordinal
+   *
+   * @param value a string appearing in enum.
+   * @return the responding index in TSFileEnum
+   */
+  public int enumOrdinal(String value) {
+    return enumMap.getOrDefault(value, -1);
+  }
 
-    /**
-     * just like java enum's values()
-     *
-     * @return all values in TSFileEnum in form of List{@code<String>}
-     */
-    public List<String> getEnumDataValues() {
-        return new ArrayList<>(enumMap.keySet());
-    }
+  /**
+   * just like java enum's values()
+   *
+   * @return all values in TSFileEnum in form of List{@code<String>}
+   */
+  public List<String> getEnumDataValues() {
+    return new ArrayList<>(enumMap.keySet());
+  }
 
-    @Override
-    public String toString() {
-        return enumMap.keySet().toString();
-    }
+  @Override
+  public String toString() {
+    return enumMap.keySet().toString();
+  }
 }

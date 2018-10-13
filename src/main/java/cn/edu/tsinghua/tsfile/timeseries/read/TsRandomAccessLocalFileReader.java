@@ -3,7 +3,6 @@ package cn.edu.tsinghua.tsfile.timeseries.read;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 
 /**

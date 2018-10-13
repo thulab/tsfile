@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
@@ -33,11 +32,11 @@ import cn.edu.tsinghua.tsfile.format.TimeSeriesChunkType;
 import cn.edu.tsinghua.tsfile.format.ValueInTimeSeriesChunkMetaData;
 
 public class TestHelper {
-	private static final String MAX_VALUE = "321";
-	private static final String MIN_VALUE = "123";
-	private static final String SUM_VALUE = "321123";
-	private static final String FIRST_VALUE = "1";
-	private static final String LAST_VALUE = "222";
+  private static final String MAX_VALUE = "321";
+  private static final String MIN_VALUE = "123";
+  private static final String SUM_VALUE = "321123";
+  private static final String FIRST_VALUE = "1";
+  private static final String LAST_VALUE = "222";
 
   public static RowGroupMetaData createSimpleRowGroupMetaDataInTSF()
       throws UnsupportedEncodingException {
@@ -55,7 +54,8 @@ public class TestHelper {
     cn.edu.tsinghua.tsfile.format.RowGroupMetaData rowGroupMetaData =
         new cn.edu.tsinghua.tsfile.format.RowGroupMetaData(new ArrayList<>(),
             RowGroupMetaDataTest.DELTA_OBJECT_UID, RowGroupMetaDataTest.TOTAL_BYTE_SIZE,
-            RowGroupMetaDataTest.MAX_NUM_ROWS, RowGroupMetaDataTest.DELTA_OBJECT_TYPE, System.currentTimeMillis());
+            RowGroupMetaDataTest.MAX_NUM_ROWS, RowGroupMetaDataTest.DELTA_OBJECT_TYPE,
+            System.currentTimeMillis());
     rowGroupMetaData.setFile_path(RowGroupMetaDataTest.FILE_PATH);
     rowGroupMetaData.setTsc_metadata(new ArrayList<>());
     rowGroupMetaData.getTsc_metadata()
@@ -77,9 +77,11 @@ public class TestHelper {
     metaData.setDataPageOffset(TimeSeriesChunkMetaDataTest.DATA_PAGE_OFFSET);
     metaData.setDictionaryPageOffset(TimeSeriesChunkMetaDataTest.DICTIONARY_PAGE_OFFSET);
     metaData.setIndexPageOffset(TimeSeriesChunkMetaDataTest.INDEX_PAGE_OFFSET);
-    metaData.setTInTimeSeriesChunkMetaData(TestHelper.createT2inTSF(TSDataType.BOOLEAN,
-        TSFreqType.IRREGULAR_FREQ, null, TInTimeSeriesChunkMetaDataTest.startTime, TInTimeSeriesChunkMetaDataTest.endTime));
-    metaData.setVInTimeSeriesChunkMetaData(TestHelper.createSimpleV2InTSF(TSDataType.BOOLEAN, new TsDigest()));
+    metaData.setTInTimeSeriesChunkMetaData(
+        TestHelper.createT2inTSF(TSDataType.BOOLEAN, TSFreqType.IRREGULAR_FREQ, null,
+            TInTimeSeriesChunkMetaDataTest.startTime, TInTimeSeriesChunkMetaDataTest.endTime));
+    metaData.setVInTimeSeriesChunkMetaData(
+        TestHelper.createSimpleV2InTSF(TSDataType.BOOLEAN, new TsDigest()));
     return metaData;
   }
 
@@ -97,7 +99,8 @@ public class TestHelper {
     metaData.setIndex_page_offset(TimeSeriesChunkMetaDataTest.INDEX_PAGE_OFFSET);
     metaData.setTime_tsc(TestHelper.createT2inThrift(DataType.BOOLEAN, FreqType.IRREGULAR_FREQ,
         null, TInTimeSeriesChunkMetaDataTest.startTime, TInTimeSeriesChunkMetaDataTest.endTime));
-    metaData.setValue_tsc(TestHelper.createSimpleV2InThrift(DataType.BOOLEAN, createSimpleDigest()));
+    metaData
+        .setValue_tsc(TestHelper.createSimpleV2InThrift(DataType.BOOLEAN, createSimpleDigest()));
     return metaData;
   }
 
@@ -121,8 +124,8 @@ public class TestHelper {
   }
 
   public static TimeSeries createSimpleTimeSeriesInThrift() {
-    TimeSeries timeSeries = new TimeSeries(TimeSeriesMetadataTest.measurementUID,
-        DataType.TEXT, "");
+    TimeSeries timeSeries =
+        new TimeSeries(TimeSeriesMetadataTest.measurementUID, DataType.TEXT, "");
     timeSeries.setFreq_type(FreqType.MULTI_FREQ);
     timeSeries.setType_length(TimeSeriesMetadataTest.typeLength);
     List<Integer> frequencies = new ArrayList<Integer>();
@@ -140,7 +143,7 @@ public class TestHelper {
   }
 
   public static TInTimeSeriesChunkMetaData createT1inTSF(TSDataType dataType, long startTime,
-                                                         long endTime) {
+      long endTime) {
     TInTimeSeriesChunkMetaData metaData =
         new TInTimeSeriesChunkMetaData(dataType, startTime, endTime);
     return metaData;
@@ -279,7 +282,8 @@ public class TestHelper {
     return metaData;
   }
 
-  public static VInTimeSeriesChunkMetaData createSimpleV2InTSF(TSDataType dataType, TsDigest digest) throws UnsupportedEncodingException {
+  public static VInTimeSeriesChunkMetaData createSimpleV2InTSF(TSDataType dataType, TsDigest digest)
+      throws UnsupportedEncodingException {
     VInTimeSeriesChunkMetaData metaData = new VInTimeSeriesChunkMetaData(dataType);
     metaData.setMaxError(VInTimeSeriesChunkMetaDataTest.MAX_ERROR);
     metaData.setDigest(digest);
@@ -300,27 +304,27 @@ public class TestHelper {
     metaData.setDigest(digest);
     return metaData;
   }
-  
+
   public static TsDigest createSimpleTsDigest() {
-	  TsDigest digest = new TsDigest();
-	  digest.addStatistics("max", ByteBuffer.wrap(BytesUtils.StringToBytes(MAX_VALUE)));
-	  digest.addStatistics("min", ByteBuffer.wrap(BytesUtils.StringToBytes(MIN_VALUE)));
-	  digest.addStatistics("sum", ByteBuffer.wrap(BytesUtils.StringToBytes(SUM_VALUE)));
-	  digest.addStatistics("first", ByteBuffer.wrap(BytesUtils.StringToBytes(FIRST_VALUE)));
-	  digest.addStatistics("last", ByteBuffer.wrap(BytesUtils.StringToBytes(LAST_VALUE)));
-	  return digest;
+    TsDigest digest = new TsDigest();
+    digest.addStatistics("max", ByteBuffer.wrap(BytesUtils.StringToBytes(MAX_VALUE)));
+    digest.addStatistics("min", ByteBuffer.wrap(BytesUtils.StringToBytes(MIN_VALUE)));
+    digest.addStatistics("sum", ByteBuffer.wrap(BytesUtils.StringToBytes(SUM_VALUE)));
+    digest.addStatistics("first", ByteBuffer.wrap(BytesUtils.StringToBytes(FIRST_VALUE)));
+    digest.addStatistics("last", ByteBuffer.wrap(BytesUtils.StringToBytes(LAST_VALUE)));
+    return digest;
   }
-  
+
   public static Digest createSimpleDigest() {
-	  Digest digest = new Digest();
-	  Map<String, ByteBuffer> statistics = new HashMap<>();
-	  digest.setStatistics(statistics);
-	  digest.getStatistics().put("max", ByteBuffer.wrap(BytesUtils.StringToBytes(MAX_VALUE)));
-	  digest.getStatistics().put("min", ByteBuffer.wrap(BytesUtils.StringToBytes(MIN_VALUE)));
-	  digest.getStatistics().put("sum", ByteBuffer.wrap(BytesUtils.StringToBytes(SUM_VALUE)));
-	  digest.getStatistics().put("first", ByteBuffer.wrap(BytesUtils.StringToBytes(FIRST_VALUE)));
-	  digest.getStatistics().put("last", ByteBuffer.wrap(BytesUtils.StringToBytes(LAST_VALUE)));
-	  return digest;
+    Digest digest = new Digest();
+    Map<String, ByteBuffer> statistics = new HashMap<>();
+    digest.setStatistics(statistics);
+    digest.getStatistics().put("max", ByteBuffer.wrap(BytesUtils.StringToBytes(MAX_VALUE)));
+    digest.getStatistics().put("min", ByteBuffer.wrap(BytesUtils.StringToBytes(MIN_VALUE)));
+    digest.getStatistics().put("sum", ByteBuffer.wrap(BytesUtils.StringToBytes(SUM_VALUE)));
+    digest.getStatistics().put("first", ByteBuffer.wrap(BytesUtils.StringToBytes(FIRST_VALUE)));
+    digest.getStatistics().put("last", ByteBuffer.wrap(BytesUtils.StringToBytes(LAST_VALUE)));
+    return digest;
   }
 
   public static List<String> getJSONArray() {

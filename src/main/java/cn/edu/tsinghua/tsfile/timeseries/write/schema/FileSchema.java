@@ -8,7 +8,6 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.converter.JsonConverter;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,10 +58,8 @@ public class FileSchema {
    * Add a property to {@code props}. <br>
    * If the key exists, this method will update the value of the key.
    *
-   * @param key
-   *          key of property
-   * @param value
-   *          value of property
+   * @param key key of property
+   * @param value value of property
    */
   public void addProp(String key, String value) {
     additionalProperties.put(key, value);
@@ -119,10 +116,8 @@ public class FileSchema {
   /**
    * add a TimeSeriesMetadata into this fileSchema
    *
-   * @param measurementId
-   *          - the measurement id of this TimeSeriesMetadata
-   * @param type
-   *          - the data type of this TimeSeriesMetadata
+   * @param measurementId - the measurement id of this TimeSeriesMetadata
+   * @param type - the data type of this TimeSeriesMetadata
    */
   private void addTimeSeriesMetadata(String measurementId, TSDataType type) {
     TimeSeriesMetadata ts = new TimeSeriesMetadata(measurementId, type);

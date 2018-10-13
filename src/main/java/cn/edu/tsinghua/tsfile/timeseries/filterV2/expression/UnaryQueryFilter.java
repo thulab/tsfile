@@ -6,6 +6,6 @@ import cn.edu.tsinghua.tsfile.timeseries.filterV2.basic.Filter;
 /**
  * @author Jinrui Zhang
  */
-public interface UnaryQueryFilter extends QueryFilter{
-    Filter<?> getFilter();
+public interface UnaryQueryFilter extends QueryFilter {
+  Filter<?> getFilter();
 }

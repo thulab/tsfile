@@ -11,26 +11,26 @@ import java.io.Serializable;
 
 public abstract class BinaryFilter<T extends Comparable<T>> implements Filter<T>, Serializable {
 
-    private static final long serialVersionUID = 1039585564327602465L;
+  private static final long serialVersionUID = 1039585564327602465L;
 
-    protected final Filter left;
-    protected final Filter right;
+  protected final Filter left;
+  protected final Filter right;
 
-    protected BinaryFilter(Filter left, Filter right) {
-        this.left = left;
-        this.right = right;
-    }
+  protected BinaryFilter(Filter left, Filter right) {
+    this.left = left;
+    this.right = right;
+  }
 
-    public Filter getLeft() {
-        return left;
-    }
+  public Filter getLeft() {
+    return left;
+  }
 
-    public Filter getRight() {
-        return right;
-    }
+  public Filter getRight() {
+    return right;
+  }
 
-    @Override
-    public String toString() {
-        return "( " + left + "," + right + " )";
-    }
+  @Override
+  public String toString() {
+    return "( " + left + "," + right + " )";
+  }
 }

@@ -9,7 +9,6 @@ import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunk;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -18,48 +17,53 @@ import java.util.List;
  */
 public class SeriesReaderFromSingleFileWithFilterImpl extends SeriesReaderFromSingleFile {
 
-    private Filter<?> filter;
-    private DigestFilterVisitor digestFilterVisitor;
+  private Filter<?> filter;
+  private DigestFilterVisitor digestFilterVisitor;
 
-    public SeriesReaderFromSingleFileWithFilterImpl(SeriesChunkLoader seriesChunkLoader
-            , List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList, Filter<?> filter) {
-        super(seriesChunkLoader, encodedSeriesChunkDescriptorList);
-        this.filter = filter;
-        this.digestFilterVisitor = new DigestFilterVisitor();
-    }
+  public SeriesReaderFromSingleFileWithFilterImpl(SeriesChunkLoader seriesChunkLoader,
+      List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList, Filter<?> filter) {
+    super(seriesChunkLoader, encodedSeriesChunkDescriptorList);
+    this.filter = filter;
+    this.digestFilterVisitor = new DigestFilterVisitor();
+  }
 
-    public SeriesReaderFromSingleFileWithFilterImpl(ITsRandomAccessFileReader randomAccessFileReader, SeriesChunkLoader seriesChunkLoader,
-                                                    List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList, Filter<?> filter) {
-        super(randomAccessFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
-        this.filter = filter;
-        this.digestFilterVisitor = new DigestFilterVisitor();
-    }
+  public SeriesReaderFromSingleFileWithFilterImpl(ITsRandomAccessFileReader randomAccessFileReader,
+      SeriesChunkLoader seriesChunkLoader,
+      List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList, Filter<?> filter) {
+    super(randomAccessFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
+    this.filter = filter;
+    this.digestFilterVisitor = new DigestFilterVisitor();
+  }
 
-    public SeriesReaderFromSingleFileWithFilterImpl(ITsRandomAccessFileReader randomAccessFileReader
-            , Path path, Filter<?> filter) throws IOException {
-        super(randomAccessFileReader, path);
-        this.filter = filter;
-        this.digestFilterVisitor = new DigestFilterVisitor();
-    }
+  public SeriesReaderFromSingleFileWithFilterImpl(ITsRandomAccessFileReader randomAccessFileReader,
+      Path path, Filter<?> filter) throws IOException {
+    super(randomAccessFileReader, path);
+    this.filter = filter;
+    this.digestFilterVisitor = new DigestFilterVisitor();
+  }
 
-    protected void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException {
-        SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
-        this.seriesChunkReader = new SeriesChunkReaderWithFilterImpl(memSeriesChunk.getSeriesChunkBodyStream(),
-                memSeriesChunk.getEncodedSeriesChunkDescriptor().getDataType(),
-                memSeriesChunk.getEncodedSeriesChunkDescriptor().getCompressionTypeName(),
-                filter);
-        this.seriesChunkReader.setMaxTombstoneTime(encodedSeriesChunkDescriptor.getMaxTombstoneTime());
-    }
+  protected void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor)
+      throws IOException {
+    SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
+    this.seriesChunkReader =
+        new SeriesChunkReaderWithFilterImpl(memSeriesChunk.getSeriesChunkBodyStream(),
+            memSeriesChunk.getEncodedSeriesChunkDescriptor().getDataType(),
+            memSeriesChunk.getEncodedSeriesChunkDescriptor().getCompressionTypeName(), filter);
+    this.seriesChunkReader.setMaxTombstoneTime(encodedSeriesChunkDescriptor.getMaxTombstoneTime());
+  }
 
-    @Override
-    protected boolean seriesChunkSatisfied(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) {
-        DigestForFilter timeDigest = new DigestForFilter(encodedSeriesChunkDescriptor.getMinTimestamp(),
-                encodedSeriesChunkDescriptor.getMaxTimestamp());
-        //TODO: Using ByteBuffer as min/max is best
-        DigestForFilter valueDigest = new DigestForFilter(
-                encodedSeriesChunkDescriptor.getValueDigest().getStatistics().get(StatisticConstant.MIN_VALUE),
-                encodedSeriesChunkDescriptor.getValueDigest().getStatistics().get(StatisticConstant.MAX_VALUE),
-                encodedSeriesChunkDescriptor.getDataType());
-        return digestFilterVisitor.satisfy(timeDigest, valueDigest, filter);
-    }
+  @Override
+  protected boolean seriesChunkSatisfied(
+      EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) {
+    DigestForFilter timeDigest = new DigestForFilter(encodedSeriesChunkDescriptor.getMinTimestamp(),
+        encodedSeriesChunkDescriptor.getMaxTimestamp());
+    // TODO: Using ByteBuffer as min/max is best
+    DigestForFilter valueDigest = new DigestForFilter(
+        encodedSeriesChunkDescriptor.getValueDigest().getStatistics()
+            .get(StatisticConstant.MIN_VALUE),
+        encodedSeriesChunkDescriptor.getValueDigest().getStatistics()
+            .get(StatisticConstant.MAX_VALUE),
+        encodedSeriesChunkDescriptor.getDataType());
+    return digestFilterVisitor.satisfy(timeDigest, valueDigest, filter);
+  }
 }

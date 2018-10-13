@@ -12,38 +12,38 @@ import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
  * Created by zhangjinrui on 2017/12/15.
  */
 public class SeriesFilter<T extends Comparable<T>> implements UnaryQueryFilter {
-    private TimeValuePairFilterVisitor<Boolean> timeValuePairFilterVisitor;
-    private Path seriesPath;
-    private Filter<T> filter;
+  private TimeValuePairFilterVisitor<Boolean> timeValuePairFilterVisitor;
+  private Path seriesPath;
+  private Filter<T> filter;
 
-    public SeriesFilter(Path seriesDescriptor, Filter<T> filter) {
-        this.seriesPath = seriesDescriptor;
-        this.filter = filter;
-        timeValuePairFilterVisitor = new TimeValuePairFilterVisitorImpl();
-    }
+  public SeriesFilter(Path seriesDescriptor, Filter<T> filter) {
+    this.seriesPath = seriesDescriptor;
+    this.filter = filter;
+    timeValuePairFilterVisitor = new TimeValuePairFilterVisitorImpl();
+  }
 
-    public boolean satisfy(TimeValuePair timeValuePair) {
-        return timeValuePairFilterVisitor.satisfy(timeValuePair, this.filter);
-    }
+  public boolean satisfy(TimeValuePair timeValuePair) {
+    return timeValuePairFilterVisitor.satisfy(timeValuePair, this.filter);
+  }
 
-    @Override
-    public QueryFilterType getType() {
-        return QueryFilterType.SERIES;
-    }
+  @Override
+  public QueryFilterType getType() {
+    return QueryFilterType.SERIES;
+  }
 
-    public Filter<T> getFilter() {
-        return filter;
-    }
+  public Filter<T> getFilter() {
+    return filter;
+  }
 
-    public void setFilter(Filter<T> filter) {
-        this.filter = filter;
-    }
+  public void setFilter(Filter<T> filter) {
+    this.filter = filter;
+  }
 
-    public String toString() {
-        return "[" + seriesPath + ":" + filter + "]";
-    }
+  public String toString() {
+    return "[" + seriesPath + ":" + filter + "]";
+  }
 
-    public Path getSeriesPath() {
-        return this.seriesPath;
-    }
+  public Path getSeriesPath() {
+    return this.seriesPath;
+  }
 }

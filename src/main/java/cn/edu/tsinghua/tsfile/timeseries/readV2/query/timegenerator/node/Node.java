@@ -7,9 +7,9 @@ import java.io.IOException;
  */
 public interface Node {
 
-    boolean hasNext() throws IOException;
+  boolean hasNext() throws IOException;
 
-    long next() throws IOException;
+  long next() throws IOException;
 
-    NodeType getType();
+  NodeType getType();
 }

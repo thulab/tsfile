@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import cn.edu.tsinghua.tsfile.timeseries.read.query.OnePassQueryDataSet;
 import org.json.JSONObject;
-
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
@@ -41,14 +39,10 @@ public class TsFile {
   /**
    * For Write
    *
-   * @param file
-   *          a TsFile
-   * @param schemaJson
-   *          the fileSchema of TsFile in type of JSON
-   * @throws IOException
-   *           exception in IO
-   * @throws WriteProcessException
-   *           exception in write process
+   * @param file a TsFile
+   * @param schemaJson the fileSchema of TsFile in type of JSON
+   * @throws IOException exception in IO
+   * @throws WriteProcessException exception in write process
    */
   public TsFile(File file, JSONObject schemaJson) throws IOException, WriteProcessException {
     this(file, new FileSchema(schemaJson));
@@ -57,14 +51,10 @@ public class TsFile {
   /**
    * For Write
    *
-   * @param file
-   *          a TsFile
-   * @param schema
-   *          the fileSchema of TsFile
-   * @throws IOException
-   *           cannot write TsFile
-   * @throws WriteProcessException
-   *           error occurs when writing
+   * @param file a TsFile
+   * @param schema the fileSchema of TsFile
+   * @throws IOException cannot write TsFile
+   * @throws WriteProcessException error occurs when writing
    */
   public TsFile(File file, FileSchema schema) throws IOException, WriteProcessException {
     this(schema);
@@ -74,14 +64,10 @@ public class TsFile {
   /**
    * For Write
    *
-   * @param output
-   *          a TsFile
-   * @param schemaJson
-   *          the fileSchema of TsFile in type of JSON
-   * @throws IOException
-   *           exception in IO
-   * @throws WriteProcessException
-   *           exception in write process
+   * @param output a TsFile
+   * @param schemaJson the fileSchema of TsFile in type of JSON
+   * @throws IOException exception in IO
+   * @throws WriteProcessException exception in write process
    */
   public TsFile(ITsRandomAccessFileWriter output, JSONObject schemaJson)
       throws IOException, WriteProcessException {
@@ -93,14 +79,10 @@ public class TsFile {
   /**
    * For Write
    *
-   * @param output
-   *          a TsFile
-   * @param schema
-   *          the fileSchema of TsFile
-   * @throws IOException
-   *           cannot write TsFile
-   * @throws WriteProcessException
-   *           error occurs when writing
+   * @param output a TsFile
+   * @param schema the fileSchema of TsFile
+   * @throws IOException cannot write TsFile
+   * @throws WriteProcessException error occurs when writing
    */
   public TsFile(ITsRandomAccessFileWriter output, FileSchema schema)
       throws IOException, WriteProcessException {
@@ -121,10 +103,8 @@ public class TsFile {
   /**
    * Notice: This constructor is only for reading TsFile.
    *
-   * @param raf
-   *          input reader
-   * @throws IOException
-   *           cannot read TsFile
+   * @param raf input reader
+   * @throws IOException cannot read TsFile
    */
   public TsFile(ITsRandomAccessFileReader raf) throws IOException {
     this.status = READ;
@@ -136,13 +116,10 @@ public class TsFile {
    * write a line into TsFile <br>
    * the corresponding schema must be defined.
    * 
-   * @param line
-   *          a line of data
-   * @throws IOException
-   *           thrown if write process meats IOException like the output stream is closed
-   *           abnormally.
-   * @throws WriteProcessException
-   *           thrown if given data is not matched to fileSchema
+   * @param line a line of data
+   * @throws IOException thrown if write process meats IOException like the output stream is closed
+   *         abnormally.
+   * @throws WriteProcessException thrown if given data is not matched to fileSchema
    */
   public void writeLine(String line) throws IOException, WriteProcessException {
     checkStatus(WRITE);
@@ -153,10 +130,8 @@ public class TsFile {
   /**
    * add a new property, replace old value if already exist.
    *
-   * @param key
-   *          key of property
-   * @param value
-   *          value of property
+   * @param key key of property
+   * @param value value of property
    */
   public void addProp(String key, String value) {
     fileSchema.addProp(key, value);
@@ -165,13 +140,10 @@ public class TsFile {
   /**
    * write a TSRecord into TsFile.
    *
-   * @param tsRecord
-   *          a line of data in form of {@linkplain TSRecord}
-   * @throws IOException
-   *           thrown if write process meats IOException like the output stream is closed
-   *           abnormally.
-   * @throws WriteProcessException
-   *           thrown if given data is not matched to fileSchema
+   * @param tsRecord a line of data in form of {@linkplain TSRecord}
+   * @throws IOException thrown if write process meats IOException like the output stream is closed
+   *         abnormally.
+   * @throws WriteProcessException thrown if given data is not matched to fileSchema
    */
   public void writeRecord(TSRecord tsRecord) throws IOException, WriteProcessException {
     checkStatus(WRITE);
@@ -181,9 +153,8 @@ public class TsFile {
   /**
    * end the write process normally.
    *
-   * @throws IOException
-   *           thrown if write process meats IOException like the output stream is closed
-   *           abnormally.
+   * @throws IOException thrown if write process meats IOException like the output stream is closed
+   *         abnormally.
    */
   public void close() throws IOException {
     if (this.status == WRITE) {
@@ -191,7 +162,7 @@ public class TsFile {
     } else if (this.status == READ) {
       queryEngine.close();
     } else {
-      String[] msg = new String[] { "WRITE", "READ" };
+      String[] msg = new String[] {"WRITE", "READ"};
       throw new IOException("This method should be invoked in status " + msg[status]
           + ", but current status is " + msg[this.status]);
     }
@@ -199,7 +170,7 @@ public class TsFile {
 
 
   public OnePassQueryDataSet query(List<Path> paths, FilterExpression timeFilter,
-                                   FilterExpression valueFilter) throws IOException {
+      FilterExpression valueFilter) throws IOException {
     checkStatus(READ);
     if (paths.size() == 1 && valueFilter instanceof SingleSeriesFilterExpression
         && paths.get(0).getDeltaObjectToString()
@@ -215,7 +186,7 @@ public class TsFile {
 
 
   public OnePassQueryDataSet query(List<Path> paths, FilterExpression timeFilter,
-                                   FilterExpression valueFilter, Map<String, Long> params) throws IOException {
+      FilterExpression valueFilter, Map<String, Long> params) throws IOException {
     checkStatus(READ);
     return queryEngine.query(paths, timeFilter, null, valueFilter, params);
   }
@@ -224,8 +195,7 @@ public class TsFile {
    * Get All information of column(s) for every deltaObject.
    *
    * @return A set of ArrayList SeriesSchema stored in a HashMap separated by deltaObjectId
-   * @throws IOException
-   *           thrown if fail to get all series schema
+   * @throws IOException thrown if fail to get all series schema
    */
   public Map<String, ArrayList<SeriesSchema>> getAllColumns() throws IOException {
     checkStatus(READ);
@@ -236,8 +206,7 @@ public class TsFile {
    * Get RowGroupSize for every deltaObject
    *
    * @return HashMap
-   * @throws IOException
-   *           thrown if fail to get row group count
+   * @throws IOException thrown if fail to get row group count
    */
   public Map<String, Integer> getDeltaObjectRowGroupCount() throws IOException {
     checkStatus(READ);
@@ -246,8 +215,7 @@ public class TsFile {
 
   /**
    * @return a map contains all DeltaObjects with type each.
-   * @throws IOException
-   *           thrown if fail to get delta object type
+   * @throws IOException thrown if fail to get delta object type
    */
   public Map<String, String> getDeltaObjectTypes() throws IOException {
     checkStatus(READ);
@@ -257,11 +225,9 @@ public class TsFile {
   /**
    * Check whether given path exists in this TsFile.
    *
-   * @param path
-   *          A path of one Series
+   * @param path A path of one Series
    * @return if the path exists
-   * @throws IOException
-   *           thrown if fail to check path exists
+   * @throws IOException thrown if fail to check path exists
    */
   public boolean pathExist(Path path) throws IOException {
     checkStatus(READ);
@@ -270,8 +236,7 @@ public class TsFile {
 
   /**
    * @return all deltaObjects' name in current TsFile
-   * @throws IOException
-   *           thrown if fail to get all delta object
+   * @throws IOException thrown if fail to get all delta object
    */
   public ArrayList<String> getAllDeltaObject() throws IOException {
     checkStatus(READ);
@@ -280,8 +245,7 @@ public class TsFile {
 
   /**
    * @return all series' schemas in current TsFile
-   * @throws IOException
-   *           thrown if fail to all series
+   * @throws IOException thrown if fail to all series
    */
   public List<SeriesSchema> getAllSeries() throws IOException {
     checkStatus(READ);
@@ -292,8 +256,7 @@ public class TsFile {
    * Get all RowGroups' offsets in current TsFile
    *
    * @return res.get(i) represents the End-Position for specific rowGroup i in this file.
-   * @throws IOException
-   *           thrown if fail to get row group pos list
+   * @throws IOException thrown if fail to get row group pos list
    */
   public ArrayList<Long> getRowGroupPosList() throws IOException {
     checkStatus(READ);
@@ -319,8 +282,7 @@ public class TsFile {
   /**
    * clear and set new properties.
    *
-   * @param props
-   *          properties in map struct
+   * @param props properties in map struct
    */
   public void setProps(Map<String, String> props) {
     fileSchema.setProps(props);
@@ -332,7 +294,7 @@ public class TsFile {
 
   private void checkStatus(int status) throws IOException {
     if (status != this.status) {
-      String[] msg = new String[] { "WRITE", "READ" };
+      String[] msg = new String[] {"WRITE", "READ"};
       throw new IOException("This method should be invoked in status " + msg[status]
           + ", but current status is " + msg[this.status]);
     }

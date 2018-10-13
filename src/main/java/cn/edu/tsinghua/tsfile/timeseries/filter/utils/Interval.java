@@ -11,16 +11,16 @@ package cn.edu.tsinghua.tsfile.timeseries.filter.utils;
  * @author CGF
  */
 public abstract class Interval {
-    // value array max num
-    protected static final int arrayMaxn = 100;
-    // visit array to judge whether pos[i] and pos[i+1] could be reached
-    // flag[i]=true represents that v[i] could be reached
-    // flag[i]=false represents that v[i] could not be reached
-    public boolean[] flag = new boolean[arrayMaxn];
-    // to identify the last position of array
-    public int count = 0;
+  // value array max num
+  protected static final int arrayMaxn = 100;
+  // visit array to judge whether pos[i] and pos[i+1] could be reached
+  // flag[i]=true represents that v[i] could be reached
+  // flag[i]=false represents that v[i] could not be reached
+  public boolean[] flag = new boolean[arrayMaxn];
+  // to identify the last position of array
+  public int count = 0;
 
-    public Interval() {
-        this.count = 0;
-    }
+  public Interval() {
+    this.count = 0;
+  }
 }

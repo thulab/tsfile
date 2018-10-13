@@ -7,8 +7,8 @@ import java.io.IOException;
  */
 public interface TimestampGenerator {
 
-    boolean hasNext() throws IOException;
+  boolean hasNext() throws IOException;
 
-    long next() throws IOException;
+  long next() throws IOException;
 
 }

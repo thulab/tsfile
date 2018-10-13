@@ -5,8 +5,8 @@ import org.junit.Test;
 
 public class NoFilterTest {
 
-    @Test
-    public void noFilterTest() {
+  @Test
+  public void noFilterTest() {
 
-    }
+  }
 }

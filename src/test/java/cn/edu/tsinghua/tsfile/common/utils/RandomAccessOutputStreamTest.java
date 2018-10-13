@@ -1,12 +1,10 @@
 package cn.edu.tsinghua.tsfile.common.utils;
 
 import static org.junit.Assert.assertEquals;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
-
 import org.junit.Test;
 
 public class RandomAccessOutputStreamTest {

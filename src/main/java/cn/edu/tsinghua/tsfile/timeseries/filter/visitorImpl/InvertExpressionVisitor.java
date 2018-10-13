@@ -6,64 +6,63 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.definition.SingleSeriesFilterExp
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.operators.*;
 
 /**
- * Invert(FilterExpression) = Not(FilterExpression)
- * Implemented using visitor pattern.
+ * Invert(FilterExpression) = Not(FilterExpression) Implemented using visitor pattern.
  *
  * @author CGF
  */
 public class InvertExpressionVisitor implements FilterVisitor<FilterExpression> {
 
-    // to invert the expression recursively
-    public FilterExpression invert(FilterExpression fe) {
-        return fe.accept(this);
+  // to invert the expression recursively
+  public FilterExpression invert(FilterExpression fe) {
+    return fe.accept(this);
+  }
+
+  @Override
+  public <T extends Comparable<T>> FilterExpression visit(Eq<T> eq) {
+    return new NotEq<T>(eq.getFilterSeries(), eq.getValue());
+  }
+
+  @Override
+  public <T extends Comparable<T>> FilterExpression visit(NotEq<T> notEq) {
+    return new Eq<T>(notEq.getFilterSeries(), notEq.getValue());
+  }
+
+  @Override
+  public <T extends Comparable<T>> FilterExpression visit(LtEq<T> ltEq) {
+    if (ltEq.getIfEq()) {
+      return FilterFactory.gtEq(ltEq.getFilterSeries(), ltEq.getValue(), false);
     }
 
-    @Override
-    public <T extends Comparable<T>> FilterExpression visit(Eq<T> eq) {
-        return new NotEq<T>(eq.getFilterSeries(), eq.getValue());
+    return FilterFactory.gtEq(ltEq.getFilterSeries(), ltEq.getValue(), true);
+  }
+
+  @Override
+  public <T extends Comparable<T>> FilterExpression visit(GtEq<T> gtEq) {
+    if (gtEq.getIfEq()) {
+      return FilterFactory.ltEq(gtEq.getFilterSeries(), gtEq.getValue(), false);
     }
 
-    @Override
-    public <T extends Comparable<T>> FilterExpression visit(NotEq<T> notEq) {
-        return new Eq<T>(notEq.getFilterSeries(), notEq.getValue());
-    }
+    return FilterFactory.ltEq(gtEq.getFilterSeries(), gtEq.getValue(), true);
+  }
 
-    @Override
-    public <T extends Comparable<T>> FilterExpression visit(LtEq<T> ltEq) {
-        if (ltEq.getIfEq()) {
-            return FilterFactory.gtEq(ltEq.getFilterSeries(), ltEq.getValue(), false);
-        }
+  @Override
+  public FilterExpression visit(And and) {
+    return FilterFactory.or(invert(and.getLeft()), invert(and.getRight()));
+  }
 
-        return FilterFactory.gtEq(ltEq.getFilterSeries(), ltEq.getValue(), true);
-    }
+  @Override
+  public FilterExpression visit(Or or) {
+    return FilterFactory.and(invert(or.getLeft()), invert(or.getRight()));
+  }
 
-    @Override
-    public <T extends Comparable<T>> FilterExpression visit(GtEq<T> gtEq) {
-        if (gtEq.getIfEq()) {
-            return FilterFactory.ltEq(gtEq.getFilterSeries(), gtEq.getValue(), false);
-        }
+  @Override
+  public FilterExpression visit(NoFilter noFilter) {
+    return null;
+  }
 
-        return FilterFactory.ltEq(gtEq.getFilterSeries(), gtEq.getValue(), true);
-    }
-
-    @Override
-    public FilterExpression visit(And and) {
-        return FilterFactory.or(invert(and.getLeft()), invert(and.getRight()));
-    }
-
-    @Override
-    public FilterExpression visit(Or or) {
-        return FilterFactory.and(invert(or.getLeft()), invert(or.getRight()));
-    }
-
-    @Override
-    public FilterExpression visit(NoFilter noFilter) {
-        return null;
-    }
-
-    @Override
-    public SingleSeriesFilterExpression visit(Not not) {
-        return not.getFilterExpression();
-    }
+  @Override
+  public SingleSeriesFilterExpression visit(Not not) {
+    return not.getFilterExpression();
+  }
 
 }

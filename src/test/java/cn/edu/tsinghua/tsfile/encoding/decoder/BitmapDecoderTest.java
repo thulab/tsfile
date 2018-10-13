@@ -1,12 +1,10 @@
 package cn.edu.tsinghua.tsfile.encoding.decoder;
 
 import static org.junit.Assert.*;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
 import cn.edu.tsinghua.tsfile.encoding.encoder.BitmapEncoder;
 import cn.edu.tsinghua.tsfile.encoding.encoder.Encoder;
@@ -23,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BitmapDecoderTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(BitmapDecoderTest.class);
-  
+
   private List<Integer> intList;
   private List<Boolean> booleanList;
 

@@ -1,12 +1,10 @@
 package cn.edu.tsinghua.tsfile.encoding.decoder.delta;
 
 import static org.junit.Assert.assertEquals;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Random;
-
 import cn.edu.tsinghua.tsfile.encoding.decoder.DeltaBinaryDecoder;
 import cn.edu.tsinghua.tsfile.encoding.encoder.DeltaBinaryEncoder;
 import org.junit.Before;
