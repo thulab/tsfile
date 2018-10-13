@@ -6,5 +6,5 @@ package cn.edu.tsinghua.tsfile.timeseries.filter.definition.filterseries;
  * @author CGF
  */
 public enum FilterSeriesType {
-    TIME_FILTER, FREQUENCY_FILTER, VALUE_FILTER
+  TIME_FILTER, FREQUENCY_FILTER, VALUE_FILTER
 }

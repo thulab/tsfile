@@ -49,7 +49,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     this.type = type;
     this.measurementId = measurementId;
     this.encoding = encoding;
-    this.props = props == null? Collections.emptyMap(): props;
+    this.props = props == null ? Collections.emptyMap() : props;
     this.conf = TSFileDescriptor.getInstance().getConfig();
     // initialize TSDataType. e.g. set data values for enum type
     if (type == TSDataType.ENUMS) {
@@ -62,8 +62,8 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     if (props != null && props.containsKey(JsonFormatConstant.COMPRESS_TYPE)) {
       this.compressor = Compressor.getCompressor(props.get(JsonFormatConstant.COMPRESS_TYPE));
     } else {
-      this.compressor = Compressor
-          .getCompressor(TSFileDescriptor.getInstance().getConfig().compressor);
+      this.compressor =
+          Compressor.getCompressor(TSFileDescriptor.getInstance().getConfig().compressor);
     }
   }
 
@@ -71,7 +71,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     return measurementId;
   }
 
-  public Map<String, String> getProps(){
+  public Map<String, String> getProps() {
     return props;
   }
 
@@ -143,8 +143,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
    * data type calling this method<br>
    * e.g. enum:[MAN(0),WOMAN(1)],calls parseEnumValue("WOMAN"),return 1
    *
-   * @param string
-   *          - enum value in type of string
+   * @param string - enum value in type of string
    * @return - ordinal integer in enum field
    */
   public int parseEnumValue(String string) {

@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.format.DataType;
 import cn.edu.tsinghua.tsfile.format.TimeInTimeSeriesChunkMetaData;
@@ -18,7 +17,6 @@ import cn.edu.tsinghua.tsfile.format.FreqType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
 
 public class TInTimeSeriesChunkMetaDataTest {
@@ -64,7 +62,7 @@ public class TInTimeSeriesChunkMetaDataTest {
     FileInputStream fis = new FileInputStream(new File(PATH));
     Utils.isTSeriesChunkMetadataEqual(metaData, metaData.convertToThrift());
     Utils.isTSeriesChunkMetadataEqual(metaData,
-    		ReadWriteThriftFormatUtils.read(fis, new TimeInTimeSeriesChunkMetaData()));
+        ReadWriteThriftFormatUtils.read(fis, new TimeInTimeSeriesChunkMetaData()));
   }
 
   @Test

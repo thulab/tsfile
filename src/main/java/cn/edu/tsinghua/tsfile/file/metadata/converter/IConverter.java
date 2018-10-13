@@ -6,17 +6,17 @@ package cn.edu.tsinghua.tsfile.file.metadata.converter;
  * @param <T> TsFile-defined type
  */
 public interface IConverter<T> {
-    /**
-     * convert TSFile format metadata to thrift format
-     *
-     * @return metadata in thrift format
-     */
-    T convertToThrift();
+  /**
+   * convert TSFile format metadata to thrift format
+   *
+   * @return metadata in thrift format
+   */
+  T convertToThrift();
 
-    /**
-     * convert thrift format metadata to TSFile format
-     *
-     * @param metadata metadata in thrift format
-     */
-    void convertToTSF(T metadata);
+  /**
+   * convert thrift format metadata to TSFile format
+   *
+   * @param metadata metadata in thrift format
+   */
+  void convertToTSF(T metadata);
 }

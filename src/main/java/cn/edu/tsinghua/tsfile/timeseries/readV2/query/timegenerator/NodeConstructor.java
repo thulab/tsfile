@@ -10,7 +10,6 @@ import cn.edu.tsinghua.tsfile.timeseries.readV2.query.timegenerator.node.LeafNod
 import cn.edu.tsinghua.tsfile.timeseries.readV2.query.timegenerator.node.Node;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.query.timegenerator.node.OrNode;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.SeriesReader;
-
 import java.io.IOException;
 
 /**
@@ -18,21 +17,23 @@ import java.io.IOException;
  */
 public abstract class NodeConstructor {
 
-    public Node construct(QueryFilter queryFilter) throws IOException {
-        if (queryFilter.getType() == QueryFilterType.SERIES) {
-            return new LeafNode(generateSeriesReader((SeriesFilter) queryFilter));
-        } else if (queryFilter.getType() == QueryFilterType.OR) {
-            Node leftChild = construct(((BinaryQueryFilter) queryFilter).getLeft());
-            Node rightChild = construct(((BinaryQueryFilter) queryFilter).getRight());
-            return new OrNode(leftChild, rightChild);
-        } else if (queryFilter.getType() == QueryFilterType.AND) {
-            Node leftChild = construct(((BinaryQueryFilter) queryFilter).getLeft());
-            Node rightChild = construct(((BinaryQueryFilter) queryFilter).getRight());
-            return new AndNode(leftChild, rightChild);
-        }
-        throw new UnSupportedDataTypeException("Unsupported QueryFilterType when construct OperatorNode: " + queryFilter.getType());
+  public Node construct(QueryFilter queryFilter) throws IOException {
+    if (queryFilter.getType() == QueryFilterType.SERIES) {
+      return new LeafNode(generateSeriesReader((SeriesFilter) queryFilter));
+    } else if (queryFilter.getType() == QueryFilterType.OR) {
+      Node leftChild = construct(((BinaryQueryFilter) queryFilter).getLeft());
+      Node rightChild = construct(((BinaryQueryFilter) queryFilter).getRight());
+      return new OrNode(leftChild, rightChild);
+    } else if (queryFilter.getType() == QueryFilterType.AND) {
+      Node leftChild = construct(((BinaryQueryFilter) queryFilter).getLeft());
+      Node rightChild = construct(((BinaryQueryFilter) queryFilter).getRight());
+      return new AndNode(leftChild, rightChild);
     }
+    throw new UnSupportedDataTypeException(
+        "Unsupported QueryFilterType when construct OperatorNode: " + queryFilter.getType());
+  }
 
-    public abstract SeriesReader generateSeriesReader(SeriesFilter<?> seriesFilter) throws IOException;
+  public abstract SeriesReader generateSeriesReader(SeriesFilter<?> seriesFilter)
+      throws IOException;
 
 }

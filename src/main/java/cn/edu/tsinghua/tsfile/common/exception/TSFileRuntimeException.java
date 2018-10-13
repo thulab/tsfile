@@ -7,21 +7,21 @@ package cn.edu.tsinghua.tsfile.common.exception;
  * @author kangrong
  */
 abstract public class TSFileRuntimeException extends RuntimeException {
-    private static final long serialVersionUID = 6455048223316780984L;
+  private static final long serialVersionUID = 6455048223316780984L;
 
-    public TSFileRuntimeException() {
-        super();
-    }
+  public TSFileRuntimeException() {
+    super();
+  }
 
-    public TSFileRuntimeException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public TSFileRuntimeException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public TSFileRuntimeException(String message) {
-        super(message);
-    }
+  public TSFileRuntimeException(String message) {
+    super(message);
+  }
 
-    public TSFileRuntimeException(Throwable cause) {
-        super(cause);
-    }
+  public TSFileRuntimeException(Throwable cause) {
+    super(cause);
+  }
 }

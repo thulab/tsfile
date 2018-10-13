@@ -9,15 +9,15 @@ import java.io.IOException;
  */
 public interface ITsRandomAccessFileReader {
 
-    void seek(long offset) throws IOException;
+  void seek(long offset) throws IOException;
 
-    int read() throws IOException;
+  int read() throws IOException;
 
-    int read(byte[] b, int off, int len) throws IOException;
+  int read(byte[] b, int off, int len) throws IOException;
 
-    long length() throws IOException;
+  long length() throws IOException;
 
-    int readInt() throws IOException;
+  int readInt() throws IOException;
 
-    void close() throws IOException;
+  void close() throws IOException;
 }

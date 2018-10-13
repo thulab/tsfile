@@ -2,12 +2,10 @@ package cn.edu.tsinghua.tsfile.timeseries.write.schema.converter;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
@@ -50,10 +48,8 @@ public class JsonConverter {
   /**
    * input a FileSchema and a jsonObject to be converted,
    *
-   * @param jsonSchema
-   *          the whole schema in type of JSONObject
-   * @throws InvalidJsonSchemaException
-   *           throw exception when json schema is not valid
+   * @param jsonSchema the whole schema in type of JSONObject
+   * @throws InvalidJsonSchemaException throw exception when json schema is not valid
    * @return converted measurement descriptors
    */
 
@@ -64,8 +60,8 @@ public class JsonConverter {
       throw new InvalidJsonSchemaException("missing fields:" + JsonFormatConstant.JSON_SCHEMA);
     JSONArray schemaArray = jsonSchema.getJSONArray(JsonFormatConstant.JSON_SCHEMA);
     for (int i = 0; i < schemaArray.length(); i++) {
-      MeasurementDescriptor mDescriptor = convertJsonToMeasureMentDescriptor(
-          schemaArray.getJSONObject(i));
+      MeasurementDescriptor mDescriptor =
+          convertJsonToMeasureMentDescriptor(schemaArray.getJSONObject(i));
       result.put(mDescriptor.getMeasurementId(), mDescriptor);
     }
     return result;
@@ -95,8 +91,8 @@ public class JsonConverter {
     String measurementId = measurementObj.getString(JsonFormatConstant.MEASUREMENT_UID);
     TSDataType type = TSDataType.valueOf(measurementObj.getString(JsonFormatConstant.DATA_TYPE));
     // encoding information
-    TSEncoding encoding = TSEncoding
-        .valueOf(measurementObj.getString(JsonFormatConstant.MEASUREMENT_ENCODING));
+    TSEncoding encoding =
+        TSEncoding.valueOf(measurementObj.getString(JsonFormatConstant.MEASUREMENT_ENCODING));
     // all information of one series
     Map<String, String> props = new HashMap<>();
     for (Object key : measurementObj.keySet()) {
@@ -109,13 +105,11 @@ public class JsonConverter {
   /**
    * given a FileSchema and convert it into a JSONObject
    *
-   * @param fileSchema
-   *          the given schema in type of {@linkplain FileSchema FileSchema}
+   * @param fileSchema the given schema in type of {@linkplain FileSchema FileSchema}
    * @return converted File Schema in type of JSONObject
    */
 
-  public static JSONObject converterFileSchemaToJson(
-          FileSchema fileSchema) {
+  public static JSONObject converterFileSchemaToJson(FileSchema fileSchema) {
     JSONObject ret = new JSONObject();
     JSONArray jsonSchema = new JSONArray();
     JSONObject jsonProperties = new JSONObject();
@@ -130,11 +124,13 @@ public class JsonConverter {
   }
 
   private static JSONObject convertMeasurementDescriptorToJson(
-          MeasurementDescriptor measurementDescriptor) {
+      MeasurementDescriptor measurementDescriptor) {
     JSONObject measurementObj = new JSONObject();
-    measurementObj.put(JsonFormatConstant.MEASUREMENT_UID, measurementDescriptor.getMeasurementId());
+    measurementObj.put(JsonFormatConstant.MEASUREMENT_UID,
+        measurementDescriptor.getMeasurementId());
     measurementObj.put(JsonFormatConstant.DATA_TYPE, measurementDescriptor.getType().toString());
-    measurementObj.put(JsonFormatConstant.MEASUREMENT_ENCODING, measurementDescriptor.getEncodingType().toString());
+    measurementObj.put(JsonFormatConstant.MEASUREMENT_ENCODING,
+        measurementDescriptor.getEncodingType().toString());
     measurementDescriptor.getProps().forEach(measurementObj::put);
     return measurementObj;
   }

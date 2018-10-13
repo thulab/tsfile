@@ -11,7 +11,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -21,30 +20,34 @@ import java.util.List;
 
 public class SeriesChunkLoaderTest {
 
-    private static final String FILE_PATH = TsFileGeneratorForTest.outputDataFile;
-    private ITsRandomAccessFileReader randomAccessFileReader;
+  private static final String FILE_PATH = TsFileGeneratorForTest.outputDataFile;
+  private ITsRandomAccessFileReader randomAccessFileReader;
 
-    @Before
-    public void before() throws InterruptedException, WriteProcessException, IOException {
-        TsFileGeneratorForTest.generateFile(1000000, 1024 * 1024, 10000);
+  @Before
+  public void before() throws InterruptedException, WriteProcessException, IOException {
+    TsFileGeneratorForTest.generateFile(1000000, 1024 * 1024, 10000);
+  }
+
+  @After
+  public void after() throws IOException {
+    randomAccessFileReader.close();
+    TsFileGeneratorForTest.after();
+  }
+
+  @Test
+  public void test() throws IOException {
+    randomAccessFileReader = new TsRandomAccessLocalFileReader(FILE_PATH);
+    MetadataQuerierByFileImpl metadataQuerierByFile =
+        new MetadataQuerierByFileImpl(randomAccessFileReader);
+    List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList =
+        metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d2.s1"));
+
+    SeriesChunkLoaderImpl seriesChunkLoader = new SeriesChunkLoaderImpl(randomAccessFileReader);
+    for (EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor : encodedSeriesChunkDescriptorList) {
+      MemSeriesChunk memSeriesChunk =
+          seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
+      Assert.assertEquals(encodedSeriesChunkDescriptor.getLengthOfBytes(),
+          memSeriesChunk.getSeriesChunkBodyStream().available());
     }
-
-    @After
-    public void after() throws IOException {
-        randomAccessFileReader.close();
-        TsFileGeneratorForTest.after();
-    }
-
-    @Test
-    public void test() throws IOException {
-        randomAccessFileReader = new TsRandomAccessLocalFileReader(FILE_PATH);
-        MetadataQuerierByFileImpl metadataQuerierByFile = new MetadataQuerierByFileImpl(randomAccessFileReader);
-        List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d2.s1"));
-
-        SeriesChunkLoaderImpl seriesChunkLoader = new SeriesChunkLoaderImpl(randomAccessFileReader);
-        for (EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor : encodedSeriesChunkDescriptorList) {
-            MemSeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
-            Assert.assertEquals(encodedSeriesChunkDescriptor.getLengthOfBytes(), memSeriesChunk.getSeriesChunkBodyStream().available());
-        }
-    }
+  }
 }

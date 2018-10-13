@@ -7,7 +7,7 @@ import java.io.InputStream;
  */
 public interface SeriesChunk {
 
-    SeriesChunkDescriptor getEncodedSeriesChunkDescriptor();
+  SeriesChunkDescriptor getEncodedSeriesChunkDescriptor();
 
-    InputStream getSeriesChunkBodyStream();
+  InputStream getSeriesChunkBodyStream();
 }

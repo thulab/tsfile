@@ -9,7 +9,7 @@ import java.util.Random;
  *
  */
 public class TimeseriesTestConstant {
-    public static final float float_min_delta = 0.00001f;
-    public static final double double_min_delta = 0.00001d;
-    public static final Random random = new Random(System.currentTimeMillis());
+  public static final float float_min_delta = 0.00001f;
+  public static final double double_min_delta = 0.00001d;
+  public static final Random random = new Random(System.currentTimeMillis());
 }

@@ -7,9 +7,9 @@ package cn.edu.tsinghua.tsfile.timeseries.write.exception;
  */
 public class NoMeasurementException extends WriteProcessException {
 
-    private static final long serialVersionUID = -5599767368831572747L;
+  private static final long serialVersionUID = -5599767368831572747L;
 
-    public NoMeasurementException(String msg) {
-        super(msg);
-    }
+  public NoMeasurementException(String msg) {
+    super(msg);
+  }
 }

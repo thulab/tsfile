@@ -13,15 +13,15 @@ import java.io.OutputStream;
  * @author kangrong
  */
 public interface ITsRandomAccessFileWriter {
-    long getPos() throws IOException;
+  long getPos() throws IOException;
 
-    void seek(long offset) throws IOException;
+  void seek(long offset) throws IOException;
 
-    void write(byte[] b) throws IOException;
+  void write(byte[] b) throws IOException;
 
-    void write(int b) throws IOException;
+  void write(int b) throws IOException;
 
-    void close() throws IOException;
+  void close() throws IOException;
 
-    OutputStream getOutputStream();
+  OutputStream getOutputStream();
 }

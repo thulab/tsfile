@@ -14,24 +14,24 @@ import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
  */
 public class Lt<T extends Comparable<T>> extends UnaryFilter<T> {
 
-    private static final long serialVersionUID = -2088181659871608986L;
+  private static final long serialVersionUID = -2088181659871608986L;
 
-    public Lt(T value, FilterType filterType) {
-        super(value, filterType);
-    }
+  public Lt(T value, FilterType filterType) {
+    super(value, filterType);
+  }
 
-    @Override
-    public <R> R accept(AbstractFilterVisitor<R> visitor) {
-        return visitor.visit(this);
-    }
+  @Override
+  public <R> R accept(AbstractFilterVisitor<R> visitor) {
+    return visitor.visit(this);
+  }
 
-    @Override
-    public <R> R accept(TimeValuePair value, TimeValuePairFilterVisitor<R> visitor) {
-        return visitor.visit(value, this);
-    }
+  @Override
+  public <R> R accept(TimeValuePair value, TimeValuePairFilterVisitor<R> visitor) {
+    return visitor.visit(value, this);
+  }
 
-    @Override
-    public String toString() {
-        return getFilterType() + " < " + value;
-    }
+  @Override
+  public String toString() {
+    return getFilterType() + " < " + value;
+  }
 }

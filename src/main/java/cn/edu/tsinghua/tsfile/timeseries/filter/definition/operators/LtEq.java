@@ -11,31 +11,31 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.visitorImpl.FilterVisitor;
  */
 public class LtEq<T extends Comparable<T>> extends SingleUnaryExpression<T> {
 
-    private static final long serialVersionUID = -6472106605198074799L;
+  private static final long serialVersionUID = -6472106605198074799L;
 
-    public Boolean ifEq = false; // To judge whether equals(true if LtEq
-    // operator means less than and equals),
-    // false by default
+  public Boolean ifEq = false; // To judge whether equals(true if LtEq
+  // operator means less than and equals),
+  // false by default
 
-    public LtEq(FilterSeries<T> filterSeries, T value, Boolean ifEq) {
-        super(filterSeries, value);
-        this.ifEq = ifEq;
-    }
+  public LtEq(FilterSeries<T> filterSeries, T value, Boolean ifEq) {
+    super(filterSeries, value);
+    this.ifEq = ifEq;
+  }
 
-    @Override
-    public <R> R accept(FilterVisitor<R> visitor) {
-        return visitor.visit(this);
-    }
+  @Override
+  public <R> R accept(FilterVisitor<R> visitor) {
+    return visitor.visit(this);
+  }
 
-    public Boolean getIfEq() {
-        return this.ifEq;
-    }
+  public Boolean getIfEq() {
+    return this.ifEq;
+  }
 
-    @Override
-    public String toString() {
-        if (ifEq)
-            return filterSeries + " <= " + value;
-        else
-            return filterSeries + " < " + value;
-    }
+  @Override
+  public String toString() {
+    if (ifEq)
+      return filterSeries + " <= " + value;
+    else
+      return filterSeries + " < " + value;
+  }
 }

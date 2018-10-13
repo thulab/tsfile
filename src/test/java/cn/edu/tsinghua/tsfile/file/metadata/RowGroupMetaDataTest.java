@@ -6,11 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
-
 import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import org.junit.After;
 import org.junit.Before;
@@ -52,7 +50,7 @@ public class RowGroupMetaDataTest {
     Utils.isRowGroupMetaDataEqual(metaData, metaData.convertToThrift());
 
     Utils.isRowGroupMetaDataEqual(metaData,
-    		ReadWriteThriftFormatUtils.read(fis, new cn.edu.tsinghua.tsfile.format.RowGroupMetaData()));
+        ReadWriteThriftFormatUtils.read(fis, new cn.edu.tsinghua.tsfile.format.RowGroupMetaData()));
   }
 
   @Test

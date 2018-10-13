@@ -7,9 +7,9 @@ package cn.edu.tsinghua.tsfile.common.exception;
  * @author kangrong
  */
 public class DecoderNotFoundException extends Exception {
-    private static final long serialVersionUID = -310868735953605021L;
+  private static final long serialVersionUID = -310868735953605021L;
 
-    public DecoderNotFoundException(String message) {
-        super(message);
-    }
+  public DecoderNotFoundException(String message) {
+    super(message);
+  }
 }

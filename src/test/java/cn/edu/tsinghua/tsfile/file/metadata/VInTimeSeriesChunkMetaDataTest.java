@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.format.DataType;
@@ -21,9 +20,10 @@ import org.junit.Test;
 public class VInTimeSeriesChunkMetaDataTest {
   private VInTimeSeriesChunkMetaData metaData;
   public static final int MAX_ERROR = 1232;
-//  public static final String maxString = "3244324";
-//  public static final String minString = "fddsfsfgd";
+  // public static final String maxString = "3244324";
+  // public static final String minString = "fddsfsfgd";
   final String PATH = "target/outputV.ksn";
+
   @Before
   public void setUp() throws Exception {
     metaData = new VInTimeSeriesChunkMetaData();
@@ -38,8 +38,9 @@ public class VInTimeSeriesChunkMetaDataTest {
 
   @Test
   public void testWriteIntoFile() throws IOException {
-    VInTimeSeriesChunkMetaData metaData = TestHelper.createSimpleV2InTSF(TSDataType.TEXT, new TsDigest());
-    
+    VInTimeSeriesChunkMetaData metaData =
+        TestHelper.createSimpleV2InTSF(TSDataType.TEXT, new TsDigest());
+
     File file = new File(PATH);
     if (file.exists())
       file.delete();
@@ -53,7 +54,7 @@ public class VInTimeSeriesChunkMetaDataTest {
     FileInputStream fis = new FileInputStream(new File(PATH));
     Utils.isVSeriesChunkMetadataEqual(metaData, metaData.convertToThrift());
     Utils.isVSeriesChunkMetadataEqual(metaData,
-    		ReadWriteThriftFormatUtils.read(fis, new ValueInTimeSeriesChunkMetaData()));
+        ReadWriteThriftFormatUtils.read(fis, new ValueInTimeSeriesChunkMetaData()));
   }
 
   @Test
@@ -95,7 +96,7 @@ public class VInTimeSeriesChunkMetaDataTest {
       valueInTimeSeriesChunkMetaData.setDigest(new Digest());
       metaData.convertToTSF(valueInTimeSeriesChunkMetaData);
       Utils.isVSeriesChunkMetadataEqual(metaData, valueInTimeSeriesChunkMetaData);
-      
+
       valueInTimeSeriesChunkMetaData.setDigest(TestHelper.createSimpleDigest());
       metaData.convertToTSF(valueInTimeSeriesChunkMetaData);
       Utils.isVSeriesChunkMetadataEqual(metaData, valueInTimeSeriesChunkMetaData);

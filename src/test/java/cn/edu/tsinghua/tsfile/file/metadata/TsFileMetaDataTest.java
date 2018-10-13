@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import cn.edu.tsinghua.tsfile.file.metadata.converter.TsFileMetaDataConverter;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 import cn.edu.tsinghua.tsfile.format.TimeSeries;
@@ -31,23 +30,23 @@ public class TsFileMetaDataTest {
   public static Map<String, TsDeltaObject> tsDeltaObjectMap = new HashMap<>();
   public static Map<String, DeltaObject> deltaObjectMap = new HashMap<>();
   static {
-      properties.put("s1", "sensor1");
-      properties.put("s2", "sensor2");
-      properties.put("s3", "sensor3");
+    properties.put("s1", "sensor1");
+    properties.put("s2", "sensor2");
+    properties.put("s3", "sensor3");
   }
-  
+
   static {
-	  tsDeltaObjectMap.put("d1", new TsDeltaObject(123, 456, 789, 901));
-	  tsDeltaObjectMap.put("d2", new TsDeltaObject(123, 456, 789, 901));
-	  tsDeltaObjectMap.put("d3", new TsDeltaObject(123, 456, 789, 901));
+    tsDeltaObjectMap.put("d1", new TsDeltaObject(123, 456, 789, 901));
+    tsDeltaObjectMap.put("d2", new TsDeltaObject(123, 456, 789, 901));
+    tsDeltaObjectMap.put("d3", new TsDeltaObject(123, 456, 789, 901));
   }
-  
+
   static {
-	  deltaObjectMap.put("d1", new DeltaObject(123, 456, 789, 901));
-	  deltaObjectMap.put("d2", new DeltaObject(123, 456, 789, 901));
-	  deltaObjectMap.put("d3", new DeltaObject(123, 456, 789, 901));
+    deltaObjectMap.put("d1", new DeltaObject(123, 456, 789, 901));
+    deltaObjectMap.put("d2", new DeltaObject(123, 456, 789, 901));
+    deltaObjectMap.put("d3", new DeltaObject(123, 456, 789, 901));
   }
-  
+
   @Before
   public void setUp() throws Exception {
     converter = new TsFileMetaDataConverter();
@@ -69,8 +68,8 @@ public class TsFileMetaDataTest {
     List<String> jsonMetaData = new ArrayList<String>();
     jsonMetaData.add("fsdfsfsd");
     jsonMetaData.add("424fd");
-    tsfMetaData.setJsonMetaData(jsonMetaData);    
-    
+    tsfMetaData.setJsonMetaData(jsonMetaData);
+
     tsfMetaData.setProps(properties);
     tsfMetaData.addProp("key1", "value1");
 
@@ -87,8 +86,7 @@ public class TsFileMetaDataTest {
 
     FileInputStream fis = new FileInputStream(new File(PATH));
 
-    FileMetaData fileMetaData2 =
-        ReadWriteThriftFormatUtils.readFileMetaData(fis);
+    FileMetaData fileMetaData2 = ReadWriteThriftFormatUtils.readFileMetaData(fis);
     Utils.isFileMetaDataEqual(tsfMetaData, fileMetaData2);
   }
 
@@ -109,7 +107,7 @@ public class TsFileMetaDataTest {
 
     tsfMetaData.setProps(properties);
     Utils.isFileMetaDataEqual(tsfMetaData, converter.toThriftFileMetadata(tsfMetaData));
-   
+
     tsfMetaData.setTimeSeriesList(new ArrayList<TimeSeriesMetadata>());
     Utils.isFileMetaDataEqual(tsfMetaData, converter.toThriftFileMetadata(tsfMetaData));
 
@@ -126,7 +124,7 @@ public class TsFileMetaDataTest {
 
     fileMetaData.setCreated_by("tsf");
     Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
-    
+
     List<String> jsonMetaData = new ArrayList<String>();
     fileMetaData.setJson_metadata(jsonMetaData);
     Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
@@ -137,7 +135,7 @@ public class TsFileMetaDataTest {
 
     fileMetaData.setProperties(properties);
     Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
-    
+
     fileMetaData.setTimeseries_list(new ArrayList<TimeSeries>());
     Utils.isFileMetaDataEqual(converter.toTsFileMetadata(fileMetaData), fileMetaData);
     fileMetaData.getTimeseries_list().add(TestHelper.createSimpleTimeSeriesInThrift());

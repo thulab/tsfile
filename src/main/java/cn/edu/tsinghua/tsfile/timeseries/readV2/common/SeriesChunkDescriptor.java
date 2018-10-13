@@ -8,15 +8,15 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
  * Created by zhangjinrui on 2018/1/15.
  */
 public interface SeriesChunkDescriptor {
-    TSDataType getDataType();
+  TSDataType getDataType();
 
-    TsDigest getValueDigest();
+  TsDigest getValueDigest();
 
-    long getMinTimestamp();
+  long getMinTimestamp();
 
-    long getMaxTimestamp();
+  long getMaxTimestamp();
 
-    long getCountOfPoints();
+  long getCountOfPoints();
 
-    CompressionTypeName getCompressionTypeName();
+  CompressionTypeName getCompressionTypeName();
 }

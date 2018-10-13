@@ -2,9 +2,7 @@ package cn.edu.tsinghua.tsfile.file.metadata;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Test;
-
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
@@ -19,8 +17,7 @@ public class TimeSeriesMetadataTest {
   @Test
   public void testConvertToThrift() {
     for (TSDataType dataType : TSDataType.values()) {
-      TimeSeriesMetadata timeSeries =
-          new TimeSeriesMetadata(measurementUID, dataType);
+      TimeSeriesMetadata timeSeries = new TimeSeriesMetadata(measurementUID, dataType);
       Utils.isTimeSeriesEqual(timeSeries, timeSeries.convertToThrift());
 
       for (TSFreqType freqType : TSFreqType.values()) {

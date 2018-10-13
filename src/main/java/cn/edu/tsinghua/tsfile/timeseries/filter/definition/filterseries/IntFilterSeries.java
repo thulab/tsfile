@@ -9,10 +9,10 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
  */
 public class IntFilterSeries extends FilterSeries<Integer> {
 
-    private static final long serialVersionUID = -7268852368134017134L;
+  private static final long serialVersionUID = -7268852368134017134L;
 
-    public IntFilterSeries(String deltaObjectUID, String measurementUID, TSDataType seriesDataType,
-                           FilterSeriesType filterType) {
-        super(deltaObjectUID, measurementUID, TSDataType.INT32, filterType);
-    }
+  public IntFilterSeries(String deltaObjectUID, String measurementUID, TSDataType seriesDataType,
+      FilterSeriesType filterType) {
+    super(deltaObjectUID, measurementUID, TSDataType.INT32, filterType);
+  }
 }

@@ -7,31 +7,31 @@ import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
  * @author Jinrui Zhang
  */
 public class SeriesDescriptor {
-    private Path path;
-    private TSDataType dataType;
+  private Path path;
+  private TSDataType dataType;
 
-    public SeriesDescriptor(Path path, TSDataType dataType) {
-        this.path = path;
-        this.dataType = dataType;
-    }
+  public SeriesDescriptor(Path path, TSDataType dataType) {
+    this.path = path;
+    this.dataType = dataType;
+  }
 
-    public Path getPath() {
-        return path;
-    }
+  public Path getPath() {
+    return path;
+  }
 
-    public void setPath(Path path) {
-        this.path = path;
-    }
+  public void setPath(Path path) {
+    this.path = path;
+  }
 
-    public TSDataType getDataType() {
-        return dataType;
-    }
+  public TSDataType getDataType() {
+    return dataType;
+  }
 
-    public void setDataType(TSDataType dataType) {
-        this.dataType = dataType;
-    }
+  public void setDataType(TSDataType dataType) {
+    this.dataType = dataType;
+  }
 
-    public String toString() {
-        return this.path.toString();
-    }
+  public String toString() {
+    return this.path.toString();
+  }
 }

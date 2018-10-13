@@ -6,5 +6,5 @@ package cn.edu.tsinghua.tsfile.encoding.common;
  * @author xuyi
  */
 public enum EndianType {
-    BIG_ENDIAN, LITTLE_ENDIAN
+  BIG_ENDIAN, LITTLE_ENDIAN
 }
