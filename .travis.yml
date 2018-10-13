@@ -25,5 +25,5 @@ script:
   - mvn clean test
   
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash) -t 470b9a7c-1b44-43da-acda-58744be83a8f
 
