@@ -4,12 +4,13 @@ ___________    ___________.__.__
 \__    ___/____\_   _____/|__|  |   ____  
   |    | /  ___/|    __)  |  |  | _/ __ \ 
   |    | \___ \ |     \   |  |  |_\  ___/ 
-  |____|/____  >\___  /   |__|____/\___  >  version 0.7.0
+  |____|/____  >\___  /   |__|____/\___  >  version 0.8.0
              \/     \/                 \/  
 </pre>
 
 ## Status
 [![Build Status](https://travis-ci.org/thulab/tsfile.svg?branch=master)](https://travis-ci.org/thulab/tsfile)
+[![codecov](https://codecov.io/gh/thulab/tsfile/branch/master/graph/badge.svg)](https://codecov.io/gh/thulab/tsfile)
 
 ## Abstract
 
