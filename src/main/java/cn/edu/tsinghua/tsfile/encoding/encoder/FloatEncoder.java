@@ -48,20 +48,20 @@ public class FloatEncoder extends Encoder {
         if (encodingType == TSEncoding.RLE) {
             if (dataType == TSDataType.FLOAT) {
                 encoder = new IntRleEncoder(EndianType.LITTLE_ENDIAN);
-                LOGGER.debug("tsfile-encoding FloatEncoder: init encoder using int-rle and float");
+//                LOGGER.debug("tsfile-encoding FloatEncoder: init encoder using int-rle and float");
             } else if (dataType == TSDataType.DOUBLE) {
                 encoder = new LongRleEncoder(EndianType.LITTLE_ENDIAN);
-                LOGGER.debug("tsfile-encoding FloatEncoder: init encoder using long-rle and double");
+//                LOGGER.debug("tsfile-encoding FloatEncoder: init encoder using long-rle and double");
             } else {
                 throw new TSFileEncodingException(String.format("data type %s is not supported by FloatEncoder", dataType));
             }
         } else if (encodingType == TSEncoding.TS_2DIFF) {
             if (dataType == TSDataType.FLOAT) {
                 encoder = new DeltaBinaryEncoder.IntDeltaEncoder();
-                LOGGER.debug("tsfile-encoding FloatEncoder: init encoder using int-delta and float");
+//                LOGGER.debug("tsfile-encoding FloatEncoder: init encoder using int-delta and float");
             } else if (dataType == TSDataType.DOUBLE) {
                 encoder = new DeltaBinaryEncoder.LongDeltaEncoder();
-                LOGGER.debug("tsfile-encoding FloatEncoder: init encoder using long-delta and double");
+//                LOGGER.debug("tsfile-encoding FloatEncoder: init encoder using long-delta and double");
             } else {
                 throw new TSFileEncodingException(String.format("data type %s is not supported by FloatEncoder", dataType));
             }

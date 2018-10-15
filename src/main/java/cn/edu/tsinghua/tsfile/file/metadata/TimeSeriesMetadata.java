@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * For more information, see TimeSeries in cn.edu.thu.tsfile.format package
+ * For more information, see TimeSeries in cn.edu.thu.tsfile.format package in interface/thrift
  */
 public class TimeSeriesMetadata implements IConverter<TimeSeries> {
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeSeriesMetadata.class);
@@ -33,8 +33,7 @@ public class TimeSeriesMetadata implements IConverter<TimeSeries> {
     private List<Integer> frequencies;
 
     /**
-     * If values for data consist of enum values, metadata will store all possible values in time
-     * series
+     * If values of data consist of enum values, metadata will store all possible values in time series
      */
     private List<String> enumValues;
 
@@ -49,8 +48,8 @@ public class TimeSeriesMetadata implements IConverter<TimeSeries> {
     @Override
     public TimeSeries convertToThrift() {
         try {
-            TimeSeries timeSeriesInThrift = new TimeSeries(measurementUID,
-                    type == null ? null : DataType.valueOf(type.toString()), "");//FIXME remove deltaType from TimeSeries.java
+            TimeSeries timeSeriesInThrift = new TimeSeries(measurementUID, type == null ? null : DataType.valueOf(type.toString()), "");
+            //FIXME remove deltaType from TimeSeries.java
             timeSeriesInThrift.setType_length(typeLength);
             timeSeriesInThrift.setFreq_type(freqType == null ? null : FreqType.valueOf(freqType.toString()));
             timeSeriesInThrift.setFrequencies(frequencies);
@@ -58,9 +57,7 @@ public class TimeSeriesMetadata implements IConverter<TimeSeries> {
             return timeSeriesInThrift;
         } catch (Exception e) {
             if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file TimeSeriesMetadata: failed to convert TimeSeriesMetadata from TSFile to thrift, content is {}",
-                        this, e);
+                LOGGER.error("tsfile-file TimeSeriesMetadata: failed to convert TimeSeriesMetadata from TSFile to thrift, content is {}", this, e);
             throw e;
         }
     }
@@ -69,11 +66,9 @@ public class TimeSeriesMetadata implements IConverter<TimeSeries> {
     public void convertToTSF(TimeSeries timeSeriesInThrift) {
         try {
             measurementUID = timeSeriesInThrift.getMeasurement_uid();
-            type = timeSeriesInThrift.getType() == null ? null
-                    : TSDataType.valueOf(timeSeriesInThrift.getType().toString());
+            type = timeSeriesInThrift.getType() == null ? null : TSDataType.valueOf(timeSeriesInThrift.getType().toString());
             typeLength = timeSeriesInThrift.getType_length();
-            freqType = timeSeriesInThrift.getFreq_type() == null ? null
-                    : TSFreqType.valueOf(timeSeriesInThrift.getFreq_type().toString());
+            freqType = timeSeriesInThrift.getFreq_type() == null ? null : TSFreqType.valueOf(timeSeriesInThrift.getFreq_type().toString());
             frequencies = timeSeriesInThrift.getFrequencies();
             enumValues = timeSeriesInThrift.getEnum_values();
         } catch (Exception e) {

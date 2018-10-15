@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * For more information, see RowGroupMetaData in cn.edu.thu.tsfile.format package
+ * For more information, see RowGroupMetaData in cn.edu.thu.tsfile.format package in interface/thrift
  */
 public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.format.RowGroupMetaData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RowGroupMetaData.class);

@@ -12,7 +12,7 @@ public class TsFileMetaDataConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(TsFileMetaDataConverter.class);
 
     /**
-     * convert tsfile format file matadata to thrift format file matadata
+     * convert tsfile format file metadata to thrift format file metadata
      *
      * @param fileMetadataInTsFile file metadata in tsfile format
      * @return file metadata in thrift format
@@ -48,7 +48,7 @@ public class TsFileMetaDataConverter {
         //PageHeader: PageType--4, uncompressedSize--4,compressedSize--4
         //DatapageHeader: numValues--4, numNulls--4, numRows--4, Encoding--4, isCompressed--1, maxTimestamp--8, minTimestamp--8
         //Digest: max ByteBuffer, min ByteBuffer
-        // * 2 to caculate max object size in memory
+        // * 2 to calculate max object size in memory
 
         return 2 * (45 + digestSize);
     }

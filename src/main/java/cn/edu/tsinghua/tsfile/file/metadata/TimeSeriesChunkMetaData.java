@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * For more information, see TimeSeriesChunkMetaData in cn.edu.thu.tsfile.format package
+ * For more information, see TimeSeriesChunkMetaData in cn.edu.thu.tsfile.format package in interface/thrift
  */
 public class TimeSeriesChunkMetaData
         implements IConverter<cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData> {

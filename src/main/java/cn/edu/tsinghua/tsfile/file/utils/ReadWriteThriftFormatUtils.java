@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * ConverterUtils is a utility class. It provide conversion between tsfile and
+ * A utility class which provides conversion between tsfile and
  * thrift metadata class. It also provides function that read/write page header
  * from/to stream
  *
@@ -45,12 +45,9 @@ public class ReadWriteThriftFormatUtils {
 	/**
 	 * write file metadata(thrift format) to stream
 	 *
-	 * @param fileMetadata
-	 *            file metadata to write
-	 * @param to
-	 *            OutputStream
-	 * @throws IOException
-	 *             cannot write file metadata to OutputStream
+	 * @param fileMetadata file metadata to write
+	 * @param to  OutputStream
+	 * @throws IOException cannot write file metadata to OutputStream
 	 */
 	public static void writeFileMetaData(FileMetaData fileMetadata, OutputStream to) throws IOException {
 		write(fileMetadata, to);
@@ -59,11 +56,9 @@ public class ReadWriteThriftFormatUtils {
 	/**
 	 * read file metadata(thrift format) from stream
 	 *
-	 * @param from
-	 *            InputStream
+	 * @param from InputStream
 	 * @return metadata of TsFile
-	 * @throws IOException
-	 *             cannot read file metadata from OutputStream
+	 * @throws IOException cannot read file metadata from OutputStream
 	 */
 	public static FileMetaData readFileMetaData(InputStream from) throws IOException {
 		return read(from, new FileMetaData());
@@ -83,34 +78,23 @@ public class ReadWriteThriftFormatUtils {
 		byte[] buf = new byte[size];
 		reader.read(buf, 0, buf.length);
 		ByteArrayInputStream bais = new ByteArrayInputStream(buf);
-
 		return readRowGroupBlockMetaData(bais);
 	}
 
 	/**
-	 * write DataPageHeader to output stream. For more information about
+	 * Write create and write a DataPageHeader to output stream. For more information about
 	 * DataPageHeader, see PageHeader and DataPageHeader in tsfile-format
 	 * 
-	 * @param uncompressedSize
-	 *            uncompressed size in byte of one page size
-	 * @param compressedSize
-	 *            compressed size in byte of one page size
-	 * @param numValues
-	 *            number of value
-	 * @param statistics
-	 *            statistics
-	 * @param numRows
-	 *            number of row
-	 * @param encoding
-	 *            encoding type
-	 * @param to
-	 *            Outputstream
-	 * @param max_timestamp
-	 *            max timestamp
-	 * @param min_timestamp
-	 *            min timestamp
-	 * @throws IOException
-	 *             cannot write data page header to OutputStream
+	 * @param uncompressedSize uncompressed size in byte of one page size
+	 * @param compressedSize compressed size in byte of one page size
+	 * @param numValues number of value
+	 * @param statistics statistics
+	 * @param numRows number of row
+	 * @param encoding encoding type
+	 * @param to Outputstream
+	 * @param max_timestamp max timestamp
+	 * @param min_timestamp min timestamp
+	 * @throws IOException cannot write data page header to OutputStream
 	 */
 	public static void writeDataPageHeader(int uncompressedSize, int compressedSize, int numValues,
 			Statistics<?> statistics, int numRows, TSEncoding encoding, OutputStream to, long max_timestamp,
@@ -143,14 +127,11 @@ public class ReadWriteThriftFormatUtils {
 	}
 
 	/**
-	 * write page header(thrift format) to stream
+	 * write a page header(thrift format) to stream
 	 *
-	 * @param pageHeader
-	 *            input page header
-	 * @param to
-	 *            OutputStream
-	 * @throws IOException
-	 *             cannot write page header to OutputStream
+	 * @param pageHeader input page header
+	 * @param to OutputStream
+	 * @throws IOException cannot write page header to OutputStream
 	 */
 	public static void writePageHeader(PageHeader pageHeader, OutputStream to) throws IOException {
 		try {
@@ -162,13 +143,11 @@ public class ReadWriteThriftFormatUtils {
 	}
 
 	/**
-	 * read one page header from stream
+	 * read a page header from stream
 	 *
-	 * @param from
-	 *            InputStream
+	 * @param from InputStream
 	 * @return page header
-	 * @throws IOException
-	 *             cannot read page header from InputStream
+	 * @throws IOException cannot read page header from InputStream
 	 */
 	public static PageHeader readPageHeader(InputStream from) throws IOException {
 		return readPageHeader(from, new PageHeader());
@@ -185,12 +164,10 @@ public class ReadWriteThriftFormatUtils {
 	}
 
 	/**
-	 * @param tbase
-	 *            input class in thrift format
-	 * @param to
-	 *            OutputStream
-	 * @throws IOException
-	 *             exception in IO
+	 * Write tbase(thrift type) to stream
+	 * @param tbase input class in thrift format
+	 * @param to OutputStream
+	 * @throws IOException exception in IO
 	 */
 	public static void write(TBase<?, ?> tbase, OutputStream to) throws IOException {
 		try {
@@ -203,15 +180,12 @@ public class ReadWriteThriftFormatUtils {
 	}
 
 	/**
-	 * @param from
-	 *            InputStream
-	 * @param tbase
-	 *            output class in thrift format
-	 * @param <T>
-	 *            class in thrift-format
-	 * @return Class in thrift format
-	 * @throws IOException
-	 *             exception in IO
+	 * This function reads a T type(thrift type) class from InputStream and store its content in tbase
+	 * @param from InputStream
+	 * @param tbase output class in thrift format
+	 * @param <T> class in thrift-format
+	 * @return tbase with content read from InputStream
+	 * @throws IOException  exception in IO
 	 */
 	public static <T extends TBase<?, ?>> T read(InputStream from, T tbase) throws IOException {
 		try {
@@ -235,18 +209,12 @@ public class ReadWriteThriftFormatUtils {
 	/**
 	 * In current version, DictionaryPageHeader is not used
 	 * 
-	 * @param uncompressedSize
-	 *            uncompressed size in byte of one page size
-	 * @param compressedSize
-	 *            compressed size in byte of one page size
-	 * @param numValues
-	 *            number of value
-	 * @param encoding
-	 *            encoding type
-	 * @param to
-	 *            Outputstream
-	 * @throws IOException
-	 *             cannot write dictionary page header to OutputStream
+	 * @param uncompressedSize uncompressed size in byte of one page size
+	 * @param compressedSize compressed size in byte of one page size
+	 * @param numValues number of value
+	 * @param encoding encoding type
+	 * @param to Outputstream
+	 * @throws IOExceptionb cannot write dictionary page header to OutputStream
 	 */
 	@Deprecated
 	public void writeDictionaryPageHeader(int uncompressedSize, int compressedSize, int numValues, TSEncoding encoding,
