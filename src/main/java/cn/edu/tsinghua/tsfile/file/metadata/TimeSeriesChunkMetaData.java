@@ -23,7 +23,7 @@ public class TimeSeriesChunkMetaData
     private long numRows;
 
     /**
-     * total byte size of all uncompressed pages in this time series chunk (including the headers)
+     * Total byte size of all uncompressed pages in this time series chunk (including the headers)
      */
     private long totalByteSize;
 
@@ -40,15 +40,17 @@ public class TimeSeriesChunkMetaData
     /**
      * Byte offset from beginning of file to root index page
      */
+    @Deprecated
     private long indexPageOffset;
 
     /**
      * Byte offset from the beginning of file to first (only) dictionary page
      */
+    @Deprecated
     private long dictionaryPageOffset;
 
     /**
-     * one of TSeriesMetaData and VSeriesMetaData is not null
+     * One of TInTimeSeriesChunkMetaData and VInTimeSeriesChunkMetaData is not null
      */
     private TInTimeSeriesChunkMetaData tInTimeSeriesChunkMetaData;
     private VInTimeSeriesChunkMetaData vInTimeSeriesChunkMetaData;

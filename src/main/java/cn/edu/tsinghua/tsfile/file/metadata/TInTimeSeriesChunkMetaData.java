@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * For more information, see TimeInTimeSeriesChunkMetaData
- * in cn.edu.thu.tsfile.format package
+ * in cn.edu.thu.tsfile.format package in interface/thrift
  */
 public class TInTimeSeriesChunkMetaData implements IConverter<TimeInTimeSeriesChunkMetaData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(TInTimeSeriesChunkMetaData.class);
@@ -29,6 +29,7 @@ public class TInTimeSeriesChunkMetaData implements IConverter<TimeInTimeSeriesCh
      * If values for data consist of enum values, metadata will store all possible values in time
      * series
      */
+    @Deprecated
     private List<String> enumValues;
 
     public TInTimeSeriesChunkMetaData() {

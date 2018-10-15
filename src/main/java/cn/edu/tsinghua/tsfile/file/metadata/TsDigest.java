@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * For more information, see Digest in cn.edu.thu.tsfile.format package
+ * For more information, see Digest in cn.edu.thu.tsfile.format package in interface/thrift
  */
 public class TsDigest implements IConverter<Digest> {
 	/**

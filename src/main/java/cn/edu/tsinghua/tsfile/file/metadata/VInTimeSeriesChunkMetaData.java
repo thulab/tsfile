@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * For more information, see ValueInTimeSeriesChunkMetaData
- * in cn.edu.thu.tsfile.format package
+ * in cn.edu.thu.tsfile.format package in interface/thrift
  */
 public class VInTimeSeriesChunkMetaData implements IConverter<ValueInTimeSeriesChunkMetaData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(VInTimeSeriesChunkMetaData.class);
