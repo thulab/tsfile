@@ -25,5 +25,6 @@ script:
   - mvn clean test
   
 after_success:
+  - mvn cobertura:cobertura
   - bash <(curl -s https://codecov.io/bash) -t 470b9a7c-1b44-43da-acda-58744be83a8f
 
