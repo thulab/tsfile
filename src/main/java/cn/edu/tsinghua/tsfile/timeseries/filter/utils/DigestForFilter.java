@@ -34,43 +34,31 @@ public class DigestForFilter {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Comparable<T>> T getMinValue() {
+    private  <T extends Comparable<T>> T getValue(ByteBuffer value){
         switch (type) {
             case INT32:
-                return (T) ((Integer) BytesUtils.bytesToInt(min.array()));
+                return (T) ((Integer) BytesUtils.bytesToInt(value.array()));
             case INT64:
-                return (T) ((Long) BytesUtils.bytesToLong(min.array()));
+                return (T) ((Long) BytesUtils.bytesToLong(value.array()));
             case FLOAT:
-                return (T) ((Float) BytesUtils.bytesToFloat(min.array()));
+                return (T) ((Float) BytesUtils.bytesToFloat(value.array()));
             case DOUBLE:
-                return (T) ((Double) BytesUtils.bytesToDouble(min.array()));
+                return (T) ((Double) BytesUtils.bytesToDouble(value.array()));
             case TEXT:
-                return (T) new Binary(BytesUtils.bytesToString(min.array()));
+                return (T) new Binary(BytesUtils.bytesToString(value.array()));
             case BOOLEAN:
-                return (T) (Boolean) BytesUtils.bytesToBool(min.array());
+                return (T) (Boolean) BytesUtils.bytesToBool(value.array());
             default:
                 throw new UnSupportFilterDataTypeException("DigestForFilter unsupported datatype : " + type.toString());
         }
     }
 
-    @SuppressWarnings("unchecked")
+    public <T extends Comparable<T>> T getMinValue() {
+        return getValue(min);
+    }
+
     public <T extends Comparable<T>> T getMaxValue() {
-        switch (type) {
-            case INT32:
-                return (T) ((Integer) BytesUtils.bytesToInt(max.array()));
-            case INT64:
-                return (T) ((Long) BytesUtils.bytesToLong(max.array()));
-            case FLOAT:
-                return (T) ((Float) BytesUtils.bytesToFloat(max.array()));
-            case DOUBLE:
-                return (T) ((Double) BytesUtils.bytesToDouble(max.array()));
-            case TEXT:
-                return (T) new Binary(BytesUtils.bytesToString(max.array()));
-            case BOOLEAN:
-                return (T) (Boolean) BytesUtils.bytesToBool(max.array());
-            default:
-                throw new UnSupportFilterDataTypeException("DigestForFilter unsupported datatype : " + type.toString());
-        }
+        return getValue(max);
     }
 
     public Class<?> getTypeClass() {
