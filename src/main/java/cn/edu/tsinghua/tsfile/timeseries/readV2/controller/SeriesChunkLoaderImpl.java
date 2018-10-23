@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
+ * this class can read data using  Series-Chunk as atomic read unit.
+ * By default, the class will cache latest 100 series-chunk data in memory.
  * Created by zhangjinrui on 2017/12/25.
  */
 public class SeriesChunkLoaderImpl implements SeriesChunkLoader {

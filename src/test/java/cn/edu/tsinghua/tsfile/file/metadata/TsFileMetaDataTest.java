@@ -39,7 +39,7 @@ public class TsFileMetaDataTest {
     if (file.exists())
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
-    TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
+    TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file);
     tsfMetaData.serializeTo(out.getOutputStream());
     out.close();
     fos.close();

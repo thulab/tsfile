@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -37,6 +38,7 @@ public class TsFileIOWriter {
         magicStringBytes = BytesUtils.StringToBytes(TSFileConfig.MAGIC_STRING);
     }
 
+//    private ITsRandomAccessFileWriter out;
     private ITsRandomAccessFileWriter out;
     protected List<RowGroupMetaData> rowGroupMetaDatas = new ArrayList<>();
     private RowGroupMetaData currentRowGroupMetaData;
@@ -74,14 +76,14 @@ public class TsFileIOWriter {
      * the offset.
      *
      * @param output    be used to output written data
-     * @param offset    offset to restore
+     * @param startPosition    offset to restore, the data after the position will be discarded.
      * @param rowGroups given a constructed row group list for fault recovery
      * @throws IOException if I/O error occurs
      */
-    public TsFileIOWriter(ITsRandomAccessFileWriter output, long offset, List<RowGroupMetaData> rowGroups)
+    public TsFileIOWriter(ITsRandomAccessFileWriter output, long startPosition, List<RowGroupMetaData> rowGroups)
             throws IOException {
         this.out = output;
-        out.seek(offset);
+        out.truncate(startPosition);
         this.rowGroupMetaDatas = rowGroups;
     }
 

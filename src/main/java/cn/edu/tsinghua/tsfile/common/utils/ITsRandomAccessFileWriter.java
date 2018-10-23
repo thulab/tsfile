@@ -14,10 +14,18 @@ import java.io.OutputStream;
  * @author kangrong
  */
 @Deprecated
-public interface ITsRandomAccessFileWriter {
+public interface ITsRandomAccessFileWriter{
+
     long getPos() throws IOException;
 
-    void seek(long offset) throws IOException;
+//    void seek(long offset) throws IOException;
+
+    /**
+     * truncate the file. Only preserve the bytes from 0 to the position.
+     * @param length
+     * @throws IOException
+     */
+    void truncate(long length) throws IOException;
 
     void write(byte[] b) throws IOException;
 

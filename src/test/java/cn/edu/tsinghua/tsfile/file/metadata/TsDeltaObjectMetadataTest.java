@@ -38,7 +38,7 @@ public class TsDeltaObjectMetadataTest {
         if (file.exists())
             file.delete();
         FileOutputStream fos = new FileOutputStream(file);
-        TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
+        TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file);
         ReadWriteIOUtils.write(metaData, out.getOutputStream());
         out.close();
         fos.close();

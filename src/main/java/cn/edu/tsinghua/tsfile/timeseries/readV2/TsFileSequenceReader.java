@@ -33,6 +33,7 @@ public class TsFileSequenceReader {
         this.path= Paths.get(file);
     }
     /**
+     * Open a tsfile using Read mode. Then read the metadata size from the file.
      * After open the file, the reader position is at the end of the  magic string in the header.
      * @return
      * @throws IOException
@@ -48,6 +49,7 @@ public class TsFileSequenceReader {
     }
 
     /**
+     * read the magic string at the end of the file
      * this function does not modify the position of the file reader.
      * @return
      * @throws IOException
@@ -60,6 +62,7 @@ public class TsFileSequenceReader {
         return ByteBufferUtil.string(magicStringBytes);
     }
     /**
+     * reand the magic string at the head of the file.
      * this function does not modify the position of the file reader.
      * @return
      * @throws IOException
@@ -72,6 +75,7 @@ public class TsFileSequenceReader {
     }
 
     /**
+     * read all the metadata of the file into memory.
      * this function does not modify the position of the file reader.
      * @return
      * @throws IOException
@@ -83,31 +87,50 @@ public class TsFileSequenceReader {
         return TsFileMetaData.deserializeFrom(buffer);
     }
 
+    /**
+     * whether there is more row groups from the current file position.
+     * @return
+     * @throws IOException
+     */
     public boolean hasNextRowGroup() throws IOException {
             return channel.position() < fileMetadataPos;
     }
 
+    /**
+     * read the row group header from the current file position
+     * @return
+     * @throws IOException
+     */
     public RowGroupHeader readRowGroupHeader() throws IOException {
         return RowGroupHeader.deserializeFrom(Channels.newInputStream(channel));
     }
+
+    /**
+     * read the chunk header from the current file position
+     * @return
+     * @throws IOException
+     */
     public ChunkHeader readChunkHeader() throws IOException {
         return ChunkHeader.deserializeFrom(Channels.newInputStream(channel));
     }
 
     /**
+     * read the chunk header from  the given file position
+     *
      * notice, this function will modify channel's position.
-     * @param offset the file offset of this chunk's header
+     * @param position the file offset of this chunk's header
      * @return
      * @throws IOException
      */
-    public ChunkHeader readChunkHeader(long offset) throws IOException {
-        channel.position(offset);
+    public ChunkHeader readChunkHeader(long position) throws IOException {
+        channel.position(position);
         return ChunkHeader.deserializeFrom(Channels.newInputStream(channel));
     }
 
     /**
+     * read the chunk data from current file position.
      * notice, the position of the channel MUST be at the end of this header.
-     * @param header
+     * @param header corresponding chunk header
      * @return the pages of this chunk
      * @throws IOException
      */
@@ -119,6 +142,7 @@ public class TsFileSequenceReader {
     }
 
     /**
+     * read the chunk header and data from a given file position
      * notice, this function will modify channel's position.
      * @param position
      * @return
@@ -147,6 +171,7 @@ public class TsFileSequenceReader {
     }
 
     /**
+     * read the chunk  data from a given file position
      * notice, this function will modify channel's position.
      * @param header
      * @return the pages of this chunk
@@ -157,10 +182,17 @@ public class TsFileSequenceReader {
         return readChunk(header);
     }
 
+    /**
+     * read the page header and data from current file position
+     * @param type
+     * @return
+     * @throws IOException
+     */
     public PageHeader readPageHeader(TSDataType type) throws IOException{
         return PageHeader.deserializeFrom(Channels.newInputStream(channel), type);
     }
     /**
+     * read the page header from a given file position
      * notice, this function will modify channel's position.
      * @param offset the file offset of this page header's header
      * @return
@@ -171,6 +203,13 @@ public class TsFileSequenceReader {
         return PageHeader.deserializeFrom(Channels.newInputStream(channel), type);
     }
 
+    /**
+     * read the page data from current file position
+     * @param header
+     * @param type
+     * @return
+     * @throws IOException
+     */
     public ByteBuffer readPage(PageHeader header, CompressionType type) throws  IOException{
         ByteBuffer buffer=ByteBuffer.allocate(header.getCompressedSize());
         ReadWriteIOUtils.readAsPossible(channel, buffer);

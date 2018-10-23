@@ -6,6 +6,11 @@
 # intellj IDE files
 **/*.iml
 **/.idea/
+*.iml
+*.ipr
+*.iws
+*.ts
+
 
 # Apple OS X related
 **/.DS_Store
