@@ -11,6 +11,9 @@ ___________    ___________.__.__
 ## Status
 [![Build Status](https://travis-ci.org/thulab/tsfile.svg?branch=master)](https://travis-ci.org/thulab/tsfile)
 [![codecov](https://codecov.io/gh/thulab/tsfile/branch/master/graph/badge.svg)](https://codecov.io/gh/thulab/tsfile)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/cn.edu.tsinghua/tsfile/badge.svg)](https://maven-badges.herokuapp.com/maven-central/cn.edu.tsinghua/tsfile/)
+[![GitHub release](https://img.shields.io/github/release/thulab/tsfile.svg)](https://github.com/thulab/tsfile/releases)
+[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 ## Abstract
 
