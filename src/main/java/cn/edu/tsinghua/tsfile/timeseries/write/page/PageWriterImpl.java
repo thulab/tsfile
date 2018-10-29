@@ -27,6 +27,9 @@ public class PageWriterImpl implements IPageWriter {
     private static Logger LOG = LoggerFactory.getLogger(PageWriterImpl.class);
     private final Compressor compressor;
     private final MeasurementDescriptor desc;
+    /**
+     * content of this page
+     */
     private ListByteArrayOutputStream buf;
     private long totalValueCount;
     private long maxTimestamp;
@@ -41,18 +44,21 @@ public class PageWriterImpl implements IPageWriter {
     @Override
     public void writePage(ListByteArrayOutputStream listByteArray, int valueCount, Statistics<?> statistics,
                           long maxTimestamp, long minTimestamp) throws PageException {
-        // compress the input data
+        // 1. update time statistics
         if (this.minTimestamp == -1)
             this.minTimestamp = minTimestamp;
         if(this.minTimestamp==-1){
         	LOG.error("Write page error, {}, minTime:{}, maxTime:{}",desc,minTimestamp,maxTimestamp);
         }
         this.maxTimestamp = maxTimestamp;
+
+        // 2. compress data and create temp PBAOS by estimated page size
         int uncompressedSize = listByteArray.size();
         ListByteArrayOutputStream compressedBytes = compressor.compress(listByteArray);
         int compressedSize = compressedBytes.size();
         PublicBAOS tempOutputStream = new PublicBAOS(estimateMaxPageHeaderSize() + compressedSize);
-        // write the page header to IOWriter
+
+        // 3. write the page header to temp PBAOS
         try {
             ReadWriteThriftFormatUtils.writeDataPageHeader(uncompressedSize, compressedSize, valueCount, statistics,
                     valueCount, desc.getEncodingType(), tempOutputStream, maxTimestamp, minTimestamp);
@@ -61,7 +67,11 @@ public class PageWriterImpl implements IPageWriter {
             throw new PageException(
                     "meet IO Exception in writeDataPageHeader,ignore this page,error message:" + e.getMessage());
         }
+
+        // 4. update data point num
         this.totalValueCount += valueCount;
+
+        // 5. write page content to temp PBAOS
         try {
             compressedBytes.writeAllTo(tempOutputStream);
         } catch (IOException e) {
@@ -74,6 +84,8 @@ public class PageWriterImpl implements IPageWriter {
 			 */
             throw new PageException("meet IO Exception in buffer append,but we cannot understand it:" + e.getMessage());
         }
+
+        // 6. save temp PBAOS
         buf.append(tempOutputStream);
         LOG.debug("page {}:write page from seriesWriter, valueCount:{}, stats:{},size:{}", desc, valueCount, statistics,
                 estimateMaxPageMemSize());
@@ -89,10 +101,15 @@ public class PageWriterImpl implements IPageWriter {
     	if(minTimestamp==-1){
     		LOG.error("Write page error, {}, minTime:{}, maxTime:{}",desc,minTimestamp,maxTimestamp);
     	}
+    	// 1. start to write this series
         writer.startSeries(desc, compressor.getCodecName(), desc.getType(), statistics, maxTimestamp, minTimestamp);
         long totalByteSize = writer.getPos();
+
+        // 2. write content of this series
         writer.writeBytesToStream(buf);
         LOG.debug("write series to file finished:{}", desc);
+
+        // 3. end to write this series
         long size = writer.getPos() - totalByteSize;
         writer.endSeries(size, totalValueCount);
         LOG.debug("page {}:write page to fileWriter,type:{},maxTime:{},minTime:{},nowPos:{},stats:{}",

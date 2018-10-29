@@ -22,7 +22,7 @@ public class ValueWriter {
     // value
     private Encoder valueEncoder;
     private PublicBAOS valueOut;
-
+    // size
     private PublicBAOS timeSizeOut;
 
     public ValueWriter() {
@@ -31,41 +31,89 @@ public class ValueWriter {
         this.timeSizeOut = new PublicBAOS();
     }
 
+    /**
+     * write a time value pair into encoder
+     * @param time
+     * @param value boolean type
+     * @throws IOException
+     */
     public void write(long time, boolean value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
     }
 
+    /**
+     * write a time value pair into encoder
+     * @param time
+     * @param value short type
+     * @throws IOException
+     */
     public void write(long time, short value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
     }
 
+    /**
+     * write a time value pair into encoder
+     * @param time
+     * @param value int type
+     * @throws IOException
+     */
     public void write(long time, int value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
     }
 
+    /**
+     * write a time value pair into encoder
+     * @param time
+     * @param value long type
+     * @throws IOException
+     */
     public void write(long time, long value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
     }
 
+    /**
+     * write a time value pair into encoder
+     * @param time
+     * @param value float type
+     * @throws IOException
+     */
     public void write(long time, float value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
     }
 
+    /**
+     * write a time value pair into encoder
+     * @param time
+     * @param value double type
+     * @throws IOException
+     */
     public void write(long time, double value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
     }
 
+    /**
+     * write a time value pair into encoder
+     * @param time
+     * @param value BigDecimal type
+     * @throws IOException
+     */
     public void write(long time, BigDecimal value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
     }
 
+    /**
+     * write a time value pair into encoder
+     * @param time
+     * @param value Binary type
+     * @throws IOException
+     */
     public void write(long time, Binary value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
@@ -90,13 +138,17 @@ public class ValueWriter {
      * @throws IOException exception in IO
      */
     public ListByteArrayOutputStream getBytes() throws IOException {
+        // 1. flush all datas in encoders and BAOs
         prepareEndWriteOnePage();
+        // 2. output data size info
         ReadWriteStreamUtils.writeUnsignedVarInt(timeOut.size(), timeSizeOut);
+        // 3. create ListBAOS and return it
         return new ListByteArrayOutputStream(timeSizeOut, timeOut, valueOut);
     }
 
     /**
-     * calculate max possible memory size it occupies, including time outputStream and value outputStream
+     * calculate max possible memory size it occupies, including time outputStream and value outputStream,
+     * because size outputStream is never used until flushing.
      *
      * @return allocated size in time, value and outputStream
      */

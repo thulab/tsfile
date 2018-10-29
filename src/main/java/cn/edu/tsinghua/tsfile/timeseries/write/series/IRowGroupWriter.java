@@ -18,7 +18,7 @@ import java.util.List;
  */
 public interface IRowGroupWriter {
     /**
-     * receive a timestamp and a list of data points, write them to themselves
+     * receive a timestamp and a list of data points, write them to their
      * series writers.
      *
      * @param time - all data points have unify time stamp.
@@ -30,6 +30,7 @@ public interface IRowGroupWriter {
 
     /**
      * flushing method for outputting to OS file system or HDFS.
+     * Implemented by SeriesWriterImpl.writeToFileWriter()
      *
      * @param tsfileWriter - TSFileIOWriter
      * @throws IOException exception in IO
