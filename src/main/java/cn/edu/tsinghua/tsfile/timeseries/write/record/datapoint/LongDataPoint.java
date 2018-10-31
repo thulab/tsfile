@@ -16,8 +16,14 @@ import java.io.IOException;
  */
 public class LongDataPoint extends DataPoint {
     private static final Logger LOG = LoggerFactory.getLogger(LongDataPoint.class);
+    /** actual value **/
     private long value;
 
+    /**
+     * constructor of LongDataPoint, the value type will be set automatically
+     * @param measurementId
+     * @param v
+     */
     public LongDataPoint(String measurementId, long v) {
         super(TSDataType.INT64, measurementId);
         this.value = v;

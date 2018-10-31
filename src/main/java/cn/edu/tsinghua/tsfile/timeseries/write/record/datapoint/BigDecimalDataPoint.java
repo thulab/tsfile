@@ -17,8 +17,14 @@ import java.math.BigDecimal;
  */
 public class BigDecimalDataPoint extends DataPoint {
     private static final Logger LOG = LoggerFactory.getLogger(BigDecimalDataPoint.class);
+    /** actual value **/
     private BigDecimal value;
 
+    /**
+     * constructor of BigDecimalDataPoint, the value type will be set automatically
+     * @param measurementId
+     * @param v
+     */
     public BigDecimalDataPoint(String measurementId, BigDecimal v) {
         super(TSDataType.BIGDECIMAL, measurementId);
         this.value = v;

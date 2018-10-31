@@ -16,8 +16,14 @@ import java.io.IOException;
  */
 public class EnumDataPoint extends DataPoint {
     private static final Logger LOG = LoggerFactory.getLogger(EnumDataPoint.class);
+    /** actual value **/
     private int value;
 
+    /**
+     * constructor of EnumDataPoint, the value type will be set automatically
+     * @param measurementId
+     * @param v
+     */
     public EnumDataPoint(String measurementId, int v) {
         super(TSDataType.ENUMS, measurementId);
         this.value = v;
