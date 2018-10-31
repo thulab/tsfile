@@ -12,21 +12,73 @@ import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
  * @author kangrong
  */
 public interface ISeriesWriter {
+
+    /**
+     * write a time value pair
+     * @param time
+     * @param value int type
+     * @throws IOException
+     */
     void write(long time, int value) throws IOException;
 
+    /**
+     * write a time value pair
+     * @param time
+     * @param value long type
+     * @throws IOException
+     */
     void write(long time, long value) throws IOException;
 
+    /**
+     * write a time value pair
+     * @param time
+     * @param value boolean type
+     * @throws IOException
+     */
     void write(long time, boolean value) throws IOException;
 
+    /**
+     * write a time value pair
+     * @param time
+     * @param value float type
+     * @throws IOException
+     */
     void write(long time, float value) throws IOException;
 
+    /**
+     * write a time value pair
+     * @param time
+     * @param value double type
+     * @throws IOException
+     */
     void write(long time, double value) throws IOException;
 
+    /**
+     * write a time value pair
+     * @param time
+     * @param value BigDecimal type
+     * @throws IOException
+     */
     void write(long time, BigDecimal value) throws IOException;
 
+    /**
+     * write a time value pair
+     * @param time
+     * @param value Binary type
+     * @throws IOException
+     */
     void write(long time, Binary value) throws IOException;
 
+    /**
+     * flush data to TsFileIOWriter
+     * @param tsfileWriter
+     * @throws IOException
+     */
     void writeToFileWriter(TsFileIOWriter tsfileWriter) throws IOException;
 
+    /**
+     * estimate memory used size of this series
+     * @return
+     */
     long estimateMaxSeriesMemSize();
 }

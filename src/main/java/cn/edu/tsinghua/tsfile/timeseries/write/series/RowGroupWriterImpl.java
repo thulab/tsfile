@@ -25,6 +25,9 @@ import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
 public class RowGroupWriterImpl implements IRowGroupWriter {
     private static Logger LOG = LoggerFactory.getLogger(RowGroupWriterImpl.class);
     private final String deltaObjectId;
+    /**
+     * <measurementID, SeriesWriterImpl>
+     */
     private Map<String, ISeriesWriter> dataSeriesWriters = new HashMap<String, ISeriesWriter>();
 
     public RowGroupWriterImpl(String deltaObjectId) {
