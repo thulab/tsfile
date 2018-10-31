@@ -41,17 +41,32 @@ public class ValueReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(ValueReader.class);
 
+    //value decoder
     public Decoder decoder;
+    //time decoder
     public Decoder timeDecoder;
+    //freq decoder
     public Decoder freqDecoder;
+
+    //offset for current column in file
     public long fileOffset = -1;
+    //total bytes size for this column
     public long totalSize = -1;
+
+    //data type of this column
     public TSDataType dataType;
+    //digest for this column
     public TsDigest digest;
+    //randomAccessFileReader stream
     public ITsRandomAccessFileReader raf;
+    //enumValues if this column's dataType is ENUM
     public List<String> enumValues;
+    //compressionType used for this column
     public CompressionTypeName compressionTypeName;
+
+    //total of rows for this column
     public long rowNums;
+    //startTime and endTime for this column
     private long startTime, endTime;
 
     // save the mainFrequency of this page
@@ -132,6 +147,9 @@ public class ValueReader {
         return res;
     }
 
+    /**
+     * construct byteArrayInputStream of one column data in rowGroup
+     * */
     public ByteArrayInputStream initBAIS() throws IOException {
         int length = (int) this.totalSize;
         byte[] buf = new byte[length];
@@ -147,6 +165,10 @@ public class ValueReader {
         return bais;
     }
 
+    /**
+     * construct byteArrayInputStream of one column data in rowGroup,
+     * offset: pageOffset, size: totalSize - (pageOffset - fileOffset)
+     * */
     public ByteArrayInputStream initBAISForOnePage(long pageOffset) throws IOException {
         int length = (int) (this.totalSize - (pageOffset - fileOffset));
         byte[] buf = new byte[length];
@@ -311,9 +333,10 @@ public class ValueReader {
 
                     setDecoder(Decoder.getDecoderByType(pageHeader.getData_page_header().getEncoding(), getDataType()));
 
-                    // get timevalues in this page
+                    // get timestamps in this page
                     long[] timeValues = initTimeValue(page, pageHeader.data_page_header.num_rows, false);
 
+                    // get values corresponding to the timestamp in the array timeValues.
                     try {
                         int timeIdx = 0;
                         switch (dataType) {
@@ -401,7 +424,9 @@ public class ValueReader {
                         e.printStackTrace();
                     }
 
-                } else {
+                }
+                //current page doesn't satisfy filter
+                else {
                     pageReader.skipCurrentPage();
                 }
                 res.pageOffset += (lastAvailable - bis.available());
@@ -417,7 +442,7 @@ public class ValueReader {
     }
 
     /**
-     * Read time-value pairs whose time is be included in timeRet. WARNING: this
+     * Read time-value pairs whose time is be included in timestamp array. WARNING: this
      * function is only for "time" Series
      *
      * @param timestamps array of the time.
@@ -452,12 +477,14 @@ public class ValueReader {
 
                 setDecoder(Decoder.getDecoderByType(pageHeader.getData_page_header().getEncoding(), getDataType()));
 
+                // read the number of (pageHeader.data_page_header.num_rows) of timestamps in current page
                 long[] timeValues = initTimeValue(page, pageHeader.data_page_header.num_rows, false);
 
                 int i = 0;
                 switch (dataType) {
                     case BOOLEAN:
                         while (i < timeValues.length && timeIdx < timestamps.length) {
+                            //skip the values until the timestamp not less than timestamps[timeIdx]
                             while (i < timeValues.length && timeValues[i] < timestamps[timeIdx]) {
                                 i++;
                                 decoder.readBoolean(page);
