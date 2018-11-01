@@ -45,6 +45,7 @@ public abstract class TSDataTypeConverter {
     }
 
     /**
+     * return corresponding TSDataTypeConverter by input TSDataType
      * Up to now, TSDataTypeConverter has only Enum converter
      *
      * @param type data type of TsFile
@@ -66,12 +67,13 @@ public abstract class TSDataTypeConverter {
      * have data value parameters. initFromProps gets values from JSON object which would be
      * used latter. If this type has extra parameter to construct, override it.
      *
-     * @param props - properties which contains information DataTypeConverter needs
+     * @param props - properties which contains information TSDataTypeConverter needs
      */
     public void initFromProps(Map<String, String> props) {
     }
 
     /**
+     * set all Enum String values to input VInTimeSeriesChunkMetaData
      * based on visit pattern to provide unified parameter type in interface. write data values to
      * VseriesMetaData
      *
@@ -81,7 +83,7 @@ public abstract class TSDataTypeConverter {
     }
 
     /**
-     * For a kind of datatypeConverter, check the input parameter. If it's legal, return this
+     * For a kind of TSDataTypeConverter, check the input parameter. If it's legal, return this
      * parameter in its appropriate class type. It needs subclass extending.
      *
      * @param pmKey - argument key in JSON object key-value pair
@@ -93,37 +95,50 @@ public abstract class TSDataTypeConverter {
         throw new MetadataArgsErrorException("don't need args:{}" + pmKey);
     }
 
+    /**
+     * subclass that extends TSDataTypeConverter
+     */
     public static class ENUMS extends TSDataTypeConverter {
+        /** used to convert a String to its corresponding Integer **/
         private TSFileEnum tsfileEnum = null;
 
         /**
-         * input a enum string value, return it ordinal integer
+         * input a enum string value, return it ordinal integer by tsfileEnum
          *
          * @param v - enum string
          * @return - ordinal integer
          */
         public int parseValue(String v) {
+            // input is null, return -1
             if (v == null || "".equals(v)) {
                 LOG.warn("write enum null, String:{}", v);
                 return -1;
             }
+            // tsfileEnum has not been initialized, return -1
             if (tsfileEnum == null) {
                 LOG.warn("TSDataTypeConverter is not initialized");
                 return -1;
             }
+            // return corresponding Integer value
             return tsfileEnum.enumOrdinal(v);
         }
 
         @Override
         public void initFromProps(Map<String, String> props) {
+            // input is null or props doesn't contain target key, just return
             if (props == null || !props.containsKey(JsonFormatConstant.ENUM_VALUES)) {
                 LOG.warn("ENUMS has no data values.");
                 return;
             }
+            // remove all "\"
             String valueStr = props.get(JsonFormatConstant.ENUM_VALUES).replaceAll("\"", "");
+            // remove "[" at the beginning and "]" at the end
             valueStr = valueStr.substring(1, valueStr.length() - 1);
+            // get all String values
             String[] values = valueStr.split(",");
+            // init tsfileEnum
             tsfileEnum = new TSFileEnum();
+            // add String values to tsfileEnum
             for (String value : values) {
                 tsfileEnum.addTSFileEnum(value);
             }
@@ -132,6 +147,7 @@ public abstract class TSDataTypeConverter {
         @Override
         public void setDataValues(VInTimeSeriesChunkMetaData v) {
             if (tsfileEnum != null) {
+                // get all Enum values and set to input VInTimeSeriesChunkMetaData
                 List<String> dataValues = tsfileEnum.getEnumDataValues();
                 v.setEnumValues(dataValues);
             }
@@ -139,6 +155,7 @@ public abstract class TSDataTypeConverter {
 
         @Override
         public Object checkParameter(String pmKey, String value) throws MetadataArgsErrorException {
+            // if key exists, return input in right format
             if (JsonFormatConstant.ENUM_VALUES.equals(pmKey)) {
                 return value.split(JsonFormatConstant.ENUM_VALUES_SEPARATOR);
             } else {

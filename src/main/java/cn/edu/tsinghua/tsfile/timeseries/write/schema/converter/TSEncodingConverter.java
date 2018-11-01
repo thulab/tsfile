@@ -28,14 +28,18 @@ import java.util.Map;
  */
 public abstract class TSEncodingConverter {
     private static final Logger LOG = LoggerFactory.getLogger(TSEncodingConverter.class);
+    /** configuration of current tsfile **/
     protected final TSFileConfig conf;
 
+    /**
+     * get tsfile configuration from TSFileDescriptor
+     */
     public TSEncodingConverter() {
         this.conf = TSFileDescriptor.getInstance().getConfig();
     }
 
     /**
-     * return responding TSEncodingConverter from a TSEncoding
+     * return corresponding TSEncodingConverter from a TSEncoding
      *
      * @param type - given encoding type
      * @return - responding TSEncodingConverter
@@ -111,7 +115,11 @@ public abstract class TSEncodingConverter {
         return "";
     }
 
+    /**
+     * for all TSDataType
+     */
     public static class PLAIN extends TSEncodingConverter {
+        /** max length of input String **/
         private int maxStringLength;
 
         @Override
@@ -136,7 +144,11 @@ public abstract class TSEncodingConverter {
         }
     }
 
+    /**
+     * for ENUMS, INT32, BOOLEAN, INT64, FLOAT, DOUBLE
+     */
     public static class RLE extends TSEncodingConverter {
+        /** max Floating-point precision **/
         private int maxPointNumber = 0;
 
         @Override
@@ -200,7 +212,11 @@ public abstract class TSEncodingConverter {
         }
     }
 
+    /**
+     * for INT32, INT64, FLOAT, DOUBLE
+     */
     public static class TS_2DIFF extends TSEncodingConverter {
+        /** max Floating-point precision **/
         private int maxPointNumber = 0;
 
         @Override
@@ -264,6 +280,9 @@ public abstract class TSEncodingConverter {
 
     }
 
+    /**
+     * for ENUMS
+     */
     public static class BITMAP extends TSEncodingConverter {
         @Override
         public Encoder getEncoder(String measurementId, TSDataType type) {
@@ -275,8 +294,11 @@ public abstract class TSEncodingConverter {
             }
         }
     }
-    
-	public static class GORILLA extends TSEncodingConverter {
+
+    /**
+     * for FLOAT, DOUBLE
+     */
+    public static class GORILLA extends TSEncodingConverter {
 
 		@Override
 		public Encoder getEncoder(String measurementId, TSDataType type) {
