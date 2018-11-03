@@ -13,8 +13,12 @@ import java.util.Map;
  * @author qiaojialin
  */
 public class SchemaBuilder {
+    /** the FileSchema which is being built **/
     private FileSchema fileSchema;
 
+    /**
+     * init schema by default value
+     */
     public SchemaBuilder() {
         fileSchema = new FileSchema();
     }
@@ -64,11 +68,22 @@ public class SchemaBuilder {
         return this;
     }
 
+    /**
+     * add one property to schema
+     * @param key
+     * @param value
+     * @return
+     */
     public SchemaBuilder addProp(String key, String value) {
         fileSchema.addProp(key, value);
         return this;
     }
 
+    /**
+     * reset properties of this schema
+     * @param props
+     * @return
+     */
     public SchemaBuilder setProps(Map<String, String> props) {
         fileSchema.setProps(props);
         return this;

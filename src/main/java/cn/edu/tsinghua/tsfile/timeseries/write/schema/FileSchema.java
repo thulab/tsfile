@@ -33,21 +33,36 @@ public class FileSchema {
    */
   private Map<String, MeasurementDescriptor> measurementNameDescriptorMap;
 
+  /** all metadatas of TimeSeries **/
   private List<TimeSeriesMetadata> tsMetadata = new ArrayList<>();
+  /** max limit byte size of one row **/
   private int currentMaxByteSizeInOneRow;
 
   private Map<String, String> additionalProperties = new HashMap<>();
 
+  /**
+   * init measurementNameDescriptorMap and additionalProperties as empty map
+   */
   public FileSchema() {
     this.measurementNameDescriptorMap = new HashMap<>();
     this.additionalProperties = new HashMap<>();
   }
 
+  /**
+   * init additionalProperties and register measurements from input JSONObject
+   * @param jsonSchema input JSONObject
+   * @throws InvalidJsonSchemaException
+   */
   public FileSchema(JSONObject jsonSchema) throws InvalidJsonSchemaException {
     this(JsonConverter.converterJsonToMeasurementDescriptors(jsonSchema),
         JsonConverter.convertJsonToSchemaProperties(jsonSchema));
   }
 
+  /**
+   * init additionalProperties and register measurements
+   * @param measurements
+   * @param additionalProperties
+   */
   public FileSchema(Map<String, MeasurementDescriptor> measurements,
       Map<String, String> additionalProperties) {
     this();
@@ -96,10 +111,19 @@ public class FileSchema {
     this.currentMaxByteSizeInOneRow = maxByteSizeInOneRow;
   }
 
+  /**
+   * enlarge currentMaxByteSizeInOneRow by adding input Integer value
+   * @param additionalByteSize
+   */
   private void enlargeMaxByteSizeInOneRow(int additionalByteSize) {
     this.currentMaxByteSizeInOneRow += additionalByteSize;
   }
 
+  /**
+   * add input data type info to thie schema
+   * @param measurementUID
+   * @param type
+   */
   private void indexMeasurementDataType(String measurementUID, TSDataType type) {
     measurementDataTypeMap.put(measurementUID, type);
   }
@@ -134,18 +158,35 @@ public class FileSchema {
     return tsMetadata;
   }
 
+  /**
+   * register a MeasurementDescriptor
+   * @param descriptor
+   */
   public void registerMeasurement(MeasurementDescriptor descriptor) {
+    // add to measurementNameDescriptorMap as <measurementID, MeasurementDescriptor>
     this.measurementNameDescriptorMap.put(descriptor.getMeasurementId(), descriptor);
+    // add data type info
     this.indexMeasurementDataType(descriptor.getMeasurementId(), descriptor.getType());
+    // add timeseries metadata
     this.addTimeSeriesMetadata(descriptor.getMeasurementId(), descriptor.getType());
+    // update currentMaxByteSizeInOneRow by adding max size of time and value of this MeasurementDescriptor
     this.enlargeMaxByteSizeInOneRow(descriptor.getTimeEncoder().getOneItemMaxSize()
         + descriptor.getValueEncoder().getOneItemMaxSize());
   }
 
+  /**
+   * register all MeasurementDescriptor in input map
+   * @param measurements
+   */
   public void registerMeasurements(Map<String, MeasurementDescriptor> measurements) {
     measurements.forEach((id, md) -> registerMeasurement(md));
   }
 
+  /**
+   * check is this schema contains input measurementID
+   * @param measurementId
+   * @return
+   */
   public boolean hasMeasurement(String measurementId) {
     return measurementNameDescriptorMap.containsKey(measurementId);
   }

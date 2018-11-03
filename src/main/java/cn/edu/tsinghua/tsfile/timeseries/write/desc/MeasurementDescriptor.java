@@ -40,6 +40,12 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
   private TSFileConfig conf;
   private Map<String, String> props;
 
+  /**
+   * set properties as an empty Map
+   * @param measurementId
+   * @param type
+   * @param encoding
+   */
   public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding) {
     this(measurementId, type, encoding, Collections.emptyMap());
   }
@@ -50,15 +56,19 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     this.measurementId = measurementId;
     this.encoding = encoding;
     this.props = props == null? Collections.emptyMap(): props;
+    // get config from TSFileDescriptor
     this.conf = TSFileDescriptor.getInstance().getConfig();
     // initialize TSDataType. e.g. set data values for enum type
+    // if type is ENUMS, init typeConverter
     if (type == TSDataType.ENUMS) {
       typeConverter = TSDataTypeConverter.getConverter(type);
       typeConverter.initFromProps(props);
     }
     // initialize TSEncoding. e.g. set max error for PLA and SDT
+    // init encodingConverter
     encodingConverter = TSEncodingConverter.getConverter(encoding);
     encodingConverter.initFromProps(measurementId, props);
+    // init compressor
     if (props != null && props.containsKey(JsonFormatConstant.COMPRESS_TYPE)) {
       this.compressor = Compressor.getCompressor(props.get(JsonFormatConstant.COMPRESS_TYPE));
     } else {
@@ -118,11 +128,19 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     }
   }
 
+  /**
+   * set all Enum String values to input VInTimeSeriesChunkMetaData
+   * @param v input VInTimeSeriesChunkMetaData
+   */
   public void setDataValues(VInTimeSeriesChunkMetaData v) {
     if (typeConverter != null)
       typeConverter.setDataValues(v);
   }
 
+  /**
+   * get Encoder of time based on config and measurementID
+   * @return Encoder for time
+   */
   public Encoder getTimeEncoder() {
     TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
     TSEncoding timeSeriesEncoder = TSEncoding.valueOf(conf.timeSeriesEncoder);
@@ -130,6 +148,10 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     return TSEncodingConverter.getConverter(timeSeriesEncoder).getEncoder(measurementId, timeType);
   }
 
+  /**
+   * get Encoder of value from encodingConverter by measurementID and data type
+   * @return Encoder for value
+   */
   public Encoder getValueEncoder() {
     return encodingConverter.getEncoder(measurementId, type);
   }
@@ -148,6 +170,7 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
    * @return - ordinal integer in enum field
    */
   public int parseEnumValue(String string) {
+    // check if input is ENUMS
     if (type != TSDataType.ENUMS) {
       LOG.error("type is not enums!return -1");
       return -1;
@@ -168,6 +191,11 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     return this.measurementId.equals(ot.measurementId);
   }
 
+  /**
+   * compare by measurementID
+   * @param o
+   * @return
+   */
   @Override
   public int compareTo(MeasurementDescriptor o) {
     if (equals(o))
