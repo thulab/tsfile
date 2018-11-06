@@ -1,9 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.exception;
 
 /**
- * This exception means it finds a data point's measurement doesn't exist while writing a TSRecord
- *
- * @author kangrong
+ * This exception means it can not find the measurement while writing a TSRecord
  */
 public class NoMeasurementException extends WriteProcessException {
 

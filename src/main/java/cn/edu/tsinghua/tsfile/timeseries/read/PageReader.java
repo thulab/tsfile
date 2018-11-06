@@ -14,11 +14,14 @@ import java.io.InputStream;
  * PageReader is used to read a page in a column.
  */
 public class PageReader {
-    /** ByteArrayInputStream that contains some Pages, this PageReader read from it **/
+
+    // constructed when reading one column data in one rowGroup
     private ByteArrayInputStream bis;
-    /** current PageHeader **/
+
+    // PageHeader of the page to be read
     private PageHeader pageHeader = null;
-    /** UnCompressor for Page **/
+
+    // used to uncompress the page
     private UnCompressor unCompressor = null;
 
     /**
@@ -42,9 +45,9 @@ public class PageReader {
     }
 
     /**
-     * get next PageHeader
-     * @return
-     * @throws IOException
+     * get next PageHeader from cache or read from disk
+     * @return next PageHeader
+     * @throws IOException exception in reading PageHeader
      */
     public PageHeader getNextPageHeader() throws IOException {
         // if current PageHeader exists, return it
@@ -60,10 +63,11 @@ public class PageReader {
         return null;
     }
 
+
     /**
-     * get next Page
-     * @return
-     * @throws IOException
+     * read next page(PageHeader, Page data) from disk
+     * @return uncompressed page data in a stream
+     * @throws IOException exception when read page from disk
      */
     public ByteArrayInputStream getNextPage() throws IOException {
         if (bis.available() > 0) {
@@ -71,9 +75,12 @@ public class PageReader {
             pageHeader = getNextPageHeader();
             // read Page in bytes array form
             int pageSize = pageHeader.getCompressed_page_size();
+
+            // the raw data read from disk
             byte[] pageContent = new byte[pageSize];
             bis.read(pageContent, 0, pageSize);
-            // uncompress
+
+            // uncompress the raw data
             pageContent = unCompressor.uncompress(pageContent);
             // reset current PageHeader to null
             pageHeader = null;
@@ -95,7 +102,7 @@ public class PageReader {
     }
 
     /**
-     * skip next page
+     * skip the current page to next page
      */
     public void skipCurrentPage() {
         long skipSize = this.pageHeader.getCompressed_page_size();

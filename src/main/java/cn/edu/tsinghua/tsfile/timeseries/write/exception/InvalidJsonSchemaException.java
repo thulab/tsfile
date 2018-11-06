@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.exception;
 
 /**
- * This exception is throw if the json of schema in writing process is invalid, like missing necessary fields.
+ * This exception is throw if the file schema in json format is invalid, like missing necessary fields.
  *
  * @author kangrong
  */
