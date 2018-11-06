@@ -14,8 +14,14 @@ import java.io.InputStream;
  * PageReader is used to read a page in a column.
  */
 public class PageReader {
+
+    // constructed when reading one column data in one rowGroup
     private ByteArrayInputStream bis;
+
+    // PageHeader of the page to be read
     private PageHeader pageHeader = null;
+
+    // used to uncompress the page
     private UnCompressor unCompressor = null;
 
     public PageReader(ByteArrayInputStream bis, CompressionTypeName compressionTypeName) {
@@ -29,6 +35,11 @@ public class PageReader {
         return false;
     }
 
+    /**
+     * get next PageHeader from cache or read from disk
+     * @return next PageHeader
+     * @throws IOException exception in reading PageHeader
+     */
     public PageHeader getNextPageHeader() throws IOException {
         if (pageHeader != null) {
             return pageHeader;
@@ -41,12 +52,22 @@ public class PageReader {
         return null;
     }
 
+
+    /**
+     * read next page(PageHeader, Page data) from disk
+     * @return uncompressed page data in a stream
+     * @throws IOException exception when read page from disk
+     */
     public ByteArrayInputStream getNextPage() throws IOException {
         if (bis.available() > 0) {
             pageHeader = getNextPageHeader();
             int pageSize = pageHeader.getCompressed_page_size();
+
+            // the raw data read from disk
             byte[] pageContent = new byte[pageSize];
             bis.read(pageContent, 0, pageSize);
+
+            // uncompress the raw data
             pageContent = unCompressor.uncompress(pageContent);
             pageHeader = null;
             return new ByteArrayInputStream(pageContent);
@@ -58,6 +79,9 @@ public class PageReader {
         in.read(buf, 0, pageSize);
     }
 
+    /**
+     * skip the current page to next page
+     */
     public void skipCurrentPage() {
         long skipSize = this.pageHeader.getCompressed_page_size();
         bis.skip(skipSize);
