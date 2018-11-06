@@ -12,6 +12,12 @@ import java.io.IOException;
  * uncompress data according to type in metadata
  */
 public abstract class UnCompressor {
+
+    /**
+     * get the UnCompressor based on the CompressionTypeName
+     * @param name CompressionTypeName
+     * @return the UnCompressor of specified CompressionType
+     */
     public static UnCompressor getUnCompressor(CompressionTypeName name) {
         if (name == null) {
             throw new CompressionTypeNotSupportedException("NULL");
@@ -26,6 +32,11 @@ public abstract class UnCompressor {
         }
     }
 
+    /**
+     * uncompress the byte array
+     * @param byteArray to be uncompressed bytes
+     * @return bytes after uncompressed
+     */
     public abstract byte[] uncompress(byte[] byteArray);
 
     public abstract CompressionTypeName getCodecName();

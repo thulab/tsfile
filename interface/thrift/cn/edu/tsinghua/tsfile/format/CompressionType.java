@@ -7,10 +7,6 @@
 package cn.edu.tsinghua.tsfile.format;
 
 
-import java.util.Map;
-import java.util.HashMap;
-import org.apache.thrift.TEnum;
-
 /**
  * Supported compression algorithms.
  */
@@ -25,7 +21,7 @@ public enum CompressionType implements org.apache.thrift.TEnum {
 
   private final int value;
 
-  private CompressionType(int value) {
+  CompressionType(int value) {
     this.value = value;
   }
 
