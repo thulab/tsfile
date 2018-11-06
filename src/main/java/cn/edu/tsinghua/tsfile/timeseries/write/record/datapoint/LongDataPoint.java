@@ -21,8 +21,6 @@ public class LongDataPoint extends DataPoint {
 
     /**
      * constructor of LongDataPoint, the value type will be set automatically
-     * @param measurementId
-     * @param v
      */
     public LongDataPoint(String measurementId, long v) {
         super(TSDataType.INT64, measurementId);

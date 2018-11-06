@@ -1,10 +1,8 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.page;
 
 import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
-import cn.edu.tsinghua.tsfile.common.utils.Pair;
 import cn.edu.tsinghua.tsfile.common.utils.PublicBAOS;
 import cn.edu.tsinghua.tsfile.compress.Compressor;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
 import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
@@ -13,37 +11,36 @@ import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.List;
 
 /**
- * a implementation of {@linkplain IPageWriter IPageWriter}
+ * a implementation of {@linkplain IChunkWriter IChunkWriter}
  *
  * @author kangrong
- * @see IPageWriter IPageWriter
+ * @see IChunkWriter IChunkWriter
  */
-public class PageWriterImpl implements IPageWriter {
-    private static Logger LOG = LoggerFactory.getLogger(PageWriterImpl.class);
+public class ChunkWriterImpl implements IChunkWriter {
+    private static Logger LOG = LoggerFactory.getLogger(ChunkWriterImpl.class);
     private final Compressor compressor;
     private final MeasurementDescriptor desc;
+
     /**
-     * content of this page
+     * all pages of this column
      */
     private ListByteArrayOutputStream buf;
     private long totalValueCount;
     private long maxTimestamp;
     private long minTimestamp = -1;
 
-    public PageWriterImpl(MeasurementDescriptor desc) {
+    public ChunkWriterImpl(MeasurementDescriptor desc) {
         this.desc = desc;
         this.compressor = desc.getCompressor();
         this.buf = new ListByteArrayOutputStream();
     }
 
     @Override
-    public void writePage(ListByteArrayOutputStream listByteArray, int valueCount, Statistics<?> statistics,
-                          long maxTimestamp, long minTimestamp) throws PageException {
+    public void addPage(ListByteArrayOutputStream listByteArray, int valueCount, Statistics<?> statistics,
+                        long maxTimestamp, long minTimestamp) throws PageException {
         // 1. update time statistics
         if (this.minTimestamp == -1)
             this.minTimestamp = minTimestamp;
@@ -85,7 +82,7 @@ public class PageWriterImpl implements IPageWriter {
             throw new PageException("meet IO Exception in buffer append,but we cannot understand it:" + e.getMessage());
         }
 
-        // 6. save temp PBAOS
+        // 6. add current page to buf
         buf.append(tempOutputStream);
         LOG.debug("page {}:write page from seriesWriter, valueCount:{}, stats:{},size:{}", desc, valueCount, statistics,
                 estimateMaxPageMemSize());
@@ -101,15 +98,15 @@ public class PageWriterImpl implements IPageWriter {
     	if(minTimestamp==-1){
     		LOG.error("Write page error, {}, minTime:{}, maxTime:{}",desc,minTimestamp,maxTimestamp);
     	}
-    	// 1. start to write this series
-        writer.startSeries(desc, compressor.getCodecName(), desc.getType(), statistics, maxTimestamp, minTimestamp);
+    	// 1. start to write this column chunk
+        writer.startColumnChunk(desc, compressor.getCodecName(), desc.getType(), statistics, maxTimestamp, minTimestamp);
         long totalByteSize = writer.getPos();
 
-        // 2. write content of this series
+        // 2. write content of this column
         writer.writeBytesToStream(buf);
-        LOG.debug("write series to file finished:{}", desc);
+        LOG.debug("write column chunk to file finished:{}", desc);
 
-        // 3. end to write this series
+        // 3. end writing this column chunk, update the column chunk metadata in memory
         long size = writer.getPos() - totalByteSize;
         writer.endSeries(size, totalValueCount);
         LOG.debug("page {}:write page to fileWriter,type:{},maxTime:{},minTime:{},nowPos:{},stats:{}",
