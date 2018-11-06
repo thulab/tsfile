@@ -18,11 +18,16 @@ import java.util.List;
 public class TInTimeSeriesChunkMetaData implements IConverter<TimeInTimeSeriesChunkMetaData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(TInTimeSeriesChunkMetaData.class);
 
+    /** type of data **/
     private TSDataType dataType;
+    /** start time of time series chunk **/
     private long startTime;
+    /** end time of time series chunk */
     private long endTime;
 
+    @Deprecated
     private TSFreqType freqType;
+    @Deprecated
     private List<Integer> frequencies;
 
     /**
@@ -31,23 +36,40 @@ public class TInTimeSeriesChunkMetaData implements IConverter<TimeInTimeSeriesCh
      */
     private List<String> enumValues;
 
+    /**
+     * empty constructor
+     */
     public TInTimeSeriesChunkMetaData() {
     }
 
+    /**
+     * init this TInTimeSeriesChunkMetaData
+     * @param dataType the data type of this timeseries chunk
+     * @param startTime the start time of this timeseries chunk
+     * @param endTime the end time of this timseries chunk
+     */
     public TInTimeSeriesChunkMetaData(TSDataType dataType, long startTime, long endTime) {
         this.dataType = dataType;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
+    /**
+     * Serialize class TInTimeSeriesChunkMetaData to thrift format for persisting data to disk.
+     * @return class of thrift format
+     */
     @Override
     public TimeInTimeSeriesChunkMetaData convertToThrift() {
         try {
+            /** construct a new TimeInTimeSeriesChunkMetaData **/
             TimeInTimeSeriesChunkMetaData tTimeSeriesChunkMetaDataInThrift =
                     new TimeInTimeSeriesChunkMetaData(
                             dataType == null ? null : DataType.valueOf(dataType.toString()), startTime, endTime);
+            /** set value of property Freq_type **/
             tTimeSeriesChunkMetaDataInThrift.setFreq_type(freqType == null ? null : FreqType.valueOf(freqType.toString()));
+            /** set value of property Frequencies **/
             tTimeSeriesChunkMetaDataInThrift.setFrequencies(frequencies);
+            /** set value of property Enum_values **/
             tTimeSeriesChunkMetaDataInThrift.setEnum_values(enumValues);
             return tTimeSeriesChunkMetaDataInThrift;
         } catch (Exception e) {
@@ -59,14 +81,24 @@ public class TInTimeSeriesChunkMetaData implements IConverter<TimeInTimeSeriesCh
         }
     }
 
+    /**
+     * Deserialize class TimeInTimeSeriesChunkMetaData from thrift format to normal format.
+     * @param tTimeSeriesChunkMetaDataInThrift thrift format of class TimeInTimeSeriesChunkMetaData
+     */
     @Override
     public void convertToTSF(TimeInTimeSeriesChunkMetaData tTimeSeriesChunkMetaDataInThrift) {
         try {
+            /** get the value of property Data_type **/
             dataType = tTimeSeriesChunkMetaDataInThrift.getData_type() == null ? null : TSDataType.valueOf(tTimeSeriesChunkMetaDataInThrift.getData_type().toString());
+            /** get the value of property Freq_type **/
             freqType = tTimeSeriesChunkMetaDataInThrift.getFreq_type() == null ? null : TSFreqType.valueOf(tTimeSeriesChunkMetaDataInThrift.getFreq_type().toString());
+            /** get the value of property Frequencies **/
             frequencies = tTimeSeriesChunkMetaDataInThrift.getFrequencies();
+            /** get the value of property Startime **/
             startTime = tTimeSeriesChunkMetaDataInThrift.getStartime();
+            /** get the value of property Endtime **/
             endTime = tTimeSeriesChunkMetaDataInThrift.getEndtime();
+            /** get the value of property Enum_values **/
             enumValues = tTimeSeriesChunkMetaDataInThrift.getEnum_values();
         } catch (Exception e) {
             if (LOGGER.isErrorEnabled())
