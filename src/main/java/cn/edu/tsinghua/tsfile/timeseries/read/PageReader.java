@@ -75,9 +75,6 @@ public class PageReader {
         return null;
     }
 
-    public void readPage(InputStream in, byte[] buf, int pageSize) throws IOException {
-        in.read(buf, 0, pageSize);
-    }
 
     /**
      * skip the current page to next page
