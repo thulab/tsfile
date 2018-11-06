@@ -33,9 +33,6 @@ public class ValueWriter {
 
     /**
      * write a time value pair into encoder
-     * @param time
-     * @param value boolean type
-     * @throws IOException
      */
     public void write(long time, boolean value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -44,9 +41,6 @@ public class ValueWriter {
 
     /**
      * write a time value pair into encoder
-     * @param time
-     * @param value short type
-     * @throws IOException
      */
     public void write(long time, short value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -55,9 +49,6 @@ public class ValueWriter {
 
     /**
      * write a time value pair into encoder
-     * @param time
-     * @param value int type
-     * @throws IOException
      */
     public void write(long time, int value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -66,9 +57,6 @@ public class ValueWriter {
 
     /**
      * write a time value pair into encoder
-     * @param time
-     * @param value long type
-     * @throws IOException
      */
     public void write(long time, long value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -77,9 +65,6 @@ public class ValueWriter {
 
     /**
      * write a time value pair into encoder
-     * @param time
-     * @param value float type
-     * @throws IOException
      */
     public void write(long time, float value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -88,9 +73,6 @@ public class ValueWriter {
 
     /**
      * write a time value pair into encoder
-     * @param time
-     * @param value double type
-     * @throws IOException
      */
     public void write(long time, double value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -99,9 +81,6 @@ public class ValueWriter {
 
     /**
      * write a time value pair into encoder
-     * @param time
-     * @param value BigDecimal type
-     * @throws IOException
      */
     public void write(long time, BigDecimal value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -110,9 +89,6 @@ public class ValueWriter {
 
     /**
      * write a time value pair into encoder
-     * @param time
-     * @param value Binary type
-     * @throws IOException
      */
     public void write(long time, Binary value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -121,14 +97,10 @@ public class ValueWriter {
 
     /**
      * flush all data remained in encoders.
-     *
-     * @throws IOException
      */
     private void prepareEndWriteOnePage() throws IOException {
         timeEncoder.flush(timeOut);
         valueEncoder.flush(valueOut);
-        timeOut.flush();
-        valueOut.flush();
     }
 
     /**
@@ -138,11 +110,11 @@ public class ValueWriter {
      * @throws IOException exception in IO
      */
     public ListByteArrayOutputStream getBytes() throws IOException {
-        // 1. flush all datas in encoders and BAOs
+        // flush all data to BAOS
         prepareEndWriteOnePage();
-        // 2. output data size info
+        // output data size info
         ReadWriteStreamUtils.writeUnsignedVarInt(timeOut.size(), timeSizeOut);
-        // 3. create ListBAOS and return it
+        // put together the three streams: which consist the number of data points, the time data and the value data
         return new ListByteArrayOutputStream(timeSizeOut, timeOut, valueOut);
     }
 

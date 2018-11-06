@@ -4,6 +4,7 @@ import cn.edu.tsinghua.tsfile.common.exception.CompressionTypeNotSupportedExcept
 import cn.edu.tsinghua.tsfile.format.CompressionType;
 
 public enum CompressionTypeName {
+
     UNCOMPRESSED(CompressionType.UNCOMPRESSED, ""),
     SNAPPY(CompressionType.SNAPPY, ".snappy"),
     GZIP(CompressionType.GZIP, ".gz"),
@@ -14,7 +15,8 @@ public enum CompressionTypeName {
 
     private final CompressionType tsfileCompressionType;
     private final String extension;
-    private CompressionTypeName(CompressionType tsfileCompressionType, String extension) {
+
+    CompressionTypeName(CompressionType tsfileCompressionType, String extension) {
         this.tsfileCompressionType = tsfileCompressionType;
         this.extension = extension;
     }

@@ -3,6 +3,7 @@ package cn.edu.tsinghua.tsfile.timeseries.write.series;
 import java.io.IOException;
 import java.math.BigDecimal;
 
+import cn.edu.tsinghua.tsfile.timeseries.write.page.IChunkWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,6 @@ import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.PageException;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.page.IPageWriter;
 
 /**
  * A implementation of {@code ISeriesWriter}. {@code SeriesWriterImpl} consists
@@ -32,7 +32,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
     /**
      * help to encode data of this series
      */
-    private final IPageWriter pageWriter;
+    private final IChunkWriter pageWriter;
     /**
      * page size threshold
      */
@@ -45,12 +45,12 @@ public class SeriesWriterImpl implements ISeriesWriter {
 
     /**
      * value count on of a page. It will be reset after calling
-     * {@code writePage()}
+     * {@code addPage()}
      */
     private int valueCount;
     private int valueCountForNextSizeCheck;
     /**
-     * statistic on a page. It will be reset after calling {@code writePage()}
+     * statistic on a page. It will be reset after calling {@code addPage()}
      */
     private Statistics<?> pageStatistics;
     /**
@@ -63,7 +63,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
     private String deltaObjectId;
     private MeasurementDescriptor desc;
 
-    public SeriesWriterImpl(String deltaObjectId, MeasurementDescriptor desc, IPageWriter pageWriter,
+    public SeriesWriterImpl(String deltaObjectId, MeasurementDescriptor desc, IChunkWriter pageWriter,
                             int pageSizeThreshold) {
         this.deltaObjectId = deltaObjectId;
         this.desc = desc;
@@ -194,17 +194,17 @@ public class SeriesWriterImpl implements ISeriesWriter {
     }
 
     /**
-     * flush data into {@code IPageWriter}
+     * flush data into {@code IChunkWriter}
      */
     private void writePage() {
         try {
-            pageWriter.writePage(dataValueWriter.getBytes(), valueCount, pageStatistics, time, minTimestamp);
+            pageWriter.addPage(dataValueWriter.getBytes(), valueCount, pageStatistics, time, minTimestamp);
             // update statistics of this series
             this.seriesStatistics.mergeStatistics(this.pageStatistics);
         } catch (IOException e) {
             LOG.error("meet error in dataValueWriter.getBytes(),ignore this page, {}", e.getMessage());
         } catch (PageException e) {
-            LOG.error("meet error in pageWriter.writePage,ignore this page, error message:{}", e.getMessage());
+            LOG.error("meet error in pageWriter.addPage,ignore this page, error message:{}", e.getMessage());
         } finally {
             // clear start time stamp for next initializing
             minTimestamp = -1;

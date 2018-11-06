@@ -14,10 +14,16 @@ import java.io.IOException;
  * compress data according to type in schema
  */
 public abstract class Compressor {
+
     public static Compressor getCompressor(String name) {
         return getCompressor(CompressionTypeName.valueOf(name));
     }
 
+    /**
+     * get Compressor according to CompressionTypeName
+     * @param name CompressionTypeName
+     * @return the Compressor of specified CompressionType
+     */
     public static Compressor getCompressor(CompressionTypeName name) {
         if (name == null) {
             throw new CompressionTypeNotSupportedException("NULL");
@@ -38,8 +44,6 @@ public abstract class Compressor {
 
     /**
      * NoCompressor will do nothing for data and return the input data directly.
-     *
-     * @author kangrong
      */
     static public class NoCompressor extends Compressor {
 

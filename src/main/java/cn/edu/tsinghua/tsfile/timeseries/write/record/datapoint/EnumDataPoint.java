@@ -21,8 +21,6 @@ public class EnumDataPoint extends DataPoint {
 
     /**
      * constructor of EnumDataPoint, the value type will be set automatically
-     * @param measurementId
-     * @param v
      */
     public EnumDataPoint(String measurementId, int v) {
         super(TSDataType.ENUMS, measurementId);

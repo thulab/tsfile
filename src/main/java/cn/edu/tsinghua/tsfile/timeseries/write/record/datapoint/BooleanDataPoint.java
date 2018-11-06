@@ -21,8 +21,6 @@ public class BooleanDataPoint extends DataPoint {
 
     /**
      * constructor of BooleanDataPoint, the value type will be set automatically
-     * @param measurementId
-     * @param v
      */
     public BooleanDataPoint(String measurementId, boolean v) {
         super(TSDataType.BOOLEAN, measurementId);

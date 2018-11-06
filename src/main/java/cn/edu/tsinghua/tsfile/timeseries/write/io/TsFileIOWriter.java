@@ -186,8 +186,8 @@ public class TsFileIOWriter {
 	 * @throws IOException
 	 *             if I/O error occurs
 	 */
-	public void startSeries(MeasurementDescriptor descriptor, CompressionTypeName compressionCodecName,
-			TSDataType tsDataType, Statistics<?> statistics, long maxTime, long minTime) throws IOException {
+	public void startColumnChunk(MeasurementDescriptor descriptor, CompressionTypeName compressionCodecName,
+								 TSDataType tsDataType, Statistics<?> statistics, long maxTime, long minTime) throws IOException {
 		LOG.debug("start series:{}", descriptor);
 		// init a new TimeSeriesChunkMetaData
 		currentChunkMetaData = new TimeSeriesChunkMetaData(descriptor.getMeasurementId(), TSChunkType.VALUE,
