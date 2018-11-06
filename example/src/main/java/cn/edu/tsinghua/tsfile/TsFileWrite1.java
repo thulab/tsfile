@@ -16,11 +16,18 @@ import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.FloatDataPoint;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.IntDataPoint;
 
+/**
+ * An example of writing data to TsFile
+ */
 public class TsFileWrite1 {
 
 	public static void main(String args[]) {
 		try {
+
+			// TsFile path
 			String path = "test.ts";
+
+			// schema of TsFile in json format
 			String s = "{\n" +
 	                "    \"schema\": [\n" +
 	                "        {\n" +

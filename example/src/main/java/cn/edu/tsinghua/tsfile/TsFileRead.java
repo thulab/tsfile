@@ -10,16 +10,22 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterExpression;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.FilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.filter.definition.filterseries.FilterSeriesType;
 import cn.edu.tsinghua.tsfile.timeseries.read.TsRandomAccessLocalFileReader;
-import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryDataSet;
+import cn.edu.tsinghua.tsfile.timeseries.read.query.OnePassQueryDataSet;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * An example of reading data from TsFile
+ *
+ * Run TsFileWrite1 or TsFileWrite2 to generate the test.ts first
+ */
 public class TsFileRead {
 
 	public static void main(String[] args) throws IOException {
 
+		// file path
 		String path = "test.ts";
 
 		// read example : no filter
@@ -29,13 +35,13 @@ public class TsFileRead {
 		paths.add(new Path("device_1.sensor_1"));
 		paths.add(new Path("device_1.sensor_2"));
 		paths.add(new Path("device_1.sensor_3"));
-		QueryDataSet queryDataSet = readTsFile.query(paths, null, null);
+		OnePassQueryDataSet queryDataSet = readTsFile.query(paths, null, null);
 		while (queryDataSet.hasNextRecord()) {
 			System.out.println(queryDataSet.getNextRecord());
 		}
 		System.out.println("------------");
 
-		// time filter : 4 <= time < 10
+		// time filter : 4 <= time <= 10
 		FilterExpression timeFilter = FilterFactory.and(FilterFactory.gtEq(FilterFactory.timeFilterSeries(), 4L, true),
 				FilterFactory.ltEq(FilterFactory.timeFilterSeries(), 10L, false));
 		input = new TsRandomAccessLocalFileReader(path);
@@ -50,7 +56,7 @@ public class TsFileRead {
 		}
 		System.out.println("------------");
 
-		// value filter : device_1.sensor_2 < 20
+		// value filter : device_1.sensor_2 <= 20
 		FilterExpression valueFilter = FilterFactory
 				.ltEq(FilterFactory.intFilterSeries("device_1", "sensor_2", FilterSeriesType.VALUE_FILTER), 20, false);
 		input = new TsRandomAccessLocalFileReader(path);
@@ -65,7 +71,7 @@ public class TsFileRead {
 		}
 		System.out.println("------------");
 
-		// time filter : 4 <= time < 10, value filter : device_1.sensor_3 > 20
+		// time filter : 4 <= time <= 10, value filter : device_1.sensor_3 >= 20
 		timeFilter = FilterFactory.and(FilterFactory.gtEq(FilterFactory.timeFilterSeries(), 4L, true),
 				FilterFactory.ltEq(FilterFactory.timeFilterSeries(), 10L, false));
 		valueFilter = FilterFactory
