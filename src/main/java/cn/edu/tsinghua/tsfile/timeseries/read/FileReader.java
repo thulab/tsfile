@@ -27,17 +27,24 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class FileReader {
     private static final Logger logger = LoggerFactory.getLogger(FileReader.class);
 
+    /** length of a int value **/
     private static final int FOOTER_LENGTH = 4;
+    /** the version info length **/
     private static final int MAGIC_LENGTH = TsFileIOWriter.magicStringBytes.length;
+    /** length threshold of the LRU cache **/
     private static final int LRU_LENGTH = 1000000;  // TODO: get this from a configuration
     /**
      * If the file has many rowgroups and series,
      * the storage of <code>fileMetaData</code> may be large.
      */
     private TsFileMetaData fileMetaData;
+    /** actual tsfile reader **/
     private ITsRandomAccessFileReader randomAccessFileReader;
 
+    /** readers of all RowGroupMetaDatas **/
     private Map<String, List<RowGroupReader>> rowGroupReaderMap;
+
+    /** LRU cache of RowGroup readers **/
     // TODO: do we need to manage RowGroupReaders across files?
     private LinkedList<String> rowGroupReaderLRUList;
 
@@ -46,6 +53,11 @@ public class FileReader {
      */
     private ReentrantReadWriteLock rwLock;
 
+    /**
+     * init from nothing
+     * @param raf input reader of this tsfile
+     * @throws IOException
+     */
     public FileReader(ITsRandomAccessFileReader raf) throws IOException {
         this.randomAccessFileReader = raf;
         this.rwLock = new ReentrantReadWriteLock();
@@ -54,10 +66,11 @@ public class FileReader {
     }
 
     /**
+     * init from list of RowGroupMetaDatas
      * Used for IoTDB compatibility
      *
-     * @param reader
-     * @param rowGroupMetaDataList
+     * @param reader input reader of this tsfile
+     * @param rowGroupMetaDataList input list of RowGroupMetaDatas
      */
     public FileReader(ITsRandomAccessFileReader reader, List<RowGroupMetaData> rowGroupMetaDataList) throws IOException {
         this.randomAccessFileReader = reader;
@@ -73,45 +86,56 @@ public class FileReader {
      * @throws IOException file read error
      */
     private void init() throws IOException {
+        // seek to the bottom of tsfile to read FileMetaData
         long l = randomAccessFileReader.length();
         randomAccessFileReader.seek(l - MAGIC_LENGTH - FOOTER_LENGTH);
+        // read FileMetaData length
         int fileMetaDataLength = randomAccessFileReader.readInt();
         randomAccessFileReader.seek(l - MAGIC_LENGTH - FOOTER_LENGTH - fileMetaDataLength);
         byte[] buf = new byte[fileMetaDataLength];
+        // read FileMetaData
         randomAccessFileReader.read(buf, 0, buf.length);//FIXME  is this a potential bug?
 
+        // construct FileMetaData
         ByteArrayInputStream bais = new ByteArrayInputStream(buf);
         this.fileMetaData = new TsFileMetaDataConverter().toTsFileMetadata(ReadWriteThriftFormatUtils.readFileMetaData(bais));
 
+        // init {@code rowGroupReaderMap}
         rowGroupReaderMap = new HashMap<>();
     }
 
     /**
      * //TODO verify rightness
      * Used for IoTDB compatibility
+     * init by list of RowGroupMetaDatas
      *
      * @param rowGroupMetadataList
      */
     private void initFromRowGroupMetadataList(List<RowGroupMetaData> rowGroupMetadataList) {
         rowGroupReaderMap = new HashMap<>();
+        // loop all RowGroupMetaDatas and update LRU cache by {@code deltaObjectID}
         for (RowGroupMetaData rowGroupMetaData : rowGroupMetadataList) {
             String deltaObjectID = rowGroupMetaData.getDeltaObjectID();
             updateLRU(deltaObjectID);
         }
+        // init readers of each RowGroupMetaData
         initRowGroupReaders(rowGroupMetadataList);
     }
 
     /**
+     * the {@code rowGroupReaderMap} of this FileReader
      * Do not use this method for potential risks of LRU cache overflow.
      *
-     * @return
+     * @return this.rowGroupReaderMap
      */
     @Deprecated
     public Map<String, List<RowGroupReader>> getRowGroupReaderMap() {
+        // if {@code fileMetaData} is not constructed yet, return {@code rowGroupReaderMap} directly
         if (this.fileMetaData == null) {
             return rowGroupReaderMap;
         }
 
+        // else update {@code rowGroupReaderMap} first, and then return it
         try {
             loadAllDeltaObj();
         } catch (IOException e) {
@@ -145,6 +169,13 @@ public class FileReader {
         return this.rowGroupReaderMap.get(deltaObjectUID);
     }
 
+    /**
+     * get corresponding TSDataType from RowGroupMetaDatas
+     * @param deltaObject
+     * @param measurement
+     * @return
+     * @throws IOException
+     */
     public TSDataType getDataTypeBySeriesName(String deltaObject, String measurement) throws IOException {
         loadDeltaObj(deltaObject);
         List<RowGroupReader> rgrList = getRowGroupReaderMap().get(deltaObject);
@@ -154,6 +185,10 @@ public class FileReader {
         return rgrList.get(0).getDataTypeBySeriesName(measurement);
     }
 
+    /**
+     * close this FileReader
+     * @throws IOException
+     */
     public void close() throws IOException {
         this.randomAccessFileReader.close();
     }
@@ -169,9 +204,11 @@ public class FileReader {
      * @throws IOException
      */
     private void initRowGroupReaders(String deltaObjUID) throws IOException {
-        // avoid duplicates
+        // if already exists, just return it, avoid duplicates
         if (this.rowGroupReaderMap.containsKey(deltaObjUID))
             return;
+
+        // init new RowGroup reader by FileMetaData
         this.rwLock.writeLock().lock();
         try {
             TsDeltaObject deltaObj = this.fileMetaData.getDeltaObject(deltaObjUID);
@@ -209,8 +246,11 @@ public class FileReader {
         // TODO: advice: parallel the process to speed up
         for (RowGroupMetaData meta : groupList) {
             // the passed raf should be new rafs to realize parallelism
+
+            // init RowGroupReader
             RowGroupReader reader = new RowGroupReader(meta, this.randomAccessFileReader);
 
+            // update {@code rowGroupReaderMap}
             List<RowGroupReader> readerList = this.rowGroupReaderMap.get(meta.getDeltaObjectID());
             if (readerList == null) {
                 readerList = new ArrayList<>();
@@ -247,7 +287,10 @@ public class FileReader {
     }
 
     @Deprecated
-    // only used for compatibility, such as spark
+    /**
+     * get all RowGroupReader in {@code rowGroupReaderMap}
+     * only used for compatibility, such as spark
+     */
     public List<RowGroupReader> getRowGroupReaderList() throws IOException {
         if (this.rowGroupReaderMap == null || this.rowGroupReaderMap.size() == 0) {
             loadAllDeltaObj();
@@ -278,6 +321,10 @@ public class FileReader {
         updateLRU(deltaObjUID);
     }
 
+    /**
+     * init readers for all RowGroupMetaDatas in {@code fileMetaData}
+     * @throws IOException
+     */
     private void loadAllDeltaObj() throws IOException {
         Collection<String> deltaObjects = fileMetaData.getDeltaObjectMap().keySet();
         for (String deltaObject : deltaObjects) {
@@ -285,10 +332,22 @@ public class FileReader {
         }
     }
 
+    /**
+     * check if {@code fileMetaData} contains input deltaObjUID
+     * @param deltaObjUID
+     * @return
+     */
     public boolean containsDeltaObj(String deltaObjUID) {
         return this.fileMetaData.containsDeltaObject(deltaObjUID);
     }
 
+    /**
+     * check if {@code rowGroupReaderMap} contains input deltaObjUID and measurementID
+     * @param deltaObjUID
+     * @param measurementID
+     * @return
+     * @throws IOException
+     */
     public boolean containsSeries(String deltaObjUID, String measurementID) throws IOException {
         if (!this.containsDeltaObj(deltaObjUID)) {
             return false;
@@ -307,8 +366,14 @@ public class FileReader {
         return this.fileMetaData;
     }
 
-    //used by hadoop
+    /**
+     * get list of all RowGroupMetaData in {@code fileMetaData} order by file offset
+     * only used by hadoop
+     * @return
+     * @throws IOException
+     */
     public List<RowGroupMetaData> getSortedRowGroupMetaDataList() throws IOException{
+        // get all RowGroupMetaData from {@code fileMetaData}
         List<RowGroupMetaData> rowGroupMetaDataList = new ArrayList<>();
         Collection<String> deltaObjects = fileMetaData.getDeltaObjectMap().keySet();
         for (String deltaObjectID : deltaObjects) {
@@ -324,6 +389,7 @@ public class FileReader {
             }
         }
 
+        // order by file offset
         Comparator<RowGroupMetaData> comparator = new Comparator<RowGroupMetaData>() {
             @Override
             public int compare(RowGroupMetaData o1, RowGroupMetaData o2) {

@@ -7,6 +7,7 @@ import cn.edu.tsinghua.tsfile.format.PageHeader;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author Jinrui Zhang
@@ -23,11 +24,20 @@ public class PageReader {
     // used to uncompress the page
     private UnCompressor unCompressor = null;
 
+    /**
+     * init by ByteArrayInputStream and CompressionTypeName
+     * @param bis
+     * @param compressionTypeName
+     */
     public PageReader(ByteArrayInputStream bis, CompressionTypeName compressionTypeName) {
         this.bis = bis;
         unCompressor = UnCompressor.getUnCompressor(compressionTypeName);
     }
 
+    /**
+     * if unread data exists in {@code bis}
+     * @return
+     */
     public boolean hasNextPage() {
         if (bis.available() > 0)
             return true;
@@ -40,9 +50,11 @@ public class PageReader {
      * @throws IOException exception in reading PageHeader
      */
     public PageHeader getNextPageHeader() throws IOException {
+        // if current PageHeader exists, return it
         if (pageHeader != null) {
             return pageHeader;
         }
+        // else read a new PageHeader from {@code bis}
         if (bis.available() > 0) {
             pageHeader = ReadWriteThriftFormatUtils.readPageHeader(bis);
             return pageHeader;
@@ -59,7 +71,9 @@ public class PageReader {
      */
     public ByteArrayInputStream getNextPage() throws IOException {
         if (bis.available() > 0) {
+            // get PageHeader first
             pageHeader = getNextPageHeader();
+            // read Page in bytes array form
             int pageSize = pageHeader.getCompressed_page_size();
 
             // the raw data read from disk
@@ -68,12 +82,24 @@ public class PageReader {
 
             // uncompress the raw data
             pageContent = unCompressor.uncompress(pageContent);
+            // reset current PageHeader to null
             pageHeader = null;
+            // put bytes array into new ByteArrayInputStream and return it
             return new ByteArrayInputStream(pageContent);
         }
         return null;
     }
 
+    /**
+     * read {@code pageSize} bytes from {@code in}
+     * @param in
+     * @param buf
+     * @param pageSize
+     * @throws IOException
+     */
+    public void readPage(InputStream in, byte[] buf, int pageSize) throws IOException {
+        in.read(buf, 0, pageSize);
+    }
 
     /**
      * skip the current page to next page
@@ -81,6 +107,7 @@ public class PageReader {
     public void skipCurrentPage() {
         long skipSize = this.pageHeader.getCompressed_page_size();
         bis.skip(skipSize);
+        // reset current PageHeader to null
         pageHeader = null;
     }
 }
