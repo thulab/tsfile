@@ -19,7 +19,7 @@ import java.util.List;
  * @author kangrong
  * @see ISeriesWriter
  */
-public interface IPageWriter {
+public interface IChunkWriter {
     /**
      * store a page to this pageWriter.
      *
@@ -30,8 +30,8 @@ public interface IPageWriter {
      * @param minTimestamp  - timestamp minimum in given data
      * @throws PageException - if an PageException occurs.
      */
-    void writePage(ListByteArrayOutputStream listByteArray, int valueCount, Statistics<?> statistics,
-                   long maxTimestamp, long minTimestamp) throws PageException;
+    void addPage(ListByteArrayOutputStream listByteArray, int valueCount, Statistics<?> statistics,
+                 long maxTimestamp, long minTimestamp) throws PageException;
 
     /**
      * write the page to specified IOWriter

@@ -22,8 +22,6 @@ public class BigDecimalDataPoint extends DataPoint {
 
     /**
      * constructor of BigDecimalDataPoint, the value type will be set automatically
-     * @param measurementId
-     * @param v
      */
     public BigDecimalDataPoint(String measurementId, BigDecimal v) {
         super(TSDataType.BIGDECIMAL, measurementId);

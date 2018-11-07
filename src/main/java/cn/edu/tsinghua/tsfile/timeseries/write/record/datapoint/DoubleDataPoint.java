@@ -21,8 +21,6 @@ public class DoubleDataPoint extends DataPoint {
 
     /**
      * constructor of DoubleDataPoint, the value type will be set automatically
-     * @param measurementId
-     * @param v
      */
     public DoubleDataPoint(String measurementId, double v) {
         super(TSDataType.DOUBLE, measurementId);

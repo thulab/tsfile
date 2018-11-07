@@ -290,7 +290,7 @@ public class TsFileWriter {
       if (memSize > rowGroupSizeThreshold) {
         LOG.info("start_write_row_group, memory space occupy:" + memSize);
         recordCountForNextMemCheck = rowGroupSizeThreshold / oneRowMaxSize;
-        return flushRowGroup(false);
+        return flushRowGroup();
       } else {
         recordCountForNextMemCheck = recordCount
             + (rowGroupSizeThreshold - memSize) / oneRowMaxSize;
@@ -303,14 +303,12 @@ public class TsFileWriter {
   /**
    * flush the data in all series writers and their page writers to outputStream.
    * 
-   * @param isFillRowGroup
-   *          whether to fill RowGroup
    * @throws IOException
    *           exception in IO
    * @return true - size of tsfile or metadata reaches the threshold. 
    * false - otherwise. But this function just return false, the Override of IoTDB may return true.
    */
-  protected boolean flushRowGroup(boolean isFillRowGroup) throws IOException {
+  protected boolean flushRowGroup() throws IOException {
     // at the present stage, just flush one block
     if (recordCount > 0) {
       // 1. get start offset
@@ -327,33 +325,15 @@ public class TsFileWriter {
       }
       // 3. get byte size of all RowGroups
       long actualTotalRowGroupSize = deltaFileWriter.getPos() - totalMemStart;
-      // 4. if needed, fill empty size
-      if (isFillRowGroup) {
-        fillInRowGroupSize(actualTotalRowGroupSize);
-        LOG.info("total row group size:{}, actual:{}, filled:{}", primaryRowGroupSize,
-            actualTotalRowGroupSize, primaryRowGroupSize - actualTotalRowGroupSize);
-      } else
-        LOG.info("total row group size:{}, row group is not filled", actualTotalRowGroupSize);
-      LOG.info("write row group end");
-      // 5. reset recordCount to 0
+      LOG.info("write row group end, total row group size:{}, row group is not filled", actualTotalRowGroupSize);
+      // 4. reset recordCount to 0
       recordCount = 0;
-      // 6. reset
+      // 5. reset
       reset();
     }
     return false;
   }
 
-  /**
-   * fill empty size fo this RowGroup
-   * @param actualRowGroupSize actual byte size of this RowGroup
-   * @throws IOException
-   */
-  protected void fillInRowGroupSize(long actualRowGroupSize) throws IOException {
-    if (actualRowGroupSize > primaryRowGroupSize)
-      LOG.warn("too large actual row group size!:actual:{},threshold:{}", actualRowGroupSize,
-          primaryRowGroupSize);
-    deltaFileWriter.fillInRowGroup(primaryRowGroupSize - actualRowGroupSize);
-  }
 
   /**
    * reset all RowGroupWriter
@@ -372,7 +352,7 @@ public class TsFileWriter {
   public void close() throws IOException {
     LOG.info("start close file");
     calculateMemSizeForAllGroup();
-    flushRowGroup(false);
+    flushRowGroup();
     deltaFileWriter.endFile(this.schema);
   }
 }

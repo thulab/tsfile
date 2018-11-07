@@ -21,8 +21,6 @@ public class FloatDataPoint extends DataPoint {
 
     /**
      * constructor of FloatDataPoint, the value type will be set automatically
-     * @param measurementId
-     * @param v
      */
     public FloatDataPoint(String measurementId, float v) {
         super(TSDataType.FLOAT, measurementId);

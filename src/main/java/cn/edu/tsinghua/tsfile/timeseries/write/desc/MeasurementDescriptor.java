@@ -42,9 +42,6 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
 
   /**
    * set properties as an empty Map
-   * @param measurementId
-   * @param type
-   * @param encoding
    */
   public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding) {
     this(measurementId, type, encoding, Collections.emptyMap());
@@ -193,8 +190,6 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
 
   /**
    * compare by measurementID
-   * @param o
-   * @return
    */
   @Override
   public int compareTo(MeasurementDescriptor o) {

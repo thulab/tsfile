@@ -22,8 +22,6 @@ public class StringDataPoint extends DataPoint {
 
     /**
      * constructor of StringDataPoint, the value type will be set automatically
-     * @param measurementId
-     * @param v
      */
     public StringDataPoint(String measurementId, Binary v) {
         super(TSDataType.TEXT, measurementId);

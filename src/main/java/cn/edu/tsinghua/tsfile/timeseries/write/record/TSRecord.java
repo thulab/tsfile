@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TSRecord is a kind of format that TSFile receives.TSRecord contains timestamp, deltaObjectId and
+ * TSRecord is a kind of format that TsFile receives.TSRecord contains timestamp, deltaObjectId and
  * a list of data points.
  *
  * @author kangrong

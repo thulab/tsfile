@@ -76,7 +76,7 @@ public class TsFileIOWriter {
 	}
 
 	/**
-	 * start to write a new tsfile.
+	 * start to write a new TsFile.
 	 * @param file be used to output written data
 	 * @throws IOException if I/O error occurs
 	 */
@@ -88,7 +88,7 @@ public class TsFileIOWriter {
 	}
 
 	/**
-	 * start to write a new tsfile.
+	 * start to write a new TsFile.
 	 * @param output be used to output written data
 	 * @throws IOException if I/O error occurs
 	 */
@@ -137,7 +137,7 @@ public class TsFileIOWriter {
 	}
 
 	/**
-	 * write version info at the beginning of a new tsfile
+	 * write version info at the beginning of a new TsFile
 	 * @throws IOException
 	 */
 	private void startFile() throws IOException {
@@ -145,12 +145,10 @@ public class TsFileIOWriter {
 	}
 
 	/**
-	 * start a {@linkplain RowGroupMetaData RowGroupMetaData}.
+	 * construct a {@linkplain RowGroupMetaData RowGroupMetaData} in memory.
 	 *
-	 * @param recordCount
-	 *            - the record count of this time series input in this stage
-	 * @param deltaObjectId
-	 *            - delta object id
+	 * @param recordCount the record count of this time series input in this stage
+	 * @param deltaObjectId  delta object id
 	 */
 	public void startRowGroup(long recordCount, String deltaObjectId) {
 		LOG.debug("start row group:{}", deltaObjectId);
@@ -158,18 +156,9 @@ public class TsFileIOWriter {
 		currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, recordCount, 0, new ArrayList<>(), "");
 	}
 
-	/**
-	 * start a {@linkplain RowGroupMetaData RowGroupMetaData}. numOfRows is set to default value 0.
-	 * @param deltaObjectId
-	 */
-	public void startRowGroup(String deltaObjectId) {
-		LOG.debug("start row group:{}", deltaObjectId);
-		// init a new RowGroupMetadata
-		currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, 0, 0, new ArrayList<>(), "");
-	}
 
 	/**
-	 * start a {@linkplain TimeSeriesChunkMetaData TimeSeriesChunkMetaData}.
+	 * construct a {@linkplain TimeSeriesChunkMetaData TimeSeriesChunkMetaData} in memory.
 	 *
 	 * @param descriptor
 	 *            - measurement of this time series
@@ -186,8 +175,8 @@ public class TsFileIOWriter {
 	 * @throws IOException
 	 *             if I/O error occurs
 	 */
-	public void startSeries(MeasurementDescriptor descriptor, CompressionTypeName compressionCodecName,
-			TSDataType tsDataType, Statistics<?> statistics, long maxTime, long minTime) throws IOException {
+	public void startColumnChunk(MeasurementDescriptor descriptor, CompressionTypeName compressionCodecName,
+								 TSDataType tsDataType, Statistics<?> statistics, long maxTime, long minTime) throws IOException {
 		LOG.debug("start series:{}", descriptor);
 		// init a new TimeSeriesChunkMetaData
 		currentChunkMetaData = new TimeSeriesChunkMetaData(descriptor.getMeasurementId(), TSChunkType.VALUE,
@@ -226,7 +215,7 @@ public class TsFileIOWriter {
 	 * @param totalValueCount total data points num of this TimeSeriesChunkMetaData
 	 */
 	public void endSeries(long size, long totalValueCount) {
-		LOG.debug("end series:{},totalvalue:{}", currentChunkMetaData, totalValueCount);
+		LOG.debug("end series:{},total value count:{}", currentChunkMetaData, totalValueCount);
 		// set total byte size to this TimeSeriesChunkMetaData
 		currentChunkMetaData.setTotalByteSize(size);
 		// set total data points num to this TimeSeriesChunkMetaData
@@ -269,13 +258,10 @@ public class TsFileIOWriter {
 	}
 
 	/**
-	 * write {@linkplain TsFileMetaData TSFileMetaData} to output stream and
-	 * close it.
+	 * write {@linkplain TsFileMetaData TSFileMetaData} to the TsFile and close it.
 	 *
-	 * @param schema
-	 *            FileSchema
-	 * @throws IOException
-	 *             if I/O error occurs
+	 * @param schema FileSchema
+	 * @throws IOException if I/O error occurs
 	 */
 	public void endFile(FileSchema schema) throws IOException {
 		// 1. get all TimeSeriesMetadatas of this TsFile
@@ -304,19 +290,17 @@ public class TsFileIOWriter {
 			// 2.3 add current rowGroupMetaData to corresponding TsRowGroupBlockMetaData
 			tsRowGroupBlockMetaDataMap.get(currentDeltaObject).addRowGroupMetaData(rowGroupMetaData);
 		}
-		/** Iterator of tsRowGroupBlockMetaDataMap **/
+		// Iterator of tsRowGroupBlockMetaDataMap
 		Iterator<Map.Entry<String, TsRowGroupBlockMetaData>> iterator = tsRowGroupBlockMetaDataMap.entrySet()
 				.iterator();
-		/** used to record file writer offset **/
+		// used to record file writer offset
 		long offset;
 		long offsetIndex;
-		/** size of RowGroupMetadataBlock in byte **/
-		int metadataBlockSize;
 
-		/** start time for a delta object **/
+		// start time for a delta object
 		long startTime;
 
-		/** end time for a delta object **/
+		// end time for a delta object
 		long endTime;
 
 		// 3. loop all TsRowGroupBlockMetaDatas in tsRowGroupBlockMetaDataMap
@@ -399,27 +383,11 @@ public class TsFileIOWriter {
 	}
 
 	/**
-	 * fill in output stream to complete row group threshold.
-	 *
-	 * @param diff
-	 *            how many bytes that will be filled.
-	 * @throws IOException
-	 *             if diff is greater than Integer.max_value
-	 */
-	public void fillInRowGroup(long diff) throws IOException {
-		if (diff <= Integer.MAX_VALUE) {
-			out.write(new byte[(int) diff]);
-		} else {
-			throw new IOException("write too much blank byte array!array size:" + diff);
-		}
-	}
-
-	/**
 	 * Get the list of RowGroupMetaData in memory.
 	 *
 	 * @return - current list of RowGroupMetaData
 	 */
-	public List<RowGroupMetaData> getRowGroups() {
+	public List<RowGroupMetaData> getRowGroupMetaDatas() {
 		return rowGroupMetaDatas;
 	}
 }
