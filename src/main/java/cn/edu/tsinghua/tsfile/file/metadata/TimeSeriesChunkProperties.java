@@ -19,11 +19,22 @@ public class TimeSeriesChunkProperties {
      * Byte offset in file_path to the RowGroupMetaData
      */
     private long fileOffset;
+    /** compression type of this time series **/
     private CompressionTypeName compression;
 
+    /**
+     * empty constructor
+     */
     public TimeSeriesChunkProperties() {
     }
 
+    /**
+     * init a TimeSeriesChunkProperties
+     * @param measurementUID name of measurementUID
+     * @param tsChunkType type of this series
+     * @param fileOffset byte offset in file_path to the RowGroupMetadata
+     * @param compression compression type of this time series
+     */
     public TimeSeriesChunkProperties(String measurementUID, TSChunkType tsChunkType, long fileOffset,
                                      CompressionTypeName compression) {
         this.measurementUID = measurementUID;
