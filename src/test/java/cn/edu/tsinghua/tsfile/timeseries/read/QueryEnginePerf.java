@@ -128,7 +128,7 @@ public class QueryEnginePerf {
 		FileSchema schema = new FileSchema(jsonSchema);
 
 		// TSFileDescriptor.conf.rowGroupSize = 2000;
-		// TSFileDescriptor.conf.pageSize = 100;
+		// TSFileDescriptor.conf.pageSizeInByte = 100;
 		innerWriter = new TsFileWriter(file, schema, TSFileDescriptor.getInstance().getConfig());
 
 		// write

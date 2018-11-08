@@ -162,7 +162,6 @@ public abstract class TSEncodingConverter {
                     return new LongRleEncoder(EndianType.LITTLE_ENDIAN);
                 case FLOAT:
                 case DOUBLE:
-//                case BIGDECIMAL:
                     return new FloatEncoder(TSEncoding.RLE, type, maxPointNumber);
                 default:
                     throw new UnSupportedDataTypeException("RLE doesn't support data type: " + type);

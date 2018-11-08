@@ -32,9 +32,21 @@ import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaExcept
  *          "data_type": "INT32",
  *          "encoding": "RLE"
  *         },
+ *         {
+ *             "measurement_id": "s3",
+ *             "data_type": "ENUMS",
+ *             "encoding": "BITMAP",
+ *             "compressor": "SNAPPY",
+ *             "enum_values":["MAN","WOMAN"],
+ *             "max_error":12,
+ *             "max_point_number":3
+ *         },
  *         ...
  *     ],
- *     "delta_type": "type"
+ *     "properties":{
+ *         "k1":"v1",
+ *         "k2":"v2"
+ *     }
  * }
  *
  * </pre>
@@ -62,7 +74,23 @@ public class JsonConverter {
     // the input JSONObject must have JSON_SCHEMA
     if (!jsonSchema.has(JsonFormatConstant.JSON_SCHEMA))
       throw new InvalidJsonSchemaException("missing fields:" + JsonFormatConstant.JSON_SCHEMA);
-    // get schema in JSONArray form from JSONObject
+
+    /**
+     * get schema of all measurements in JSONArray from JSONObject
+     *
+     * "schema": [
+     *         {
+     *             "measurement_id": "s1",
+     *             "data_type": "INT32",
+     *             "encoding": "RLE"
+     *         },
+     *         {
+     *             "measurement_id": "s2",
+     *             "data_type": "INT64",
+     *             "encoding": "TS_2DIFF"
+     *         }...
+     *  ]
+     */
     JSONArray schemaArray = jsonSchema.getJSONArray(JsonFormatConstant.JSON_SCHEMA);
     // loop all JSONObject in this JSONArray and convert it to MeasurementDescriptor
     for (int i = 0; i < schemaArray.length(); i++) {
@@ -82,7 +110,15 @@ public class JsonConverter {
     Map<String, String> result = new HashMap<>();
     // if input jsonSchema doesn't have PROPERTIES, return an empty Map
     if (jsonSchema.has(JsonFormatConstant.PROPERTIES)) {
-      // get properties in JSONObject form from jsonSchema
+
+      /**
+       * get properties in JSONObject form from jsonSchema
+       *
+       * "properties":{
+       *         "k1":"v1",
+       *         "k2":"v2"
+       *     }
+       */
       JSONObject jsonProps = jsonSchema.getJSONObject(JsonFormatConstant.PROPERTIES);
       // loop all kv pairs in this jsonProps and put it into result Map
       for (Object key : jsonProps.keySet())
@@ -93,7 +129,23 @@ public class JsonConverter {
 
   /**
    * convert the input JSONObject to MeasurementDescriptor
-   * @param measurementObj
+   * @param measurementObj properties of one measurement
+   *
+   *  an example:
+   *
+   *  {
+   *             "measurement_id": "s3",
+   *             "data_type": "ENUMS",
+   *             "encoding": "BITMAP",
+   *
+   *             // some measurement may have some properties
+   *
+   *             "compressor": "SNAPPY",
+   *             "enum_values":["MAN","WOMAN"],
+   *             "max_error":12,
+   *             "max_point_number":3
+   *  }
+   *
    * @return converted MeasurementDescriptor
    */
   public static MeasurementDescriptor convertJsonToMeasureMentDescriptor(
@@ -157,6 +209,21 @@ public class JsonConverter {
    * given a MeasurementDescriptor and convert it to a JSONObject
    * @param measurementDescriptor the given descriptor in type of {@linkplain MeasurementDescriptor MeasurementDescriptor}
    * @return converted MeasurementDescriptor in form of JSONObject
+   *
+   *  an example:
+   *
+   *  {
+   *             "measurement_id": "s3",
+   *             "data_type": "ENUMS",
+   *             "encoding": "BITMAP",
+   *
+   *             // some measurement may have some properties
+   *
+   *             "compressor": "SNAPPY",
+   *             "enum_values":["MAN","WOMAN"],
+   *             "max_error":12,
+   *             "max_point_number":3
+   *  }
    */
   private static JSONObject convertMeasurementDescriptorToJson(
           MeasurementDescriptor measurementDescriptor) {

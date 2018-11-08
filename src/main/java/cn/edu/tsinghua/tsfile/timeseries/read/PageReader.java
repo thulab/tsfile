@@ -91,7 +91,7 @@ public class PageReader {
     }
 
     /**
-     * read {@code pageSize} bytes from {@code in}
+     * read {@code pageSizeInByte} bytes from {@code in}
      * @param in
      * @param buf
      * @param pageSize

@@ -1,6 +1,5 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.schema;
 
-import cn.edu.tsinghua.tsfile.common.constant.SystemConstant;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
@@ -24,7 +23,7 @@ public class SchemaBuilder {
     }
 
     /**
-     * add one series to tsfile schema
+     * add one series to TsFile schema
      *
      * @param measurementId (not null) id of the series
      * @param dataType      (not null) series data type
@@ -70,9 +69,7 @@ public class SchemaBuilder {
 
     /**
      * add one property to schema
-     * @param key
-     * @param value
-     * @return
+     * @return this
      */
     public SchemaBuilder addProp(String key, String value) {
         fileSchema.addProp(key, value);
@@ -81,8 +78,7 @@ public class SchemaBuilder {
 
     /**
      * reset properties of this schema
-     * @param props
-     * @return
+     * @return this
      */
     public SchemaBuilder setProps(Map<String, String> props) {
         fileSchema.setProps(props);
