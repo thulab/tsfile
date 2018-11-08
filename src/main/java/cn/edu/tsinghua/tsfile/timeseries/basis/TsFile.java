@@ -31,14 +31,21 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
  */
 public class TsFile {
 
+  /** status of current TsFile, 0 means write, 1 means read **/
   private static final int WRITE = 0;
   private static final int READ = 1;
+
+  /** the query engine for this TsFile **/
   private QueryEngine queryEngine;
+  /** current status (write or read) **/
   private int status;
+  /** writer of this TsFile **/
   private TsFileWriter writer;
+  /** schema of thie TsFile **/
   private FileSchema fileSchema;
 
   /**
+   * init with File, schema and default configuration
    * For Write
    *
    * @param file
@@ -55,6 +62,7 @@ public class TsFile {
   }
 
   /**
+   * init with File, schema and default configuration
    * For Write
    *
    * @param file
@@ -72,6 +80,7 @@ public class TsFile {
   }
 
   /**
+   * init with File, schema and default configuration
    * For Write
    *
    * @param output
@@ -91,6 +100,7 @@ public class TsFile {
   }
 
   /**
+   * init with File, schema and default configuration
    * For Write
    *
    * @param output
@@ -108,6 +118,11 @@ public class TsFile {
     writer = new TsFileWriter(output, fileSchema, TSFileDescriptor.getInstance().getConfig());
   }
 
+  /**
+   * init with schema and default configuration
+   * for write
+   * @param schema
+   */
   private TsFile(FileSchema schema) {
     fileSchema = schema;
     TSFileConfig conf = TSFileDescriptor.getInstance().getConfig();
@@ -115,10 +130,12 @@ public class TsFile {
       conf.groupSizeInByte = Integer.valueOf(fileSchema.getProp(JsonFormatConstant.ROW_GROUP_SIZE));
     if (fileSchema.hasProp(JsonFormatConstant.PAGE_SIZE))
       conf.pageSizeInByte = Integer.valueOf(fileSchema.getProp(JsonFormatConstant.PAGE_SIZE));
+    // set status to WRITE
     this.status = WRITE;
   }
 
   /**
+   * init with file reader
    * Notice: This constructor is only for reading TsFile.
    *
    * @param raf
@@ -145,13 +162,15 @@ public class TsFile {
    *           thrown if given data is not matched to fileSchema
    */
   public void writeLine(String line) throws IOException, WriteProcessException {
+    // check status
     checkStatus(WRITE);
+    // parse String {@code line} to TSRecord and write
     TSRecord record = RecordUtils.parseSimpleTupleRecord(line, fileSchema);
     writer.write(record);
   }
 
   /**
-   * add a new property, replace old value if already exist.
+   * add a new property to this.schema, replace old value if already exist.
    *
    * @param key
    *          key of property
@@ -187,8 +206,10 @@ public class TsFile {
    */
   public void close() throws IOException {
     if (this.status == WRITE) {
+      // if status is WRITE, close this.writer
       writer.close();
     } else if (this.status == READ) {
+      // else, close this.queryEngine
       queryEngine.close();
     } else {
       String[] msg = new String[] { "WRITE", "READ" };
@@ -198,9 +219,19 @@ public class TsFile {
   }
 
 
+  /**
+   * read data with time and value filters from given paths
+   * @param paths
+   * @param timeFilter
+   * @param valueFilter
+   * @return
+   * @throws IOException
+   */
   public OnePassQueryDataSet query(List<Path> paths, FilterExpression timeFilter,
                                    FilterExpression valueFilter) throws IOException {
+    // check status
     checkStatus(READ);
+    // check if {@code valueFilter} is single series filter
     if (paths.size() == 1 && valueFilter instanceof SingleSeriesFilterExpression
         && paths.get(0).getDeltaObjectToString()
             .equals(valueFilter.getFilterSeries().getDeltaObjectUID())
@@ -208,15 +239,27 @@ public class TsFile {
             .equals(valueFilter.getFilterSeries().getMeasurementUID())) {
 
     } else if (valueFilter != null) {
+      // if not, use corss series And operator to combine
       valueFilter = FilterFactory.csAnd(valueFilter, valueFilter);
     }
+    // read data through this.queryEngine
     return queryEngine.query(paths, timeFilter, null, valueFilter);
   }
 
-
+  /**
+   * read data with params, time filter and value filter from given paths
+   * @param paths
+   * @param timeFilter
+   * @param valueFilter
+   * @param params
+   * @return
+   * @throws IOException
+   */
   public OnePassQueryDataSet query(List<Path> paths, FilterExpression timeFilter,
                                    FilterExpression valueFilter, Map<String, Long> params) throws IOException {
+    // check status
     checkStatus(READ);
+    // read data through this.queryEngine
     return queryEngine.query(paths, timeFilter, null, valueFilter, params);
   }
 
@@ -245,6 +288,8 @@ public class TsFile {
   }
 
   /**
+   * Get Type for every deltaObject
+   *
    * @return a map contains all DeltaObjects with type each.
    * @throws IOException
    *           thrown if fail to get delta object type
@@ -269,6 +314,8 @@ public class TsFile {
   }
 
   /**
+   * get all delta obejct ids of this TsFile
+   *
    * @return all deltaObjects' name in current TsFile
    * @throws IOException
    *           thrown if fail to get all delta object
@@ -279,6 +326,8 @@ public class TsFile {
   }
 
   /**
+   * get all series schemas of this TsFile
+   *
    * @return all series' schemas in current TsFile
    * @throws IOException
    *           thrown if fail to all series
@@ -300,18 +349,36 @@ public class TsFile {
     return queryEngine.getRowGroupPosList();
   }
 
+  /**
+   * get all indexes of RowGroups whose file offset is between {@code start} and {@code end}
+   * @param start
+   * @param end
+   * @return
+   * @throws IOException
+   */
   public ArrayList<Integer> calSpecificRowGroupByPartition(long start, long end)
       throws IOException {
     checkStatus(READ);
     return queryEngine.calSpecificRowGroupByPartition(start, end);
   }
 
+  /**
+   * get all deltaObjectIds of RowGroups whose file offset is between {@code start} and {@code end}
+   * @param start
+   * @param end
+   * @return
+   * @throws IOException
+   */
   public ArrayList<String> getAllDeltaObjectUIDByPartition(long start, long end)
       throws IOException {
     checkStatus(READ);
     return queryEngine.getAllDeltaObjectUIDByPartition(start, end);
   }
 
+  /**
+   * get properties of this.queryEngine
+   * @return
+   */
   public Map<String, String> getProps() {
     return queryEngine.getProps();
   }
@@ -326,10 +393,20 @@ public class TsFile {
     fileSchema.setProps(props);
   }
 
+  /**
+   * get one specific property
+   * @param key
+   * @return
+   */
   public String getProp(String key) {
     return queryEngine.getProp(key);
   }
 
+  /**
+   * make sure input {@code status} equals current {@code status}
+   * @param status
+   * @throws IOException
+   */
   private void checkStatus(int status) throws IOException {
     if (status != this.status) {
       String[] msg = new String[] { "WRITE", "READ" };
