@@ -139,7 +139,7 @@ public class PageReaderTest {
                 valueWriter.setValueEncoder(this.encoder);
                 writeData();
 
-                InputStream page = new ByteArrayInputStream(valueWriter.getBytes().toByteArray());
+                InputStream page = new ByteArrayInputStream(valueWriter.getUncompressedBytes().toByteArray());
                 PageReader pageReader = new PageReader(page, dataType, decoder, new DeltaBinaryDecoder.LongDeltaDecoder());
 
                 int index = 0;

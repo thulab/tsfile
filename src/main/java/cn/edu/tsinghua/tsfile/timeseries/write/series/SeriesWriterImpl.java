@@ -198,11 +198,11 @@ public class SeriesWriterImpl implements ISeriesWriter {
      */
     private void writePage() {
         try {
-            pageWriter.addPage(dataValueWriter.getBytes(), valueCount, pageStatistics, time, minTimestamp);
+            pageWriter.addPage(dataValueWriter.getUncompressedBytes(), valueCount, pageStatistics, time, minTimestamp);
             // update statistics of this series
             this.seriesStatistics.mergeStatistics(this.pageStatistics);
         } catch (IOException e) {
-            LOG.error("meet error in dataValueWriter.getBytes(),ignore this page, {}", e.getMessage());
+            LOG.error("meet error in dataValueWriter.getUncompressedBytes(),ignore this page, {}", e.getMessage());
         } catch (PageException e) {
             LOG.error("meet error in pageWriter.addPage,ignore this page, error message:{}", e.getMessage());
         } finally {

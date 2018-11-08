@@ -19,13 +19,31 @@ import java.io.InputStream;
 public class PageReader implements TimeValuePairReader {
 
     private TSDataType dataType;
+
+    // decoder for value column
     private Decoder valueDecoder;
+
+    // decoder for time column
     private Decoder timeDecoder;
+
+    // time column in memory
     private InputStream timestampInputStream;
+
+    // value column in memory
     private InputStream valueInputStream;
+
+    // cache one time value pair
     private boolean hasOneCachedTimeValuePair;
     private TimeValuePair cachedTimeValuePair;
 
+    /**
+     *
+     * @param pageContent uncompressed bytes size of time column, time column, value column
+     * @param dataType value data type
+     * @param valueDecoder decoder for value column
+     * @param timeDecoder decoder for time column
+     * @throws IOException exception in IO
+     */
     public PageReader(InputStream pageContent, TSDataType dataType, Decoder valueDecoder, Decoder timeDecoder) throws IOException {
         this.dataType = dataType;
         this.valueDecoder = valueDecoder;
@@ -34,8 +52,16 @@ public class PageReader implements TimeValuePairReader {
         splitInputStreamToTimeStampAndValue(pageContent);
     }
 
+    /**
+     * splite pageContent into two stream: time and value
+     * @param pageContent uncompressed bytes size of time column, time column, value column
+     * @throws IOException exception in reading data from pageContent
+     */
     private void splitInputStreamToTimeStampAndValue(InputStream pageContent) throws IOException {
+
         int timeInputStreamLength = ReadWriteStreamUtils.readUnsignedVarInt(pageContent);
+
+        // buffer to store uncompressed time column
         byte[] buf = new byte[timeInputStreamLength];
         int readSize = pageContent.read(buf, 0, timeInputStreamLength);
         if (readSize != timeInputStreamLength) {
@@ -43,6 +69,8 @@ public class PageReader implements TimeValuePairReader {
                     "Expect byte size : " + timeInputStreamLength + ". Read size : " + readSize);
         }
         this.timestampInputStream = new ByteArrayInputStream(buf);
+
+        // the left uncompressed values in stream
         this.valueInputStream = pageContent;
     }
 
@@ -52,7 +80,7 @@ public class PageReader implements TimeValuePairReader {
             return true;
         }
         if (timeDecoder.hasNext(timestampInputStream) && valueDecoder.hasNext(valueInputStream)) {
-            cacheOneTimeValuePair();
+            readAndCacheOneTimeValuePair();
             this.hasOneCachedTimeValuePair = true;
             return true;
         }
@@ -69,7 +97,10 @@ public class PageReader implements TimeValuePairReader {
         }
     }
 
-    private void cacheOneTimeValuePair() {
+    /**
+     * read one time value pair from streams and cache
+     */
+    private void readAndCacheOneTimeValuePair() {
         long timestamp = timeDecoder.readLong(timestampInputStream);
         TsPrimitiveType value = readOneValue();
         this.cachedTimeValuePair = new TimeValuePair(timestamp, value);

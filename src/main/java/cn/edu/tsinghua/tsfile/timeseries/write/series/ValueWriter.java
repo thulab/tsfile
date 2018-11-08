@@ -104,17 +104,17 @@ public class ValueWriter {
     }
 
     /**
-     * getBytes return data what it has been written in form of <code>ListByteArrayOutputStream</code>.
+     * getUncompressedBytes return data what it has been written in form of <code>ListByteArrayOutputStream</code>.
      *
      * @return - list byte array output stream containing time size, time stream and value stream.
      * @throws IOException exception in IO
      */
-    public ListByteArrayOutputStream getBytes() throws IOException {
+    public ListByteArrayOutputStream getUncompressedBytes() throws IOException {
         // flush all data to BAOS
         prepareEndWriteOnePage();
         // output data size info
         ReadWriteStreamUtils.writeUnsignedVarInt(timeOut.size(), timeSizeOut);
-        // put together the three streams: which consist the number of data points, the time data and the value data
+        // put together the three streams: which consist the size of time column, the time column and the value column
         return new ListByteArrayOutputStream(timeSizeOut, timeOut, valueOut);
     }
 

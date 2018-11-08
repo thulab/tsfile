@@ -9,10 +9,19 @@ import java.io.IOException;
  */
 public interface TimeValuePairReader{
 
+    /**
+     * if there is a next time-value pair
+     */
     boolean hasNext() throws IOException;
 
+    /**
+     * @return next time value pair
+     */
     TimeValuePair next() throws IOException;
 
+    /**
+     * skip the current time value pair, just call next()
+     */
     void skipCurrentTimeValuePair() throws IOException;
 
     void close() throws IOException;
