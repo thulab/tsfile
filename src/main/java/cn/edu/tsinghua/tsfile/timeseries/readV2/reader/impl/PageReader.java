@@ -7,7 +7,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType.*;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.TimeValuePairReader;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.SeriesReader;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -16,7 +16,7 @@ import java.io.InputStream;
 /**
  * @author Jinrui Zhang
  */
-public class PageReader implements TimeValuePairReader {
+public class PageReader implements SeriesReader {
 
     private TSDataType dataType;
 

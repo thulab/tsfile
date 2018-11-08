@@ -8,7 +8,7 @@ import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.format.Encoding;
 import cn.edu.tsinghua.tsfile.format.PageHeader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.TimeValuePairReader;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.SeriesReader;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.Arrays;
 /**
  * @author Jinrui Zhang
  */
-public abstract class SeriesChunkReader implements TimeValuePairReader {
+public abstract class SeriesChunkReader implements SeriesReader {
 
     protected TSDataType dataType;
     private InputStream seriesChunkInputStream;
