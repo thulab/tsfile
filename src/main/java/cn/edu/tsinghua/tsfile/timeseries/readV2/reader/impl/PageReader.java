@@ -32,10 +32,6 @@ public class PageReader implements TimeValuePairReader {
     // value column in memory
     private InputStream valueInputStream;
 
-    // cache one time value pair
-    private boolean hasOneCachedTimeValuePair;
-    private TimeValuePair cachedTimeValuePair;
-
     /**
      *
      * @param pageContent uncompressed bytes size of time column, time column, value column
@@ -48,7 +44,6 @@ public class PageReader implements TimeValuePairReader {
         this.dataType = dataType;
         this.valueDecoder = valueDecoder;
         this.timeDecoder = timeDecoder;
-        hasOneCachedTimeValuePair = false;
         splitInputStreamToTimeStampAndValue(pageContent);
     }
 
@@ -76,34 +71,18 @@ public class PageReader implements TimeValuePairReader {
 
     @Override
     public boolean hasNext() throws IOException {
-        if (hasOneCachedTimeValuePair) {
-            return true;
-        }
-        if (timeDecoder.hasNext(timestampInputStream) && valueDecoder.hasNext(valueInputStream)) {
-            readAndCacheOneTimeValuePair();
-            this.hasOneCachedTimeValuePair = true;
-            return true;
-        }
-        return false;
+        return timeDecoder.hasNext(timestampInputStream) && valueDecoder.hasNext(valueInputStream);
     }
 
     @Override
     public TimeValuePair next() throws IOException {
         if (hasNext()) {
-            this.hasOneCachedTimeValuePair = false;
-            return cachedTimeValuePair;
+            long timestamp = timeDecoder.readLong(timestampInputStream);
+            TsPrimitiveType value = readOneValue();
+            return new TimeValuePair(timestamp, value);
         } else {
             throw new IOException("No more TimeValuePair in current page");
         }
-    }
-
-    /**
-     * read one time value pair from streams and cache
-     */
-    private void readAndCacheOneTimeValuePair() {
-        long timestamp = timeDecoder.readLong(timestampInputStream);
-        TsPrimitiveType value = readOneValue();
-        this.cachedTimeValuePair = new TimeValuePair(timestamp, value);
     }
 
     @Override
@@ -117,6 +96,7 @@ public class PageReader implements TimeValuePairReader {
         valueInputStream.close();
     }
 
+    // read one value according to data type
     private TsPrimitiveType readOneValue() {
         switch (dataType) {
             case BOOLEAN:
