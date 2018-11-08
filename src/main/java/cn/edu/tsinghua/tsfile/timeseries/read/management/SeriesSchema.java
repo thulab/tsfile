@@ -13,11 +13,21 @@ import java.util.HashMap;
  * @author Jinrui Zhang
  */
 public class SeriesSchema {
+    /** measurementId **/
     public String name;
+    /** data type **/
     public TSDataType dataType;
+    /** encoding type **/
     public TSEncoding encoding;
+    /** additional args **/
     private HashMap<String, String> args;
 
+    /**
+     * init this SeriesSchema
+     * @param name
+     * @param dataType
+     * @param encoding
+     */
     public SeriesSchema(String name, TSDataType dataType, TSEncoding encoding) {
         this.name = name;
         this.dataType = dataType;
@@ -25,18 +35,36 @@ public class SeriesSchema {
         this.args = new HashMap<>();
     }
 
+    /**
+     * add one kv argument
+     * @param key
+     * @param value
+     */
     public void putKeyValueToArgs(String key, String value) {
         this.args.put(key, value);
     }
 
+    /**
+     * get one specific argument
+     * @param key
+     * @return
+     */
     public Object getValueFromArgs(String key) {
         return args.get(key);
     }
 
+    /**
+     * get all arguments
+     * @return
+     */
     public HashMap<String, String> getArgsMap() {
         return args;
     }
 
+    /**
+     * set all arguments
+     * @param argsMap
+     */
     public void setArgsMap(HashMap<String, String> argsMap) {
         this.args = argsMap;
     }
