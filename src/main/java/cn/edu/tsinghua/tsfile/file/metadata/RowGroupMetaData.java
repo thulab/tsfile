@@ -14,6 +14,9 @@ import java.util.List;
 public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.format.RowGroupMetaData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RowGroupMetaData.class);
 
+    /**
+     * Name of deltaObject
+     */
     private String deltaObjectID;
 
     /**
@@ -31,6 +34,9 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
      */
     private String path;
 
+    /**
+     * All time series chunks in this row group.
+     */
     private List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList;
 
     /**
@@ -44,9 +50,18 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
     private long writtenTime;
 
     public RowGroupMetaData() {
-        timeSeriesChunkMetaDataList = new ArrayList<TimeSeriesChunkMetaData>();
+        timeSeriesChunkMetaDataList = new ArrayList<>();
     }
 
+    /**
+     * init a row group metadata
+     *
+     * @param deltaObjectID               name of deltaObject
+     * @param numOfRows                   number of rows in this row group
+     * @param totalByteSize               total byte size of all the uncompressed time series data in this row group
+     * @param timeSeriesChunkMetaDataList all time series chunks in this row group
+     * @param deltaObjectType             which schema/group does the delta object belongs to
+     */
     public RowGroupMetaData(String deltaObjectID, long numOfRows, long totalByteSize,
                             List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList, String deltaObjectType) {
         this.deltaObjectID = deltaObjectID;
@@ -63,7 +78,7 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
      */
     public void addTimeSeriesChunkMetaData(TimeSeriesChunkMetaData metadata) {
         if (timeSeriesChunkMetaDataList == null) {
-            timeSeriesChunkMetaDataList = new ArrayList<TimeSeriesChunkMetaData>();
+            timeSeriesChunkMetaDataList = new ArrayList<>();
         }
         timeSeriesChunkMetaDataList.add(metadata);
     }
@@ -73,19 +88,25 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
                 : Collections.unmodifiableList(timeSeriesChunkMetaDataList);
     }
 
+    /**
+     * Serialize class RowGroupMetaData to thrift format
+     *
+     * @return class of thrift format
+     */
     @Override
     public cn.edu.tsinghua.tsfile.format.RowGroupMetaData convertToThrift() {
         try {
             List<cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData> timeSeriesChunkMetaDataListInThrift = null;
             if (timeSeriesChunkMetaDataList != null) {
                 timeSeriesChunkMetaDataListInThrift = new ArrayList<>();
+                //convert all timeSeriesChunkMetaData to thrift format
                 for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList) {
                     timeSeriesChunkMetaDataListInThrift.add(timeSeriesChunkMetaData.convertToThrift());
                 }
             }
             cn.edu.tsinghua.tsfile.format.RowGroupMetaData metaDataInThrift =
                     new cn.edu.tsinghua.tsfile.format.RowGroupMetaData(timeSeriesChunkMetaDataListInThrift,
-                    		deltaObjectID, totalByteSize, numOfRows, deltaObjectType, writtenTime);
+                            deltaObjectID, totalByteSize, numOfRows, deltaObjectType, writtenTime);
             metaDataInThrift.setFile_path(path);
             return metaDataInThrift;
         } catch (Exception e) {
@@ -97,6 +118,11 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
         }
     }
 
+    /**
+     * Deserialize class RowGroupMetaData from thrift format to normal format
+     *
+     * @param metaDataInThrift thrift format of the class
+     */
     @Override
     public void convertToTSF(cn.edu.tsinghua.tsfile.format.RowGroupMetaData metaDataInThrift) {
         try {
@@ -114,6 +140,7 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
                     timeSeriesChunkMetaDataList = new ArrayList<>();
                 }
                 timeSeriesChunkMetaDataList.clear();
+                //convert all timeSeriesChunkMetaData from thrift format to normal format
                 for (cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData timeSeriesChunkMetaDataInThrift : timeSeriesChunkMetaDataListInThrift) {
                     TimeSeriesChunkMetaData timeSeriesChunkMetaData = new TimeSeriesChunkMetaData();
                     timeSeriesChunkMetaData.convertToTSF(timeSeriesChunkMetaDataInThrift);
