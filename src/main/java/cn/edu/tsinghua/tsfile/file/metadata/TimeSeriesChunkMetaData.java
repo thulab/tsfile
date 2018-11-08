@@ -18,8 +18,14 @@ public class TimeSeriesChunkMetaData
         implements IConverter<cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeSeriesChunkMetaData.class);
 
+    /**
+     * required properties in TimeSeriesChunkMetaData
+     */
     private TimeSeriesChunkProperties properties;
 
+    /**
+     * rows number of data
+     * */
     private long numRows;
 
     /**
