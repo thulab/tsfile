@@ -25,11 +25,9 @@ public class SeriesChunkReaderByTimestampImpl extends SeriesChunkReader implemen
     @Override
     public boolean pageSatisfied(PageHeader pageHeader) {
         long maxTimestamp = pageHeader.data_page_header.max_timestamp;
-        //If minTimestamp > currentTimestamp, this page should NOT be skipped
-        if (maxTimestamp < currentTimestamp || maxTimestamp < getMaxTombstoneTime()) {
-            return false;
-        }
-        return true;
+
+        //If maxTimestamp >= currentTimestamp, this page should NOT be skipped
+        return maxTimestamp >= currentTimestamp && maxTimestamp >= getMaxTombstoneTime();
     }
 
     @Override

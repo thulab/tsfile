@@ -13,6 +13,7 @@ import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.TimeValuePairReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 /**
  * @author Jinrui Zhang
@@ -22,10 +23,9 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
     protected TSDataType dataType;
     private InputStream seriesChunkInputStream;
 
-    private boolean pageReaderInitialized;
+    private boolean hasUnconsumedPage;
     private PageReader pageReader;
     private UnCompressor unCompressor;
-    private Encoding defaultTimestampEncoding;
     protected boolean hasCachedTimeValuePair;
     protected TimeValuePair cachedTimeValuePair;
     private long maxTombstoneTime;
@@ -35,8 +35,7 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
         this.seriesChunkInputStream = seriesChunkInputStream;
         this.dataType = dataType;
         this.unCompressor = UnCompressor.getUnCompressor(compressionTypeName);
-        this.pageReaderInitialized = false;
-        defaultTimestampEncoding = Encoding.TS_2DIFF;
+        this.hasUnconsumedPage = false;
     }
 
     @Override
@@ -44,25 +43,38 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
         if (hasCachedTimeValuePair) {
             return true;
         }
+
         //Judge whether next satisfied page exists
         while (true) {
-            if (!pageReaderInitialized) {
+            if (!hasUnconsumedPage) {
+
+                // construct next satisfied page header
                 boolean hasMoreSatisfiedPage = constructPageReaderIfNextSatisfiedPageExists();
+
+                // if there does not exist a satisfied page, return false
                 if (!hasMoreSatisfiedPage) {
                     return false;
                 }
-                pageReaderInitialized = true;
+                hasUnconsumedPage = true;
             }
 
+            // check whether there exists a satisfied time value pair in current page
             while (pageReader.hasNext()) {
+
+                // read next time value pair
                 TimeValuePair timeValuePair = pageReader.next();
+
+                // check if next time value pair satisfy the condition
                 if (timeValuePairSatisfied(timeValuePair) && timeValuePair.getTimestamp() > maxTombstoneTime) {
-                    this.hasCachedTimeValuePair = true;
+
+                    // cache next satisfied time value pair
                     this.cachedTimeValuePair = timeValuePair;
+                    this.hasCachedTimeValuePair = true;
+
                     return true;
                 }
             }
-            pageReaderInitialized = false;
+            hasUnconsumedPage = false;
         }
     }
 
@@ -75,55 +87,65 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
         throw new IOException("No more timeValuePair in current MemSeriesChunk");
     }
 
+    /**
+     * Read page one by one from InputStream and check the page header whether this page satisfies the filter.
+     * Skip the unsatisfied pages and construct PageReader for the first page satisfied.
+     * @return whether there exists a satisfied page
+     * @throws IOException exception when reading page
+     */
     private boolean constructPageReaderIfNextSatisfiedPageExists() throws IOException {
+
         boolean gotNextPageReader = false;
-        while (hasNextPageInStream() && !gotNextPageReader) {
-            PageHeader pageHeader = getNextPageHeader();
+
+        while (seriesChunkInputStream.available() > 0 && !gotNextPageReader) {
+            // deserialize a PageHeader from seriesChunkInputStream
+            PageHeader pageHeader = ReadWriteThriftFormatUtils.readPageHeader(seriesChunkInputStream);
+
+            // if the current page satisfies the filter
             if (pageSatisfied(pageHeader)) {
-                Decoder valueDecoder = Decoder.getDecoderByType(pageHeader.getData_page_header().getEncoding(), dataType);
-                //TODO: How to get defaultTimeDecoder by TSConfig rather than hard code here ?
-                Decoder defaultTimeDecoder = Decoder.getDecoderByType(defaultTimestampEncoding, TSDataType.INT64);
-                pageReader = constructPageReaderForNextPage(pageHeader.getCompressed_page_size(), valueDecoder, defaultTimeDecoder);
+                pageReader = constructPageReader(pageHeader);
                 gotNextPageReader = true;
             } else {
-                skipBytesInStreamByLength(pageHeader.getCompressed_page_size());
+                // skip the current page body
+                long skipped = seriesChunkInputStream.skip(pageHeader.getCompressed_page_size());
+                if(skipped != pageHeader.getCompressed_page_size())
+                    throw new IOException("the page body is not complete. Expected skipped body size:"
+                            + pageHeader.getCompressed_page_size() + ". Actual skipped:" + skipped);
             }
         }
         return gotNextPageReader;
-
     }
 
-    private boolean hasNextPageInStream() throws IOException {
-        if (seriesChunkInputStream.available() > 0) {
-            return true;
-        }
-        return false;
-    }
 
     public abstract boolean pageSatisfied(PageHeader pageHeader);
 
     public abstract boolean timeValuePairSatisfied(TimeValuePair timeValuePair);
 
-    private void skipBytesInStreamByLength(long length) throws IOException {
-        seriesChunkInputStream.skip(length);
-    }
 
-    private PageReader constructPageReaderForNextPage(int compressedPageBodyLength, Decoder valueDecoder, Decoder timeDecoder)
-            throws IOException {
-        byte[] compressedPageBody = new byte[compressedPageBodyLength];
-        int readLength = seriesChunkInputStream.read(compressedPageBody, 0, compressedPageBodyLength);
-        if (readLength != compressedPageBodyLength) {
+    /**
+     * construct PageReader by PageHeader
+     */
+    private PageReader constructPageReader(PageHeader pageHeader) throws IOException{
+
+        // get value decoder
+        Decoder valueDecoder = Decoder.getDecoderByType(pageHeader.getData_page_header().getEncoding(), dataType);
+
+        //TODO: add time encoding type in PageHeader and get it from PageHeader
+        Decoder timeDecoder = Decoder.getDecoderByType(Encoding.TS_2DIFF, TSDataType.INT64);
+
+        // read compressed page body from InputStream
+        byte[] compressedPageBody = new byte[pageHeader.getCompressed_page_size()];
+        int readLength = seriesChunkInputStream.read(compressedPageBody);
+
+        // check if read fully
+        if (readLength != compressedPageBody.length) {
             throw new IOException("unexpected byte read length when read compressedPageBody. Expected:"
-                    + compressedPageBody + ". Actual:" + readLength);
+                    + Arrays.toString(compressedPageBody) + ". Actual:" + readLength);
         }
-        PageReader pageReader = new PageReader(new ByteArrayInputStream(unCompressor.uncompress(compressedPageBody)),
+        return new PageReader(new ByteArrayInputStream(unCompressor.uncompress(compressedPageBody)),
                 dataType, valueDecoder, timeDecoder);
-        return pageReader;
     }
 
-    private PageHeader getNextPageHeader() throws IOException {
-        return ReadWriteThriftFormatUtils.readPageHeader(seriesChunkInputStream);
-    }
 
     @Override
     public void skipCurrentTimeValuePair() {
