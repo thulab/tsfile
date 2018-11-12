@@ -20,7 +20,7 @@ public class PageHeader {
     private int serializedSize;//this filed does not need to be sieralized.
 
     public static int calculatePageHeaderSize(TSDataType type) {
-        return 3 * Integer.BYTES +2 * Long.BYTES + Statistics.getStatsByType(type).getSerializedSize();
+        return 3 * Integer.BYTES + 2 * Long.BYTES + Statistics.getStatsByType(type).getSerializedSize();
     }
 
     public int getSerializedSize() {
@@ -35,11 +35,12 @@ public class PageHeader {
         this.statistics = statistics;
         this.max_timestamp = max_timestamp;
         this.min_timestamp = min_timestamp;
-        serializedSize= 3 * Integer.BYTES +2 * Long.BYTES + statistics.getSerializedSize();
+        serializedSize = 3 * Integer.BYTES + 2 * Long.BYTES + statistics.getSerializedSize();
     }
 
 
-    private PageHeader(){}
+    private PageHeader() {
+    }
 
     public int getUncompressedSize() {
         return uncompressedSize;
@@ -91,13 +92,13 @@ public class PageHeader {
 
 
     public int serializeTo(OutputStream outputStream) throws IOException {
-        int length=0;
-        length+=ReadWriteIOUtils.write(uncompressedSize,outputStream);
-        length+=ReadWriteIOUtils.write(compressedSize,outputStream);
-        length+=ReadWriteIOUtils.write(numOfValues,outputStream);
-        length+=ReadWriteIOUtils.write(max_timestamp, outputStream);
-        length+=ReadWriteIOUtils.write(min_timestamp,outputStream);
-        length+=statistics.serialize(outputStream);
+        int length = 0;
+        length += ReadWriteIOUtils.write(uncompressedSize, outputStream);
+        length += ReadWriteIOUtils.write(compressedSize, outputStream);
+        length += ReadWriteIOUtils.write(numOfValues, outputStream);
+        length += ReadWriteIOUtils.write(max_timestamp, outputStream);
+        length += ReadWriteIOUtils.write(min_timestamp, outputStream);
+        length += statistics.serialize(outputStream);
         assert length == getSerializedSize();
         return length;
     }

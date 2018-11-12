@@ -34,7 +34,7 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
 
     @Override
     public void addSeriesWriter(MeasurementDescriptor desc, int pageSizeThreshold) {
-        if(!dataSeriesWriters.containsKey(desc.getMeasurementId())) {
+        if (!dataSeriesWriters.containsKey(desc.getMeasurementId())) {
             IPageWriter pageWriter = new PageWriterImpl(desc);
             ISeriesWriter seriesWriter = new SeriesWriterImpl(deltaObjectId, desc, pageWriter, pageSizeThreshold);
             this.dataSeriesWriters.put(desc.getMeasurementId(), seriesWriter);
@@ -70,22 +70,23 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
 
 
     @Override
-    public long getCurrentRowGroupSize(){
-        long size= RowGroupHeader.getSerializedSize(deltaObjectId);
-        for(ISeriesWriter writer: dataSeriesWriters.values()){
-            size+=writer.getCurrentChunkSize();
+    public long getCurrentRowGroupSize() {
+        long size = RowGroupHeader.getSerializedSize(deltaObjectId);
+        for (ISeriesWriter writer : dataSeriesWriters.values()) {
+            size += writer.getCurrentChunkSize();
         }
-        return  size;
+        return size;
     }
 
     @Override
     public void preFlush() {
-        for(ISeriesWriter writer: dataSeriesWriters.values()){
+        for (ISeriesWriter writer : dataSeriesWriters.values()) {
             writer.preFlush();
         }
     }
+
     @Override
-    public int getSeriesNumber(){
+    public int getSeriesNumber() {
         return dataSeriesWriters.size();
     }
 }

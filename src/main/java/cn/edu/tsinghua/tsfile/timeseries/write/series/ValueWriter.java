@@ -29,7 +29,7 @@ public class ValueWriter {
     public ValueWriter() {
         this.timeOut = new PublicBAOS();
         this.valueOut = new PublicBAOS();
-       // this.timeSizeOut = new PublicBAOS();
+        // this.timeSizeOut = new PublicBAOS();
     }
 
     public void write(long time, boolean value) throws IOException {
@@ -98,16 +98,16 @@ public class ValueWriter {
 
     /**
      * getBytes return data what it has been written in form of <code>size of time list, time list, value list</code>
+     *
      * @return a new readable Bytebuffer whose position is 0.
-     * @throws IOException
-     * author hxd
+     * @throws IOException author hxd
      */
     public ByteBuffer getBytes() throws IOException {
         prepareEndWriteOnePage();
-        ByteBuffer buffer= ByteBuffer.allocate(timeOut.size()+valueOut.size()+32);
-        int length1=ReadWriteForEncodingUtils.writeUnsignedVarInt(timeOut.size(),buffer);//FIXME: why do we use a var-length int.
-        buffer.put(timeOut.getBuf(),0, timeOut.size());
-        buffer.put(valueOut.getBuf(),0, valueOut.size());
+        ByteBuffer buffer = ByteBuffer.allocate(timeOut.size() + valueOut.size() + 32);
+        int length1 = ReadWriteForEncodingUtils.writeUnsignedVarInt(timeOut.size(), buffer);//TODO: why do we use a var-length int.
+        buffer.put(timeOut.getBuf(), 0, timeOut.size());
+        buffer.put(valueOut.getBuf(), 0, valueOut.size());
         buffer.flip();
         return buffer;
         //return new ListByteArrayOutputStream(timeSizeOut, timeOut, valueOut);

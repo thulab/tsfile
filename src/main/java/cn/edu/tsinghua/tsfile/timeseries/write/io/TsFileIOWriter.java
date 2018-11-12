@@ -107,13 +107,13 @@ public class TsFileIOWriter {
      * start a {@linkplain RowGroupMetaData RowGroupMetaData}.
      *
      * @param deltaObjectId delta object id
-     * @param dataSize the serialized size of all chunks
+     * @param dataSize      the serialized size of all chunks
      * @return the serialized size of RowGroupHeader
      */
-    public int startFlushRowGroup(String deltaObjectId, long dataSize, int numberOfChunks)  throws IOException{
+    public int startFlushRowGroup(String deltaObjectId, long dataSize, int numberOfChunks) throws IOException {
         LOG.debug("start row group:{}, file position {}", deltaObjectId, out.getPos());
-        currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId,  0, out.getPos(), new ArrayList<>());
-        RowGroupHeader header=new RowGroupHeader(deltaObjectId,dataSize, numberOfChunks);
+        currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, 0, out.getPos(), new ArrayList<>());
+        RowGroupHeader header = new RowGroupHeader(deltaObjectId, dataSize, numberOfChunks);
         header.serializeTo(out.getOutputStream());
         LOG.debug("finishing writing row group header {}, file position {}", header, out.getPos());
         return header.getSerializedSize();
@@ -128,17 +128,17 @@ public class TsFileIOWriter {
      * @param statistics           - statistic of the whole series
      * @param maxTime              - maximum timestamp of the whole series in this stage
      * @param minTime              - minimum timestamp of the whole series in this stage
-     * @param  datasize            -  the serialized size of all pages
-     * @return  the serialized size of CHunkHeader
+     * @param datasize             -  the serialized size of all pages
+     * @return the serialized size of CHunkHeader
      * @throws IOException if I/O error occurs
      */
     public int startFlushChunk(MeasurementDescriptor descriptor, CompressionType compressionCodecName,
                                TSDataType tsDataType, TSEncoding encodingType, Statistics<?> statistics, long maxTime, long minTime, int datasize, int numOfPages) throws IOException {
         LOG.debug("start series chunk:{}, file position {}", descriptor, out.getPos());
 
-        currentChunkMetaData = new  TimeSeriesChunkMetaData(descriptor.getMeasurementId(), out.getPos(), minTime, maxTime);
+        currentChunkMetaData = new TimeSeriesChunkMetaData(descriptor.getMeasurementId(), out.getPos(), minTime, maxTime);
 
-        ChunkHeader header=new ChunkHeader(descriptor.getMeasurementId(), datasize, tsDataType, compressionCodecName, encodingType, numOfPages);
+        ChunkHeader header = new ChunkHeader(descriptor.getMeasurementId(), datasize, tsDataType, compressionCodecName, encodingType, numOfPages);
         header.serializeTo(out.getOutputStream());
         LOG.debug("finish series chunk:{} header, file position {}", header, out.getPos());
 
@@ -156,7 +156,6 @@ public class TsFileIOWriter {
 
         return header.getSerializedSize();
     }
-
 
 
     public void endChunk(long size, long totalValueCount) {
@@ -231,9 +230,9 @@ public class TsFileIOWriter {
 
         long footerIndex = out.getPos();
         LOG.debug("start to flush the footer,file pos:{}", footerIndex);
-        int size=tsFileMetaData.serializeTo(out.getOutputStream());
+        int size = tsFileMetaData.serializeTo(out.getOutputStream());
         LOG.debug("finish flushing the footer {}, file pos:{}", tsFileMetaData, out.getPos());
-        ReadWriteIOUtils.write(size,out.getOutputStream());//write the size of the file metadata.
+        ReadWriteIOUtils.write(size, out.getOutputStream());//write the size of the file metadata.
         out.write(magicStringBytes);
         out.close();
         LOG.info("output stream is closed");
