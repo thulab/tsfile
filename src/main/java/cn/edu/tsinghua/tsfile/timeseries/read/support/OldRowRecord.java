@@ -17,10 +17,19 @@ import java.util.List;
  * @author Jinrui Zhang
  */
 public class OldRowRecord {
+    /** time stamp of this record **/
     public long timestamp;
+    /** delta object ID of this record **/
     public String deltaObjectId;
+    /** all value fields of this record **/
     public List<Field> fields;
 
+    /**
+     * set timestamp and deltaObjectId
+     * @param timestamp
+     * @param deltaObjectId
+     * @param deltaObjectType
+     */
     public OldRowRecord(long timestamp, String deltaObjectId, String deltaObjectType) {
         this.timestamp = timestamp;
         this.deltaObjectId = deltaObjectId;
@@ -44,6 +53,11 @@ public class OldRowRecord {
         this.deltaObjectId = did;
     }
 
+    /**
+     * add one value field
+     * @param f
+     * @return
+     */
     public int addField(Field f) {
         this.fields.add(f);
         return fields.size();
@@ -59,6 +73,10 @@ public class OldRowRecord {
         return sb.toString();
     }
 
+    /**
+     * convert this format of record to TSRecord
+     * @return
+     */
     public TSRecord toTSRecord() {
         TSRecord r = new TSRecord(timestamp, deltaObjectId);
         for (Field f : fields) {
@@ -70,6 +88,13 @@ public class OldRowRecord {
         return r;
     }
 
+    /**
+     * convert {@code Field} to {@code DataPoint}
+     * @param dataType
+     * @param measurementId
+     * @param f
+     * @return
+     */
     private DataPoint createDataPoint(TSDataType dataType, String measurementId, Field f) {
         switch (dataType) {
 

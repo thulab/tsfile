@@ -11,24 +11,44 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
  * @author Jinrui Zhang
  */
 public class Field {
-
+    /** data type of this field **/
     public TSDataType dataType;
+    /** delta object ID of this field **/
     public String deltaObjectId;
+    /** measurement ID of this field **/
     public String measurementId;
+    /** value in boolean **/
     private boolean boolV;
+    /** value in int **/
     private int intV;
+    /** value in long **/
     private long longV;
+    /** value in float **/
     private float floatV;
+    /** value in double **/
     private double doubleV;
+    /** value in Binary **/
     private Binary binaryV;
+    /** if is true, then this field contains no value. vice versa **/
     private boolean isNull;
 
+    /**
+     * init field and set {@code deltaObjectId} to default value
+     * @param dataType
+     * @param measurementId
+     */
     public Field(TSDataType dataType, String measurementId) {
         this.dataType = dataType;
         this.measurementId = measurementId;
         this.deltaObjectId = "default";
     }
 
+    /**
+     * init field
+     * @param dataType
+     * @param deltaObjectId
+     * @param measurementId
+     */
     public Field(TSDataType dataType, String deltaObjectId, String measurementId) {
         this.dataType = dataType;
         this.deltaObjectId = deltaObjectId;
@@ -83,6 +103,10 @@ public class Field {
         this.binaryV = binaryV;
     }
 
+    /**
+     * get value in String format
+     * @return
+     */
     public String getStringValue() {
         if (isNull) {
             return "null";

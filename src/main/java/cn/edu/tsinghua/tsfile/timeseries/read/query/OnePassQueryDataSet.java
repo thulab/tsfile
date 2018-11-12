@@ -18,6 +18,7 @@ import java.util.PriorityQueue;
 
 public class OnePassQueryDataSet implements QueryDataSet{
     protected static final Logger LOG = LoggerFactory.getLogger(OnePassQueryDataSet.class);
+    /** default path splitter **/
     protected static final char PATH_SPLITTER = '.';
 
     /**
@@ -55,21 +56,34 @@ public class OnePassQueryDataSet implements QueryDataSet{
      **/
     protected int[] emptyTimeIdxs;
 
+    /**
+     * deltaObjectIds[i] stores the deltaObjectId of cols[i]
+     **/
     protected String[] deltaObjectIds;
+    /**
+     * measurementIds[i] stores the measurementId of cols[i]
+     **/
     protected String[] measurementIds;
     protected HashMap<Long, Integer> timeMap; // timestamp occurs time
-    protected int size;
-    protected boolean ifInit = false;
+    protected int size;     // size of query result
+    protected boolean ifInit = false;   // flag of whether this dataset has been inited or not
     protected OldRowRecord currentRecord = null;
     private Map<String, Object> deltaMap; // this variable is used for IoTDb
 
+    /**
+     * init {@code mapRet}
+     */
     public OnePassQueryDataSet() {
         mapRet = new LinkedHashMap<>();
     }
 
+    /**
+     *
+     */
     public void initForRecord() {
         size = mapRet.keySet().size();
 
+        // init all Array
         if (size > 0) {
             heap = new PriorityQueue<>(size);
             cols = new DynamicOneColumnData[size];
@@ -83,6 +97,7 @@ public class OnePassQueryDataSet implements QueryDataSet{
             heap = new PriorityQueue<>();
         }
 
+        // loop this.mapRet and init value of all Array
         int i = 0;
         for (String key : mapRet.keySet()) {
             cols[i] = mapRet.get(key);
@@ -91,7 +106,9 @@ public class OnePassQueryDataSet implements QueryDataSet{
             timeIdxs[i] = 0;
             emptyTimeIdxs[i] = 0;
 
+            // check if current data is valid
             if (cols[i] != null && (cols[i].valueLength > 0 || cols[i].timeLength > 0 || cols[i].emptyTimeLength > 0)) {
+                // get min value of time and empty time at index 0
                 long minTime = Long.MAX_VALUE;
                 if (cols[i].timeLength > 0) {
                     minTime = cols[i].getTime(0);
@@ -99,12 +116,17 @@ public class OnePassQueryDataSet implements QueryDataSet{
                 if (cols[i].emptyTimeLength > 0) {
                     minTime = Math.min(minTime, cols[i].getEmptyTime(0));
                 }
+                // update this.heap and this.timeMap with min time
                 heapPut(minTime);
             }
             i++;
         }
     }
 
+    /**
+     * update this.heap and this.timeMap by input time
+     * @param t input time
+     */
     protected void heapPut(long t) {
         if (!timeMap.containsKey(t)) {
             heap.add(t);
@@ -112,44 +134,68 @@ public class OnePassQueryDataSet implements QueryDataSet{
         }
     }
 
+    /**
+     * poll one time value as next candidate
+     * @return
+     */
     protected Long heapGet() {
         Long t = heap.poll();
         timeMap.remove(t);
         return t;
     }
 
+    /**
+     * judge if unread data still existed
+     * @return
+     */
     public boolean hasNextRecord() {
+        // make sure this dataset is inited
         if (!ifInit) {
             initForRecord();
             ifInit = true;
         }
+        // check if there is data in queue
         if (heap.peek() != null) {
             return true;
         }
         return false;
     }
 
+    /**
+     * get next unread record
+     * @return
+     */
     public OldRowRecord getNextRecord() {
+        // make sure this dataset is inited
         if (!ifInit) {
             initForRecord();
             ifInit = true;
         }
 
+        // get next time
         Long minTime = heapGet();
         if (minTime == null) {
             return null;
         }
 
+        // construct a record to store all data in {@code cols}
         OldRowRecord record = new OldRowRecord(minTime, null, null);
         for (int i = 0; i < size; i++) {
+            // init deltaObjectId
             if (i == 0) {
                 record.setDeltaObjectId(deltaObjectIds[i]);
             }
+
+            // init field which stores data
             Field field = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
             if (timeIdxs[i] < cols[i].timeLength && minTime == cols[i].getTime(timeIdxs[i])) {
+                // put data into {@code cols[i]}
                 field.setNull(false);
                 putValueToField(cols[i], timeIdxs[i], field);
+                // accumulate counter
                 timeIdxs[i]++;
+
+                // get min value of time and empty time at index i
                 long nextTime = Long.MAX_VALUE;
                 if (timeIdxs[i] < cols[i].timeLength) {
                     nextTime = cols[i].getTime(timeIdxs[i]);
@@ -157,12 +203,17 @@ public class OnePassQueryDataSet implements QueryDataSet{
                 if (emptyTimeIdxs[i] < cols[i].emptyTimeLength) {
                     nextTime = Math.min(nextTime, cols[i].getEmptyTime(emptyTimeIdxs[i]));
                 }
+                // update this.heap and this.timeMap with min time
                 if (nextTime != Long.MAX_VALUE) {
                     heapPut(nextTime);
                 }
             } else if (emptyTimeIdxs[i] < cols[i].emptyTimeLength && minTime == cols[i].getEmptyTime(emptyTimeIdxs[i])) {
+                // set field as null
                 field.setNull(true);
+                // accumulate counter
                 emptyTimeIdxs[i]++;
+
+                // get min value of time and empty time at index i
                 long nextTime = Long.MAX_VALUE;
                 if (emptyTimeIdxs[i] < cols[i].emptyTimeLength) {
                     nextTime = cols[i].getEmptyTime(emptyTimeIdxs[i]);
@@ -170,29 +221,48 @@ public class OnePassQueryDataSet implements QueryDataSet{
                 if (timeIdxs[i] < cols[i].timeLength) {
                     nextTime = Math.min(nextTime, cols[i].getTime(timeIdxs[i]));
                 }
+                // update this.heap and this.timeMap with min time
                 if (nextTime != Long.MAX_VALUE) {
                     heapPut(nextTime);
                 }
             } else {
+                // just set field as null
                 field.setNull(true);
             }
+
+            // add this field to record
             record.addField(field);
         }
         return record;
     }
 
 
+    /**
+     * check if unread record still exists
+     * @return
+     * @throws IOException
+     */
     @Override
     public boolean hasNext() throws IOException {
         return hasNextRecord();
     }
 
+    /**
+     * get next record in new format
+     * @return
+     * @throws IOException
+     */
     @Override
     public RowRecord next() throws IOException {
         OldRowRecord oldRowRecord = getNextRecord();
         return OnePassQueryDataSet.convertToNew(oldRowRecord);
     }
 
+    /**
+     * convert record from old format to new format
+     * @param oldRowRecord record in old format
+     * @return record in new format
+     */
     public static RowRecord convertToNew(OldRowRecord oldRowRecord) {
         RowRecord rowRecord = new RowRecord(oldRowRecord.timestamp);
         for(Field field: oldRowRecord.fields) {
@@ -230,6 +300,10 @@ public class OnePassQueryDataSet implements QueryDataSet{
         return rowRecord;
     }
 
+    /**
+     * get this.currentRecord
+     * @return
+     */
     public OldRowRecord getCurrentRecord() {
         if (!ifInit) {
             initForRecord();
@@ -238,6 +312,12 @@ public class OnePassQueryDataSet implements QueryDataSet{
         return currentRecord;
     }
 
+    /**
+     * put value at index {@code idx} in {@code col} into value field {@code f}
+     * @param col datas
+     * @param idx index of data
+     * @param f target to put data
+     */
     public void putValueToField(DynamicOneColumnData col, int idx, Field f) {
         switch (col.dataType) {
             case BOOLEAN:
@@ -266,6 +346,9 @@ public class OnePassQueryDataSet implements QueryDataSet{
         }
     }
 
+    /**
+     * clear all data in memory
+     */
     public void clear() {
         this.ifInit = false;
         for (DynamicOneColumnData col : mapRet.values()) {
