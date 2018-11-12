@@ -38,7 +38,7 @@ public class TsFileGeneratorForTest {
     private static final Logger LOG = LoggerFactory.getLogger(TsFileGeneratorForTest.class);
     public static TsFileWriter innerWriter;
     public static String inputDataFile;
-    public static String outputDataFile = "src/test/resources/testTsFile.ts";
+    public static String outputDataFile = "src/test/resources/testTsFile.tsfile";
     public static String errorOutputDataFile;
     //public static JSONObject jsonSchema;
 

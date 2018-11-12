@@ -195,7 +195,7 @@ public class TsFileSequenceReader {
     }
 
     public static void main(String[] args) throws IOException {
-        TsFileSequenceReader reader=new TsFileSequenceReader("test.ts");
+        TsFileSequenceReader reader=new TsFileSequenceReader("test.tsfile");
         reader.open();
         System.out.println("position: " + reader.channel.position());
         System.out.println(reader.readHeadMagic());

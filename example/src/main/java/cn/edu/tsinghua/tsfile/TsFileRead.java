@@ -1,6 +1,6 @@
 ///**
-// * The class is to show how to read TsFile file named "test.ts".
-// * The TsFile file "test.ts" is generated from class TsFileWrite1 or class TsFileWrite,
+// * The class is to show how to read TsFile file named "test.tsfile".
+// * The TsFile file "test.tsfile" is generated from class TsFileWrite1 or class TsFileWrite,
 // * they generate the same TsFile file by two different ways
 // */
 //package cn.edu.tsinghua.tsfile;
@@ -25,7 +25,7 @@
 //	public static void main(String[] args) throws IOException {
 //
 //		// file path
-//		String path = "test.ts";
+//		String path = "test.tsfile";
 //
 //		// read example : no filter
 //		TsRandomAccessLocalFileReader input = new TsRandomAccessLocalFileReader(path);

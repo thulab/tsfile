@@ -15,7 +15,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.FloatDataPoint;
 public class WriteTsFileDemo {
 
 	public static void main(String[] args) throws WriteProcessException, IOException {
-		TsFileWriter tsFileWriter=new TsFileWriter(new File("test.ts"));
+		TsFileWriter tsFileWriter=new TsFileWriter(new File("test.tsfile"));
 		tsFileWriter.addMeasurement(new MeasurementDescriptor("cpu_utility", TSDataType.FLOAT, TSEncoding.TS_2DIFF));
 		tsFileWriter.addMeasurement(new MeasurementDescriptor("memory_utility", TSDataType.FLOAT, TSEncoding.TS_2DIFF));		
 		TSRecord tsRecord=new TSRecord(1000, "user1.thinkpad.T200");

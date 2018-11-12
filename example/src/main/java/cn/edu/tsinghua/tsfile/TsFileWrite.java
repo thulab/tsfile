@@ -22,7 +22,7 @@ public class TsFileWrite {
 
 	public static void main(String args[]) {
 		try {
-			String path = "test.ts";
+			String path = "test.tsfile";
 			File f = new File(path);
 			if(f.exists()) {
 				f.delete();

@@ -15,7 +15,7 @@
 //public class TsFileReadTest {
 //
 //    public static void main(String args[]) throws IOException, WriteProcessException {
-//        String path = "src/test/resources/test.ts";
+//        String path = "src/test/resources/test.tsfile";
 //
 //        // read example : no filter
 //        TsRandomAccessLocalFileReader input = new TsRandomAccessLocalFileReader(path);
