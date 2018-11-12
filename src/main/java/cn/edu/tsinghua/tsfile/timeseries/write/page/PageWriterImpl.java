@@ -182,7 +182,7 @@ public class PageWriterImpl implements IPageWriter {
         //return calculatePageHeaderSize(digestSize);
     }
 
-//    private int calculatePageHeaderSize(int digestSize) {//FIXME 放到page Header中秋u
+//    private int calculatePageHeaderSize(int digestSize) {//TODO move to page header
 //        //PageHeader: PageType--4, uncompressedSize--4,compressedSize--4
 //        //DatapageHeader: numValues--4, numNulls--4, numRows--4, Encoding--4, isCompressed--1, maxTimestamp--8, minTimestamp--8
 //        //Digest: max ByteBuffer, min ByteBuffer
