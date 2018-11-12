@@ -21,7 +21,6 @@ import java.util.Map;
  * provides same outer interface for different TSEncodings and gets rid of the duplicate switch-case
  * code.
  *
- * @author kangrong
  */
 public abstract class TSEncodingBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(TSEncodingBuilder.class);
@@ -76,6 +75,9 @@ public abstract class TSEncodingBuilder {
         return "";
     }
 
+    /**
+     * for all TSDataType
+     */
     public static class PLAIN extends TSEncodingBuilder {
         private int maxStringLength = conf.maxStringLength;
 
@@ -101,6 +103,9 @@ public abstract class TSEncodingBuilder {
         }
     }
 
+    /**
+     * for ENUMS, INT32, BOOLEAN, INT64, FLOAT, DOUBLE
+     */
     public static class RLE extends TSEncodingBuilder {
         private int maxPointNumber  = conf.floatPrecision;
 
@@ -114,7 +119,6 @@ public abstract class TSEncodingBuilder {
                     return new LongRleEncoder(EndianType.LITTLE_ENDIAN);
                 case FLOAT:
                 case DOUBLE:
-//                case BIGDECIMAL:
                     return new FloatEncoder(TSEncoding.RLE, type, maxPointNumber);
                 default:
                     throw new UnSupportedDataTypeException("RLE doesn't support data type: " + type);
@@ -147,7 +151,11 @@ public abstract class TSEncodingBuilder {
         }
     }
 
+    /**
+     * for INT32, INT64, FLOAT, DOUBLE
+     */
     public static class TS_2DIFF extends TSEncodingBuilder {
+
         private int maxPointNumber = 0;
 
         @Override
@@ -159,7 +167,6 @@ public abstract class TSEncodingBuilder {
                     return new DeltaBinaryEncoder.LongDeltaEncoder();
                 case FLOAT:
                 case DOUBLE:
-//                case BIGDECIMAL:
                     return new FloatEncoder(TSEncoding.TS_2DIFF, type, maxPointNumber);
                 default:
                     throw new UnSupportedDataTypeException("TS_2DIFF doesn't support data type: " + type);
@@ -194,6 +201,9 @@ public abstract class TSEncodingBuilder {
 
     }
 
+    /**
+     * for ENUMS
+     */
 	public static class GORILLA extends TSEncodingBuilder {
 
 		@Override

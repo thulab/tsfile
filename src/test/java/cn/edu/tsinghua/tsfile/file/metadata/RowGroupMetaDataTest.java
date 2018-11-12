@@ -18,15 +18,13 @@ public class RowGroupMetaDataTest {
 
   public static final String DELTA_OBJECT_UID = "delta-3312";
   public static final long TOTAL_BYTE_SIZE = 434235463L;
-  public static final long METADATA_OFFSET = 1234567L;
-  public static final int METADATA_SIZE = 35245433;
-  final String PATH = "target/outputRowGroup.ksn";
+  final String PATH = "target/outputRowGroup.tsfile";
 
   @Before
-  public void setUp() throws Exception {}
+  public void setUp() {}
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     File file = new File(PATH);
     if (file.exists())
       file.delete();

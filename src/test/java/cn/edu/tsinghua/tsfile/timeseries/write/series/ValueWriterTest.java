@@ -47,7 +47,7 @@ public class ValueWriterTest {
             writer.write(timeCount++, d1);
             writer.write(timeCount++, new Binary(str1));
             assertEquals(101, writer.estimateMaxMemSize());
-            ByteBuffer input = writer.getBytes();
+            ByteBuffer input = writer.getUncompressedBytes();
             ByteArrayInputStream in = new ByteArrayInputStream(ByteBufferUtil.getArray(input));
             writer.reset();
             assertEquals(0, writer.estimateMaxMemSize());

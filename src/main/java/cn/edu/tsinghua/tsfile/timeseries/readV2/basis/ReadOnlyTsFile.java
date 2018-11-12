@@ -16,9 +16,7 @@ import java.io.IOException;
  */
 public class ReadOnlyTsFile {
 
-    //private ITsRandomAccessFileReader randomAccessFileReader;
     private TsFileSequenceReader fileReader;
-
     private MetadataQuerier metadataQuerier;
     private SeriesChunkLoader seriesChunkLoader;
     private QueryExecutorRouter queryExecutorRouter;

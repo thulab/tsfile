@@ -7,14 +7,11 @@ import org.junit.Test;
 import org.xerial.snappy.Snappy;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 
  * @author kangrong
- *
  */
 public class SnappyTest {
     private String randomString(int length){
@@ -26,20 +23,13 @@ public class SnappyTest {
     }
 
     @Before
-    public void setUp() throws Exception {}
+    public void setUp() {}
 
     @After
-    public void tearDown() throws Exception {}
+    public void tearDown() {}
 
     @Test
-    public void testBytes() throws UnsupportedEncodingException, IOException {
-//        String input =
-//                "Hello snappy-java! Snappy-java is a JNI-based wrapper of "
-//                        + "Snappy, a fast compresser/decompresser.";
-//        byte[] uncom= input.getBytes("UTF-8");
-//        File file=new File("/Users/hxd/Desktop/Fu - 2011 - A review on time series data mining.pdf");
-//        byte[] uncom = new byte[(int)file.length()];
-//        IOUtils.read(new FileInputStream(file), uncom);
+    public void testBytes() throws IOException {
         String input= randomString(50000);
         byte[] uncom= input.getBytes("UTF-8");
         long time=System.currentTimeMillis();
@@ -48,20 +38,14 @@ public class SnappyTest {
         time= System.currentTimeMillis();
         byte[] uncompressed = Snappy.uncompress(compressed);
         System.out.println("decompression time cost:" + (System.currentTimeMillis() - time));
-
-        //String result = new String(uncompressed, "UTF-8");
-        //assertEquals(input, result);
     }
 
     @Test
-    public void testByteBuffer() throws UnsupportedEncodingException, IOException {
+    public void testByteBuffer() throws IOException {
         String input =randomString(5000);
         ByteBuffer source = ByteBuffer.allocateDirect(input.getBytes().length);
         source.put(input.getBytes());
         source.flip();
-//        File file=new File("/Users/hxd/Desktop/Fu - 2011 - A review on time series data mining.pdf");
-//        ByteBuffer uncompressed = ByteBuffer.allocateDirect((int)file.length());
-//        IOUtils.read(FileChannel.open(Paths.get(file.getAbsolutePath())), uncompressed);
 
         long time=System.currentTimeMillis();
         ByteBuffer compressed = ByteBuffer.allocateDirect(Snappy.maxCompressedLength(source.remaining()));

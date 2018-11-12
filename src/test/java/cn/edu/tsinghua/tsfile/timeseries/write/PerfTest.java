@@ -47,13 +47,13 @@ public class PerfTest {
     @Before
     public void prepare() throws IOException {
         LoggerContext loggerContext= (LoggerContext) LoggerFactory.getILoggerFactory();
-        //设置全局日志级别
+        //set global log level
         ch.qos.logback.classic.Logger logger=loggerContext.getLogger("root");
         logger.setLevel(Level.toLevel("info"));
 
         inputDataFile = "src/test/resources/perTestInputData";
-        outputDataFile = "src/test/resources/perTestOutputData.ksn";
-        errorOutputDataFile = "src/test/resources/perTestErrorOutputData.ksn";
+        outputDataFile = "src/test/resources/perTestOutputData.tsfile";
+        errorOutputDataFile = "src/test/resources/perTestErrorOutputData.tsfile";
         jsonSchema = generateTestData();
         generateSampleInputDataFile();
     }
@@ -133,7 +133,7 @@ public class PerfTest {
         FileSchema schema = new FileSchema(jsonSchema);
 
         // TSFileDescriptor.conf.rowGroupSize = 2000;
-        // TSFileDescriptor.conf.pageSize = 100;
+        // TSFileDescriptor.conf.pageSizeInByte = 100;
         innerWriter = new TsFileWriter(file, schema, TSFileDescriptor.getInstance().getConfig());
 
         // write
@@ -207,17 +207,11 @@ public class PerfTest {
         s4.put(JsonFormatConstant.DATA_TYPE, TSDataType.TEXT.toString());
         s4.put(JsonFormatConstant.MEASUREMENT_ENCODING,
                 TSEncoding.PLAIN.toString());
-//        JSONObject s5 = new JSONObject();
-//        s5.put(JsonFormatConstant.MEASUREMENT_UID, "s5");
-//        s5.put(JsonFormatConstant.DATA_TYPE, TSDataType.ENUMS.toString());
-//        s5.put(JsonFormatConstant.MEASUREMENT_ENCODING,
-//                TSEncoding.PLAIN.toString());
         JSONArray measureGroup1 = new JSONArray();
         measureGroup1.put(s1);
         measureGroup1.put(s2);
         measureGroup1.put(s3);
         measureGroup1.put(s4);
-//        measureGroup1.put(s5);
 
         JSONObject jsonSchema = new JSONObject();
         jsonSchema.put(JsonFormatConstant.DELTA_TYPE, "test_type");

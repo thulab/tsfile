@@ -23,50 +23,70 @@ public class ValueWriter {
     private Encoder valueEncoder;
     private PublicBAOS valueOut;
 
-    //private PublicBAOS timeSizeOut;
-    private int timeSize;
-
     public ValueWriter() {
         this.timeOut = new PublicBAOS();
         this.valueOut = new PublicBAOS();
-        // this.timeSizeOut = new PublicBAOS();
     }
 
+    /**
+     * write a time value pair into encoder
+     */
     public void write(long time, boolean value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
     }
 
+    /**
+     * write a time value pair into encoder
+     */
     public void write(long time, short value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
     }
 
+    /**
+     * write a time value pair into encoder
+     */
     public void write(long time, int value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
     }
 
+    /**
+     * write a time value pair into encoder
+     */
     public void write(long time, long value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
     }
 
+    /**
+     * write a time value pair into encoder
+     */
     public void write(long time, float value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
     }
 
+    /**
+     * write a time value pair into encoder
+     */
     public void write(long time, double value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
     }
 
+    /**
+     * write a time value pair into encoder
+     */
     public void write(long time, BigDecimal value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
     }
 
+    /**
+     * write a time value pair into encoder
+     */
     public void write(long time, Binary value) throws IOException {
         timeEncoder.encode(time, timeOut);
         valueEncoder.encode(value, valueOut);
@@ -74,35 +94,20 @@ public class ValueWriter {
 
     /**
      * flush all data remained in encoders.
-     *
-     * @throws IOException
      */
     private void prepareEndWriteOnePage() throws IOException {
         timeEncoder.flush(timeOut);
         valueEncoder.flush(valueOut);
-        timeOut.flush();
-        valueOut.flush();
     }
 
-//    /**
-//     * getBytes return data what it has been written in form of <code>ListByteArrayOutputStream</code>.
-//     *
-//     * @return - list byte array output stream containing time size, time stream and value stream.
-//     * @throws IOException exception in IO
-//     */
-//    public ListByteArrayOutputStream getBytes() throws IOException {
-//        prepareEndWriteOnePage();
-//        ReadWriteForEncodingUtils.writeUnsignedVarInt(timeOut.size(), timeSizeOut);
-//        return new ListByteArrayOutputStream(timeSizeOut, timeOut, valueOut);
-//    }
 
     /**
-     * getBytes return data what it has been written in form of <code>size of time list, time list, value list</code>
+     * getUncompressedBytes return data what it has been written in form of <code>size of time list, time list, value list</code>
      *
      * @return a new readable Bytebuffer whose position is 0.
      * @throws IOException author hxd
      */
-    public ByteBuffer getBytes() throws IOException {
+    public ByteBuffer getUncompressedBytes() throws IOException {
         prepareEndWriteOnePage();
         ByteBuffer buffer = ByteBuffer.allocate(timeOut.size() + valueOut.size() + 32);
         int length1 = ReadWriteForEncodingUtils.writeUnsignedVarInt(timeOut.size(), buffer);//TODO: why do we use a var-length int.
@@ -115,7 +120,8 @@ public class ValueWriter {
 
 
     /**
-     * calculate max possible memory size it occupies, including time outputStream and value outputStream
+     * calculate max possible memory size it occupies, including time outputStream and value outputStream,
+     * because size outputStream is never used until flushing.
      *
      * @return allocated size in time, value and outputStream
      */

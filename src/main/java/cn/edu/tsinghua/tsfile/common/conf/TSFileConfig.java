@@ -17,7 +17,7 @@ public class TSFileConfig {
      */
     public int pageSizeInByte = 64 * 1024;
     /**
-     * The maximum number of data points in a page, defalut value is 1024 * 1024
+     * The maximum number of data points in a page, default value is 1024 * 1024
      */
     public int maxNumberOfPointsInPage = 1024 * 1024;
 

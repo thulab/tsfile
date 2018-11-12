@@ -20,21 +20,18 @@ public class TimeSeriesChunkMetaDataTest {
 
   public static final String MEASUREMENT_UID = "sensor231";
   public static final long FILE_OFFSET = 2313424242L;
-  public static final long DIGEST_OFFSET = 42354334L;
-  public static final CompressionType COMPRESSION_TYPE = CompressionType.SNAPPY;
   public static final long NUM_OF_POINTS = 123456L;
   public static final long TOTAL_BYTE_SIZE = 34243453L;
   public static final long START_TIME = 523372036854775806L;
   public static final long END_TIME = 523372036854775806L;
   public static final TSDataType DATA_TYPE = TSDataType.INT64;
-  public static final TSEncoding ENCODING_TYPE = TSEncoding.GORILLA;
-  final String PATH = "target/outputTimeSeriesChunk.ksn";
+  final String PATH = "target/outputTimeSeriesChunk.tsfile";
 
   @Before
-  public void setUp() throws Exception {}
+  public void setUp() {}
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     File file = new File(PATH);
     if (file.exists())
       file.delete();

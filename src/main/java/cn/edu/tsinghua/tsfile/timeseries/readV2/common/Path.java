@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.tsfile.timeseries.read.support;
+package cn.edu.tsinghua.tsfile.timeseries.readV2.common;
 
 import cn.edu.tsinghua.tsfile.common.constant.SystemConstant;
 import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;

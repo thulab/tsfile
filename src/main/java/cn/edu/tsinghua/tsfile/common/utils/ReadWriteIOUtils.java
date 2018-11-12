@@ -1,17 +1,13 @@
 package cn.edu.tsinghua.tsfile.common.utils;
 
-import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.file.metadata.*;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
-
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * ConverterUtils is a utility class. It provide conversion between normal datatype and byte array.
@@ -196,52 +192,6 @@ public class ReadWriteIOUtils {
         return len;
     }
 
-//    /**
-//     * write a value to stream using unsigned var int format. for example, int
-//     * 123456789 has its binary format 111010-1101111-0011010-0010101, function
-//     * writeUnsignedVarInt will split every seven bits and write them to stream
-//     * from low bit to high bit like: 1-0010101 1-0011010 1-1101111 0-0111010 1
-//     * represents has next byte to write, 0 represents number end
-//     *
-//     *
-//     *
-//     * @param value value to write into stream
-//     * @param buffer where to store the result. buffer.remaining() needs to >= 32.
-//     *               Notice: (1) this function does not check buffer's remaining().
-//     *              (2) the position will be updated.
-//     * @return the number of bytes that the value consume.
-//     * @throws IOException exception in IO
-//     */
-//    public static int writeUnsignedVarInt(int value, ByteBuffer buffer) throws IOException {
-//        int position=1;
-//        while ((value & 0xFFFFFF80) != 0L) {
-//            buffer.put((byte)((value & 0x7F) | 0x80));
-//            value >>>= 7;
-//            position++;
-//        }
-//        buffer.put((byte)(value & 0x7F));
-//        return position;
-//    }
-
-
-
-//    /**
-//     * read an unsigned var int in stream and transform it to int format
-//     *
-//     * @param in stream to read an unsigned var int
-//     * @return integer value
-//     * @throws IOException exception in IO
-//     */
-//    public static int readUnsignedVarInt(InputStream in) throws IOException {
-//        int value = 0;
-//        int i = 0;
-//        int b;
-//        while (((b = in.read()) & 0x80) != 0) {
-//            value |= (b & 0x7F) << i;
-//            i += 7;
-//        }
-//        return value | (b << i);
-//    }
 
     /**
      * unlike InputStream.read(bytes), this method makes sure that you can read length bytes or reach to the end of the stream.
@@ -262,9 +212,6 @@ public class ReadWriteIOUtils {
 
     /**
      * unlike InputStream.read(bytes), this method makes sure that you can read length bytes or reach to the end of the stream.
-     * @param inputStream
-     * @param length
-     * @return
      * @throws IOException
      */
     public static byte[] readBytesWithSelfDescriptionLength(InputStream inputStream) throws IOException {

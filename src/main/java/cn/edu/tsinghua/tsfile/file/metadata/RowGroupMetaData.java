@@ -16,9 +16,13 @@ import java.util.List;
  * For more information, see RowGroupMetaData in cn.edu.thu.tsfile.format package
  */
 public class RowGroupMetaData {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RowGroupMetaData.class);
 
-    private String deltaObjectID; //TODO 这个应该放到DeltaObjectMetadata中去
+    /**
+     * Name of deltaObject
+     */
+    private String deltaObjectID; //TODO move to DeltaObjectMetadata
     /**
      * Total serialized byte size of this row group data (including the rowgroup header)
      */
@@ -31,18 +35,18 @@ public class RowGroupMetaData {
     private long fileOffsetOfCorrespondingData;
 
     /**
-     * Byte offset of row group metadata in the file
+     * Byte size of this metadata. this field is not serialized.
      */
-   // private long metadataOffset; // this field is not serialized.
+    private int serializedSize;
 
     /**
-     * Byte size of this metadata.
+     * this field is to check whether users call list.add() to modify the list rather than addTimeSeriesChunkMetaData()
      */
-    private int serializedSize; // this field is not serialized.
+    private int sizeOfChunkList;
 
-    private int sizeOfChunkList;// this field is to check whether users call list.add() to modify the list
-    // rather than addTimeSeriesChunkMetaData()
-
+    /**
+     * All time series chunks in this row group.
+     */
     private List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList;
 
     public int getSerializedSize() {
@@ -54,13 +58,13 @@ public class RowGroupMetaData {
 
 
     private RowGroupMetaData() {
-        timeSeriesChunkMetaDataList = new ArrayList<TimeSeriesChunkMetaData>();
+        timeSeriesChunkMetaDataList = new ArrayList<>();
     }
 
     /**
-     * @param deltaObjectID
-     * @param totalByteSize
-     * @param timeSeriesChunkMetaDataList Can not be Null.
+     * @param deltaObjectID               name of deltaObject
+     * @param totalByteSize               total byte size of all the uncompressed time series data in this row group
+     * @param timeSeriesChunkMetaDataList all time series chunks in this row group. Can not be Null.
      *                                    notice: after constructing a RowGroupMetadata instance. Donot use list.add()
      *                                    to modify `timeSeriesChunkMetaDataList`. Instead, use addTimeSeriesChunkMetaData()
      *                                    to make sure  getSerializedSize() is correct.
@@ -100,7 +104,7 @@ public class RowGroupMetaData {
                 : Collections.unmodifiableList(timeSeriesChunkMetaDataList);
     }
 
-    @Override
+
     public String toString() {
         return String.format(
                 "RowGroupMetaData{ total byte size: %d, time series chunk list: %s }", totalByteSize, timeSeriesChunkMetaDataList);
@@ -117,31 +121,9 @@ public class RowGroupMetaData {
         this.totalByteSize = totalByteSize;
     }
 
-//    public List<TimeSeriesChunkMetaData> getTimeSeriesChunkMetaDataList() {
-//        return timeSeriesChunkMetaDataList;
-//    }
-
-//    private void setTimeSeriesChunkMetaDataList(
-//            List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList) {
-//        this.timeSeriesChunkMetaDataList = timeSeriesChunkMetaDataList;
-//    }
-
     public String getDeltaObjectID() {
         return deltaObjectID;
     }
-
-//    public void setDeltaObjectID(String deltaObjectUID) {
-//        this.deltaObjectID = deltaObjectUID;
-//    }
-
-//    public long getMetadataOffset() {
-//        return metadataOffset;
-//    }
-
-//    public void setMetadataOffset(long metadataOffset) {
-//        this.metadataOffset = metadataOffset;
-//    }
-
 
     public int serializeTo(OutputStream outputStream) throws IOException {
         if (sizeOfChunkList != timeSeriesChunkMetaDataList.size()) {
@@ -154,16 +136,9 @@ public class RowGroupMetaData {
         byteLen += ReadWriteIOUtils.write(totalByteSize, outputStream);
         byteLen += ReadWriteIOUtils.write(fileOffsetOfCorrespondingData, outputStream);
 
-        //byteLen += ReadWriteIOUtils.write(metadataOffset, outputStream);
-        //byteLen += ReadWriteIOUtils.write(metadataSize, outputStream);
-
-//        if(timeSeriesChunkMetaDataList == null){
-//            byteLen += ReadWriteIOUtils.write(0, outputStream);
-//        } else {
         byteLen += ReadWriteIOUtils.write(timeSeriesChunkMetaDataList.size(), outputStream);
         for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList)
             byteLen += ReadWriteIOUtils.write(timeSeriesChunkMetaData, outputStream);
-//        }
         assert byteLen == getSerializedSize();
         return byteLen;
     }
@@ -181,9 +156,6 @@ public class RowGroupMetaData {
 
         byteLen += ReadWriteIOUtils.write(totalByteSize, buffer);
         byteLen += ReadWriteIOUtils.write(fileOffsetOfCorrespondingData, buffer);
-        //byteLen += ReadWriteIOUtils.write(metadataOffset, buffer);
-        //byteLen += ReadWriteIOUtils.write(metadataSize, buffer);
-
 
         byteLen += ReadWriteIOUtils.write(timeSeriesChunkMetaDataList.size(), buffer);
         for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList)
@@ -245,4 +217,5 @@ public class RowGroupMetaData {
     public long getFileOffsetOfCorrespondingData() {
         return fileOffsetOfCorrespondingData;
     }
+
 }

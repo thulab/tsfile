@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
  * @author kangrong
  * @see ISeriesWriter
  */
-public interface IPageWriter {
+public interface IChunkWriter {
     /**
      * store a page to this pageWriter.
      *

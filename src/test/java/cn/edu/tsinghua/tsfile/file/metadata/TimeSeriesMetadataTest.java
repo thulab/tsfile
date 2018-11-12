@@ -17,7 +17,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 public class TimeSeriesMetadataTest {
     public static final String measurementUID = "sensor01";
     public static final int typeLength = 1024;
-    final String PATH = "target/outputTimeSeries.ksn";
+    final String PATH = "target/outputTimeSeries.tsfile";
 
     @Before
     public void setUp() throws Exception {}

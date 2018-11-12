@@ -8,7 +8,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType.*;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.TimeValuePairReader;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.SeriesReader;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -19,42 +19,62 @@ import java.nio.ByteBuffer;
  *
  * @author Jinrui Zhang
  */
-public class PageDataReader implements TimeValuePairReader {
+
+public class PageDataReader implements SeriesReader {
 
     private TSDataType dataType;
+
+    // decoder for value column
     private Decoder valueDecoder;
+
+    // decoder for time column
     private Decoder timeDecoder;
-    private InputStream timestampInputStream;//FIXME change to bytebuffer
-    private InputStream valueInputStream;//FIXME change to bytebuffer
-    private boolean hasOneCachedTimeValuePair;
-    private TimeValuePair cachedTimeValuePair;
+
+    // time column in memory
+    private InputStream timestampInputStream;//TODO change to bytebuffer
+
+    // value column in memory
+    private InputStream valueInputStream;//TODO change to bytebuffer
 
 
     public PageDataReader(ByteBuffer pageData, TSDataType dataType, Decoder valueDecoder, Decoder timeDecoder) throws IOException {
         this.dataType = dataType;
         this.valueDecoder = valueDecoder;
         this.timeDecoder = timeDecoder;
-        hasOneCachedTimeValuePair = false;
         splitDataToTimeStampAndValue(pageData);
     }
 
+    /**
+     *
+     * @param pageContent uncompressed bytes size of time column, time column, value column
+     * @param dataType value data type
+     * @param valueDecoder decoder for value column
+     * @param timeDecoder decoder for time column
+     * @throws IOException exception in IO
+     */
     public PageDataReader(InputStream pageContent, TSDataType dataType, Decoder valueDecoder, Decoder timeDecoder) throws IOException {
         this.dataType = dataType;
         this.valueDecoder = valueDecoder;
         this.timeDecoder = timeDecoder;
-        hasOneCachedTimeValuePair = false;
         splitInputStreamToTimeStampAndValue(pageContent);
     }
 
+    /**
+     * splite pageContent into two stream: time and value
+     * @param pageContent uncompressed bytes size of time column, time column, value column
+     * @throws IOException exception in reading data from pageContent
+     */
     private void splitInputStreamToTimeStampAndValue(InputStream pageContent) throws IOException {
         int timeInputStreamLength = ReadWriteForEncodingUtils.readUnsignedVarInt(pageContent);
         byte[] buf = new byte[timeInputStreamLength];
-        int readSize = pageContent.read(buf, 0, timeInputStreamLength);//TODO 这里已经把数据读到内存中了..
+        int readSize = pageContent.read(buf, 0, timeInputStreamLength);
         if (readSize != timeInputStreamLength) {
             throw new IOException("Error when read bytes of encoded timestamps. " +
                     "Expect byte size : " + timeInputStreamLength + ". Read size : " + readSize);
         }
         this.timestampInputStream = new ByteArrayInputStream(buf);
+
+        // the left uncompressed values in stream
         this.valueInputStream = pageContent;
     }
 
@@ -73,31 +93,18 @@ public class PageDataReader implements TimeValuePairReader {
 
     @Override
     public boolean hasNext() throws IOException {
-        if (hasOneCachedTimeValuePair) {
-            return true;
-        }
-        if (timeDecoder.hasNext(timestampInputStream) && valueDecoder.hasNext(valueInputStream)) {
-            cacheOneTimeValuePair();
-            this.hasOneCachedTimeValuePair = true;
-            return true;
-        }
-        return false;
+        return timeDecoder.hasNext(timestampInputStream) && valueDecoder.hasNext(valueInputStream);
     }
 
     @Override
     public TimeValuePair next() throws IOException {
         if (hasNext()) {
-            this.hasOneCachedTimeValuePair = false;
-            return cachedTimeValuePair;
+            long timestamp = timeDecoder.readLong(timestampInputStream);
+            TsPrimitiveType value = readOneValue();
+            return new TimeValuePair(timestamp, value);
         } else {
             throw new IOException("No more TimeValuePair in current page");
         }
-    }
-
-    private void cacheOneTimeValuePair() {
-        long timestamp = timeDecoder.readLong(timestampInputStream);
-        TsPrimitiveType value = readOneValue();
-        this.cachedTimeValuePair = new TimeValuePair(timestamp, value);
     }
 
     @Override
@@ -111,6 +118,7 @@ public class PageDataReader implements TimeValuePairReader {
         valueInputStream.close();
     }
 
+    // read one value according to data type
     private TsPrimitiveType readOneValue() {
         switch (dataType) {
             case BOOLEAN:

@@ -32,78 +32,150 @@ import java.util.Map;
  * @author kangrong
  */
 public class TsFileWriter {
+
     private static final Logger LOG = LoggerFactory.getLogger(TsFileWriter.class);
-    private static final int MINIMUM_RECORD_COUNT_FOR_CHECK = 1;
+
+    /**
+     * IO writer of this TsFile
+     **/
     protected final TsFileIOWriter deltaFileWriter;
+
+    /**
+     * schema of this TsFile
+     **/
     protected final FileSchema schema;
     protected final int pageSize;
-    protected final long primaryRowGroupSize;
     protected long recordCount = 0;
-    protected Map<String, IRowGroupWriter> groupWriters = new HashMap<String, IRowGroupWriter>();
-    private long recordCountForNextMemCheck = MINIMUM_RECORD_COUNT_FOR_CHECK;
-    private long rowGroupSizeThreshold;
-    private int oneRowMaxSize;
 
-    public TsFileWriter(File file) throws WriteProcessException, IOException {
+    /**
+     * all IRowGroupWriters
+     **/
+    protected Map<String, IRowGroupWriter> groupWriters = new HashMap<String, IRowGroupWriter>();
+
+    /**
+     * min value of threshold of data points num check
+     **/
+    private long recordCountForNextMemCheck = 100;
+    private long rowGroupSizeThreshold;
+
+    /**
+     * init this TsFileWriter
+     *
+     * @param file the File to be written by this TsFileWriter
+     * @throws IOException
+     */
+    public TsFileWriter(File file) throws IOException {
         this(new TsFileIOWriter(file), new FileSchema(), TSFileDescriptor.getInstance().getConfig());
     }
 
-    public TsFileWriter(File file, FileSchema schema) throws WriteProcessException, IOException {
+    /**
+     * init this TsFileWriter
+     *
+     * @param file   the File to be written by this TsFileWriter
+     * @param schema the schema of this TsFile
+     * @throws IOException
+     */
+    public TsFileWriter(File file, FileSchema schema) throws IOException {
         this(new TsFileIOWriter(file), schema, TSFileDescriptor.getInstance().getConfig());
     }
 
-    public TsFileWriter(File file, TSFileConfig conf) throws WriteProcessException, IOException {
+    /**
+     * init this TsFileWriter
+     *
+     * @param file the File to be written by this TsFileWriter
+     * @param conf the configuration of this TsFile
+     * @throws IOException
+     */
+    public TsFileWriter(File file, TSFileConfig conf) throws IOException {
         this(new TsFileIOWriter(file), new FileSchema(), conf);
     }
 
+    /**
+     * init this TsFileWriter
+     *
+     * @param file   the File to be written by this TsFileWriter
+     * @param schema the schema of this TsFile
+     * @param conf   the configuration of this TsFile
+     * @throws IOException
+     */
     public TsFileWriter(File file, FileSchema schema, TSFileConfig conf)
-            throws WriteProcessException, IOException {
+            throws IOException {
         this(new TsFileIOWriter(file), schema, conf);
     }
 
-    public TsFileWriter(ITsRandomAccessFileWriter output) throws WriteProcessException, IOException {
+    /**
+     * init this TsFileWriter
+     *
+     * @param output the file writer of this TsFileWriter
+     * @throws IOException
+     */
+    public TsFileWriter(ITsRandomAccessFileWriter output) throws IOException {
         this(new TsFileIOWriter(output), new FileSchema(), TSFileDescriptor.getInstance().getConfig());
     }
 
+
+    /**
+     * init this TsFileWriter
+     *
+     * @param output the file writer of this TsFileWriter
+     * @param schema the schema of this TsFile
+     * @throws IOException
+     */
     public TsFileWriter(ITsRandomAccessFileWriter output, FileSchema schema)
-            throws WriteProcessException, IOException {
+            throws IOException {
         this(new TsFileIOWriter(output), schema, TSFileDescriptor.getInstance().getConfig());
     }
 
+
+    /**
+     * init this TsFileWriter
+     *
+     * @param output the file writer of this TsFileWriter
+     * @param conf   the configuration of this TsFile
+     * @throws IOException
+     */
     public TsFileWriter(ITsRandomAccessFileWriter output, TSFileConfig conf)
-            throws WriteProcessException, IOException {
+            throws IOException {
         this(new TsFileIOWriter(output), new FileSchema(), conf);
     }
 
+
+    /**
+     * init this TsFileWriter
+     *
+     * @param output the file writer of this TsFileWriter
+     * @param schema the schema of this TsFile
+     * @param conf   the configuration of this TsFile
+     * @throws IOException
+     */
     public TsFileWriter(ITsRandomAccessFileWriter output, FileSchema schema, TSFileConfig conf)
-            throws WriteProcessException, IOException {
+            throws IOException {
         this(new TsFileIOWriter(output), schema, conf);
     }
 
-    protected TsFileWriter(TsFileIOWriter tsfileWriter, FileSchema schema, TSFileConfig conf)
-            throws WriteProcessException {
+    /**
+     * init this TsFileWriter
+     *
+     * @param tsfileWriter the io writer of this TsFile
+     * @param schema       the schema of this TsFile
+     * @param conf         the configuration of this TsFile
+     */
+    protected TsFileWriter(TsFileIOWriter tsfileWriter, FileSchema schema, TSFileConfig conf) {
         this.deltaFileWriter = tsfileWriter;
         this.schema = schema;
-        this.primaryRowGroupSize = conf.groupSizeInByte;
         this.pageSize = conf.pageSizeInByte;
-        this.oneRowMaxSize = schema.getCurrentRowMaxSize();
-        if (primaryRowGroupSize <= oneRowMaxSize)
-            throw new WriteProcessException(
-                    "initial measurement error: the potential size of one row is too large");
-        this.rowGroupSizeThreshold = primaryRowGroupSize - oneRowMaxSize;
+        this.rowGroupSizeThreshold = conf.groupSizeInByte;
     }
 
+    /**
+     * add a MeasurementDescriptor to this TsFile
+     */
     public void addMeasurement(MeasurementDescriptor measurementDescriptor)
             throws WriteProcessException {
         if (schema.hasMeasurement(measurementDescriptor.getMeasurementId()))
             throw new WriteProcessException(
                     "given measurement has exists! " + measurementDescriptor.getMeasurementId());
         schema.registerMeasurement(measurementDescriptor);
-        this.oneRowMaxSize = schema.getCurrentRowMaxSize();
-        if (primaryRowGroupSize <= oneRowMaxSize)
-            throw new WriteProcessException(
-                    "add measurement error: the potential size of one row is too large");
-        this.rowGroupSizeThreshold = primaryRowGroupSize - oneRowMaxSize;
         try {
             checkMemorySizeAndMayFlushGroup();
         } catch (IOException e) {
@@ -115,27 +187,16 @@ public class TsFileWriter {
      * add a new measurement according to json string.
      *
      * @param measurement example:
-     *                    <pre>
-     *                    {
+     *               {
      *                    "measurement_id": "sensor_cpu_50",
      *                    "data_type": "INT32",
      *                    "encoding": "RLE"
      *                    "compressor": "SNAPPY"
-     *                    }
-     *                             </pre>
+     *               }
+     *
      * @throws WriteProcessException if the json is illegal or the measurement exists
      */
     public void addMeasurementByJson(JSONObject measurement) throws WriteProcessException {
-        addMeasurement(JsonConverter.convertJsonToMeasureMentDescriptor(measurement));
-    }
-
-    /**
-     * add new measurements according to json string.
-     *
-     * @param measurement
-     * @throws WriteProcessException if the json is illegal or the measurement exists
-     */
-    public void addMeasurementsByJson(JSONObject measurement) throws WriteProcessException {
         addMeasurement(JsonConverter.convertJsonToMeasureMentDescriptor(measurement));
     }
 
@@ -155,6 +216,8 @@ public class TsFileWriter {
         } else {
             groupWriter = groupWriters.get(record.deltaObjectId);
         }
+
+        // add all SeriesWriter of measurements in this TSRecord to this RowGroupWriter
         Map<String, MeasurementDescriptor> schemaDescriptorMap = schema.getDescriptor();
         for (DataPoint dp : record.dataPointList) {
             String measurementId = dp.getMeasurementId();
@@ -176,7 +239,11 @@ public class TsFileWriter {
      * @throws WriteProcessException exception in write process
      */
     public boolean write(TSRecord record) throws IOException, WriteProcessException {
+
+        // make sure the RowGroupWriter for this TSRecord exist
         if (checkIsTimeSeriesExist(record)) {
+
+            // get corresponding RowGroupWriter and write this TSRecord
             groupWriters.get(record.deltaObjectId).write(record.time, record.dataPointList);
             ++recordCount;
             return checkMemorySizeAndMayFlushGroup();
@@ -197,6 +264,7 @@ public class TsFileWriter {
         return memTotalSize;
     }
 
+
     /**
      * check occupied memory size, if it exceeds the rowGroupSize threshold, flush them to given
      * OutputStream.
@@ -210,27 +278,26 @@ public class TsFileWriter {
             long memSize = calculateMemSizeForAllGroup();
             if (memSize > rowGroupSizeThreshold) {
                 LOG.info("start_write_row_group, memory space occupy:" + memSize);
-                recordCountForNextMemCheck = rowGroupSizeThreshold / oneRowMaxSize;
-                return flushAllRowGroups(false);
+                recordCountForNextMemCheck = recordCount * memSize / rowGroupSizeThreshold;
+                return flushAllRowGroups();
             } else {
-                recordCountForNextMemCheck = recordCount
-                        + (rowGroupSizeThreshold - memSize) / oneRowMaxSize;
+                recordCountForNextMemCheck = recordCount * rowGroupSizeThreshold / memSize;
                 return false;
             }
         }
+
         return false;
     }
+
 
     /**
      * flush the data in all series writers of all rowgroup writers and their page writers to outputStream.
      *
-     * @param isFillRowGroup whether to fill RowGroup
      * @return true - size of tsfile or metadata reaches the threshold.
      * false - otherwise. But this function just return false, the Override of IoTDB may return true.
      * @throws IOException exception in IO
      */
-    protected boolean flushAllRowGroups(boolean isFillRowGroup) throws IOException {
-        // at the present stage, just flush one block
+    protected boolean flushAllRowGroups() throws IOException {
         if (recordCount > 0) {
             long totalMemStart = deltaFileWriter.getPos();
             //make sure all the pages have been compressed into buffers, so that we can get correct groupWriter.getCurrentRowGroupSize().
@@ -240,7 +307,7 @@ public class TsFileWriter {
             for (String deltaObjectId : groupWriters.keySet()) {
                 long memSize = deltaFileWriter.getPos();
                 IRowGroupWriter groupWriter = groupWriters.get(deltaObjectId);
-                long RowGroupSize=groupWriter.getCurrentRowGroupSize();
+                long RowGroupSize = groupWriter.getCurrentRowGroupSize();
                 deltaFileWriter.startFlushRowGroup(deltaObjectId, RowGroupSize, groupWriter.getSeriesNumber());
                 groupWriter.flushToFileWriter(deltaFileWriter);
 
@@ -250,12 +317,7 @@ public class TsFileWriter {
 
             }
             long actualTotalRowGroupSize = deltaFileWriter.getPos() - totalMemStart;
-            if (isFillRowGroup) {
-                fillInRowGroupSize(actualTotalRowGroupSize);
-                LOG.info("total row group size:{}, actual:{}, filled:{}", primaryRowGroupSize,
-                        actualTotalRowGroupSize, primaryRowGroupSize - actualTotalRowGroupSize);
-            } else
-                LOG.info("total row group size:{}, row group is not filled", actualTotalRowGroupSize);
+            LOG.info("total row group size:{}", actualTotalRowGroupSize);
             LOG.info("write row group end");
             recordCount = 0;
             reset();
@@ -263,12 +325,6 @@ public class TsFileWriter {
         return false;
     }
 
-    protected void fillInRowGroupSize(long actualRowGroupSize) throws IOException {
-        if (actualRowGroupSize > primaryRowGroupSize)
-            LOG.warn("too large actual row group size!:actual:{},threshold:{}", actualRowGroupSize,
-                    primaryRowGroupSize);
-        deltaFileWriter.fillInRowGroup(primaryRowGroupSize - actualRowGroupSize);
-    }
 
     private void reset() {
         groupWriters.clear();
@@ -282,8 +338,7 @@ public class TsFileWriter {
      */
     public void close() throws IOException {
         LOG.info("start close file");
-        calculateMemSizeForAllGroup();
-        flushAllRowGroups(false);
+        flushAllRowGroups();
         deltaFileWriter.endFile(this.schema);
     }
 }

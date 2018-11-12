@@ -15,7 +15,10 @@ import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.*;
 
-public class TsFileWrite2 {
+/**
+ * An example of writing data to TsFile
+ */
+public class TsFileWrite {
 
 	public static void main(String args[]) {
 		try {
@@ -26,7 +29,7 @@ public class TsFileWrite2 {
 			}
 			TsFileWriter tsFileWriter = new TsFileWriter(f);
 
-			// add measurements
+			// add measurements into file schema
 			tsFileWriter.addMeasurement(new MeasurementDescriptor("sensor_1", TSDataType.FLOAT, TSEncoding.RLE));
 			tsFileWriter.addMeasurement(new MeasurementDescriptor("sensor_2", TSDataType.INT32, TSEncoding.TS_2DIFF));
 			tsFileWriter.addMeasurement(new MeasurementDescriptor("sensor_3", TSDataType.INT32, TSEncoding.TS_2DIFF));
@@ -38,6 +41,8 @@ public class TsFileWrite2 {
 			DataPoint dPoint3;
 			tsRecord.addTuple(dPoint1);
 			tsRecord.addTuple(dPoint2);
+
+			// write a TSRecord to TsFile
 			tsFileWriter.write(tsRecord);
 			
 			

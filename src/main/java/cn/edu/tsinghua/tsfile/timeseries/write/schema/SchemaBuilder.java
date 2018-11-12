@@ -13,14 +13,18 @@ import java.util.Map;
  * @author qiaojialin
  */
 public class SchemaBuilder {
+    /** the FileSchema which is being built **/
     private FileSchema fileSchema;
 
+    /**
+     * init schema by default value
+     */
     public SchemaBuilder() {
         fileSchema = new FileSchema();
     }
 
     /**
-     * add one series to tsfile schema
+     * add one series to TsFile schema
      *
      * @param measurementId (not null) id of the series
      * @param dataType      (not null) series data type
@@ -51,7 +55,6 @@ public class SchemaBuilder {
         return this;
     }
 
-
     /**
      * MeasurementDescriptor is the schema of one series
      *
@@ -62,19 +65,6 @@ public class SchemaBuilder {
         fileSchema.registerMeasurement(descriptor);
         return this;
     }
-
-
-
-
-//    public SchemaBuilder addProp(String key, String value) {
-//        fileSchema.addProp(key, value);
-//        return this;
-//    }
-//
-//    public SchemaBuilder setProps(Map<String, String> props) {
-//        fileSchema.setProps(props);
-//        return this;
-//    }
 
     /**
      * get file schema after adding all series and properties

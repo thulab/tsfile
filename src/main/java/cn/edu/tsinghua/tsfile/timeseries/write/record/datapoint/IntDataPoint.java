@@ -16,8 +16,12 @@ import java.io.IOException;
  */
 public class IntDataPoint extends DataPoint {
     private static final Logger LOG = LoggerFactory.getLogger(IntDataPoint.class);
+    /** actual value **/
     private int value;
 
+    /**
+     * constructor of IntDataPoint, the value type will be set automatically
+     */
     public IntDataPoint(String measurementId, int v) {
         super(TSDataType.INT32, measurementId);
         this.value = v;

@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.datatype;
 
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

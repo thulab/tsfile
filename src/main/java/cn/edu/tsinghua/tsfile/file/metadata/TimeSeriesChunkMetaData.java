@@ -44,9 +44,14 @@ public class TimeSeriesChunkMetaData {
 
     private long startTime;
 
+    /**
+     * The maximum time of the tombstones that take effect on this chunk. Only data with larger timestamps than this
+     * should be exposed to user.
+     */
+    private long maxTombstoneTime;
+
     private long endTime;
 
-    //private TSDataType dataType;
 
     private TsDigest valuesStatistics;//TODO 谁赋值的？？
 
@@ -133,7 +138,6 @@ public class TimeSeriesChunkMetaData {
     public int serializeTo(OutputStream outputStream) throws IOException {
         int byteLen = 0;
 
-        //byteLen += ReadWriteIOUtils.writeIsNull(measurementUID, outputStream);
         byteLen += ReadWriteIOUtils.write(measurementUID, outputStream);
 
         byteLen += ReadWriteIOUtils.write(fileOffsetOfCorrespondingData, outputStream);
@@ -154,7 +158,6 @@ public class TimeSeriesChunkMetaData {
     public int serializeTo(ByteBuffer buffer) throws IOException {
         int byteLen = 0;
 
-        //byteLen += ReadWriteIOUtils.writeIsNull(measurementUID, buffer);
         byteLen += ReadWriteIOUtils.write(measurementUID, buffer);
 
         byteLen += ReadWriteIOUtils.write(fileOffsetOfCorrespondingData, buffer);
@@ -210,4 +213,13 @@ public class TimeSeriesChunkMetaData {
 
         return timeSeriesChunkMetaData;
     }
+
+    public long getMaxTombstoneTime() {
+        return maxTombstoneTime;
+    }
+
+    public void setMaxTombstoneTime(long maxTombstoneTime) {
+        this.maxTombstoneTime = maxTombstoneTime;
+    }
+
 }

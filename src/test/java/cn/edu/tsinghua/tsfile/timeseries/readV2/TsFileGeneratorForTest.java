@@ -54,7 +54,7 @@ public class TsFileGeneratorForTest {
 
     public static void prepare() throws IOException {
         inputDataFile = "src/test/resources/perTestInputData";
-        errorOutputDataFile = "src/test/resources/perTestErrorOutputData.ksn";
+        errorOutputDataFile = "src/test/resources/perTestErrorOutputData.tsfile";
         //jsonSchema = generateTestData();
         generateSampleInputDataFile();
     }

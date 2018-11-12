@@ -43,9 +43,6 @@ public class TsDigest {
     public TsDigest() {
     }
 
-//    public TsDigest(Map<String, ByteBuffer> statistics) {
-//        this.statistics = statistics;
-//    }
 
     public void setStatistics(Map<String, ByteBuffer> statistics) {
         this.statistics = statistics;

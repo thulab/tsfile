@@ -1,16 +1,15 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.controller;
 
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileGeneratorForTest;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Created by zhangjinrui on 2017/12/25.
@@ -36,6 +35,6 @@ public class MetadataQuerierByFileImplTest {
         fileReader = new TsFileSequenceReader(FILE_PATH);
         fileReader.open();
         MetadataQuerierByFileImpl metadataQuerierByFile = new MetadataQuerierByFileImpl(fileReader);
-        List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d2.s1"));
+        metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d2.s1"));
     }
 }

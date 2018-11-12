@@ -7,27 +7,27 @@ import cn.edu.tsinghua.tsfile.file.header.PageHeader;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.TimeValuePairReader;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.SeriesReader;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * @author Jinrui Zhang
  */
-public abstract class SeriesChunkReader implements TimeValuePairReader {
+public abstract class SeriesChunkReader implements SeriesReader {
 
     private InputStream seriesChunkInputStream;
 
     private boolean pageReaderInitialized;
-    private PageDataReader pageReader;
+    private PageDataReader pageDataReader;
     private UnCompressor unCompressor;
-//    private TSEncoding defaultTimestampEncoding;
-    private boolean hasCachedTimeValuePair;
-    private TimeValuePair cachedTimeValuePair;
+    boolean hasCachedTimeValuePair;
+    TimeValuePair cachedTimeValuePair;
 	private long maxTombstoneTime;
-	
+
     ChunkHeader chunkHeader;
     Decoder valueDecoder;
     //TODO: How to get defaultTimeDecoder by TSConfig rather than hard code here ?
@@ -50,21 +50,34 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
         if (hasCachedTimeValuePair) {
             return true;
         }
+
         //Judge whether next satisfied page exists
         while (true) {
             if (!pageReaderInitialized) {
+
+                // construct next satisfied page header
                 boolean hasMoreSatisfiedPage = constructPageReaderIfNextSatisfiedPageExists();
+
+                // if there does not exist a satisfied page, return false
                 if (!hasMoreSatisfiedPage) {
                     return false;
                 }
                 pageReaderInitialized = true;
             }
 
-            while (pageReader.hasNext()) {
-                TimeValuePair timeValuePair = pageReader.next();
-                if (timeValuePairSatisfied(timeValuePair)  && timeValuePair.getTimestamp() > maxTombstoneTime) {
-                    this.hasCachedTimeValuePair = true;
+            // check whether there exists a satisfied time value pair in current page
+            while (pageDataReader.hasNext()) {
+
+                // read next time value pair
+                TimeValuePair timeValuePair = pageDataReader.next();
+
+                // check if next time value pair satisfy the condition
+                if (timeValuePairSatisfied(timeValuePair) && timeValuePair.getTimestamp() > maxTombstoneTime) {
+
+                    // cache next satisfied time value pair
                     this.cachedTimeValuePair = timeValuePair;
+                    this.hasCachedTimeValuePair = true;
+
                     return true;
                 }
             }
@@ -81,47 +94,52 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
         throw new IOException("No more timeValuePair in current MemSeriesChunk");
     }
 
+    /**
+     * Read page one by one from InputStream and check the page header whether this page satisfies the filter.
+     * Skip the unsatisfied pages and construct PageDataReader for the first page satisfied.
+     * @return whether there exists a satisfied page
+     * @throws IOException exception when reading page
+     */
     private boolean constructPageReaderIfNextSatisfiedPageExists() throws IOException {
+
         boolean gotNextPageReader = false;
-        while (hasNextPageInStream() && !gotNextPageReader) {
+
+        while (seriesChunkInputStream.available() > 0 && !gotNextPageReader) {
+            // deserialize a PageHeader from seriesChunkInputStream
             PageHeader pageHeader = getNextPageHeader();
+
+            // if the current page satisfies the filter
             if (pageSatisfied(pageHeader)) {
-                pageReader = constructPageReaderForNextPage(pageHeader.getCompressedSize());
+                pageDataReader = constructPageReaderForNextPage(pageHeader.getCompressedSize());
                 gotNextPageReader = true;
             } else {
                 skipBytesInStreamByLength(pageHeader.getCompressedSize());
             }
         }
         return gotNextPageReader;
-
     }
 
-    private boolean hasNextPageInStream() throws IOException {
-        if (seriesChunkInputStream.available() > 0) {
-            return true;
-        }
-        return false;
+    private void skipBytesInStreamByLength(long length) throws IOException {
+        seriesChunkInputStream.skip(length);
     }
 
     public abstract boolean pageSatisfied(PageHeader pageHeader);
 
     public abstract boolean timeValuePairSatisfied(TimeValuePair timeValuePair);
 
-    private void skipBytesInStreamByLength(long length) throws IOException {
-        seriesChunkInputStream.skip(length);
-    }
 
     private PageDataReader constructPageReaderForNextPage(int compressedPageBodyLength)
             throws IOException {
         byte[] compressedPageBody = new byte[compressedPageBodyLength];
-        int readLength = seriesChunkInputStream.read(compressedPageBody, 0, compressedPageBodyLength);//TODO 这里已经全部读取到内存中了
+
+        // already in memory
+        int readLength = seriesChunkInputStream.read(compressedPageBody, 0, compressedPageBodyLength);
         if (readLength != compressedPageBodyLength) {
             throw new IOException("unexpected byte read length when read compressedPageBody. Expected:"
-                    + compressedPageBody + ". Actual:" + readLength);
+                    + Arrays.toString(compressedPageBody) + ". Actual:" + readLength);
         }
-        PageDataReader pageReader = new PageDataReader(ByteBuffer.wrap(unCompressor.uncompress(compressedPageBody)),
+        return new PageDataReader(ByteBuffer.wrap(unCompressor.uncompress(compressedPageBody)),
                 chunkHeader.getDataType(), valueDecoder, timeDecoder);
-        return pageReader;
     }
 
     private PageHeader getNextPageHeader() throws IOException {
@@ -134,9 +152,10 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
 
     }
+
     public void setMaxTombstoneTime(long maxTombStoneTime) {
         this.maxTombstoneTime = maxTombStoneTime;
     }

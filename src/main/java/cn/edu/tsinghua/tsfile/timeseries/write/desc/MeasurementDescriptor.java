@@ -33,12 +33,14 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
   private final TSDataType type;
   private final TSEncoding encoding;
   private String measurementId;
-//  private TSDataTypeConverter typeConverter;
   private TSEncodingBuilder encodingConverter;
   private Compressor compressor;
   private TSFileConfig conf;
   private Map<String, String> props;
 
+  /**
+   * set properties as an empty Map
+   */
   public MeasurementDescriptor(String measurementId, TSDataType type, TSEncoding encoding) {
     this(measurementId, type, encoding, CompressionType.valueOf(TSFileDescriptor.getInstance().getConfig().compressor), Collections.emptyMap());
   }
@@ -61,16 +63,11 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     this.measurementId = measurementId;
     this.encoding = encoding;
     this.props = props == null? Collections.emptyMap(): props;
+    // get config from TSFileDescriptor
     this.conf = TSFileDescriptor.getInstance().getConfig();
     // initialize TSEncoding. e.g. set max error for PLA and SDT
     encodingConverter = TSEncodingBuilder.getConverter(encoding);
     encodingConverter.initFromProps(props);
-//    if (props != null && props.containsKey(JsonFormatConstant.COMPRESS_TYPE)) {
-//      this.compressor = Compressor.getCompressor(props.get(JsonFormatConstant.COMPRESS_TYPE));
-//    } else {
-//      this.compressor = Compressor
-//          .getCompressor(TSFileDescriptor.getInstance().getConfig().compressor);
-//    }
     this.compressor = Compressor.getCompressor(compressionType);
   }
 
@@ -127,6 +124,10 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     return TSEncodingBuilder.getConverter(timeSeriesEncoder).getEncoder(timeType);
   }
 
+  /**
+   * get Encoder of value from encodingConverter by measurementID and data type
+   * @return Encoder for value
+   */
   public Encoder getValueEncoder() {
     return encodingConverter.getEncoder(type);
   }
@@ -148,6 +149,9 @@ public class MeasurementDescriptor implements Comparable<MeasurementDescriptor> 
     return this.measurementId.equals(ot.measurementId);
   }
 
+  /**
+   * compare by measurementID
+   */
   @Override
   public int compareTo(MeasurementDescriptor o) {
     if (equals(o))

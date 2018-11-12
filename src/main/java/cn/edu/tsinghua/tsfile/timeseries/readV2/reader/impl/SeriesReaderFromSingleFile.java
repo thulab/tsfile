@@ -1,8 +1,8 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.MetadataQuerierByFileImpl;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoaderImpl;
@@ -24,7 +24,6 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
     protected boolean seriesChunkReaderInitialized;
     protected int currentReadSeriesChunkIndex;
 
-    //protected ITsRandomAccessFileReader randomAccessFileReader;
     protected TsFileSequenceReader fileReader;
 
     public SeriesReaderFromSingleFile(TsFileSequenceReader fileReader, Path path) throws IOException {

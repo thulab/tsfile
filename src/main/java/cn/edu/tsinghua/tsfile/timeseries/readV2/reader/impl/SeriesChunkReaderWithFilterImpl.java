@@ -31,9 +31,11 @@ public class SeriesChunkReaderWithFilterImpl extends SeriesChunkReader {
 
     @Override
     public boolean pageSatisfied(PageHeader pageHeader) {
+        if (pageHeader.getMax_timestamp() < getMaxTombstoneTime())
+            return false;
         DigestForFilter timeDigest = new DigestForFilter(pageHeader.getMin_timestamp(),
                 pageHeader.getMax_timestamp());
-        //TODO: Using ByteBuffer as min/max is better
+        //TODO: Using ByteBuffer as min/max is best
         DigestForFilter valueDigest = new DigestForFilter(
                 pageHeader.getStatistics().getMinBytebuffer(),
                 pageHeader.getStatistics().getMaxBytebuffer(),

@@ -14,10 +14,16 @@ import java.nio.ByteBuffer;
  * compress data according to type in schema
  */
 public abstract class Compressor {
+
     public static Compressor getCompressor(String name) {
         return getCompressor(CompressionType.valueOf(name));
     }
 
+    /**
+     * get Compressor according to CompressionType
+     * @param name CompressionType
+     * @return the Compressor of specified CompressionType
+     */
     public static Compressor getCompressor(CompressionType name) {
         if (name == null) {
             throw new CompressionTypeNotSupportedException("NULL");
@@ -60,8 +66,6 @@ public abstract class Compressor {
 
     /**
      * NoCompressor will do nothing for data and return the input data directly.
-     *
-     * @author kangrong
      */
     static public class NoCompressor extends Compressor {
 

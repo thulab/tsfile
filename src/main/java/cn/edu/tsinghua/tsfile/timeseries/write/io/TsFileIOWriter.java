@@ -30,7 +30,6 @@ import java.util.*;
 public class TsFileIOWriter {
 
     public static final byte[] magicStringBytes;
-    //public static final TsFileMetaDataConverter metadataConverter = new TsFileMetaDataConverter();
     private static final Logger LOG = LoggerFactory.getLogger(TsFileIOWriter.class);
 
     static {
@@ -181,6 +180,7 @@ public class TsFileIOWriter {
      * @throws IOException if I/O error occurs
      */
     public void endFile(FileSchema schema) throws IOException {
+    	// get all TimeSeriesMetadatas of this TsFile
         List<TimeSeriesMetadata> timeSeriesList = schema.getTimeSeriesMetadatas();
         LOG.debug("get time series list:{}", timeSeriesList);
         // clustering rowGroupMetadata and build the range
@@ -189,6 +189,7 @@ public class TsFileIOWriter {
         TsDeltaObjectMetadata currentTsDeltaObjectMetadata;
 
         LinkedHashMap<String, TsDeltaObjectMetadata> tsDeltaObjectMetadataMap = new LinkedHashMap<>();
+
         for (RowGroupMetaData rowGroupMetaData : rowGroupMetaDatas) {
             currentDeltaObject = rowGroupMetaData.getDeltaObjectID();
             if (!tsDeltaObjectMetadataMap.containsKey(currentDeltaObject)) {
@@ -215,6 +216,8 @@ public class TsFileIOWriter {
             for (RowGroupMetaData rowGroupMetaData : currentTsDeltaObjectMetadata.getRowGroups()) {
                 for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : rowGroupMetaData
                         .getTimeSeriesChunkMetaDataList()) {
+
+					// update startTime and endTime
                     startTime = Long.min(startTime, timeSeriesChunkMetaData.getStartTime());
                     endTime = Long.max(endTime, timeSeriesChunkMetaData.getEndTime());
                 }
@@ -222,7 +225,6 @@ public class TsFileIOWriter {
             // flush tsRowGroupBlockMetaDatas in order
             currentTsDeltaObjectMetadata.setStartTime(startTime);
             currentTsDeltaObjectMetadata.setEndTime(endTime);
-            //ReadWriteByteStreamUtils.writeRowGroupBlockMetadata(currentTsDeltaObjectMetadata, out);
         }
 
         TsFileMetaData tsFileMetaData = new TsFileMetaData(tsDeltaObjectMetadataMap, timeSeriesList,
@@ -254,11 +256,6 @@ public class TsFileIOWriter {
 
         footer.serializeTo(out.getOutputStream());
         LOG.debug("serializeTo the footer finished, file pos:{}", out.getPos());
-//        out.write(BytesUtils.longToBytes(footer.getFirstTimeSeriesMetadataOffset()));
-//        out.write(BytesUtils.longToBytes(footer.getLastTimeSeriesMetadataOffset()));
-//        out.write(BytesUtils.longToBytes(footer.getFirstTsDeltaObjectMetadataOffset()));
-//        out.write(BytesUtils.longToBytes(footer.getLastTsDeltaObjectMetadataOffset()));
-//        out.write(BytesUtils.intToBytes(footer.getCurrentVersion()));
     }
 
     /**

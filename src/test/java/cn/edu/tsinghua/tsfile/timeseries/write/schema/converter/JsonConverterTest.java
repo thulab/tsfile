@@ -57,21 +57,6 @@ public class JsonConverterTest {
             assertEquals(measureDesStrings[i++], desc.toString());
         }
 
-//        List<TimeSeriesMetadata> tsMetadataList = fileSchema.getTimeSeriesMetadatas();
-//        String[] tsMetadatas =
-//                {
-//                        "TimeSeriesMetadata: measurementUID s1, type length 0, DataType INT32, FreqType null,frequencies null",
-//                        "TimeSeriesMetadata: measurementUID s2, type length 0, DataType INT64, FreqType null,frequencies null",
-//                        //"TimeSeriesMetadata: measurementUID s3, type length 0, DataType ENUMS, FreqType null,frequencies null",
-//                        "TimeSeriesMetadata: measurementUID s4, type length 0, DataType DOUBLE, FreqType null,frequencies null",
-//                        "TimeSeriesMetadata: measurementUID s5, type length 0, DataType INT32, FreqType null,frequencies null",
-//                };
-//        Collections.sort(tsMetadataList, (x,y)->x.getMeasurementUID().compareTo(y.getMeasurementUID()));
-//        Arrays.sort(tsMetadatas, (x,y)->x.compareTo(y));
-//        for (int j = 0; j < tsMetadataList.size(); j++) {
-//            assertEquals(tsMetadatas[j], tsMetadataList.get(j).toString());
-//        }
-
     }
 
     @Test
@@ -104,13 +89,6 @@ public class JsonConverterTest {
             assertTrue(descSchemaMap.containsKey(measureUID));
             checkJsonObjectEqual(srcMeasureObj, descSchemaMap.get(measureUID));
         }
-        //check properties
-//        if(srcObj.has(JsonFormatConstant.PROPERTIES)){
-//            assertTrue(descObj.has(JsonFormatConstant.PROPERTIES));
-//            JSONObject srcProps = srcObj.getJSONObject(JsonFormatConstant.PROPERTIES);
-//            JSONObject descProps = descObj.getJSONObject(JsonFormatConstant.PROPERTIES);
-//            checkJsonObjectEqual(srcProps, descProps);
-//        }
     }
 
     /**

@@ -13,7 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class TsFileMetaDataTest {
-    final String PATH = "target/output1.ksn";
+    final String PATH = "target/output1.tsfile";
     public static final int VERSION = 123;
     public static final String CREATED_BY = "tsf";
     public static final long FIRST_TSMETADATA_OFFSET = 111111111L;
@@ -26,7 +26,7 @@ public class TsFileMetaDataTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     File file = new File(PATH);
     if (file.exists())
       file.delete();

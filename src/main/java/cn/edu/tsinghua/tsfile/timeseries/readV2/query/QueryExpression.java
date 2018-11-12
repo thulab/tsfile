@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.query;
 
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.QueryFilter;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 
 import java.util.ArrayList;
 import java.util.List;

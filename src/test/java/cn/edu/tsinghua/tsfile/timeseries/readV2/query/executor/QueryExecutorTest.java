@@ -10,7 +10,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.GlobalTimeFilt
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.QueryFilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.SeriesFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.factory.FilterFactory;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileGeneratorForTest;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.MetadataQuerierByFileImpl;
@@ -65,14 +65,11 @@ public class QueryExecutorTest {
     public void query1() throws IOException {
         Filter<Integer> filter = TimeFilter.lt(1480562618100L);
         Filter<Binary> filter2 = ValueFilter.gt(new Binary("dog"));
-//        Filter<Integer> filter3 = FilterFactory.and(TimeFilter.gtEq(1480562618000L), TimeFilter.ltEq(1480562618100L));
 
         QueryFilter queryFilter = QueryFilterFactory.and(
                 new SeriesFilter<>(new Path("d1.s1"), filter),
                 new SeriesFilter<>(new Path("d1.s4"), filter2)
         );
-
-//        QueryFilter queryFilter = new SeriesFilter<>(new SeriesDescriptor(new Path("d1.s1"), TSDataType.INT32), filter);
 
         QueryExpression queryExpression = QueryExpression.create()
                 .addSelectedPath(new Path("d1.s1"))

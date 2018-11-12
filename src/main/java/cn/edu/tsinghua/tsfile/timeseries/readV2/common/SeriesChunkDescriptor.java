@@ -8,7 +8,6 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
  * Created by zhangjinrui on 2018/1/15.
  */
 public interface SeriesChunkDescriptor {
-    //TSDataType getDataType();
 
     TsDigest getValueDigest();
 
@@ -18,5 +17,4 @@ public interface SeriesChunkDescriptor {
 
     long getCountOfPoints();
 
-    //CompressionType getCompressionType();
 }

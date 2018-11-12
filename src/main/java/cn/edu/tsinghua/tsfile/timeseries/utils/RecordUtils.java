@@ -26,7 +26,9 @@ public class RecordUtils {
      * @return TSRecord constructed from str
      */
     public static TSRecord parseSimpleTupleRecord(String str, FileSchema schema) {
+        // spliall items
         String[] items = str.split(JsonFormatConstant.TSRECORD_SEPARATOR);
+        // get deltaObjectId and timestamp, then create a new TSRecord
         String deltaObjectId = items[0].trim();
         long timestamp;
         try {
@@ -37,9 +39,12 @@ public class RecordUtils {
             return new TSRecord(-1, deltaObjectId);
         }
         TSRecord ret = new TSRecord(timestamp, deltaObjectId);
+
+        // loop all rest items except the last one
         String measurementId;
         TSDataType type;
         for (int i = 2; i < items.length - 1; i += 2) {
+            // get measurementId and value
             measurementId = items[i].trim();
             type = schema.getMeasurementDataTypes(measurementId);
             if (type == null) {
@@ -47,6 +52,7 @@ public class RecordUtils {
                 continue;
             }
             String value = items[i + 1].trim();
+            // if value is not null, wrap it with corresponding DataPoint and add to TSRecord
             if (!"".equals(value)) {
                 try {
                     switch (type) {

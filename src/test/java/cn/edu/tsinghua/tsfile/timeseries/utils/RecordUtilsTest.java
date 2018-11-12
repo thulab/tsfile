@@ -49,30 +49,23 @@ public class RecordUtilsTest {
         s4.put(JsonFormatConstant.DATA_TYPE, TSDataType.DOUBLE.toString());
         s4.put(JsonFormatConstant.MEASUREMENT_ENCODING,
                 conf.valueEncoder);
-//        JSONObject s5 = new JSONObject();
-//        s5.put(JsonFormatConstant.MEASUREMENT_UID, "s5");
-//        s5.put(JsonFormatConstant.DATA_TYPE, TSDataType.ENUMS.toString());
-//        s5.put(JsonFormatConstant.MEASUREMENT_ENCODING,
-//                TSEncoding.BITMAP.toString());
-//        s5.put(JsonFormatConstant.ENUM_VALUES, new JSONArray("[\"MAN\",\"WOMAN\"]"));
+        JSONObject s5 = new JSONObject();
+        s5.put(JsonFormatConstant.MEASUREMENT_UID, "s5");
+        s5.put(JsonFormatConstant.DATA_TYPE, TSDataType.BOOLEAN.toString());
+        s5.put(JsonFormatConstant.MEASUREMENT_ENCODING,
+                TSEncoding.PLAIN.toString());
         JSONObject s6 = new JSONObject();
         s6.put(JsonFormatConstant.MEASUREMENT_UID, "s6");
-        s6.put(JsonFormatConstant.DATA_TYPE, TSDataType.BOOLEAN.toString());
+        s6.put(JsonFormatConstant.DATA_TYPE, TSDataType.TEXT.toString());
         s6.put(JsonFormatConstant.MEASUREMENT_ENCODING,
-                TSEncoding.PLAIN.toString());
-        JSONObject s7 = new JSONObject();
-        s7.put(JsonFormatConstant.MEASUREMENT_UID, "s7");
-        s7.put(JsonFormatConstant.DATA_TYPE, TSDataType.TEXT.toString());
-        s7.put(JsonFormatConstant.MEASUREMENT_ENCODING,
                 TSEncoding.PLAIN.toString());
         JSONArray columnGroup1 = new JSONArray();
         columnGroup1.put(s1);
         columnGroup1.put(s2);
         columnGroup1.put(s3);
         columnGroup1.put(s4);
-//        columnGroup1.put(s5);
+        columnGroup1.put(s5);
         columnGroup1.put(s6);
-        columnGroup1.put(s7);
 
         JSONObject jsonSchema = new JSONObject();
         jsonSchema.put(JsonFormatConstant.JSON_SCHEMA, columnGroup1);
@@ -94,7 +87,6 @@ public class RecordUtilsTest {
         List<DataPoint> tuples = record.dataPointList;
         assertEquals(1, tuples.size());
         DataPoint tuple = tuples.get(0);
-        // System.err.println(tuple.getValue());
         assertEquals(tuple.getMeasurementId(), "s1");
         assertEquals(tuple.getType(), TSDataType.INT32);
         assertEquals(tuple.getValue(), 1);
@@ -131,7 +123,6 @@ public class RecordUtilsTest {
         List<DataPoint> tuples = record.dataPointList;
         assertEquals(tuples.size(), 1);
         DataPoint tuple = tuples.get(0);
-        // System.err.println(tuple.getValue());
         assertEquals(tuple.getMeasurementId(), "s1");
         assertEquals(tuple.getType(), TSDataType.INT32);
         assertEquals(tuple.getValue(), 1);
@@ -140,7 +131,7 @@ public class RecordUtilsTest {
     @Test
     public void testParseSimpleTupleRecordAll() {
         String testString =
-                "d1,1471522347000,s1,1,s2,134134287192587,s3,1.4,s4,1.128794817,s5,MAN,s6,true";
+                "d1,1471522347000,s1,1,s2,134134287192587,s3,1.4,s4,1.128794817,s5,true";
         TSRecord record = RecordUtils.parseSimpleTupleRecord(testString, schema);
         assertEquals(record.time, 1471522347000l);
         assertEquals(record.deltaObjectId, "d1");
@@ -162,12 +153,8 @@ public class RecordUtilsTest {
         assertEquals(tuple.getMeasurementId(), "s4");
         assertEquals(tuple.getType(), TSDataType.DOUBLE);
         assertEquals(tuple.getValue(), 1.128794817d);
-//        tuple = tuples.get(4);
-//        assertEquals(tuple.getMeasurementId(), "s5");
-//        assertEquals(tuple.getType(), TSDataType.ENUMS);
-//        assertEquals(tuple.getValue(), 1);
         tuple = tuples.get(4);
-        assertEquals(tuple.getMeasurementId(), "s6");
+        assertEquals(tuple.getMeasurementId(), "s5");
         assertEquals(tuple.getType(), TSDataType.BOOLEAN);
         assertEquals(tuple.getValue(), true);
     }
@@ -180,7 +167,6 @@ public class RecordUtilsTest {
         List<DataPoint> tuples = record.dataPointList;
         assertEquals(tuples.size(), 1);
         DataPoint tuple = tuples.get(0);
-        // System.err.println(tuple.getValue());
         assertEquals(tuple.getMeasurementId(), "s1");
         assertEquals(tuple.getType(), TSDataType.INT32);
         assertEquals(tuple.getValue(), 1);
@@ -194,7 +180,6 @@ public class RecordUtilsTest {
         List<DataPoint> tuples = record.dataPointList;
         assertEquals(tuples.size(), 1);
         DataPoint tuple = tuples.get(0);
-        // System.err.println(tuple.getValue());
         assertEquals(tuple.getMeasurementId(), "s1");
         assertEquals(tuple.getType(), TSDataType.INT32);
         assertEquals(tuple.getValue(), 1);

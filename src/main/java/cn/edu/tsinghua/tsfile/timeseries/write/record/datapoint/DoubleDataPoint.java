@@ -16,8 +16,12 @@ import java.io.IOException;
  */
 public class DoubleDataPoint extends DataPoint {
     private static final Logger LOG = LoggerFactory.getLogger(DoubleDataPoint.class);
+    /** actual value **/
     private double value;
 
+    /**
+     * constructor of DoubleDataPoint, the value type will be set automatically
+     */
     public DoubleDataPoint(String measurementId, double v) {
         super(TSDataType.DOUBLE, measurementId);
         this.value = v;

@@ -13,6 +13,12 @@ import java.nio.ByteBuffer;
  * uncompress data according to type in metadata
  */
 public abstract class UnCompressor {
+
+    /**
+     * get the UnCompressor based on the CompressionType
+     * @param name CompressionType
+     * @return the UnCompressor of specified CompressionType
+     */
     public static UnCompressor getUnCompressor(CompressionType name) {
         if (name == null) {
             throw new CompressionTypeNotSupportedException("NULL");
@@ -37,6 +43,11 @@ public abstract class UnCompressor {
      */
     public abstract int getUncompressedLength(ByteBuffer buffer) throws IOException;
 
+    /**
+     * uncompress the byte array
+     * @param byteArray to be uncompressed bytes
+     * @return bytes after uncompressed
+     */
     public abstract byte[] uncompress(byte[] byteArray);
 
     /**
@@ -57,13 +68,6 @@ public abstract class UnCompressor {
      * @return
      */
     public abstract int uncompress(ByteBuffer compressed, ByteBuffer uncompressed)   throws IOException ;
-
-//    /**
-//     * if the data is large, using this function is better.
-//     * @param compressed MUST be DirectByteBuffer
-//     * @return
-//     */
-//    public abstract ByteBuffer uncompress(ByteBuffer compressed);
 
     public abstract CompressionType getCodecName();
 
@@ -91,18 +95,8 @@ public abstract class UnCompressor {
 
         @Override
         public int uncompress(ByteBuffer compressed, ByteBuffer uncompressed)   throws IOException {
-//            int pos=uncompressed.position();
-//            uncompressed.put(compressed);
-//            return uncompressed.position()-pos;
             throw new IOException("NoUnCompressor does not support this method.");
         }
-
-//        @Override
-//        public ByteBuffer uncompress(ByteBuffer compressed) {
-//            ByteBuffer uncompressed=ByteBuffer.allocate(compressed.remaining());
-//            uncompressed.put(compressed);
-//            return uncompressed;
-//        }
 
         @Override
         public CompressionType getCodecName() {
@@ -161,23 +155,6 @@ public abstract class UnCompressor {
             }
             return 0;
         }
-//        @Override
-//        public ByteBuffer uncompress(ByteBuffer compressed) {
-//            if (compressed == null || !compressed.hasRemaining()) {
-//                return null;
-//            }
-//
-//            try {
-//                ByteBuffer uncompressed= ByteBuffer.allocateDirect(Snappy.uncompressedLength(compressed));
-//                Snappy.uncompress(compressed, uncompressed);
-//                return uncompressed;
-//            } catch (IOException e) {
-//                LOGGER.error(
-//                        "tsfile-compression SnappyUnCompressor: errors occurs when uncompress input byte, bytes is {}",
-//                        compressed.array(), e);
-//            }
-//            return null;
-//        }
 
         @Override
         public CompressionType getCodecName() {

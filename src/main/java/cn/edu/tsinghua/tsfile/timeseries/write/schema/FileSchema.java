@@ -17,38 +17,31 @@ import java.util.Map;
 /**
  * FileSchema stores the schema of registered measurements and delta objects that appeared in this
  * stage. All delta objects written to the same TSFile have the same schema. FileSchema takes the
- * JSON schema file as a parameter and registers measurement informations. FileSchema also records
+ * JSON schema file as a parameter and registers measurement information. FileSchema also records
  * all appeared delta object IDs in this stage.
  *
  * @author kangrong
  */
 public class FileSchema {
   static private final Logger LOG = LoggerFactory.getLogger(FileSchema.class);
-  /**
-   * {@code Map<measurementId, TSDataType>}
-   */
-  private Map<String, TSDataType> measurementDataTypeMap = new HashMap<>();
+
   /**
    * {@code Map<measurementId, MeasurementDescriptor>}
    */
   private Map<String, MeasurementDescriptor> measurementNameDescriptorMap;
 
+  /** all metadatas of TimeSeries **/
   private List<TimeSeriesMetadata> tsMetadata = new ArrayList<>();
-  private int currentMaxByteSizeInOneRow;
 
-
-
-
-//  private Map<String, String> additionalProperties = new HashMap<>();
-
+  /**
+   * init measurementNameDescriptorMap and additionalProperties as empty map
+   */
   public FileSchema() {
     this.measurementNameDescriptorMap = new HashMap<>();
-    //this.additionalProperties = new HashMap<>();
   }
 
   /**
-   *            example:
-   *             <pre>
+   *   example:
    *   {
    *   "measurement_id": "sensor_cpu_50",
    *   "data_type": "INT32",
@@ -75,74 +68,29 @@ public class FileSchema {
    *    ]
    *   };
    *
-   *             </pre>
-   * @param jsonSchema
-   * @throws InvalidJsonSchemaException
+   * @param jsonSchema file schema in json format
    */
   @Deprecated
   public FileSchema(JSONObject jsonSchema) throws InvalidJsonSchemaException {
-    this(JsonConverter.converterJsonToMeasurementDescriptors(jsonSchema),
-        JsonConverter.convertJsonToSchemaProperties(jsonSchema));
+    this(JsonConverter.converterJsonToMeasurementDescriptors(jsonSchema));
   }
 
-  public FileSchema(Map<String, MeasurementDescriptor> measurements,
-      Map<String, String> additionalProperties) {
+  /**
+   * init additionalProperties and register measurements
+   */
+  public FileSchema(Map<String, MeasurementDescriptor> measurements) {
     this();
-   // this.additionalProperties = additionalProperties;
     this.registerMeasurements(measurements);
   }
 
-//  /**
-//   * Add a property to {@code props}. <br>
-//   * If the key exists, this method will update the value of the key.
-//   *
-//   * @param key
-//   *          key of property
-//   * @param value
-//   *          value of property
-//   */
-//  public void addProp(String key, String value) {
-//    additionalProperties.put(key, value);
-//  }
-//
-//  public boolean hasProp(String key) {
-//    return additionalProperties.containsKey(key);
-//  }
-//
-//  public Map<String, String> getProps() {
-//    return additionalProperties;
-//  }
-//
-//  public void setProps(Map<String, String> props) {
-//    this.additionalProperties.clear();
-//    this.additionalProperties.putAll(props);
-//  }
-//
-//  public String getProp(String key) {
-//    if (additionalProperties.containsKey(key))
-//      return additionalProperties.get(key);
-//    else
-//      return null;
-//  }
-
-  public int getCurrentRowMaxSize() {
-    return currentMaxByteSizeInOneRow;
-  }
-
-  public void setMaxByteSizeInOneRow(int maxByteSizeInOneRow) {
-    this.currentMaxByteSizeInOneRow = maxByteSizeInOneRow;
-  }
-
-  private void enlargeMaxByteSizeInOneRow(int additionalByteSize) {
-    this.currentMaxByteSizeInOneRow += additionalByteSize;
-  }
-
-  private void indexMeasurementDataType(String measurementUID, TSDataType type) {
-    measurementDataTypeMap.put(measurementUID, type);
-  }
 
   public TSDataType getMeasurementDataTypes(String measurementUID) {
-    return measurementDataTypeMap.get(measurementUID);
+    MeasurementDescriptor measurementDescriptor = measurementNameDescriptorMap.get(measurementUID);
+    if(measurementDescriptor == null) {
+      return null;
+    }
+    return measurementDescriptor.getType();
+
   }
 
   public MeasurementDescriptor getMeasurementDescriptor(String measurementUID) {
@@ -156,10 +104,8 @@ public class FileSchema {
   /**
    * add a TimeSeriesMetadata into this fileSchema
    *
-   * @param measurementId
-   *          - the measurement id of this TimeSeriesMetadata
-   * @param type
-   *          - the data type of this TimeSeriesMetadata
+   * @param measurementId the measurement id of this TimeSeriesMetadata
+   * @param type the data type of this TimeSeriesMetadata
    */
   private void addTimeSeriesMetadata(String measurementId, TSDataType type) {
     TimeSeriesMetadata ts = new TimeSeriesMetadata(measurementId, type);
@@ -171,18 +117,27 @@ public class FileSchema {
     return tsMetadata;
   }
 
+  /**
+   * register a MeasurementDescriptor
+   */
   public void registerMeasurement(MeasurementDescriptor descriptor) {
+    // add to measurementNameDescriptorMap as <measurementID, MeasurementDescriptor>
     this.measurementNameDescriptorMap.put(descriptor.getMeasurementId(), descriptor);
-    this.indexMeasurementDataType(descriptor.getMeasurementId(), descriptor.getType());
+
+    // add time series metadata
     this.addTimeSeriesMetadata(descriptor.getMeasurementId(), descriptor.getType());
-    this.enlargeMaxByteSizeInOneRow(descriptor.getTimeEncoder().getOneItemMaxSize()
-        + descriptor.getValueEncoder().getOneItemMaxSize());
   }
 
-  public void registerMeasurements(Map<String, MeasurementDescriptor> measurements) {
+  /**
+   * register all MeasurementDescriptor in input map
+   */
+  private void registerMeasurements(Map<String, MeasurementDescriptor> measurements) {
     measurements.forEach((id, md) -> registerMeasurement(md));
   }
 
+  /**
+   * check is this schema contains input measurementID
+   */
   public boolean hasMeasurement(String measurementId) {
     return measurementNameDescriptorMap.containsKey(measurementId);
   }

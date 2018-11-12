@@ -18,25 +18,30 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
 /**
- * a implementation of {@linkplain IPageWriter IPageWriter}
+ * a implementation of {@linkplain IChunkWriter IChunkWriter}
  *
  * @author kangrong
- * @see IPageWriter IPageWriter
+ * @see IChunkWriter IChunkWriter
  */
-public class PageWriterImpl implements IPageWriter {
-    private static Logger LOG = LoggerFactory.getLogger(PageWriterImpl.class);
+public class ChunkWriterImpl implements IChunkWriter {
+    private static Logger LOG = LoggerFactory.getLogger(ChunkWriterImpl.class);
     private final Compressor compressor;
     private final MeasurementDescriptor desc;
-    private PublicBAOS buf;
+
+    /**
+     * all pages of this column
+     */
+    private PublicBAOS pageBuffer;
+
     private long totalValueCount;
     private long maxTimestamp;
     private long minTimestamp = -1;
     private ByteBuffer compressedData;//DirectByteBuffer
 
-    public PageWriterImpl(MeasurementDescriptor desc) {
+    public ChunkWriterImpl(MeasurementDescriptor desc) {
         this.desc = desc;
         this.compressor = desc.getCompressor();
-        this.buf = new PublicBAOS();
+        this.pageBuffer = new PublicBAOS();
     }
 
 
@@ -53,7 +58,7 @@ public class PageWriterImpl implements IPageWriter {
     @Override
     public int writePageHeaderAndDataIntoBuff(ByteBuffer data, int valueCount, Statistics<?> statistics,
                                               long maxTimestamp, long minTimestamp) throws PageException {
-        // compress the input data
+        // 1. update time statistics
         if (this.minTimestamp == -1)
             this.minTimestamp = minTimestamp;
         if(this.minTimestamp==-1){
@@ -97,42 +102,42 @@ public class PageWriterImpl implements IPageWriter {
         }
 
         int headerSize=0;
-        //PublicBAOS tempOutputStream = new PublicBAOS(estimateMaxPageHeaderSize() + compressedSize);
+
         // write the page header to IOWriter
         try {
-//            ReadWriteThriftFormatUtils.writeDataPageHeader(uncompressedSize, compressedSize, valueCount, statistics,
-//                    valueCount, desc.getEncodingType(), tempOutputStream, maxTimestamp, minTimestamp);
             PageHeader header=new PageHeader(uncompressedSize, compressedSize, valueCount, statistics, maxTimestamp, minTimestamp);
             headerSize=header.getSerializedSize();
-            LOG.debug("start to flush a page header into buffer, buffer position {} ", buf.size());
-            header.serializeTo(buf);
-            LOG.debug("finish to flush a page header {} of {} into buffer, buffer position {} ", header, desc.getMeasurementId(), buf.size());
+            LOG.debug("start to flush a page header into buffer, buffer position {} ", pageBuffer.size());
+            header.serializeTo(pageBuffer);
+            LOG.debug("finish to flush a page header {} of {} into buffer, buffer position {} ", header, desc.getMeasurementId(), pageBuffer.size());
 
         } catch (IOException e) {
             resetTimeStamp();
             throw new PageException(
                     "IO Exception in writeDataPageHeader,ignore this page,error message:" + e.getMessage());
         }
+
+        // update data point num
         this.totalValueCount += valueCount;
+
+        // write page content to temp PBAOS
         try {
-            LOG.debug("start to flush a page data into buffer, buffer position {} ", buf.size());
+            LOG.debug("start to flush a page data into buffer, buffer position {} ", pageBuffer.size());
             if(compressor.getCodecName().equals(CompressionType.UNCOMPRESSED)){
-                WritableByteChannel channel = Channels.newChannel(buf);
+                WritableByteChannel channel = Channels.newChannel(pageBuffer);
                 channel.write(data);
             }else {
                 if (data.isDirect()) {
-                    WritableByteChannel channel = Channels.newChannel(buf);
+                    WritableByteChannel channel = Channels.newChannel(pageBuffer);
                     channel.write(compressedData);
                 } else {
-                    buf.write(compressedBytes, compressedPosition, compressedSize);
+                    pageBuffer.write(compressedBytes, compressedPosition, compressedSize);
                 }
             }
-            LOG.debug("start to flush a page data into buffer, buffer position {} ", buf.size());
+            LOG.debug("start to flush a page data into buffer, buffer position {} ", pageBuffer.size());
         } catch (IOException e) {
             throw new PageException("meet IO Exception in buffer append,but we cannot understand it:" + e.getMessage());
         }
-//        LOG.debug("page {}:write page from seriesWriter, valueCount:{}, stats:{},size:{}", desc, valueCount, statistics,
-//                estimateMaxPageMemSize());
         return headerSize+uncompressedSize;
     }
 
@@ -147,53 +152,45 @@ public class PageWriterImpl implements IPageWriter {
     	if(minTimestamp==-1){
     		LOG.error("Write page error, {}, minTime:{}, maxTime:{}",desc,minTimestamp,maxTimestamp);
     	}
-        int headerSize=writer.startFlushChunk(desc, compressor.getCodecName(), desc.getType(), desc.getEncodingType(),statistics, maxTimestamp, minTimestamp, buf.size(), numOfPages);
+
+    	// start to write this column chunk
+        int headerSize=writer.startFlushChunk(desc, compressor.getCodecName(), desc.getType(), desc.getEncodingType(),statistics, maxTimestamp, minTimestamp, pageBuffer.size(), numOfPages);
 
         long totalByteSize = writer.getPos();
         LOG.debug("start writing pages of {} into file, position {}", desc.getMeasurementId(), writer.getPos());
-        writer.writeBytesToStream(buf);
+
+        // write all pages of this column
+        writer.writeBytesToStream(pageBuffer);
         LOG.debug("finish writing pages of {} into file, position {}", desc.getMeasurementId(), writer.getPos());
 
         long size = writer.getPos() - totalByteSize;
-        assert  size == buf.size();
+        assert  size == pageBuffer.size();
 
         writer.endChunk(size + headerSize, totalValueCount);
-//        LOG.debug("page {}:write page to fileWriter,type:{},maxTime:{},minTime:{},nowPos:{},stats:{}",
-//                desc.getMeasurementId(), desc.getType(), maxTimestamp, minTimestamp, writer.getPos(), statistics);
         return headerSize + size;
     }
 
     @Override
     public void reset() {
         minTimestamp = -1;
-        buf.reset();
+        pageBuffer.reset();
         totalValueCount = 0;
     }
 
     @Override
     public long estimateMaxPageMemSize() {
         // return size of buffer + page max size;
-        return buf.size() + estimateMaxPageHeaderSize();
+        return pageBuffer.size() + estimateMaxPageHeaderSize();
     }
 
     private int estimateMaxPageHeaderSize() {
         int digestSize = (totalValueCount == 0) ? 0 : desc.getTypeLength() * 2;
         return PageHeader.calculatePageHeaderSize(desc.getType());
-        //return calculatePageHeaderSize(digestSize);
     }
-
-//    private int calculatePageHeaderSize(int digestSize) {//TODO move to page header
-//        //PageHeader: PageType--4, uncompressedSize--4,compressedSize--4
-//        //DatapageHeader: numValues--4, numNulls--4, numRows--4, Encoding--4, isCompressed--1, maxTimestamp--8, minTimestamp--8
-//        //Digest: max ByteBuffer, min ByteBuffer
-//        // * 2 to caculate max object size in memory
-//
-//        return 2 * (45 + digestSize);
-//    }
 
     @Override
     public long getCurrentDataSize(){
-        return buf.size();
+        return pageBuffer.size();
     }
 
 }

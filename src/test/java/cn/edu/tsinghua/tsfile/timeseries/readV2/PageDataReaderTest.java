@@ -19,7 +19,7 @@ import java.io.InputStream;
 /**
  * Created by zhangjinrui on 2017/12/21.
  */
-public class PageReaderTest {
+public class PageDataReaderTest {
 
     private static final int POINTS_COUNT_IN_ONE_PAGE = 1000000;
 
@@ -140,7 +140,7 @@ public class PageReaderTest {
                 valueWriter.setValueEncoder(this.encoder);
                 writeData();
 
-                InputStream page = new ByteArrayInputStream(ByteBufferUtil.getArray(valueWriter.getBytes()));
+                InputStream page = new ByteArrayInputStream(ByteBufferUtil.getArray(valueWriter.getUncompressedBytes()));
 
                 PageDataReader pageReader = new PageDataReader(page, dataType, decoder, new DeltaBinaryDecoder.LongDeltaDecoder());
 

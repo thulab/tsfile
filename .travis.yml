@@ -7,7 +7,7 @@ language: java
 jdk:
   - oraclejdk8
 
-# before_install:
+before_install:
 #  - sudo apt-get update -qq
 #  - sudo apt-get install -qq libboost-program-options-dev libevent-dev automake libtool flex bison pkg-config g++ libssl-dev
 #  - wget http://archive.apache.org/dist/thrift/0.9.1/thrift-0.9.1.tar.gz
@@ -17,5 +17,13 @@ jdk:
 #  - ./configure --disable-gen-erl --disable-gen-hs --without-cpp --without-boost --without-qt4 --without-c_glib --without-csharp --without-erlang --without-python --without-perl --without-php --without-php_extension --without-ruby --without-haskell --without-go --without-d
 #  - sudo make install
 #  - cd ..
+  - pip install --user codecov
 
-script: mvn clean test
+script: 
+# only SNAPSHOT version needs to do the following phase
+  - mvn cobertura:cobertura
+  - mvn clean test
+  
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -t 470b9a7c-1b44-43da-acda-58744be83a8f
+

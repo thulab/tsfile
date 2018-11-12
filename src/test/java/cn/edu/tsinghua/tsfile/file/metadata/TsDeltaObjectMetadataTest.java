@@ -15,17 +15,15 @@ import java.io.IOException;
 
 public class TsDeltaObjectMetadataTest {
 
-    public static final long OFFSET = 2313424242L;
-    public static final int METADATA_BLOCK_SIZE = 432453453;
     public static final long START_TIME = 523372036854775806L;
     public static final long END_TIME = 523372036854775806L;
-    final String PATH = "target/outputDeltaObject.ksn";
+    final String PATH = "target/outputDeltaObject.tsfile";
 
     @Before
-    public void setUp() throws Exception {}
+    public void setUp() {}
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         File file = new File(PATH);
         if (file.exists())
             file.delete();

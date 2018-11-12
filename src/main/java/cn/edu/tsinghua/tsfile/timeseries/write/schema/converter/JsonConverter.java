@@ -19,7 +19,7 @@ import java.util.Map;
 
 /**
  * <p>
- * JsonConverter is used to convert JsonObject to TSFile Schema what a java class defined in tsfile
+ * JsonConverter is used to convert JsonObject to TSFile Schema which is a java class defined in tsfile
  * project. the main function of this converter is to receive a json object of schema and register
  * all measurements.
  * </p>
@@ -35,15 +35,22 @@ import java.util.Map;
  *          "encoding": "RLE",
  *          "compressor": "SNAPPY"
  *         },
+ *         {
+ *             "measurement_id": "s3",
+ *             "data_type": "ENUMS",
+ *             "encoding": "BITMAP",
+ *             "compressor": "SNAPPY",
+ *             "enum_values":["MAN","WOMAN"],
+ *             "max_error":12,
+ *             "max_point_number":3
+ *         },
  *         ...
- *     ],
- *     "delta_type": "type"
+ *     ]
  * }
  *
  * </pre>
  *
  * @author kangrong
- * @see TSDataTypeConverter TSDataTypeConverter
  * @see TSEncodingBuilder TSEncodingBuilder
  */
 public class JsonConverter {
@@ -63,6 +70,23 @@ public class JsonConverter {
         Map<String, MeasurementDescriptor> result = new HashMap<>();
         if (!jsonSchema.has(JsonFormatConstant.JSON_SCHEMA))
             throw new InvalidJsonSchemaException("missing fields:" + JsonFormatConstant.JSON_SCHEMA);
+
+        /**
+         * get schema of all measurements in JSONArray from JSONObject
+         *
+         * "schema": [
+         *         {
+         *             "measurement_id": "s1",
+         *             "data_type": "INT32",
+         *             "encoding": "RLE"
+         *         },
+         *         {
+         *             "measurement_id": "s2",
+         *             "data_type": "INT64",
+         *             "encoding": "TS_2DIFF"
+         *         }...
+         *  ]
+         */
         JSONArray schemaArray = jsonSchema.getJSONArray(JsonFormatConstant.JSON_SCHEMA);
         for (int i = 0; i < schemaArray.length(); i++) {
             MeasurementDescriptor mDescriptor = convertJsonToMeasureMentDescriptor(
@@ -72,16 +96,28 @@ public class JsonConverter {
         return result;
     }
 
-    public static Map<String, String> convertJsonToSchemaProperties(JSONObject jsonSchema) {
-        Map<String, String> result = new HashMap<>();
-        if (jsonSchema.has(JsonFormatConstant.PROPERTIES)) {
-            JSONObject jsonProps = jsonSchema.getJSONObject(JsonFormatConstant.PROPERTIES);
-            for (Object key : jsonProps.keySet())
-                result.put(key.toString(), jsonProps.get(key.toString()).toString());
-        }
-        return result;
-    }
 
+    /**
+     * convert the input JSONObject to MeasurementDescriptor
+     * @param measurementObj properties of one measurement
+     *
+     *  an example:
+     *
+     *  {
+     *             "measurement_id": "s3",
+     *             "data_type": "ENUMS",
+     *             "encoding": "BITMAP",
+     *
+     *             // some measurement may have some properties
+     *
+     *             "compressor": "SNAPPY",
+     *             "enum_values":["MAN","WOMAN"],
+     *             "max_error":12,
+     *             "max_point_number":3
+     *  }
+     *
+     * @return converted MeasurementDescriptor
+     */
     public static MeasurementDescriptor convertJsonToMeasureMentDescriptor(
             JSONObject measurementObj) {
         if (!measurementObj.has(JsonFormatConstant.MEASUREMENT_UID)
@@ -93,10 +129,11 @@ public class JsonConverter {
                     measurementObj);
             return null;
         }
-        // register series info to fileSchema
+        // get measurementID
         String measurementId = measurementObj.getString(JsonFormatConstant.MEASUREMENT_UID);
+        // get data type information
         TSDataType type = TSDataType.valueOf(measurementObj.getString(JsonFormatConstant.DATA_TYPE));
-        // encoding information
+        // get encoding information
         TSEncoding encoding = TSEncoding
                 .valueOf(measurementObj.getString(JsonFormatConstant.MEASUREMENT_ENCODING));
         CompressionType compressionType = measurementObj.has(JsonFormatConstant.COMPRESS_TYPE) ?
@@ -124,31 +161,50 @@ public class JsonConverter {
      * @param fileSchema the given schema in type of {@linkplain FileSchema FileSchema}
      * @return converted File Schema in type of JSONObject
      */
-
     public static JSONObject converterFileSchemaToJson(
             FileSchema fileSchema) {
+        /** JSONObject form of FileSchema **/
         JSONObject ret = new JSONObject();
+        /** JSONObject form of all MeasurementDescriptors in fileSchema **/
         JSONArray jsonSchema = new JSONArray();
-        JSONObject jsonProperties = new JSONObject();
 
         for (MeasurementDescriptor measurementDescriptor : fileSchema.getDescriptor().values()) {
             jsonSchema.put(convertMeasurementDescriptorToJson(measurementDescriptor));
         }
-        //fileSchema.getProps().forEach(jsonProperties::put);
+
         ret.put(JsonFormatConstant.JSON_SCHEMA, jsonSchema);
-        //ret.put(JsonFormatConstant.PROPERTIES, jsonProperties);
         return ret;
     }
 
+    /**
+     * given a MeasurementDescriptor and convert it to a JSONObject
+     * @param measurementDescriptor the given descriptor in type of {@linkplain MeasurementDescriptor MeasurementDescriptor}
+     * @return converted MeasurementDescriptor in form of JSONObject
+     *
+     *  an example:
+     *
+     *  {
+     *             "measurement_id": "s3",
+     *             "data_type": "ENUMS",
+     *             "encoding": "BITMAP",
+     *
+     *             // some measurement may have some properties
+     *
+     *             "compressor": "SNAPPY",
+     *             "enum_values":["MAN","WOMAN"],
+     *             "max_error":12,
+     *             "max_point_number":3
+     *  }
+     */
     private static JSONObject convertMeasurementDescriptorToJson(
             MeasurementDescriptor measurementDescriptor) {
         JSONObject measurementObj = new JSONObject();
+        // put measurementID, data type, encoding info and properties into result JSONObject
         measurementObj.put(JsonFormatConstant.MEASUREMENT_UID, measurementDescriptor.getMeasurementId());
         measurementObj.put(JsonFormatConstant.DATA_TYPE, measurementDescriptor.getType().toString());
         measurementObj.put(JsonFormatConstant.MEASUREMENT_ENCODING, measurementDescriptor.getEncodingType().toString());
         measurementDescriptor.getProps().forEach(measurementObj::put);
         return measurementObj;
     }
-
 
 }

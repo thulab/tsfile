@@ -11,11 +11,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class TsDeltaObjectMetadata {//TODO 为什么这个类中没有deltaObjectID?
-    /**
-     * start position of RowGroupMetadataBlock in file
-     **/
-    //private long offset;
-
 
     /**
      * size of RowGroupMetadataBlock in byte

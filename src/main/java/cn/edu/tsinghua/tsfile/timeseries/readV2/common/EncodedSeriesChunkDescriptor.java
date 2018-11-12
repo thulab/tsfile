@@ -9,34 +9,28 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
  */
 public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor {
     public static final char UUID_SPLITER = '.';
-    private String filePath;
     private long offsetInFile;
     private long lengthOfBytes;
-//    private CompressionType compressionType;
     private TSDataType dataType;
     private TsDigest valueDigest;
     private long minTimestamp;
     private long maxTimestamp;
     private long countOfPoints;
-   // private TSEncoding dataEncoding;
-    //private List<String> enumValueList;
     private String measurementID;
     private long maxTombstoneTime;
 
-    public EncodedSeriesChunkDescriptor(String measurementID, long offsetInFile, long lengthOfBytes, //CompressionType compressionType,
+    public EncodedSeriesChunkDescriptor(String measurementID, long offsetInFile, long lengthOfBytes,
                                         TSDataType dataType,
-                                        TsDigest valueDigest, long minTimestamp, long maxTimestamp, long countOfPoints//, TSEncoding dataEncoding
+                                        TsDigest valueDigest, long minTimestamp, long maxTimestamp, long countOfPoints
     ) {
-        this.measurementID=measurementID;
+        this.measurementID = measurementID;
         this.offsetInFile = offsetInFile;
         this.lengthOfBytes = lengthOfBytes;
-//        this.compressionType = compressionType;
         this.dataType = dataType;
         this.valueDigest = valueDigest;
         this.minTimestamp = minTimestamp;
         this.maxTimestamp = maxTimestamp;
         this.countOfPoints = countOfPoints;
-//        this.dataEncoding = dataEncoding;
     }
 
     public boolean equals(Object object) {
@@ -51,13 +45,10 @@ public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor {
     }
 
     private String getUUID() {
-        return new StringBuilder().append(filePath).append(UUID_SPLITER).append(offsetInFile)
+        return new StringBuilder().append(UUID_SPLITER).append(offsetInFile)
                 .append(UUID_SPLITER).append(lengthOfBytes).toString();
     }
 
-    public String getFilePath() {
-        return filePath;
-    }
 
     public long getOffsetInFile() {
         return offsetInFile;
@@ -67,10 +58,6 @@ public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor {
         return lengthOfBytes;
     }
 
-//    public CompressionType getCompressionType() {
-//        return compressionType;
-//    }
-//
     public TSDataType getDataType() {
         return dataType;
     }
@@ -91,22 +78,9 @@ public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor {
         return countOfPoints;
     }
 
-//    public List<String> getEnumValueList() {
-//        return enumValueList;
-//    }
-
     public String getMeasurementID() {
         return measurementID;
     }
-
-//    public TSEncoding getDataEncoding() {
-//        return dataEncoding;
-//    }
-//
-//    public void setDataEncoding(TSEncoding dataEncoding) {
-//        this.dataEncoding = dataEncoding;
-//    }
-
 
     public long getMaxTombstoneTime() {
         return maxTombstoneTime;
@@ -119,17 +93,14 @@ public class EncodedSeriesChunkDescriptor implements SeriesChunkDescriptor {
     @Override
     public String toString() {
         return "EncodedSeriesChunkDescriptor{" +
-                "filePath='" + filePath + '\'' +
                 ", offsetInFile=" + offsetInFile +
                 ", lengthOfBytes=" + lengthOfBytes +
-//                ", compressionType=" + compressionType +
                 ", dataType=" + dataType +
                 ", valueDigest=" + valueDigest +
                 ", minTimestamp=" + minTimestamp +
                 ", maxTimestamp=" + maxTimestamp +
                 ", countOfPoints=" + countOfPoints +
-//                ", enumValueList=" + enumValueList +
-//                ", dataEncoding=" + dataEncoding +
                 '}';
     }
+
 }

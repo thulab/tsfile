@@ -9,7 +9,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.SeriesFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.util.QueryFilterOptimizer;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.util.QueryFilterPrinter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.factory.FilterFactory;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

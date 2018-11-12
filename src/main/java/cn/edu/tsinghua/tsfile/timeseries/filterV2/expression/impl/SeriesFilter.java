@@ -5,7 +5,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.QueryFilterType;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.UnaryQueryFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.visitor.TimeValuePairFilterVisitor;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.visitor.impl.TimeValuePairFilterVisitorImpl;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 
 /**

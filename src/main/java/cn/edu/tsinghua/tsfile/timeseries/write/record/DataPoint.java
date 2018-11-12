@@ -19,9 +19,16 @@ import java.math.BigDecimal;
  * @author kangrong
  */
 public abstract class DataPoint {
+    /** value type of this DataPoint **/
     protected final TSDataType type;
+    /** measurementId of this DataPoint **/
     protected final String measurementId;
 
+    /**
+     * constructor of DataPoint
+     * @param type value type of this DataPoint
+     * @param measurementId measurementId of this DataPoint
+     */
     public DataPoint(TSDataType type, String measurementId) {
         this.type = type;
         this.measurementId = measurementId;
@@ -63,7 +70,7 @@ public abstract class DataPoint {
     }
 
     /**
-     * write to seriesWriter and return the series name
+     * write this DataPoint by a SeriesWriter
      *
      * @param time timestamp
      * @param writer writer

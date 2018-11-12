@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 
 import cn.edu.tsinghua.tsfile.file.header.ChunkHeader;
+import cn.edu.tsinghua.tsfile.timeseries.write.page.IChunkWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +15,9 @@ import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.PageException;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.page.IPageWriter;
 
 /**
- * //TODO 这个类目前看 跟pageWriter很可能可以合并。。。
+ * //TODO 这个类目前看 跟ChunkWriter很可能可以合并。。。
  *
  * A implementation of {@code ISeriesWriter}. {@code SeriesWriterImpl} consists
  * of a {@code PageWriter}, a {@code ValueWriter}, and two {@code Statistics}.
@@ -27,10 +27,15 @@ import cn.edu.tsinghua.tsfile.timeseries.write.page.IPageWriter;
  */
 public class SeriesWriterImpl implements ISeriesWriter {
     private static final Logger LOG = LoggerFactory.getLogger(SeriesWriterImpl.class);
+
+    // initial value for this.valueCountForNextSizeCheck
     private static final int MINIMUM_RECORD_COUNT_FOR_CHECK = 1;
 
     private final TSDataType dataType;
-    private final IPageWriter pageWriter;
+    /**
+     * help to encode data of this series
+     */
+    private final IChunkWriter pageWriter;
     /**
      * page size threshold
      */
@@ -56,6 +61,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
      * {@code writeAllPagesOfSeriesToTsFile()}
      */
     private Statistics<?> seriesStatistics;
+    // time of the latest written time value pair
     private long time;
     private long minTimestamp = -1;
     private String deltaObjectId;//TODO 这个没用吧。。
@@ -65,18 +71,21 @@ public class SeriesWriterImpl implements ISeriesWriter {
 
     private int numOfPages;
 
-    public SeriesWriterImpl(String deltaObjectId, MeasurementDescriptor desc, IPageWriter pageWriter,
+    public SeriesWriterImpl(String deltaObjectId, MeasurementDescriptor desc, IChunkWriter pageWriter,
                             int pageSizeThreshold) {
         this.deltaObjectId = deltaObjectId;
         this.desc = desc;
         this.dataType = desc.getType();
         this.pageWriter = pageWriter;
         this.psThres = pageSizeThreshold;
-        // initial check of memory usage. So that we have enough data to make an
-        // initial prediction
+
+        // initial check of memory usage. So that we have enough data to make an initial prediction
         this.valueCountForNextSizeCheck = MINIMUM_RECORD_COUNT_FOR_CHECK;
-        this.seriesStatistics = Statistics.getStatsByType(desc.getType());
+
+        // init statistics for this series and page
+        this.seriesStatistics = Statistics.getStatsByType(dataType);
         resetPageStatistics();
+
         this.dataValueWriter = new ValueWriter();
         this.pageCountUpperBound = TSFileDescriptor.getInstance().getConfig().maxNumberOfPointsInPage;
 
@@ -84,6 +93,9 @@ public class SeriesWriterImpl implements ISeriesWriter {
         this.dataValueWriter.setValueEncoder(desc.getValueEncoder());
     }
 
+    /**
+     * reset statistics of page by dataType of this measurement
+     */
     private void resetPageStatistics() {
         this.pageStatistics = Statistics.getStatsByType(dataType);
     }
@@ -173,10 +185,10 @@ public class SeriesWriterImpl implements ISeriesWriter {
         if (valueCount == pageCountUpperBound) {
             LOG.debug("current line count reaches the upper bound, write page {}", desc);
             writePage();
-        } else if (valueCount >= valueCountForNextSizeCheck) {
+        } else if (valueCount >= valueCountForNextSizeCheck) {  // need to check memory size
             // not checking the memory used for every value
             long currentColumnSize = dataValueWriter.estimateMaxMemSize();
-            if (currentColumnSize > psThres) {
+            if (currentColumnSize > psThres) {  // memory size exceeds threshold
                 // we will write the current page
                 LOG.debug("enough size, write page {}", desc);
                 writePage();
@@ -190,15 +202,17 @@ public class SeriesWriterImpl implements ISeriesWriter {
     }
 
     /**
-     * pack data into {@code IPageWriter}
+     * flush data into {@code IChunkWriter}
      */
     private void writePage() {
         try {
-            pageWriter.writePageHeaderAndDataIntoBuff(dataValueWriter.getBytes(), valueCount, pageStatistics, time, minTimestamp);
+            pageWriter.writePageHeaderAndDataIntoBuff(dataValueWriter.getUncompressedBytes(), valueCount, pageStatistics, time, minTimestamp);
+
+            // update statistics of this series
             this.seriesStatistics.mergeStatistics(this.pageStatistics);
             numOfPages++;
         } catch (IOException e) {
-            LOG.error("meet error in dataValueWriter.getBytes(),ignore this page, {}", e.getMessage());
+            LOG.error("meet error in dataValueWriter.getUncompressedBytes(),ignore this page, {}", e.getMessage());
         } catch (PageException e) {
             LOG.error("meet error in pageWriter.writePageHeaderAndDataIntoBuff,ignore this page, error message:{}", e.getMessage());
         } finally {
@@ -212,7 +226,6 @@ public class SeriesWriterImpl implements ISeriesWriter {
 
     @Override
     public void writeToFileWriter(TsFileIOWriter tsfileWriter) throws IOException {
-
         pageWriter.writeAllPagesOfSeriesToTsFile(tsfileWriter, seriesStatistics, numOfPages);
         pageWriter.reset();
         // reset series_statistics
