@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.tsfile.timeseries;
+package cn.edu.tsinghua.tsfile;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,11 +14,10 @@ import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.FloatDataPoint;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.IntDataPoint;
 
-public class TsFileWriteTest {
+public class TsFileWrite2 {
 
     public static void main(String args[]) throws IOException, WriteProcessException {
-        //String path = "src/test/resources/test.tsfile";
-        String path = "test.tsfile";
+        String path = "src/test/resources/test.tsfile";
         String s = "{\n" +
                 "    \"schema\": [\n" +
                 "        {\n" +
