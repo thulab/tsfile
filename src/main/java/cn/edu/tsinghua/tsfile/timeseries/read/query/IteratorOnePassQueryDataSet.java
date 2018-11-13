@@ -12,7 +12,9 @@ import java.util.*;
 public abstract class IteratorOnePassQueryDataSet extends OnePassQueryDataSet {
     private static final Logger logger = LoggerFactory.getLogger(IteratorOnePassQueryDataSet.class);
 
+    /** map that store all results **/
     public LinkedHashMap<Path, DynamicOneColumnData> retMap;
+    /** map that indicates whether there are still more data in a path **/
     private LinkedHashMap<Path, Boolean> hasMoreRet;
 
     /**
