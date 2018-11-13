@@ -78,7 +78,7 @@ public class OnePassQueryDataSet implements QueryDataSet{
     }
 
     /**
-     *
+     * init all data fields for querying records
      */
     public void initForRecord() {
         size = mapRet.keySet().size();

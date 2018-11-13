@@ -10,26 +10,50 @@ import java.io.Serializable;
  * @author Jinrui Zhang
  */
 public abstract class TsPrimitiveType implements Serializable {
+    /**
+     * implemented in subclasses
+     * @return
+     */
     public boolean getBoolean() {
         throw new UnsupportedOperationException("getBoolean() is not supported for current sub-class");
     }
 
+    /**
+     * implemented in subclasses
+     * @return
+     */
     public int getInt() {
         throw new UnsupportedOperationException("getInt() is not supported for current sub-class");
     }
 
+    /**
+     * implemented in subclasses
+     * @return
+     */
     public long getLong() {
         throw new UnsupportedOperationException("getLong() is not supported for current sub-class");
     }
 
+    /**
+     * implemented in subclasses
+     * @return
+     */
     public float getFloat() {
         throw new UnsupportedOperationException("getFloat() is not supported for current sub-class");
     }
 
+    /**
+     * implemented in subclasses
+     * @return
+     */
     public double getDouble() {
         throw new UnsupportedOperationException("getDouble() is not supported for current sub-class");
     }
 
+    /**
+     * implemented in subclasses
+     * @return
+     */
     public Binary getBinary() {
         throw new UnsupportedOperationException("getBinary() is not supported for current sub-class");
     }
@@ -39,10 +63,19 @@ public abstract class TsPrimitiveType implements Serializable {
      */
     public abstract int getSize();
 
+
     public abstract Object getValue();
 
+    /**
+     * get value in String format
+     * @return
+     */
     public abstract String getStringValue();
 
+    /**
+     * get corresponding data type of subclasses
+     * @return
+     */
     public abstract TSDataType getDataType();
 
     public String toString() {
@@ -55,9 +88,13 @@ public abstract class TsPrimitiveType implements Serializable {
 
 
     public static class TsBoolean extends TsPrimitiveType {
-
+        /** value in boolean **/
         public boolean value;
 
+        /**
+         * init value
+         * @param value
+         */
         public TsBoolean(boolean value) {
             this.value = value;
         }
@@ -68,6 +105,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
         @Override
         public int getSize() {
+            // class size + boolean size
             return 4 + 1;
         }
 
@@ -88,8 +126,13 @@ public abstract class TsPrimitiveType implements Serializable {
     }
 
     public static class TsInt extends TsPrimitiveType {
+        /** value in int **/
         public int value;
 
+        /**
+         * init value
+         * @param value
+         */
         public TsInt(int value) {
             this.value = value;
         }
@@ -100,6 +143,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
         @Override
         public int getSize() {
+            // class size + int size
             return 4 + 4;
         }
 
@@ -120,8 +164,13 @@ public abstract class TsPrimitiveType implements Serializable {
     }
 
     public static class TsLong extends TsPrimitiveType {
+        /** value in long **/
         public long value;
 
+        /**
+         * init value
+         * @param value
+         */
         public TsLong(long value) {
             this.value = value;
         }
@@ -132,6 +181,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
         @Override
         public int getSize() {
+            // class size + long size
             return 4 + 8;
         }
 
@@ -152,8 +202,13 @@ public abstract class TsPrimitiveType implements Serializable {
     }
 
     public static class TsFloat extends TsPrimitiveType {
+        /** value in float **/
         public float value;
 
+        /**
+         * init value
+         * @param value
+         */
         public TsFloat(float value) {
             this.value = value;
         }
@@ -164,6 +219,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
         @Override
         public int getSize() {
+            // class size + float size
             return 4 + 4;
         }
 
@@ -184,8 +240,13 @@ public abstract class TsPrimitiveType implements Serializable {
     }
 
     public static class TsDouble extends TsPrimitiveType {
+        /** value in double **/
         public double value;
 
+        /**
+         * init value
+         * @param value
+         */
         public TsDouble(double value) {
             this.value = value;
         }
@@ -196,6 +257,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
         @Override
         public int getSize() {
+            // class size + boolean size
             return 4 + 8;
         }
 
@@ -216,8 +278,13 @@ public abstract class TsPrimitiveType implements Serializable {
     }
 
     public static class TsBinary extends TsPrimitiveType {
+        /** value in Binary **/
         public Binary value;
 
+        /**
+         * init value
+         * @param value
+         */
         public TsBinary(Binary value) {
             this.value = value;
         }
@@ -228,6 +295,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
         @Override
         public int getSize() {
+            // class size + Binary size
             return 4 + 4 + value.getLength();
         }
 
@@ -247,6 +315,12 @@ public abstract class TsPrimitiveType implements Serializable {
         }
     }
 
+    /**
+     * get corresponding subclass of input data type and set its value
+     * @param dataType
+     * @param v
+     * @return corresponding implementation of {@code TsPrimitiveType}
+     */
     public static TsPrimitiveType getByType(TSDataType dataType, Object v) {
         switch (dataType) {
             case BOOLEAN:
