@@ -2,6 +2,7 @@ package cn.edu.tsinghua.tsfile.timeseries.read;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
+import cn.edu.tsinghua.tsfile.common.utils.Binary;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.TimeFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.ValueFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.QueryFilter;
@@ -95,7 +96,7 @@ public class TimePlainEncodeReadTest {
 		List<Path> pathList = new ArrayList<>();
 		pathList.add(new Path("d2.s1"));
 		pathList.add(new Path("d2.s4"));
-		QueryFilter valFilter = new SeriesFilter<>(new Path("d2.s2"), ValueFilter.gt(9722));
+		QueryFilter valFilter = new SeriesFilter<>(new Path("d2.s2"), ValueFilter.gt(9722L));
 		QueryFilter tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618970L)),
 				new GlobalTimeFilter(TimeFilter.lt(1480562618977L)));
 		QueryFilter finalFilter = QueryFilterFactory.and(valFilter, tFilter);
@@ -112,7 +113,7 @@ public class TimePlainEncodeReadTest {
 	public void queryWithTwoSeriesTimeValueFilterCrossTest() throws IOException {
 		List<Path> pathList = new ArrayList<>();
 		pathList.add(new Path("d2.s2"));
-		QueryFilter valFilter = new SeriesFilter<>(new Path("d2.s2"), ValueFilter.notEq(9722));
+		QueryFilter valFilter = new SeriesFilter<>(new Path("d2.s2"), ValueFilter.notEq(9722L));
 		QueryFilter tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618970L)),
 				new GlobalTimeFilter(TimeFilter.lt(1480562618977L)));
 		QueryFilter finalFilter = QueryFilterFactory.and(valFilter, tFilter);
@@ -125,16 +126,16 @@ public class TimePlainEncodeReadTest {
 		while (dataSet.hasNext()) {
 			RowRecord r = dataSet.next();
 			if (cnt == 1) {
-				assertEquals(r.getTimestamp(), 1480562618973L);
+				assertEquals(r.getTimestamp(), 1480562618970L);
 			} else if (cnt == 2) {
-				assertEquals(r.getTimestamp(), 1480562618974L);
+				assertEquals(r.getTimestamp(), 1480562618971L);
 			} else if (cnt == 3) {
-				assertEquals(r.getTimestamp(), 1480562618975L);
+				assertEquals(r.getTimestamp(), 1480562618973L);
 			}
 			//System.out.println(r);
 			cnt++;
 		}
-		assertEquals(cnt, 5);
+		assertEquals(cnt, 7);
 	}
 
 	@Test
@@ -142,7 +143,7 @@ public class TimePlainEncodeReadTest {
 		List<Path> pathList = new ArrayList<>();
 		pathList.add(new Path("d1.s1"));
 		pathList.add(new Path("d2.s2"));
-		QueryFilter valFilter = new SeriesFilter<>(new Path("d2.s2"), ValueFilter.gt(9722));
+		QueryFilter valFilter = new SeriesFilter<>(new Path("d2.s2"), ValueFilter.gt(9722L));
 		QueryFilter tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618970L)),
 				new GlobalTimeFilter(TimeFilter.lt(1480562618977L)));
 		QueryFilter finalFilter = QueryFilterFactory.and(valFilter, tFilter);
@@ -161,13 +162,13 @@ public class TimePlainEncodeReadTest {
 		while (dataSet.hasNext()) {
 			RowRecord r = dataSet.next();
 			if (cnt == 1) {
-				assertEquals(r.getTimestamp(), 1480562618950L);
+				assertEquals(r.getTimestamp(), 1480562618973L);
 			} else if (cnt == 2) {
-				assertEquals(r.getTimestamp(), 1480562618954L);
+				assertEquals(r.getTimestamp(), 1480562618974L);
 			} else if (cnt == 3) {
-				assertEquals(r.getTimestamp(), 1480562618955L);
+				assertEquals(r.getTimestamp(), 1480562618975L);
 			} else if (cnt == 4) {
-				assertEquals(r.getTimestamp(), 1480562618956L);
+				assertEquals(r.getTimestamp(), 1480562618976L);
 			}
 			//System.out.println(r);
 			cnt++;
@@ -178,7 +179,7 @@ public class TimePlainEncodeReadTest {
 		pathList.add(new Path("d1.s1"));
 		pathList.add(new Path("d2.s2"));
 		valFilter = new SeriesFilter<>(new Path("d1.s1"), ValueFilter.ltEq(9321));
-		valFilter = QueryFilterFactory.and(new SeriesFilter<>(new Path("d2.s2"), ValueFilter.ltEq(9312)),
+		valFilter = QueryFilterFactory.and(new SeriesFilter<>(new Path("d2.s2"), ValueFilter.ltEq(9312L)),
 				valFilter);
 		tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618906L)),
 				new GlobalTimeFilter(TimeFilter.ltEq(1480562618915L)));
@@ -214,7 +215,7 @@ public class TimePlainEncodeReadTest {
 			}
 			cnt++;
 		}
-		assertEquals(cnt, 11);
+		assertEquals(cnt, 9);
 	}
 
 	@Test
@@ -231,14 +232,15 @@ public class TimePlainEncodeReadTest {
 		int cnt = 1;
 		while (dataSet.hasNext()) {
 			RowRecord r = dataSet.next();
+			System.out.println(r);
 			if (cnt == 1) {
 				assertEquals(r.getTimestamp(), 1480562618972L);
-				TsPrimitiveType f1 = r.getFields().get("d1.s5");
+				TsPrimitiveType f1 = r.getFields().get(new Path("d1.s5"));
 				assertEquals(f1.getBoolean(), false);
 			}
 			if (cnt == 2) {
 				assertEquals(r.getTimestamp(), 1480562618981L);
-				TsPrimitiveType f2 = r.getFields().get("d1.s5");
+				TsPrimitiveType f2 = r.getFields().get(new Path("d1.s5"));
 				assertEquals(f2.getBoolean(), false);
 			}
 			cnt++;
@@ -249,7 +251,7 @@ public class TimePlainEncodeReadTest {
 	public void queryStringTest() throws IOException {
 		List<Path> pathList = new ArrayList<>();
 		pathList.add(new Path("d1.s4"));
-		QueryFilter valFilter = new SeriesFilter<>(new Path("d1.s4"), ValueFilter.gt("dog97"));
+		QueryFilter valFilter = new SeriesFilter<>(new Path("d1.s4"), ValueFilter.gt(new Binary("dog97")));
 		QueryFilter tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618970L)),
 				new GlobalTimeFilter(TimeFilter.ltEq(1480562618981L)));
 		QueryFilter finalFilter = QueryFilterFactory.and(valFilter, tFilter);
@@ -261,7 +263,7 @@ public class TimePlainEncodeReadTest {
 			RowRecord r = dataSet.next();
 			if (cnt == 0) {
 				assertEquals(r.getTimestamp(), 1480562618976L);
-				TsPrimitiveType f1 = r.getFields().get(0);
+				TsPrimitiveType f1 = r.getFields().get(new Path("d1.s4"));
 				assertEquals(f1.getStringValue(), "dog976");
 			}
 			// System.out.println(r);
@@ -271,7 +273,7 @@ public class TimePlainEncodeReadTest {
 
 		pathList = new ArrayList<>();
 		pathList.add(new Path("d1.s4"));
-		valFilter = new SeriesFilter<>(new Path("d1.s4"), ValueFilter.lt("dog97"));
+		valFilter = new SeriesFilter<>(new Path("d1.s4"), ValueFilter.lt(new Binary("dog97")));
 		tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618970L)),
 				new GlobalTimeFilter(TimeFilter.ltEq(1480562618981L)));
 		finalFilter = QueryFilterFactory.and(valFilter, tFilter);
@@ -282,7 +284,7 @@ public class TimePlainEncodeReadTest {
 			RowRecord r = dataSet.next();
 			if (cnt == 1) {
 				assertEquals(r.getTimestamp(), 1480562618976L);
-				TsPrimitiveType f1 = r.getFields().get(0);
+				TsPrimitiveType f1 = r.getFields().get(new Path("d1.s4"));
 				assertEquals(f1.getBinary(), "dog976");
 			}
 			// System.out.println(r);
@@ -296,7 +298,7 @@ public class TimePlainEncodeReadTest {
 	public void queryFloatTest() throws IOException {
 		List<Path> pathList = new ArrayList<>();
 		pathList.add(new Path("d1.s6"));
-		QueryFilter valFilter = new SeriesFilter<>(new Path("d1.s6"), ValueFilter.gt(103.0));
+		QueryFilter valFilter = new SeriesFilter<>(new Path("d1.s6"), ValueFilter.gt(103.0f));
 		QueryFilter tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618970L)),
 				new GlobalTimeFilter(TimeFilter.ltEq(1480562618981L)));
 		QueryFilter finalFilter = QueryFilterFactory.and(valFilter, tFilter);
@@ -308,12 +310,12 @@ public class TimePlainEncodeReadTest {
 			RowRecord r = dataSet.next();
 			if (cnt == 1) {
 				assertEquals(r.getTimestamp(), 1480562618980L);
-				TsPrimitiveType f1 = r.getFields().get(0);
+				TsPrimitiveType f1 = r.getFields().get(new Path("d1.s6"));
 				assertEquals(f1.getFloat(), 108.0, 0.0);
 			}
 			if (cnt == 2) {
 				assertEquals(r.getTimestamp(), 1480562618990L);
-				TsPrimitiveType f2 = r.getFields().get(0);
+				TsPrimitiveType f2 = r.getFields().get(new Path("d1.s6"));
 				assertEquals(f2.getFloat(), 110.0, 0.0);
 			}
 			cnt++;

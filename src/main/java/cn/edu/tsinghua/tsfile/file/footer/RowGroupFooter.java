@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.tsfile.file.header;
+package cn.edu.tsinghua.tsfile.file.footer;
 
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 
@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class RowGroupHeader {
+public class RowGroupFooter {
     String deltaObjectID;
     long dataSize;
     int numberOfChunks;
@@ -24,7 +24,7 @@ public class RowGroupHeader {
 
 
 
-    public RowGroupHeader(String deltaObjectID, long dataSize, int numberOfChunks) {
+    public RowGroupFooter(String deltaObjectID, long dataSize, int numberOfChunks) {
         this.deltaObjectID = deltaObjectID;
         this.dataSize = dataSize;
         this.numberOfChunks = numberOfChunks;
@@ -52,11 +52,11 @@ public class RowGroupHeader {
         return length;
     }
 
-    public static RowGroupHeader deserializeFrom(InputStream inputStream) throws IOException {
+    public static RowGroupFooter deserializeFrom(InputStream inputStream) throws IOException {
         String deltaObjectID=ReadWriteIOUtils.readString(inputStream);
         long dataSize=ReadWriteIOUtils.readLong(inputStream);
         int numOfChunks=ReadWriteIOUtils.readInt(inputStream);
-        return new RowGroupHeader(deltaObjectID, dataSize, numOfChunks);
+        return new RowGroupFooter(deltaObjectID, dataSize, numOfChunks);
     }
 
     public static int getSerializedSize(String deltaObjectID) {
@@ -65,7 +65,7 @@ public class RowGroupHeader {
 
     @Override
     public String toString() {
-        return "RowGroupHeader{" +
+        return "RowGroupFooter{" +
                 "deltaObjectID='" + deltaObjectID + '\'' +
                 ", dataSize=" + dataSize +
                 ", numberOfChunks=" + numberOfChunks +

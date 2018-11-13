@@ -3,6 +3,7 @@ package cn.edu.tsinghua.tsfile.timeseries.write;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileWriter;
+import cn.edu.tsinghua.tsfile.file.footer.RowGroupFooter;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.NoMeasurementException;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
@@ -187,13 +188,12 @@ public class TsFileWriter {
      * add a new measurement according to json string.
      *
      * @param measurement example:
-     *               {
+     *                    {
      *                    "measurement_id": "sensor_cpu_50",
      *                    "data_type": "INT32",
      *                    "encoding": "RLE"
      *                    "compressor": "SNAPPY"
-     *               }
-     *
+     *                    }
      * @throws WriteProcessException if the json is illegal or the measurement exists
      */
     public void addMeasurementByJson(JSONObject measurement) throws WriteProcessException {
@@ -308,13 +308,14 @@ public class TsFileWriter {
                 long memSize = deltaFileWriter.getPos();
                 IRowGroupWriter groupWriter = groupWriters.get(deltaObjectId);
                 long RowGroupSize = groupWriter.getCurrentRowGroupSize();
-                deltaFileWriter.startFlushRowGroup(deltaObjectId, RowGroupSize, groupWriter.getSeriesNumber());
+                RowGroupFooter rowGroupFooter = deltaFileWriter.startFlushRowGroup(deltaObjectId, RowGroupSize, groupWriter.getSeriesNumber());
                 groupWriter.flushToFileWriter(deltaFileWriter);
 
-                assert deltaFileWriter.getPos() - memSize == RowGroupSize;
+                if (deltaFileWriter.getPos() - memSize != RowGroupSize)
+                    throw new IOException(String.format("Flushed data size is inconsistent with computation! Estimated: %d, Actuall: %d",
+                            RowGroupSize, deltaFileWriter.getPos() - memSize));
 
-                deltaFileWriter.endRowGroup(deltaFileWriter.getPos() - memSize);
-
+                deltaFileWriter.endRowGroup(deltaFileWriter.getPos() - memSize, rowGroupFooter);
             }
             long actualTotalRowGroupSize = deltaFileWriter.getPos() - totalMemStart;
             LOG.info("total row group size:{}", actualTotalRowGroupSize);

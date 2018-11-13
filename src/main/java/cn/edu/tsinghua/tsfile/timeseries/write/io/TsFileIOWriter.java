@@ -3,8 +3,8 @@ package cn.edu.tsinghua.tsfile.timeseries.write.io;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.constant.StatisticConstant;
 import cn.edu.tsinghua.tsfile.common.utils.*;
+import cn.edu.tsinghua.tsfile.file.footer.RowGroupFooter;
 import cn.edu.tsinghua.tsfile.file.header.ChunkHeader;
-import cn.edu.tsinghua.tsfile.file.header.RowGroupHeader;
 import cn.edu.tsinghua.tsfile.file.metadata.*;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
@@ -107,15 +107,14 @@ public class TsFileIOWriter {
      *
      * @param deltaObjectId delta object id
      * @param dataSize      the serialized size of all chunks
-     * @return the serialized size of RowGroupHeader
+     * @return the serialized size of RowGroupFooter
      */
-    public int startFlushRowGroup(String deltaObjectId, long dataSize, int numberOfChunks) throws IOException {
+    public RowGroupFooter startFlushRowGroup(String deltaObjectId, long dataSize, int numberOfChunks) throws IOException {
         LOG.debug("start row group:{}, file position {}", deltaObjectId, out.getPos());
         currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, 0, out.getPos(), new ArrayList<>());
-        RowGroupHeader header = new RowGroupHeader(deltaObjectId, dataSize, numberOfChunks);
-        header.serializeTo(out.getOutputStream());
+        RowGroupFooter header = new RowGroupFooter(deltaObjectId, dataSize, numberOfChunks);
         LOG.debug("finishing writing row group header {}, file position {}", header, out.getPos());
-        return header.getSerializedSize();
+        return header;
     }
 
     /**
@@ -165,8 +164,9 @@ public class TsFileIOWriter {
         currentChunkMetaData = null;
     }
 
-    public void endRowGroup(long memSize) {
-        currentRowGroupMetaData.setTotalByteSize(memSize);
+    public void endRowGroup(long memSize, RowGroupFooter rowGroupFooter) throws IOException {
+        rowGroupFooter.serializeTo(out.getOutputStream());
+        currentRowGroupMetaData.setTotalByteSize(memSize + rowGroupFooter.getSerializedSize());
         rowGroupMetaDatas.add(currentRowGroupMetaData);
         LOG.debug("end row group:{}", currentRowGroupMetaData);
         currentRowGroupMetaData = null;

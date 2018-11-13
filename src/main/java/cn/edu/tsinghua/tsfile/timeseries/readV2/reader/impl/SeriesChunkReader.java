@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
+import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.compress.UnCompressor;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
 import cn.edu.tsinghua.tsfile.file.header.ChunkHeader;
@@ -31,7 +32,8 @@ public abstract class SeriesChunkReader implements SeriesReader {
     ChunkHeader chunkHeader;
     Decoder valueDecoder;
     //TODO: How to get defaultTimeDecoder by TSConfig rather than hard code here ?
-    Decoder timeDecoder = Decoder.getDecoderByType(TSEncoding.TS_2DIFF, TSDataType.INT64);
+    Decoder timeDecoder = Decoder.getDecoderByType(TSEncoding.valueOf(TSFileDescriptor.getInstance().getConfig().timeSeriesEncoder)
+            , TSDataType.INT64);
 
     public SeriesChunkReader(InputStream seriesChunkInputStream) {
         this.seriesChunkInputStream = seriesChunkInputStream;

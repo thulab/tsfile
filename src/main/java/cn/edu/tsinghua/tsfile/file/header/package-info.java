@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.file.header;
 
 /**
- RowGroupHeader and ChunkHeader are used for parsing file.
+ RowGroupFooter and ChunkHeader are used for parsing file.
 
  RowGroupMetadata and ChunkMetadata are used for locating the positions of rowgroup (header) and chunk (header),
  filtering data quickly, and thereby they have digest information.

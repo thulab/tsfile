@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.edu.tsinghua.tsfile.file.header.RowGroupHeader;
 import cn.edu.tsinghua.tsfile.timeseries.write.page.IChunkWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +73,7 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
 
     @Override
     public long getCurrentRowGroupSize() {
-        long size = RowGroupHeader.getSerializedSize(deltaObjectId);
+        long size = 0;
         for (ISeriesWriter writer : dataSeriesWriters.values()) {
             size += writer.getCurrentChunkSize();
         }
