@@ -51,8 +51,8 @@ public class DigestFilterVisitor implements AbstractFilterVisitor<Boolean> {
     @Override
     public <T extends Comparable<T>> Boolean visit(NotEq<T> notEq) {
         prepareMaxAndMinValue(notEq);
-        return notEq.getValue().compareTo((T) minValue.get()) == 0
-                && notEq.getValue().compareTo((T) maxValue.get()) == 0;
+        return !(notEq.getValue().compareTo((T) minValue.get()) == 0
+                && notEq.getValue().compareTo((T) maxValue.get()) == 0);
     }
 
     @Override

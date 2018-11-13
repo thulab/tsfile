@@ -23,6 +23,14 @@ public class QueryExpression {
         return new QueryExpression();
     }
 
+    public static QueryExpression create(List<Path> selectedSeries, QueryFilter filter) {
+        QueryExpression ret = new QueryExpression();
+        ret.selectedSeries = selectedSeries;
+        ret.queryFilter = filter;
+        ret.hasQueryFilter = filter != null;
+        return ret;
+    }
+
     public QueryExpression addSelectedPath(Path path) {
         this.selectedSeries.add(path);
         return this;
