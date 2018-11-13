@@ -200,17 +200,17 @@ public abstract class Statistics<T> {
         }
         else if(sizeOfDatum()!=-1) {
             length = sizeOfDatum() * 4 + 8;
-            outputStream.write(getMaxBytes());
             outputStream.write(getMinBytes());
+            outputStream.write(getMaxBytes());
             outputStream.write(getFirstBytes());
             outputStream.write(getLastBytes());
             outputStream.write(getSumBytes());
         }else{
-            byte[] tmp=getMaxBytes();
+            byte[] tmp=getMinBytes();
             length+=tmp.length;
             length+=ReadWriteIOUtils.write(tmp.length,outputStream);
             outputStream.write(tmp);
-            tmp=getMinBytes();
+            tmp=getMaxBytes();
             length+=tmp.length;
             length+=ReadWriteIOUtils.write(tmp.length,outputStream);
             outputStream.write(tmp);

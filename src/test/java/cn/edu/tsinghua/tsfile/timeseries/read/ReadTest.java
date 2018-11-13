@@ -130,7 +130,7 @@ public class ReadTest {
             } else if (cnt == 3) {
                 assertEquals(r.getTimestamp(), 1480562618973L);
             }
-            System.out.println(r);
+            // System.out.println(r);
             cnt++;
         }
         assertEquals(cnt, 7);
@@ -191,10 +191,10 @@ public class ReadTest {
         cnt = 1;
         while (dataSet.hasNext()) {
             RowRecord r = dataSet.next();
-            System.out.println(r);
+            // System.out.println(r);
             cnt++;
         }
-        assertEquals(cnt, 17);
+        assertEquals(cnt, 4);
     }
 
     @Test
@@ -241,7 +241,7 @@ public class ReadTest {
             RowRecord r = dataSet.next();
             if (cnt == 0) {
                 assertEquals(r.getTimestamp(), 1480562618976L);
-                TsPrimitiveType f1 = r.getFields().get(0);
+                TsPrimitiveType f1 = r.getFields().get(new Path("d1.s4"));
                 assertEquals(f1.getStringValue(), "dog976");
             }
             // System.out.println(r);
@@ -288,12 +288,12 @@ public class ReadTest {
             RowRecord r = dataSet.next();
             if (cnt == 1) {
                 assertEquals(r.getTimestamp(), 1480562618980L);
-                TsPrimitiveType f1 = r.getFields().get(0);
+                TsPrimitiveType f1 = r.getFields().get(new Path("d1.s6"));
                 assertEquals(f1.getFloat(), 108.0, 0.0);
             }
             if (cnt == 2) {
                 assertEquals(r.getTimestamp(), 1480562618990L);
-                TsPrimitiveType f2 = r.getFields().get(0);
+                TsPrimitiveType f2 = r.getFields().get(new Path("d1.s6"));
                 assertEquals(f2.getFloat(), 110.0, 0.0);
             }
             cnt++;
