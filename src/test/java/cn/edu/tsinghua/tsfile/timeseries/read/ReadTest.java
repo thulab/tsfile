@@ -123,17 +123,17 @@ public class ReadTest {
         int cnt = 1;
         while (dataSet.hasNext()) {
             RowRecord r = dataSet.next();
-//            if (cnt == 1) {
-//                assertEquals(r.getTimestamp(), 1480562618973L);
-//            } else if (cnt == 2) {
-//                assertEquals(r.getTimestamp(), 1480562618974L);
-//            } else if (cnt == 3) {
-//                assertEquals(r.getTimestamp(), 1480562618975L);
-//            }
+            if (cnt == 1) {
+                assertEquals(r.getTimestamp(), 1480562618970L);
+            } else if (cnt == 2) {
+                assertEquals(r.getTimestamp(), 1480562618971L);
+            } else if (cnt == 3) {
+                assertEquals(r.getTimestamp(), 1480562618973L);
+            }
             System.out.println(r);
             cnt++;
         }
-        assertEquals(cnt, 5);
+        assertEquals(cnt, 7);
     }
 
     @Test
