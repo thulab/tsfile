@@ -240,7 +240,7 @@ public class TsFileSequenceReader {
         System.out.println(reader.readTailMagic());
         TsFileMetaData metaData = reader.readFileMetadata();
         // Sequential reading of one RowGroup now follows this order:
-        // first SeiresChunks (headers and data) in one RowGroup, then the RowGroupFooter
+        // first SeriesChunks (headers and data) in one RowGroup, then the RowGroupFooter
         // Because we do not know how many chunks a RowGroup may have, we should read one byte (the marker) ahead and
         // judge accordingly.
         while (reader.hasNextRowGroup()) {
@@ -268,10 +268,10 @@ public class TsFileSequenceReader {
                     }
                     break;
                 case MetaMarker.RowGroupFooter:
-                     RowGroupFooter rowGroupFooter = reader.readRowGroupFooter();
-                     System.out.println("position: " + reader.channel.position());
-                     System.out.println("row group: " + rowGroupFooter.getDeltaObjectID());
-                     break;
+                    RowGroupFooter rowGroupFooter = reader.readRowGroupFooter();
+                    System.out.println("position: " + reader.channel.position());
+                    System.out.println("row group: " + rowGroupFooter.getDeltaObjectID());
+                    break;
                 default:
                     MetaMarker.handleUnexpectedMarker(marker);
             }
