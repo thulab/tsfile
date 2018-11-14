@@ -45,7 +45,7 @@ public class JsonConverterTest {
         Collection<MeasurementDescriptor> measurements = fileSchema.getDescriptor().values();
         String[] measureDesStrings =
                 {
-                        "[,s3,ENUMS,BITMAP,,SNAPPY,[MAN, WOMAN],]",
+                        //"[,s3,ENUMS,BITMAP,,SNAPPY,[MAN, WOMAN],]",
                         "[,s4,DOUBLE,RLE,max_point_number:2,UNCOMPRESSED,]",
                         "[,s5,INT32,TS_2DIFF,max_point_number:2,UNCOMPRESSED,]",
                         "[,s1,INT32,RLE,max_point_number:2,UNCOMPRESSED,]",
@@ -55,21 +55,6 @@ public class JsonConverterTest {
         int i = 0;
         for (MeasurementDescriptor desc : measurements) {
             assertEquals(measureDesStrings[i++], desc.toString());
-        }
-
-        List<TimeSeriesMetadata> tsMetadataList = fileSchema.getTimeSeriesMetadatas();
-        String[] tsMetadatas =
-                {
-                        "TimeSeriesMetadata: measurementUID s1, type length 0, DataType INT32, FreqType null,frequencies null",
-                        "TimeSeriesMetadata: measurementUID s2, type length 0, DataType INT64, FreqType null,frequencies null",
-                        "TimeSeriesMetadata: measurementUID s3, type length 0, DataType ENUMS, FreqType null,frequencies null",
-                        "TimeSeriesMetadata: measurementUID s4, type length 0, DataType DOUBLE, FreqType null,frequencies null",
-                        "TimeSeriesMetadata: measurementUID s5, type length 0, DataType INT32, FreqType null,frequencies null",
-                };
-        Collections.sort(tsMetadataList, (x,y)->x.getMeasurementUID().compareTo(y.getMeasurementUID()));
-        Arrays.sort(tsMetadatas, (x,y)->x.compareTo(y));
-        for (int j = 0; j < tsMetadataList.size(); j++) {
-            assertEquals(tsMetadatas[j], tsMetadataList.get(j).toString());
         }
 
     }
@@ -103,13 +88,6 @@ public class JsonConverterTest {
             String measureUID = srcMeasureObj.getString(JsonFormatConstant.MEASUREMENT_UID);
             assertTrue(descSchemaMap.containsKey(measureUID));
             checkJsonObjectEqual(srcMeasureObj, descSchemaMap.get(measureUID));
-        }
-        //check properties
-        if(srcObj.has(JsonFormatConstant.PROPERTIES)){
-            assertTrue(descObj.has(JsonFormatConstant.PROPERTIES));
-            JSONObject srcProps = srcObj.getJSONObject(JsonFormatConstant.PROPERTIES);
-            JSONObject descProps = descObj.getJSONObject(JsonFormatConstant.PROPERTIES);
-            checkJsonObjectEqual(srcProps, descProps);
         }
     }
 

@@ -72,10 +72,6 @@ public class RecordUtils {
                             ret.addTuple(new DoubleDataPoint(measurementId, Double
                                     .valueOf(value)));
                             break;
-                        case ENUMS:
-                            ret.addTuple(new EnumDataPoint(measurementId, (schema
-                                    .getMeasurementDescriptor(measurementId)).parseEnumValue(value)));
-                            break;
                         case BOOLEAN:
                             ret.addTuple(new BooleanDataPoint(measurementId, Boolean
                                     .valueOf(value)));

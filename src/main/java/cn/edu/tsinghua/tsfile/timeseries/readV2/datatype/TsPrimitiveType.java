@@ -7,6 +7,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import java.io.Serializable;
 
 /**
+ * TODO 应该和DataPoint合并
  * @author Jinrui Zhang
  */
 public abstract class TsPrimitiveType implements Serializable {

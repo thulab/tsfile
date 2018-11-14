@@ -3,6 +3,7 @@ package cn.edu.tsinghua.tsfile.timeseries.write.series;
 import java.io.IOException;
 import java.math.BigDecimal;
 
+import cn.edu.tsinghua.tsfile.file.header.ChunkHeader;
 import cn.edu.tsinghua.tsfile.timeseries.write.page.IChunkWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,8 @@ import cn.edu.tsinghua.tsfile.timeseries.write.exception.PageException;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
 
 /**
+ * //TODO 这个类目前看 跟ChunkWriter很可能可以合并。。。
+ *
  * A implementation of {@code ISeriesWriter}. {@code SeriesWriterImpl} consists
  * of a {@code PageWriter}, a {@code ValueWriter}, and two {@code Statistics}.
  *
@@ -45,23 +48,28 @@ public class SeriesWriterImpl implements ISeriesWriter {
 
     /**
      * value count on of a page. It will be reset after calling
-     * {@code addPage()}
+     * {@code writePageHeaderAndDataIntoBuff()}
      */
     private int valueCount;
     private int valueCountForNextSizeCheck;
     /**
-     * statistic on a page. It will be reset after calling {@code addPage()}
+     * statistic on a page. It will be reset after calling {@code writePageHeaderAndDataIntoBuff()}
      */
     private Statistics<?> pageStatistics;
     /**
-     * statistic on a stage. It will be reset after calling {@code writeToFileWriter()}
+     * statistic on a stage. It will be reset after calling
+     * {@code writeAllPagesOfSeriesToTsFile()}
      */
     private Statistics<?> seriesStatistics;
     // time of the latest written time value pair
     private long time;
     private long minTimestamp = -1;
-    private String deltaObjectId;
+    private String deltaObjectId;//TODO 这个没用吧。。
+
     private MeasurementDescriptor desc;
+
+
+    private int numOfPages;
 
     public SeriesWriterImpl(String deltaObjectId, MeasurementDescriptor desc, IChunkWriter pageWriter,
                             int pageSizeThreshold) {
@@ -100,7 +108,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         pageStatistics.updateStats(value);
         if (minTimestamp == -1)
             minTimestamp = time;
-        checkPageSize();
+        checkPageSizeAndMayOpenANewPage();
     }
 
     @Override
@@ -111,7 +119,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         pageStatistics.updateStats(value);
         if (minTimestamp == -1)
             minTimestamp = time;
-        checkPageSize();
+        checkPageSizeAndMayOpenANewPage();
     }
 
     @Override
@@ -122,7 +130,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         pageStatistics.updateStats(value);
         if (minTimestamp == -1)
             minTimestamp = time;
-        checkPageSize();
+        checkPageSizeAndMayOpenANewPage();
     }
 
     @Override
@@ -133,7 +141,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         pageStatistics.updateStats(value);
         if (minTimestamp == -1)
             minTimestamp = time;
-        checkPageSize();
+        checkPageSizeAndMayOpenANewPage();
     }
 
     @Override
@@ -144,7 +152,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         pageStatistics.updateStats(value);
         if (minTimestamp == -1)
             minTimestamp = time;
-        checkPageSize();
+        checkPageSizeAndMayOpenANewPage();
     }
 
     @Override
@@ -155,7 +163,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
         pageStatistics.updateStats(value);
         if (minTimestamp == -1)
             minTimestamp = time;
-        checkPageSize();
+        checkPageSizeAndMayOpenANewPage();
     }
 
     @Override
@@ -166,15 +174,15 @@ public class SeriesWriterImpl implements ISeriesWriter {
         pageStatistics.updateStats(value);
         if (minTimestamp == -1)
             minTimestamp = time;
-        checkPageSize();
+        checkPageSizeAndMayOpenANewPage();
     }
 
     /**
      * check occupied memory size, if it exceeds the PageSize threshold, flush
      * them to given OutputStream.
      */
-    private void checkPageSize() {
-        if (valueCount == pageCountUpperBound) {    // data points num exceeds threshold
+    private void checkPageSizeAndMayOpenANewPage() {
+        if (valueCount == pageCountUpperBound) {
             LOG.debug("current line count reaches the upper bound, write page {}", desc);
             writePage();
         } else if (valueCount >= valueCountForNextSizeCheck) {  // need to check memory size
@@ -198,13 +206,15 @@ public class SeriesWriterImpl implements ISeriesWriter {
      */
     private void writePage() {
         try {
-            pageWriter.addPage(dataValueWriter.getUncompressedBytes(), valueCount, pageStatistics, time, minTimestamp);
+            pageWriter.writePageHeaderAndDataIntoBuff(dataValueWriter.getUncompressedBytes(), valueCount, pageStatistics, time, minTimestamp);
+
             // update statistics of this series
             this.seriesStatistics.mergeStatistics(this.pageStatistics);
+            numOfPages++;
         } catch (IOException e) {
             LOG.error("meet error in dataValueWriter.getUncompressedBytes(),ignore this page, {}", e.getMessage());
         } catch (PageException e) {
-            LOG.error("meet error in pageWriter.addPage,ignore this page, error message:{}", e.getMessage());
+            LOG.error("meet error in pageWriter.writePageHeaderAndDataIntoBuff,ignore this page, error message:{}", e.getMessage());
         } finally {
             // clear start time stamp for next initializing
             minTimestamp = -1;
@@ -216,10 +226,7 @@ public class SeriesWriterImpl implements ISeriesWriter {
 
     @Override
     public void writeToFileWriter(TsFileIOWriter tsfileWriter) throws IOException {
-        if (valueCount > 0) {   // flush data in memory
-            writePage();
-        }
-        pageWriter.writeToFileWriter(tsfileWriter, seriesStatistics);
+        pageWriter.writeAllPagesOfSeriesToTsFile(tsfileWriter, seriesStatistics, numOfPages);
         pageWriter.reset();
         // reset series_statistics
         this.seriesStatistics = Statistics.getStatsByType(dataType);
@@ -228,5 +235,23 @@ public class SeriesWriterImpl implements ISeriesWriter {
     @Override
     public long estimateMaxSeriesMemSize() {
         return dataValueWriter.estimateMaxMemSize() + pageWriter.estimateMaxPageMemSize();
+    }
+
+
+    //return the serialized size of the chunk header + all pages
+    @Override
+    public long getCurrentChunkSize(){
+        return ChunkHeader.getSerializedSize(desc.getMeasurementId()) + pageWriter.getCurrentDataSize();
+    }
+
+    @Override
+    public void preFlush() {
+        if (valueCount > 0) {
+            writePage();
+        }
+    }
+    @Override
+    public int getNumOfPages() {
+        return numOfPages;
     }
 }

@@ -38,6 +38,8 @@ public interface IRowGroupWriter {
     void flushToFileWriter(TsFileIOWriter tsfileWriter) throws IOException;
 
     /**
+     * get the max memory occupied at this time.
+     *
      * Note that, this method should be called after running
      * {@code long calcAllocatedSize()}
      *
@@ -52,4 +54,16 @@ public interface IRowGroupWriter {
      * @param pageSize the specified page size
      */
     void addSeriesWriter(MeasurementDescriptor measurementDescriptor, int pageSize);
+
+    /**
+     * @return get the serialized size of current rowGroup header + all chunks
+     */
+    long getCurrentRowGroupSize();
+
+    /**
+     * call all the series to prepare to flush data.
+     */
+    void preFlush();
+
+    int getSeriesNumber();
 }

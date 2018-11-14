@@ -17,7 +17,7 @@ public class TsFileWrite2 {
 
     public static void main(String args[]) {
         try {
-            TsFileWriter tsFileWriter = new TsFileWriter(new File("test.ts"));
+            TsFileWriter tsFileWriter = new TsFileWriter(new File("test.tsfile"));
 
             // add measurements
             tsFileWriter.addMeasurement(new MeasurementDescriptor("sensor_1", TSDataType.FLOAT, TSEncoding.RLE));

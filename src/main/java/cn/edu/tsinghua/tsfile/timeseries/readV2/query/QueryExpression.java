@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.query;
 
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.QueryFilter;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +21,14 @@ public class QueryExpression {
 
     public static QueryExpression create() {
         return new QueryExpression();
+    }
+
+    public static QueryExpression create(List<Path> selectedSeries, QueryFilter filter) {
+        QueryExpression ret = new QueryExpression();
+        ret.selectedSeries = selectedSeries;
+        ret.queryFilter = filter;
+        ret.hasQueryFilter = filter != null;
+        return ret;
     }
 
     public QueryExpression addSelectedPath(Path path) {

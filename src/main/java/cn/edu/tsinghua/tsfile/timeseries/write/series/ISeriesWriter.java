@@ -57,4 +57,17 @@ public interface ISeriesWriter {
      * estimate memory used size of this series
      */
     long estimateMaxSeriesMemSize();
+
+    /**
+     * return the serialized size of the chunk header + all pages
+     */
+    long getCurrentChunkSize();
+
+    /**
+     * prepare to flush data into file.
+     *
+     */
+    void preFlush();
+
+    int getNumOfPages();
 }

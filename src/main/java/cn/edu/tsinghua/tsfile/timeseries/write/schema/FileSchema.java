@@ -33,63 +33,56 @@ public class FileSchema {
   /** all metadatas of TimeSeries **/
   private List<TimeSeriesMetadata> tsMetadata = new ArrayList<>();
 
-  private Map<String, String> additionalProperties;
-
   /**
    * init measurementNameDescriptorMap and additionalProperties as empty map
    */
   public FileSchema() {
     this.measurementNameDescriptorMap = new HashMap<>();
-    this.additionalProperties = new HashMap<>();
   }
 
   /**
-   * init additionalProperties and register measurements from input JSONObject
-   * @param jsonSchema input JSONObject
-   * @throws InvalidJsonSchemaException
+   *   example:
+   *   {
+   *   "measurement_id": "sensor_cpu_50",
+   *   "data_type": "INT32",
+   *   "encoding": "RLE"
+   *   }
+   *
+   *   {"schema":
+   *    [
+   *     {
+   *      "measurement_id": "sensor_1",
+   *      "data_type": "FLOAT",
+   *      "encoding": "RLE"
+   *     },
+   *     {
+   *       "measurement_id": "sensor_2",
+   *       "data_type": "INT32",
+   *       "encoding": "TS_2DIFF"
+   *     },
+   *     {
+   *       "measurement_id": "sensor_3",
+   *       "data_type": "INT32",
+   *       "encoding": "TS_2DIFF"
+   *     }
+   *    ]
+   *   };
+   *
+   * @param jsonSchema file schema in json format
    */
+  @Deprecated
   public FileSchema(JSONObject jsonSchema) throws InvalidJsonSchemaException {
-    this(JsonConverter.converterJsonToMeasurementDescriptors(jsonSchema),
-        JsonConverter.convertJsonToSchemaProperties(jsonSchema));
+    this(JsonConverter.converterJsonToMeasurementDescriptors(jsonSchema));
   }
 
   /**
    * init additionalProperties and register measurements
    */
-  public FileSchema(Map<String, MeasurementDescriptor> measurements,
-      Map<String, String> additionalProperties) {
+  public FileSchema(Map<String, MeasurementDescriptor> measurements) {
     this();
-    this.additionalProperties = additionalProperties;
     this.registerMeasurements(measurements);
   }
 
-  /**
-   * Add a property to {@code props}. <br>
-   * If the key exists, this method will update the value of the key.
-   */
-  public void addProp(String key, String value) {
-    additionalProperties.put(key, value);
-  }
-
-  public boolean hasProp(String key) {
-    return additionalProperties.containsKey(key);
-  }
-
-  public Map<String, String> getProps() {
-    return additionalProperties;
-  }
-
-  public void setProps(Map<String, String> props) {
-    this.additionalProperties.clear();
-    this.additionalProperties.putAll(props);
-  }
-
-  public String getProp(String key) {
-    if (additionalProperties.containsKey(key))
-      return additionalProperties.get(key);
-    else
-      return null;
-  }
 
   public TSDataType getMeasurementDataTypes(String measurementUID) {
     MeasurementDescriptor measurementDescriptor = measurementNameDescriptorMap.get(measurementUID);
@@ -148,4 +141,5 @@ public class FileSchema {
   public boolean hasMeasurement(String measurementId) {
     return measurementNameDescriptorMap.containsKey(measurementId);
   }
+
 }

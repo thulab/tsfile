@@ -3,7 +3,7 @@ package cn.edu.tsinghua.tsfile.encoding.decoder;
 import cn.edu.tsinghua.tsfile.common.exception.TSFileDecodingException;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
 import cn.edu.tsinghua.tsfile.common.utils.Pair;
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import org.slf4j.Logger;
@@ -90,8 +90,8 @@ public class BitmapDecoder extends Decoder {
     }
 
     private void getLengthAndNumber(InputStream in) throws IOException {
-        this.length = ReadWriteStreamUtils.readUnsignedVarInt(in);
-        this.number = ReadWriteStreamUtils.readUnsignedVarInt(in);
+        this.length = ReadWriteForEncodingUtils.readUnsignedVarInt(in);
+        this.number = ReadWriteForEncodingUtils.readUnsignedVarInt(in);
         byte[] tmp = new byte[length];
         in.read(tmp, 0, length);
         this.byteCache = new ByteArrayInputStream(tmp);
@@ -103,7 +103,7 @@ public class BitmapDecoder extends Decoder {
     private void readNext() throws IOException {
         int len = (this.number + 7) / 8;
         while (byteCache.available() > 0) {
-            int value = ReadWriteStreamUtils.readUnsignedVarInt(byteCache);
+            int value = ReadWriteForEncodingUtils.readUnsignedVarInt(byteCache);
             byte[] tmp = new byte[len];
             byteCache.read(tmp, 0, len);
             buffer.put(value, tmp);
@@ -143,7 +143,7 @@ public class BitmapDecoder extends Decoder {
                 int byteArrayLength = (this.number + 7) / 8;
                 byte[] tmp = new byte[byteArrayLength];
                 while (byteCache.available() > 0) {
-                    int value = ReadWriteStreamUtils.readUnsignedVarInt(byteCache);
+                    int value = ReadWriteForEncodingUtils.readUnsignedVarInt(byteCache);
                     if (value == target) {
                         byteCache.read(tmp, 0, byteArrayLength);
                         break;

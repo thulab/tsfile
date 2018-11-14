@@ -10,7 +10,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.GlobalTimeFilt
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.QueryFilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.SeriesFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.factory.FilterFactory;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 
 import java.util.List;
 

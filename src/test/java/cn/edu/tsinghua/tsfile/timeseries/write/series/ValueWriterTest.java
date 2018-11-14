@@ -1,19 +1,19 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.series;
 
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
-import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
 import cn.edu.tsinghua.tsfile.encoding.decoder.PlainDecoder;
 import cn.edu.tsinghua.tsfile.encoding.encoder.PlainEncoder;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.timeseries.constant.TimeseriesTestConstant;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -47,11 +47,11 @@ public class ValueWriterTest {
             writer.write(timeCount++, d1);
             writer.write(timeCount++, new Binary(str1));
             assertEquals(101, writer.estimateMaxMemSize());
-            ListByteArrayOutputStream input = writer.getUncompressedBytes();
-            ByteArrayInputStream in = new ByteArrayInputStream(input.toByteArray());
+            ByteBuffer input = writer.getUncompressedBytes();
+            ByteArrayInputStream in = new ByteArrayInputStream(ByteBufferUtil.getArray(input));
             writer.reset();
             assertEquals(0, writer.estimateMaxMemSize());
-            int timeSize = ReadWriteStreamUtils.readUnsignedVarInt(in);
+            int timeSize = ReadWriteForEncodingUtils.readUnsignedVarInt(in);
             byte[] timeBytes = new byte[timeSize];
             int ret = in.read(timeBytes);
             if(ret != timeBytes.length)

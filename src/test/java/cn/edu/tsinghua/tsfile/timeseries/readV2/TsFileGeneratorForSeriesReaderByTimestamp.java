@@ -34,7 +34,7 @@ public class TsFileGeneratorForSeriesReaderByTimestamp {
     private static final Logger LOG = LoggerFactory.getLogger(TsFileGeneratorForSeriesReaderByTimestamp.class);
     public static TsFileWriter innerWriter;
     public static String inputDataFile;
-    public static String outputDataFile = "src/test/resources/testTsFile.ts";
+    public static String outputDataFile = "src/test/resources/testTsFile.tsfile";
     public static String errorOutputDataFile;
     public static JSONObject jsonSchema;
 
@@ -53,7 +53,7 @@ public class TsFileGeneratorForSeriesReaderByTimestamp {
 
     public static void prepare() throws IOException {
         inputDataFile = "src/test/resources/perTestInputData";
-        errorOutputDataFile = "src/test/resources/perTestErrorOutputData.ksn";
+        errorOutputDataFile = "src/test/resources/perTestErrorOutputData.tsfile";
         jsonSchema = generateTestData();
         generateSampleInputDataFile();
     }
@@ -149,16 +149,22 @@ public class TsFileGeneratorForSeriesReaderByTimestamp {
         s1.put(JsonFormatConstant.DATA_TYPE, TSDataType.INT32.toString());
         s1.put(JsonFormatConstant.MEASUREMENT_ENCODING,
                 conf.valueEncoder);
+        s1.put(JsonFormatConstant.COMPRESS_TYPE,
+                conf.compressor);
         JSONObject s2 = new JSONObject();
         s2.put(JsonFormatConstant.MEASUREMENT_UID, "s2");
         s2.put(JsonFormatConstant.DATA_TYPE, TSDataType.INT64.toString());
         s2.put(JsonFormatConstant.MEASUREMENT_ENCODING,
                 conf.valueEncoder);
+        s2.put(JsonFormatConstant.COMPRESS_TYPE,
+                "SNAPPY");
         JSONObject s3 = new JSONObject();
         s3.put(JsonFormatConstant.MEASUREMENT_UID, "s3");
         s3.put(JsonFormatConstant.DATA_TYPE, TSDataType.INT64.toString());
         s3.put(JsonFormatConstant.MEASUREMENT_ENCODING,
                 conf.valueEncoder);
+        s2.put(JsonFormatConstant.COMPRESS_TYPE,
+                "UNCOMPRESSED");
         JSONObject s4 = new JSONObject();
         s4.put(JsonFormatConstant.MEASUREMENT_UID, "s4");
         s4.put(JsonFormatConstant.DATA_TYPE, TSDataType.TEXT.toString());

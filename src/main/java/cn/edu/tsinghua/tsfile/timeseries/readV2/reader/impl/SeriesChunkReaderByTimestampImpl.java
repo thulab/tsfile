@@ -1,8 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.format.PageHeader;
+import cn.edu.tsinghua.tsfile.file.header.PageHeader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.SeriesReaderByTimeStamp;
@@ -17,16 +15,14 @@ public class SeriesChunkReaderByTimestampImpl extends SeriesChunkReader implemen
 
     private long currentTimestamp;
 
-    public SeriesChunkReaderByTimestampImpl(InputStream seriesChunkInputStream, TSDataType dataType, CompressionTypeName compressionTypeName) {
-        super(seriesChunkInputStream, dataType, compressionTypeName);
-        currentTimestamp = Long.MIN_VALUE;
+    public SeriesChunkReaderByTimestampImpl(InputStream seriesChunkInputStream) {
+        super(seriesChunkInputStream);
     }
 
     @Override
     public boolean pageSatisfied(PageHeader pageHeader) {
-        long maxTimestamp = pageHeader.data_page_header.max_timestamp;
-
-        //If maxTimestamp >= currentTimestamp, this page should NOT be skipped
+        long maxTimestamp = pageHeader.getMax_timestamp();
+        //If minTimestamp > currentTimestamp, this page should NOT be skipped
         return maxTimestamp >= currentTimestamp && maxTimestamp >= getMaxTombstoneTime();
     }
 
@@ -34,7 +30,7 @@ public class SeriesChunkReaderByTimestampImpl extends SeriesChunkReader implemen
     public boolean timeValuePairSatisfied(TimeValuePair timeValuePair) {
         return timeValuePair.getTimestamp() >= currentTimestamp && timeValuePair.getTimestamp() > getMaxTombstoneTime();
     }
-    
+
     public void setCurrentTimestamp(long currentTimestamp) {
         this.currentTimestamp = currentTimestamp;
         if(hasCachedTimeValuePair && cachedTimeValuePair.getTimestamp() < currentTimestamp){

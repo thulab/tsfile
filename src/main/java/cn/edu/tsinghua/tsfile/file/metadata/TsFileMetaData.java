@@ -1,39 +1,35 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.format.DeltaObject;
-import cn.edu.tsinghua.tsfile.format.FileMetaData;
-import cn.edu.tsinghua.tsfile.format.TimeSeries;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * TSFileMetaData collects all metadata info and saves in its data structure
  */
-public class TsFileMetaData implements IConverter<FileMetaData> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TsFileMetaData.class);
+public class TsFileMetaData {
 
-    private Map<String, TsDeltaObject> deltaObjectMap;
+    private Map<String, TsDeltaObjectMetadata> deltaObjectMap;
 
     /**
      * TSFile schema for this file. This schema contains metadata for all the time series. The schema
      * is represented as a list.
      */
-    private List<TimeSeriesMetadata> timeSeriesList;
+    private List<TimeSeriesMetadata> timeSeriesList;//FIXME this filed can be replaced by timeSeriesMetadataMap
+    private Map<String, TimeSeriesMetadata> timeSeriesMetadataMap;
 
     /**
      * Version of this file
      */
     private int currentVersion;
-
-    /**
-     * Optional json metadata
-     */
-    private List<String> jsonMetaData;
 
     /**
      * String for application that wrote this file. This should be in the format <Application> version
@@ -42,143 +38,68 @@ public class TsFileMetaData implements IConverter<FileMetaData> {
     private String createdBy;
 
     /**
-     * User specified props
+     * relevant offset to the start of file metadata
      */
-    private Map<String, String> props;
+    private long firstTimeSeriesMetadataOffset;
+
+    /**
+     * relevant offset to the start of file metadata
+     */
+    private long lastTimeSeriesMetadataOffset;
+
+    /**
+     * relevant offset to the start of file metadata
+     */
+    private long firstTsDeltaObjectMetadataOffset;
+
+    /**
+     * relevant offset to the start of file metadata
+     */
+    private long lastTsDeltaObjectMetadataOffset;
 
     public TsFileMetaData() {
     }
 
     /**
-     * @param timeSeriesList       - time series info list
-     * @param currentVersion       - current version
+     * @param timeSeriesList - time series info list
+     * @param currentVersion - current version
      */
-    public TsFileMetaData(Map<String, TsDeltaObject> deltaObjectMap, List<TimeSeriesMetadata> timeSeriesList, int currentVersion) {
-        this.props = new HashMap<>();
+    public TsFileMetaData(Map<String, TsDeltaObjectMetadata> deltaObjectMap, List<TimeSeriesMetadata> timeSeriesList, int currentVersion) {
         this.deltaObjectMap = deltaObjectMap;
         this.timeSeriesList = timeSeriesList;
+        this.timeSeriesMetadataMap = new HashMap<>(timeSeriesList.size());
+        for (TimeSeriesMetadata metadata : timeSeriesList) {
+            timeSeriesMetadataMap.put(metadata.getMeasurementUID(), metadata);
+        }
         this.currentVersion = currentVersion;
     }
 
     /**
      * add time series metadata to list. THREAD NOT SAFE
+     *
      * @param timeSeries series metadata to add
      */
     public void addTimeSeriesMetaData(TimeSeriesMetadata timeSeries) {
         if (timeSeriesList == null) {
             timeSeriesList = new ArrayList<>();
+            timeSeriesMetadataMap = new HashMap<>();
         }
         timeSeriesList.add(timeSeries);
+        timeSeriesMetadataMap.put(timeSeries.getMeasurementUID(), timeSeries);
     }
-
-//    /**
-//     * get all delta object uid and their types
-//     *
-//     * @return set of {@code Pair<delta-object-uid, delta-object-type>}
-//     */
-//    public Set<Pair<String, String>> getAllDeltaObjects() {
-//        // Pair<delta-object-uid, delta-object-type>
-//        Set<Pair<String, String>> deltaObjectSet = new HashSet<Pair<String, String>>();
-//        if (rowGroupMetadataList != null) {
-//            for (RowGroupMetaData rowGroup : rowGroupMetadataList) {
-//                deltaObjectSet.add(
-//                        new Pair<String, String>(rowGroup.getDeltaObjectUID(), rowGroup.getDeltaObjectType()));
-//            }
-//        }
-//        return deltaObjectSet;
-//    }
 
     @Override
     public String toString() {
-        return String.format("TSFMetaData { DeltaOjectMap: %s, timeSeries list %s, current version %d }", deltaObjectMap,
-                timeSeriesList, currentVersion);
-    }
-
-    /**
-     * create file metadata in thrift format. For more information about file metadata
-     * in cn.edu.thu.tsfile.format package, see FileMetaData in tsfile-format
-     *
-     * @return file metadata in thrift format
-     */
-    @Override
-    public FileMetaData convertToThrift() {
-        try {
-            List<TimeSeries> timeSeriesListInThrift = null;
-            if (timeSeriesList != null) {
-                timeSeriesListInThrift = new ArrayList<TimeSeries>();
-                for (TimeSeriesMetadata timeSeries : timeSeriesList) {
-                    timeSeriesListInThrift.add(timeSeries.convertToThrift());
-                }
-            }
-
-            Map<String, DeltaObject> deltaObjectMapInThrift = null;
-            if( deltaObjectMap != null){
-            		deltaObjectMapInThrift = new HashMap<>();
-            		for(Map.Entry<String, TsDeltaObject> entry : deltaObjectMap.entrySet()){
-            			TsDeltaObject object = entry.getValue();
-            			deltaObjectMapInThrift.put(entry.getKey(), new DeltaObject(object.offset, 
-            					object.metadataBlockSize, object.startTime, object.endTime));
-            		}
-            }
-
-            FileMetaData metaDataInThrift = new FileMetaData(currentVersion, deltaObjectMapInThrift, timeSeriesListInThrift);
-            metaDataInThrift.setCreated_by(createdBy);
-            metaDataInThrift.setJson_metadata(jsonMetaData);
-            metaDataInThrift.setProperties(props);
-            return metaDataInThrift;
-        } catch (Exception e) {
-            LOGGER.error("TsFileMetaData: failed to convert file metadata from TSFile to thrift, content is {}", this, e);
-            throw e;
-        }
-    }
-
-    /**
-     * receive file metadata in thrift format and convert it to tsfile format
-     * @param metadataInThrift - file metadata in thrift format
-     */
-    @Override
-    public void convertToTSF(FileMetaData metadataInThrift) {
-        try {
-            if (metadataInThrift.getTimeseries_list() == null) {
-                timeSeriesList = null;
-            } else {
-                timeSeriesList = new ArrayList<TimeSeriesMetadata>();
-
-                for (TimeSeries timeSeriesInThrift : metadataInThrift.getTimeseries_list()) {
-                    TimeSeriesMetadata timeSeriesInTSFile = new TimeSeriesMetadata();
-                    timeSeriesInTSFile.convertToTSF(timeSeriesInThrift);
-                    timeSeriesList.add(timeSeriesInTSFile);
-                }
-            }
-
-            if(metadataInThrift.getDelta_object_map() == null){
-            		deltaObjectMap = null;
-            } else {
-            		deltaObjectMap = new HashMap<>();
-            		for (Map.Entry<String, DeltaObject> entry : metadataInThrift.getDelta_object_map().entrySet()){
-            			DeltaObject object = entry.getValue();
-            			deltaObjectMap.put(entry.getKey(), new TsDeltaObject(object.getOffset(),
-            					object.getMetadata_block_size(), object.getStart_time(),  object.getEnd_time()));
-            		}
-            }
-            
-            currentVersion = metadataInThrift.getVersion();
-            createdBy = metadataInThrift.getCreated_by();
-            jsonMetaData = metadataInThrift.getJson_metadata();
-            props = metadataInThrift.getProperties();
-        } catch (Exception e) {
-            LOGGER.error("TsFileMetaData: failed to convert file metadata from thrift to TSFile, content is {}",metadataInThrift, e);
-            throw e;
-        }
-
+        return "TsFileMetaData{" +
+                "deltaObjectMap=" + deltaObjectMap +
+                ", timeSeriesMetadataMap=" + timeSeriesMetadataMap +
+                ", currentVersion=" + currentVersion +
+                ", createdBy='" + createdBy + '\'' +
+                '}';
     }
 
     public List<TimeSeriesMetadata> getTimeSeriesList() {
         return timeSeriesList;
-    }
-
-    public void setTimeSeriesList(List<TimeSeriesMetadata> timeSeriesList) {
-        this.timeSeriesList = timeSeriesList;
     }
 
     public int getCurrentVersion() {
@@ -189,14 +110,6 @@ public class TsFileMetaData implements IConverter<FileMetaData> {
         this.currentVersion = currentVersion;
     }
 
-    public List<String> getJsonMetaData() {
-        return jsonMetaData;
-    }
-
-    public void setJsonMetaData(List<String> jsonMetaData) {
-        this.jsonMetaData = jsonMetaData;
-    }
-
     public String getCreatedBy() {
         return createdBy;
     }
@@ -205,59 +118,209 @@ public class TsFileMetaData implements IConverter<FileMetaData> {
         this.createdBy = createdBy;
     }
 
-    public void addProp(String key, String value) {
-        props.put(key, value);
+    public Map<String, TsDeltaObjectMetadata> getDeltaObjectMap() {
+        return deltaObjectMap;
     }
 
-    public Map<String, String> getProps() {
-        return props;
+    public void setDeltaObjectMap(Map<String, TsDeltaObjectMetadata> deltaObjectMap) {
+        this.deltaObjectMap = deltaObjectMap;
     }
 
-    public void setProps(Map<String, String> properties) {
-        this.props.clear();
-        this.props.putAll(properties);
+    public boolean containsDeltaObject(String DeltaObjUID) {
+        return this.deltaObjectMap.containsKey(DeltaObjUID);
     }
 
-    public String getProp(String key) {
-        if (props.containsKey(key))
-            return props.get(key);
+    public TsDeltaObjectMetadata getDeltaObject(String DeltaObjUID) {
+        return this.deltaObjectMap.get(DeltaObjUID);
+    }
+
+    public boolean containsMeasurement(String measurement) {
+        return timeSeriesMetadataMap.containsKey(measurement);
+    }
+
+
+    public TSDataType getType(String measurement) {
+        if (containsMeasurement(measurement))
+            return timeSeriesMetadataMap.get(measurement).getType();
         else
             return null;
     }
 
-	public Map<String, TsDeltaObject> getDeltaObjectMap() {
-		return deltaObjectMap;
-	}
-
-	public void setDeltaObjectMap(Map<String, TsDeltaObject> deltaObjectMap) {
-		this.deltaObjectMap = deltaObjectMap;
-	}
-
-	public boolean containsDeltaObject(String DeltaObjUID) {
-        return this.deltaObjectMap.containsKey(DeltaObjUID);
+    public long getFirstTimeSeriesMetadataOffset() {
+        return firstTimeSeriesMetadataOffset;
     }
 
-    public TsDeltaObject getDeltaObject(String DeltaObjUID) {
-        return this.deltaObjectMap.get(DeltaObjUID);
+    public void setFirstTimeSeriesMetadataOffset(long firstTimeSeriesMetadataOffset) {
+        this.firstTimeSeriesMetadataOffset = firstTimeSeriesMetadataOffset;
     }
 
-    //For Tsfile-Spark-Connector
-    public boolean containsMeasurement(String measurement) {
-        for(TimeSeriesMetadata ts: timeSeriesList ){
-            if(ts.getMeasurementUID().equals(measurement)) {
-                return true;
+    public long getLastTimeSeriesMetadataOffset() {
+        return lastTimeSeriesMetadataOffset;
+    }
+
+    public void setLastTimeSeriesMetadataOffset(long lastTimeSeriesMetadataOffset) {
+        this.lastTimeSeriesMetadataOffset = lastTimeSeriesMetadataOffset;
+    }
+
+    public long getFirstTsDeltaObjectMetadataOffset() {
+        return firstTsDeltaObjectMetadataOffset;
+    }
+
+    public void setFirstTsDeltaObjectMetadataOffset(long firstTsDeltaObjectMetadataOffset) {
+        this.firstTsDeltaObjectMetadataOffset = firstTsDeltaObjectMetadataOffset;
+    }
+
+    public long getLastTsDeltaObjectMetadataOffset() {
+        return lastTsDeltaObjectMetadataOffset;
+    }
+
+    public void setLastTsDeltaObjectMetadataOffset(long lastTsDeltaObjectMetadataOffset) {
+        this.lastTsDeltaObjectMetadataOffset = lastTsDeltaObjectMetadataOffset;
+    }
+
+    public int serializeTo(OutputStream outputStream) throws IOException {
+        int byteLen = 0;
+
+        if (deltaObjectMap == null) {
+            byteLen += ReadWriteIOUtils.write(0, outputStream);
+        } else {
+            byteLen += ReadWriteIOUtils.write(deltaObjectMap.size(), outputStream);
+            for (Map.Entry<String, TsDeltaObjectMetadata> entry : deltaObjectMap.entrySet()) {//TODO 应该排序
+                byteLen += ReadWriteIOUtils.write(entry.getKey(), outputStream);
+                byteLen += ReadWriteIOUtils.write(entry.getValue(), outputStream);
             }
         }
-        return false;
+
+        if (timeSeriesList == null) {
+            byteLen += ReadWriteIOUtils.write(0, outputStream);
+        } else {
+            byteLen += ReadWriteIOUtils.write(timeSeriesList.size(), outputStream);
+            for (TimeSeriesMetadata timeSeriesMetadata : timeSeriesList)
+                byteLen += ReadWriteIOUtils.write(timeSeriesMetadata, outputStream);
+        }
+
+        byteLen += ReadWriteIOUtils.write(currentVersion, outputStream);
+
+        byteLen += ReadWriteIOUtils.writeIsNull(createdBy, outputStream);
+        if (createdBy != null) byteLen += ReadWriteIOUtils.write(createdBy, outputStream);
+
+        //TODO: 赋值四个offset
+
+        byteLen += ReadWriteIOUtils.write(firstTimeSeriesMetadataOffset, outputStream);
+        byteLen += ReadWriteIOUtils.write(lastTimeSeriesMetadataOffset, outputStream);
+        byteLen += ReadWriteIOUtils.write(firstTsDeltaObjectMetadataOffset, outputStream);
+        byteLen += ReadWriteIOUtils.write(lastTsDeltaObjectMetadataOffset, outputStream);
+
+        return byteLen;
     }
 
-    //For Tsfile-Spark-Connector
-    public TSDataType getType(String measurement) throws IOException{
-        for(TimeSeriesMetadata ts: timeSeriesList ){
-            if(ts.getMeasurementUID().equals(measurement)) {
-                return ts.getType();
+    public int serializeTo(ByteBuffer buffer) throws IOException {
+        int byteLen = 0;
+
+        if (deltaObjectMap == null) {
+            byteLen += ReadWriteIOUtils.write(0, buffer);
+        } else {
+            byteLen += ReadWriteIOUtils.write(deltaObjectMap.size(), buffer);
+            for (Map.Entry<String, TsDeltaObjectMetadata> entry : deltaObjectMap.entrySet()) {
+                byteLen += ReadWriteIOUtils.write(entry.getKey(), buffer);
+                byteLen += ReadWriteIOUtils.write(entry.getValue(), buffer);
             }
         }
-        throw new IOException("Measurement " + measurement + " does not exist in the current file.");
+
+        if (timeSeriesList == null) {
+            byteLen += ReadWriteIOUtils.write(0, buffer);
+        } else {
+            byteLen += ReadWriteIOUtils.write(timeSeriesList.size(), buffer);
+            for (TimeSeriesMetadata timeSeriesMetadata : timeSeriesList)
+                byteLen += ReadWriteIOUtils.write(timeSeriesMetadata, buffer);
+        }
+
+        byteLen += ReadWriteIOUtils.write(currentVersion, buffer);
+
+        byteLen += ReadWriteIOUtils.writeIsNull(createdBy, buffer);
+        if (createdBy != null) byteLen += ReadWriteIOUtils.write(createdBy, buffer);
+
+        byteLen += ReadWriteIOUtils.write(firstTimeSeriesMetadataOffset, buffer);
+        byteLen += ReadWriteIOUtils.write(lastTimeSeriesMetadataOffset, buffer);
+        byteLen += ReadWriteIOUtils.write(firstTsDeltaObjectMetadataOffset, buffer);
+        byteLen += ReadWriteIOUtils.write(lastTsDeltaObjectMetadataOffset, buffer);
+
+        return byteLen;
     }
+
+    public static TsFileMetaData deserializeFrom(InputStream inputStream) throws IOException {
+        TsFileMetaData fileMetaData = new TsFileMetaData();
+
+        int size = ReadWriteIOUtils.readInt(inputStream);
+        if (size > 0) {
+            Map<String, TsDeltaObjectMetadata> deltaObjectMap = new HashMap<>();
+            String key;
+            TsDeltaObjectMetadata value;
+            for (int i = 0; i < size; i++) {
+                key = ReadWriteIOUtils.readString(inputStream);
+                value = TsDeltaObjectMetadata.deserializeFrom(inputStream);
+                deltaObjectMap.put(key, value);
+            }
+            fileMetaData.deltaObjectMap = deltaObjectMap;
+        }
+
+        size = ReadWriteIOUtils.readInt(inputStream);
+        if (size > 0) {
+            List<TimeSeriesMetadata> timeSeriesList = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                fileMetaData.addTimeSeriesMetaData(ReadWriteIOUtils.readTimeSeriesMetadata(inputStream));
+            }
+        }
+
+        fileMetaData.currentVersion = ReadWriteIOUtils.readInt(inputStream);
+
+        if (ReadWriteIOUtils.readIsNull(inputStream))
+            fileMetaData.createdBy = ReadWriteIOUtils.readString(inputStream);
+
+        fileMetaData.firstTimeSeriesMetadataOffset = ReadWriteIOUtils.readLong(inputStream);
+        fileMetaData.lastTimeSeriesMetadataOffset = ReadWriteIOUtils.readLong(inputStream);
+        fileMetaData.firstTsDeltaObjectMetadataOffset = ReadWriteIOUtils.readLong(inputStream);
+        fileMetaData.lastTsDeltaObjectMetadataOffset = ReadWriteIOUtils.readLong(inputStream);
+
+        return fileMetaData;
+    }
+
+    public static TsFileMetaData deserializeFrom(ByteBuffer buffer) throws IOException {
+        TsFileMetaData fileMetaData = new TsFileMetaData();
+
+        int size = ReadWriteIOUtils.readInt(buffer);
+        if (size > 0) {
+            Map<String, TsDeltaObjectMetadata> deltaObjectMap = new HashMap<>();
+            String key;
+            TsDeltaObjectMetadata value;
+            for (int i = 0; i < size; i++) {
+                key = ReadWriteIOUtils.readString(buffer);
+                value = TsDeltaObjectMetadata.deserializeFrom(buffer);
+                deltaObjectMap.put(key, value);
+            }
+            fileMetaData.deltaObjectMap = deltaObjectMap;
+        }
+
+        size = ReadWriteIOUtils.readInt(buffer);
+        if (size > 0) {
+            List<TimeSeriesMetadata> timeSeriesList = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                fileMetaData.addTimeSeriesMetaData(ReadWriteIOUtils.readTimeSeriesMetadata(buffer));
+            }
+        }
+
+        fileMetaData.currentVersion = ReadWriteIOUtils.readInt(buffer);
+
+        if (ReadWriteIOUtils.readIsNull(buffer))
+            fileMetaData.createdBy = ReadWriteIOUtils.readString(buffer);
+
+        fileMetaData.firstTimeSeriesMetadataOffset = ReadWriteIOUtils.readLong(buffer);
+        fileMetaData.lastTimeSeriesMetadataOffset = ReadWriteIOUtils.readLong(buffer);
+        fileMetaData.firstTsDeltaObjectMetadataOffset = ReadWriteIOUtils.readLong(buffer);
+        fileMetaData.lastTsDeltaObjectMetadataOffset = ReadWriteIOUtils.readLong(buffer);
+
+        return fileMetaData;
+    }
+
+
 }

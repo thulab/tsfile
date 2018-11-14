@@ -26,12 +26,6 @@
             "measurement_id": "s4",
             "data_type": "BOOLEAN",
             "encoding": "PLAIN"
-        },
-        {
-            "measurement_id": "s5",
-            "data_type": "ENUMS",
-            "encoding": "BITMAP",
-            "enum_values":["MAN","WOMAN"]
         }
     ],
     "properties": {
@@ -40,3 +34,10 @@
     },
     "delta_type": "test_type"
 }
+/*,
+        {
+            "measurement_id": "s5",
+            "data_type": "ENUMS",
+            "encoding": "BITMAP",
+            "enum_values":["MAN","WOMAN"]
+        }*/

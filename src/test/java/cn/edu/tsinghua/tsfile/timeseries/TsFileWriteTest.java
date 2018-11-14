@@ -4,9 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import cn.edu.tsinghua.tsfile.timeseries.write.TsFileWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import org.json.JSONObject;
 
-import cn.edu.tsinghua.tsfile.timeseries.basis.TsFile;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
@@ -16,7 +17,8 @@ import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.IntDataPoint;
 public class TsFileWriteTest {
 
     public static void main(String args[]) throws IOException, WriteProcessException {
-        String path = "src/test/resources/test.ts";
+        //String path = "src/test/resources/test.tsfile";
+        String path = "test.tsfile";
         String s = "{\n" +
                 "    \"schema\": [\n" +
                 "        {\n" +
@@ -44,12 +46,30 @@ public class TsFileWriteTest {
                 "}";
         JSONObject schemaObject = new JSONObject(s);
 
-        TsFile tsFile = new TsFile(new File(path), schemaObject);
+        FileSchema schema=new FileSchema(schemaObject);
+        TsFileWriter tsFileWriter=new TsFileWriter(new File(path), schema);
 
-        tsFile.writeLine("device_1,1, sensor_1, 1.2, sensor_2, 20, sensor_3,");
-        tsFile.writeLine("device_1,2, sensor_1, , sensor_2, 20, sensor_3, 50");
-        tsFile.writeLine("device_1,3, sensor_1, 1.4, sensor_2, 21, sensor_3,");
-        tsFile.writeLine("device_1,4, sensor_1, 1.2, sensor_2, 20, sensor_3, 51");
+        TSRecord record=new TSRecord(1,"device_1");
+        record.addTuple(new FloatDataPoint("sensor_1", 1.2f));
+        record.addTuple(new IntDataPoint("sensor_2", 20));
+        tsFileWriter.write(record);
+
+        record=new TSRecord(2,"device_1");
+        record.addTuple(new IntDataPoint("sensor_2", 20));
+        record.addTuple(new IntDataPoint("sensor_3", 50));
+        tsFileWriter.write(record);
+
+        record=new TSRecord(2,"device_1");
+        record.addTuple(new FloatDataPoint("sensor_1", 1.4f));
+        record.addTuple(new IntDataPoint("sensor_2", 21));
+        tsFileWriter.write(record);
+
+        record=new TSRecord(2,"device_1");
+        record.addTuple(new FloatDataPoint("sensor_1", 1.2f));
+        record.addTuple(new IntDataPoint("sensor_2", 20));
+        record.addTuple(new IntDataPoint("sensor_3", 51));
+        tsFileWriter.write(record);
+
 
         TSRecord tsRecord1 = new TSRecord(6, "device_1");
         tsRecord1.dataPointList = new ArrayList<DataPoint>() {{
@@ -69,10 +89,10 @@ public class TsFileWriteTest {
             add(new IntDataPoint("sensor_2", 30));
             add(new IntDataPoint("sensor_3", 31));
         }};
-        tsFile.writeRecord(tsRecord1);
-        tsFile.writeRecord(tsRecord2);
-        tsFile.writeRecord(tsRecord3);
-        tsFile.close();
+        tsFileWriter.write(tsRecord1);
+        tsFileWriter.write(tsRecord2);
+        tsFileWriter.write(tsRecord3);
+        tsFileWriter.close();
     }
 }
 

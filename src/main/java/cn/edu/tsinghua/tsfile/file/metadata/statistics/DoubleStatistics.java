@@ -1,6 +1,12 @@
 package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 
+import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 /**
  * Statistics for double type
@@ -112,8 +118,45 @@ public class DoubleStatistics extends Statistics<Double> {
 	}
 
 	@Override
+	public ByteBuffer getMaxBytebuffer() {
+		return ByteBufferUtil.bytes(max);
+	}
+
+	@Override
+	public ByteBuffer getMinBytebuffer() { return ByteBufferUtil.bytes(min); }
+
+	@Override
+	public ByteBuffer getFirstBytebuffer() {
+		return ByteBufferUtil.bytes(first);
+	}
+
+	@Override
+	public ByteBuffer getSumBytebuffer() {
+		return ByteBufferUtil.bytes(sum);
+	}
+
+	@Override
+	public ByteBuffer getLastBytebuffer() {
+		return ByteBufferUtil.bytes(last);
+	}
+
+	@Override
+	public int sizeOfDatum() {
+		return 8;
+	}
+
+	@Override
 	public String toString() {
 		return "[max:" + max + ",min:" + min + ",first:" + first + ",sum:" + sum + ",last:" + last + "]";
+	}
+
+	@Override
+	void fill(InputStream inputStream) throws IOException {
+		this.min = ReadWriteIOUtils.readDouble(inputStream);
+		this.max = ReadWriteIOUtils.readDouble(inputStream);
+		this.first = ReadWriteIOUtils.readDouble(inputStream);
+		this.last = ReadWriteIOUtils.readDouble(inputStream);
+		this.sum = ReadWriteIOUtils.readDouble(inputStream);
 	}
 
 }

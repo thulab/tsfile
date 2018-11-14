@@ -3,6 +3,8 @@ package cn.edu.tsinghua.tsfile.timeseries.readV2;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
+import cn.edu.tsinghua.tsfile.encoding.encoder.Encoder;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.utils.FileUtils;
@@ -12,6 +14,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.TsFileWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.SchemaBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Ignore;
@@ -22,6 +25,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Scanner;
 
 @Ignore
@@ -34,24 +38,24 @@ public class TsFileGeneratorForTest {
     private static final Logger LOG = LoggerFactory.getLogger(TsFileGeneratorForTest.class);
     public static TsFileWriter innerWriter;
     public static String inputDataFile;
-    public static String outputDataFile = "src/test/resources/testTsFile.ts";
+    public static String outputDataFile = "src/test/resources/testTsFile.tsfile";
     public static String errorOutputDataFile;
-    public static JSONObject jsonSchema;
+    //public static JSONObject jsonSchema;
 
     public static final long START_TIMESTAMP = 1480562618000L;
 
-    public static void generateFile(int rc, int rs, int ps) throws IOException, InterruptedException, WriteProcessException {
-        rowCount = rc;
-        rowGroupSize = rs;
-        pageSize = ps;
+    public static void generateFile(int row_count, int row_group_size, int page_size) throws IOException, InterruptedException, WriteProcessException {
+        rowCount = row_count;
+        rowGroupSize = row_group_size;
+        pageSize = page_size;
         prepare();
         write();
     }
 
     public static void prepare() throws IOException {
         inputDataFile = "src/test/resources/perTestInputData";
-        errorOutputDataFile = "src/test/resources/perTestErrorOutputData.ksn";
-        jsonSchema = generateTestData();
+        errorOutputDataFile = "src/test/resources/perTestErrorOutputData.tsfile";
+        //jsonSchema = generateTestData();
         generateSampleInputDataFile();
     }
 
@@ -121,8 +125,10 @@ public class TsFileGeneratorForTest {
             errorFile.delete();
 
         //LOG.info(jsonSchema.toString());
-        FileSchema schema = new FileSchema(jsonSchema);
-        TSFileDescriptor.getInstance().getConfig().groupSizeInByte = rowGroupSize;
+        //FileSchema schema = new FileSchema(jsonSchema);
+        FileSchema schema = generateTestSchema();
+
+                TSFileDescriptor.getInstance().getConfig().groupSizeInByte = rowGroupSize;
         TSFileDescriptor.getInstance().getConfig().maxNumberOfPointsInPage = pageSize;
         innerWriter = new TsFileWriter(file, schema, TSFileDescriptor.getInstance().getConfig());
 
@@ -187,6 +193,19 @@ public class TsFileGeneratorForTest {
         jsonSchema.put(JsonFormatConstant.JSON_SCHEMA, measureGroup1);
         //System.out.println(jsonSchema);
         return jsonSchema;
+    }
+
+
+    private static FileSchema generateTestSchema() {
+        SchemaBuilder schemaBuilder=new SchemaBuilder();
+        schemaBuilder.addSeries("s1", TSDataType.INT32, TSEncoding.RLE);
+        schemaBuilder.addSeries("s2", TSDataType.INT64, TSEncoding.PLAIN);
+        schemaBuilder.addSeries("s3", TSDataType.INT64, TSEncoding.TS_2DIFF);
+        schemaBuilder.addSeries("s4", TSDataType.TEXT, TSEncoding.PLAIN,  CompressionType.UNCOMPRESSED, Collections.singletonMap(Encoder.MAX_STRING_LENGTH, "20"));
+        schemaBuilder.addSeries("s5", TSDataType.BOOLEAN, TSEncoding.RLE);
+        schemaBuilder.addSeries("s6", TSDataType.FLOAT, TSEncoding.RLE, CompressionType.SNAPPY, Collections.singletonMap(Encoder.MAX_POINT_NUMBER, "5"));
+        schemaBuilder.addSeries("s7", TSDataType.DOUBLE, TSEncoding.GORILLA);
+        return schemaBuilder.build();
     }
 
     static public void writeToFile(FileSchema schema) throws InterruptedException, IOException, WriteProcessException {

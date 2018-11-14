@@ -10,13 +10,19 @@ import java.util.Arrays;
  * Override compareTo() and equals() function to Binary class. This class is
  * used to accept Java String type
  *
+ *
  * @author xuyi
  */
 public class Binary implements Comparable<Binary>, Serializable {
     private static final long serialVersionUID = 6394197743397020735L;
+
     public byte[] values;
     private String textEncodingType = TSFileConfig.STRING_ENCODING;
 
+    /**
+     * if the bytes v is modified, the modification is visable to this binary.
+     * @param v
+     */
     public Binary(byte[] v) {
         this.values = v;
     }
@@ -89,5 +95,9 @@ public class Binary implements Comparable<Binary>, Serializable {
 
     public String toString() {
         return getStringValue();
+    }
+
+    public byte[] getValues() {
+        return values;
     }
 }

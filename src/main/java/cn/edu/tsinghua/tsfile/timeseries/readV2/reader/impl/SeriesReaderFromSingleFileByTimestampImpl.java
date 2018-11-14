@@ -1,8 +1,8 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunk;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
@@ -28,14 +28,14 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
         currentTimestamp = Long.MIN_VALUE;
     }
 
-    public SeriesReaderFromSingleFileByTimestampImpl(ITsRandomAccessFileReader randomAccessFileReader, Path path) throws IOException {
-        super(randomAccessFileReader, path);
+    public SeriesReaderFromSingleFileByTimestampImpl(TsFileSequenceReader tsFileReader, Path path) throws IOException {
+        super(tsFileReader, path);
         currentTimestamp = Long.MIN_VALUE;
     }
 
-    public SeriesReaderFromSingleFileByTimestampImpl(ITsRandomAccessFileReader randomAccessFileReader,
+    public SeriesReaderFromSingleFileByTimestampImpl(TsFileSequenceReader tsFileReader,
                                       SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
-        super(randomAccessFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
+        super(tsFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
         currentTimestamp = Long.MIN_VALUE;
     }
 
@@ -60,8 +60,13 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
                     seriesChunkReaderInitialized = true;
                     nextSeriesChunkIndex++;
                 } else {
-                    //maxTime < currentTime, skip this seriesChunk
-                    continue;
+                    long minTimestamp = encodedSeriesChunkDescriptor.getMinTimestamp();
+                    long maxTimestamp = encodedSeriesChunkDescriptor.getMaxTimestamp();
+                    if (maxTimestamp < currentTimestamp) {
+                        continue;
+                    } else if (minTimestamp > currentTimestamp) {
+                        return false;
+                    }
                 }
             }
             if (seriesChunkReader.hasNext()) {
@@ -113,9 +118,7 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
     @Override
     protected void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException {
         SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
-        this.seriesChunkReader = new SeriesChunkReaderByTimestampImpl(memSeriesChunk.getSeriesChunkBodyStream()
-                , encodedSeriesChunkDescriptor.getDataType(),
-                encodedSeriesChunkDescriptor.getCompressionTypeName());
+        this.seriesChunkReader = new SeriesChunkReaderByTimestampImpl(memSeriesChunk.getSeriesChunkBodyStream());
         this.seriesChunkReader.setMaxTombstoneTime(encodedSeriesChunkDescriptor.getMaxTombstoneTime());
     }
 

@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.schema;
 
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
@@ -28,16 +29,31 @@ public class SchemaBuilder {
      * @param measurementId (not null) id of the series
      * @param dataType      (not null) series data type
      * @param tsEncoding    (not null) encoding method you specified
-     * @param props         information in encoding method
+     * @param props         information in encoding method.
+     *                      For RLE, Encoder.MAX_POINT_NUMBER
+     *                      For PLAIN, Encoder.MAX_STRING_LENGTH
      * @return this
      */
-    public SchemaBuilder addSeries(String measurementId, TSDataType dataType, TSEncoding tsEncoding,
+    public SchemaBuilder addSeries(String measurementId, TSDataType dataType, TSEncoding tsEncoding, CompressionType type,
                                    Map<String, String> props) {
-        MeasurementDescriptor md = new MeasurementDescriptor(measurementId, dataType, tsEncoding, props);
+        MeasurementDescriptor md = new MeasurementDescriptor(measurementId, dataType, tsEncoding, type, props);
         fileSchema.registerMeasurement(md);
         return this;
     }
 
+    /**
+     * add one series to tsfile schema
+     *
+     * @param measurementId (not null) id of the series
+     * @param dataType      (not null) series data type
+     * @param tsEncoding    (not null) encoding method you specified
+     * @return this
+     */
+    public SchemaBuilder addSeries(String measurementId, TSDataType dataType, TSEncoding tsEncoding ) {
+        MeasurementDescriptor md = new MeasurementDescriptor(measurementId, dataType, tsEncoding);
+        fileSchema.registerMeasurement(md);
+        return this;
+    }
 
     /**
      * MeasurementDescriptor is the schema of one series
@@ -47,41 +63,6 @@ public class SchemaBuilder {
      */
     public SchemaBuilder addSeries(MeasurementDescriptor descriptor) {
         fileSchema.registerMeasurement(descriptor);
-        return this;
-    }
-
-
-    /**
-     * add one series to tsfile schema
-     *
-     * @param measurementId (not null) id of the series
-     * @param dataType      (not null) series data type
-     * @param encoding      (not null) encoding method you specified
-     * @param props         information in encoding method
-     * @return this
-     */
-    public SchemaBuilder addSeries(String measurementId, TSDataType dataType, String encoding,
-                                   Map<String, String> props) {
-        TSEncoding tsEncoding = TSEncoding.valueOf(encoding);
-        addSeries(measurementId, dataType, tsEncoding, props);
-        return this;
-    }
-
-    /**
-     * add one property to schema
-     * @return this
-     */
-    public SchemaBuilder addProp(String key, String value) {
-        fileSchema.addProp(key, value);
-        return this;
-    }
-
-    /**
-     * reset properties of this schema
-     * @return this
-     */
-    public SchemaBuilder setProps(Map<String, String> props) {
-        fileSchema.setProps(props);
         return this;
     }
 

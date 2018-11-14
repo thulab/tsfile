@@ -28,7 +28,7 @@ public class LongDataPoint extends DataPoint {
     }
 
     @Override
-    public void write(long time, ISeriesWriter writer) throws IOException {
+    public void writeTo(long time, ISeriesWriter writer) throws IOException {
         if (writer == null) {
             LOG.warn("given ISeriesWriter is null, do nothing and return");
             return;

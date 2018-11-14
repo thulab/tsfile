@@ -1,12 +1,12 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
 import cn.edu.tsinghua.tsfile.common.constant.StatisticConstant;
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.filter.utils.DigestForFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.basic.Filter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.visitor.impl.DigestFilterVisitor;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunk;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
 
@@ -28,16 +28,16 @@ public class SeriesReaderFromSingleFileWithFilterImpl extends SeriesReaderFromSi
         this.digestFilterVisitor = new DigestFilterVisitor();
     }
 
-    public SeriesReaderFromSingleFileWithFilterImpl(ITsRandomAccessFileReader randomAccessFileReader, SeriesChunkLoader seriesChunkLoader,
+    public SeriesReaderFromSingleFileWithFilterImpl(TsFileSequenceReader tsFileReader, SeriesChunkLoader seriesChunkLoader,
                                                     List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList, Filter<?> filter) {
-        super(randomAccessFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
+        super(tsFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
         this.filter = filter;
         this.digestFilterVisitor = new DigestFilterVisitor();
     }
 
-    public SeriesReaderFromSingleFileWithFilterImpl(ITsRandomAccessFileReader randomAccessFileReader
+    public SeriesReaderFromSingleFileWithFilterImpl(TsFileSequenceReader tsFileReader
             , Path path, Filter<?> filter) throws IOException {
-        super(randomAccessFileReader, path);
+        super(tsFileReader, path);
         this.filter = filter;
         this.digestFilterVisitor = new DigestFilterVisitor();
     }
@@ -45,8 +45,6 @@ public class SeriesReaderFromSingleFileWithFilterImpl extends SeriesReaderFromSi
     protected void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException {
         SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
         this.seriesChunkReader = new SeriesChunkReaderWithFilterImpl(memSeriesChunk.getSeriesChunkBodyStream(),
-                memSeriesChunk.getEncodedSeriesChunkDescriptor().getDataType(),
-                memSeriesChunk.getEncodedSeriesChunkDescriptor().getCompressionTypeName(),
                 filter);
         this.seriesChunkReader.setMaxTombstoneTime(encodedSeriesChunkDescriptor.getMaxTombstoneTime());
     }

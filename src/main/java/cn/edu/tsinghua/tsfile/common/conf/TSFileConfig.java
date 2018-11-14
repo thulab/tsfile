@@ -97,6 +97,7 @@ public class TSFileConfig {
     /**
      * Data compression method, TsFile supports UNCOMPRESSED or SNAPPY.
      * Default value is UNCOMPRESSED which means no compression
+     *
      */
     public String compressor = "UNCOMPRESSED";
 
@@ -131,7 +132,7 @@ public class TSFileConfig {
      */
     public static int dynamicDataSize = 1000;
     
-    public static final String MAGIC_STRING = "TsFilev0.7.0";
+    public static final String MAGIC_STRING = "TsFilev0.8.0";
     /**
      * only can be used by TsFileDescriptor
      */

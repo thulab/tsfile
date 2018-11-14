@@ -1,11 +1,10 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
-import cn.edu.tsinghua.tsfile.common.constant.StatisticConstant;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
+import cn.edu.tsinghua.tsfile.file.header.PageHeader;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.format.PageHeader;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.filter.utils.DigestForFilter;
-import cn.edu.tsinghua.tsfile.timeseries.filter.utils.StrDigestForFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.basic.Filter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.visitor.TimeValuePairFilterVisitor;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.visitor.impl.DigestFilterVisitor;
@@ -23,9 +22,8 @@ public class SeriesChunkReaderWithFilterImpl extends SeriesChunkReader {
     private DigestFilterVisitor digestFilterVisitor;
     private TimeValuePairFilterVisitor<Boolean> timeValuePairFilterVisitor;
 
-    public SeriesChunkReaderWithFilterImpl(InputStream seriesChunkInputStream, TSDataType dataType,
-                                           CompressionTypeName compressionTypeName, Filter<?> filter) {
-        super(seriesChunkInputStream, dataType, compressionTypeName);
+    public SeriesChunkReaderWithFilterImpl(InputStream seriesChunkInputStream, Filter<?> filter) {
+        super(seriesChunkInputStream);
         this.filter = filter;
         this.timeValuePairFilterVisitor = new TimeValuePairFilterVisitorImpl();
         this.digestFilterVisitor = new DigestFilterVisitor();
@@ -33,15 +31,15 @@ public class SeriesChunkReaderWithFilterImpl extends SeriesChunkReader {
 
     @Override
     public boolean pageSatisfied(PageHeader pageHeader) {
-        if (pageHeader.data_page_header.max_timestamp < getMaxTombstoneTime())
+        if (pageHeader.getMax_timestamp() < getMaxTombstoneTime())
             return false;
-        DigestForFilter timeDigest = new DigestForFilter(pageHeader.data_page_header.getMin_timestamp(),
-                pageHeader.data_page_header.getMax_timestamp());
+        DigestForFilter timeDigest = new DigestForFilter(pageHeader.getMin_timestamp(),
+                pageHeader.getMax_timestamp());
         //TODO: Using ByteBuffer as min/max is best
         DigestForFilter valueDigest = new DigestForFilter(
-                pageHeader.data_page_header.digest.getStatistics().get(StatisticConstant.MIN_VALUE),
-                pageHeader.data_page_header.digest.getStatistics().get(StatisticConstant.MAX_VALUE),
-                dataType);
+                pageHeader.getStatistics().getMinBytebuffer(),
+                pageHeader.getStatistics().getMaxBytebuffer(),
+                chunkHeader.getDataType());
         return digestFilterVisitor.satisfy(timeDigest, valueDigest, filter);
     }
 

@@ -63,12 +63,6 @@ public abstract class DataPoint {
             case TEXT:
                 dataPoint = new StringDataPoint(measurementId, new Binary(value));
                 break;
-            case BIGDECIMAL:
-                dataPoint = new BigDecimalDataPoint(measurementId, new BigDecimal(value));
-                break;
-            case ENUMS:
-                dataPoint = new EnumDataPoint(measurementId, Integer.valueOf(value));
-                break;
             default:
                 throw new UnSupportedDataTypeException("This data type is not supoort -" + dataType);
         }
@@ -82,7 +76,7 @@ public abstract class DataPoint {
      * @param writer writer
      * @throws IOException exception in IO
      */
-    public abstract void write(long time, ISeriesWriter writer) throws IOException;
+    public abstract void writeTo(long time, ISeriesWriter writer) throws IOException;
 
     public String getMeasurementId() {
         return measurementId;

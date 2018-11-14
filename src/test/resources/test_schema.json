@@ -10,15 +10,7 @@
             "data_type": "INT64",
             "encoding": "TS_2DIFF"
         },
-        {
-            "measurement_id": "s3",
-            "data_type": "ENUMS",
-            "encoding": "BITMAP",
-            "compressor": "SNAPPY",
-            "enum_values":["MAN","WOMAN"],
-            "max_error":12,
-            "max_point_number":3
-        },
+
         {
             "measurement_id": "s4",
             "data_type": "DOUBLE",
@@ -36,3 +28,14 @@
         "k2":"v2"
     }
 }
+/*
+{
+            "measurement_id": "s3",
+            "data_type": "ENUMS",
+            "encoding": "BITMAP",
+            "compressor": "SNAPPY",
+            "enum_values":["MAN","WOMAN"],
+            "max_error":12,
+            "max_point_number":3
+        },
+*/

@@ -36,7 +36,7 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
 
     @Override
     public void addSeriesWriter(MeasurementDescriptor desc, int pageSizeThreshold) {
-        if(!dataSeriesWriters.containsKey(desc.getMeasurementId())) {
+        if (!dataSeriesWriters.containsKey(desc.getMeasurementId())) {
             IChunkWriter pageWriter = new ChunkWriterImpl(desc);
             ISeriesWriter seriesWriter = new SeriesWriterImpl(deltaObjectId, desc, pageWriter, pageSizeThreshold);
             this.dataSeriesWriters.put(desc.getMeasurementId(), seriesWriter);
@@ -49,7 +49,7 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
             String measurementId = point.getMeasurementId();
             if (!dataSeriesWriters.containsKey(measurementId))
                 throw new NoMeasurementException("time " + time + ", measurement id " + measurementId + " not found!");
-            point.write(time, dataSeriesWriters.get(measurementId));
+            point.writeTo(time, dataSeriesWriters.get(measurementId));
 
         }
     }
@@ -68,5 +68,27 @@ public class RowGroupWriterImpl implements IRowGroupWriter {
         for (ISeriesWriter seriesWriter : dataSeriesWriters.values())
             bufferSize += seriesWriter.estimateMaxSeriesMemSize();
         return bufferSize;
+    }
+
+
+    @Override
+    public long getCurrentRowGroupSize() {
+        long size = 0;
+        for (ISeriesWriter writer : dataSeriesWriters.values()) {
+            size += writer.getCurrentChunkSize();
+        }
+        return size;
+    }
+
+    @Override
+    public void preFlush() {
+        for (ISeriesWriter writer : dataSeriesWriters.values()) {
+            writer.preFlush();
+        }
+    }
+
+    @Override
+    public int getSeriesNumber() {
+        return dataSeriesWriters.size();
     }
 }

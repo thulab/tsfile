@@ -1,9 +1,13 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.file.metadata.converter.IConverter;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,66 +15,76 @@ import java.util.List;
 /**
  * For more information, see RowGroupMetaData in cn.edu.thu.tsfile.format package
  */
-public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.format.RowGroupMetaData> {
+public class RowGroupMetaData {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RowGroupMetaData.class);
 
     /**
      * Name of deltaObject
      */
-    private String deltaObjectID;
-
+    private String deltaObjectID; //TODO move to DeltaObjectMetadata
     /**
-     * Number of rows in this row group
-     */
-    private long numOfRows;
-
-    /**
-     * Total byte size of all the uncompressed time series data in this row group
+     * Total serialized byte size of this row group data (including the rowgroup header)
      */
     private long totalByteSize;
 
     /**
-     * This path is relative to the current file.
+     * Byte offset of the corresponding data in the file
+     * Notice:  include the rowgroup header
      */
-    private String path;
+    private long fileOffsetOfCorrespondingData;
+
+    /**
+     * Byte size of this metadata. this field is not serialized.
+     */
+    private int serializedSize;
+
+    /**
+     * this field is to check whether users call list.add() to modify the list rather than addTimeSeriesChunkMetaData()
+     */
+    private int sizeOfChunkList;
 
     /**
      * All time series chunks in this row group.
      */
     private List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList;
 
-    /**
-     * which schema/group does the delta object belongs to
-     */
-    private String deltaObjectType;
+    public int getSerializedSize() {
+        if( sizeOfChunkList!=timeSeriesChunkMetaDataList.size()){
+            reCalculateSerializedSize();
+        }
+        return serializedSize;
+    }
 
-    /**
-     * The time when endRowgroup() is called.
-     */
-    private long writtenTime;
 
-    public RowGroupMetaData() {
+    private RowGroupMetaData() {
         timeSeriesChunkMetaDataList = new ArrayList<>();
     }
 
     /**
-     * init a row group metadata
-     *
      * @param deltaObjectID               name of deltaObject
-     * @param numOfRows                   number of rows in this row group
      * @param totalByteSize               total byte size of all the uncompressed time series data in this row group
-     * @param timeSeriesChunkMetaDataList all time series chunks in this row group
-     * @param deltaObjectType             which schema/group does the delta object belongs to
+     * @param timeSeriesChunkMetaDataList all time series chunks in this row group. Can not be Null.
+     *                                    notice: after constructing a RowGroupMetadata instance. Donot use list.add()
+     *                                    to modify `timeSeriesChunkMetaDataList`. Instead, use addTimeSeriesChunkMetaData()
+     *                                    to make sure  getSerializedSize() is correct.
      */
-    public RowGroupMetaData(String deltaObjectID, long numOfRows, long totalByteSize,
-                            List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList, String deltaObjectType) {
+    public RowGroupMetaData(String deltaObjectID, long totalByteSize, long fileOffsetOfCorrespondingData, List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList) {
+        assert timeSeriesChunkMetaDataList != null;
         this.deltaObjectID = deltaObjectID;
-        this.numOfRows = numOfRows;
         this.totalByteSize = totalByteSize;
+        this.fileOffsetOfCorrespondingData=fileOffsetOfCorrespondingData;
         this.timeSeriesChunkMetaDataList = timeSeriesChunkMetaDataList;
-        this.deltaObjectType = deltaObjectType;
+        reCalculateSerializedSize();
     }
 
+    private void reCalculateSerializedSize(){
+        serializedSize = Integer.BYTES + deltaObjectID.length() + 2 * Long.BYTES + Integer.BYTES;
+        for (TimeSeriesChunkMetaData chunk : timeSeriesChunkMetaDataList) {
+            serializedSize += chunk.getSerializedSize();
+        }
+        this.sizeOfChunkList = timeSeriesChunkMetaDataList.size();
+    }
     /**
      * add time series chunk metadata to list. THREAD NOT SAFE
      *
@@ -81,142 +95,127 @@ public class RowGroupMetaData implements IConverter<cn.edu.tsinghua.tsfile.forma
             timeSeriesChunkMetaDataList = new ArrayList<>();
         }
         timeSeriesChunkMetaDataList.add(metadata);
+        serializedSize += metadata.getSerializedSize();
+        sizeOfChunkList++;
     }
 
-    public List<TimeSeriesChunkMetaData> getMetaDatas() {
+    public List<TimeSeriesChunkMetaData> getTimeSeriesChunkMetaDataList() {
         return timeSeriesChunkMetaDataList == null ? null
                 : Collections.unmodifiableList(timeSeriesChunkMetaDataList);
     }
 
-    /**
-     * Serialize class RowGroupMetaData to thrift format
-     *
-     * @return class of thrift format
-     */
-    @Override
-    public cn.edu.tsinghua.tsfile.format.RowGroupMetaData convertToThrift() {
-        try {
-            List<cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData> timeSeriesChunkMetaDataListInThrift = null;
-            if (timeSeriesChunkMetaDataList != null) {
-                timeSeriesChunkMetaDataListInThrift = new ArrayList<>();
-                //convert all timeSeriesChunkMetaData to thrift format
-                for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList) {
-                    timeSeriesChunkMetaDataListInThrift.add(timeSeriesChunkMetaData.convertToThrift());
-                }
-            }
-            cn.edu.tsinghua.tsfile.format.RowGroupMetaData metaDataInThrift =
-                    new cn.edu.tsinghua.tsfile.format.RowGroupMetaData(timeSeriesChunkMetaDataListInThrift,
-                            deltaObjectID, totalByteSize, numOfRows, deltaObjectType, writtenTime);
-            metaDataInThrift.setFile_path(path);
-            return metaDataInThrift;
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file RowGroupMetaData: failed to convert row group metadata from TSFile to thrift, row group metadata:{}",
-                        this, e);
-            throw e;
-        }
-    }
 
-    /**
-     * Deserialize class RowGroupMetaData from thrift format to normal format
-     *
-     * @param metaDataInThrift thrift format of the class
-     */
-    @Override
-    public void convertToTSF(cn.edu.tsinghua.tsfile.format.RowGroupMetaData metaDataInThrift) {
-        try {
-            deltaObjectID = metaDataInThrift.getDelta_object_id();
-            numOfRows = metaDataInThrift.getMax_num_rows();
-            totalByteSize = metaDataInThrift.getTotal_byte_size();
-            path = metaDataInThrift.getFile_path();
-            deltaObjectType = metaDataInThrift.getDelta_object_type();
-            writtenTime = metaDataInThrift.getWrittenTime();
-            List<cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData> timeSeriesChunkMetaDataListInThrift = metaDataInThrift.getTsc_metadata();
-            if (timeSeriesChunkMetaDataListInThrift == null) {
-                timeSeriesChunkMetaDataList = null;
-            } else {
-                if (timeSeriesChunkMetaDataList == null) {
-                    timeSeriesChunkMetaDataList = new ArrayList<>();
-                }
-                timeSeriesChunkMetaDataList.clear();
-                //convert all timeSeriesChunkMetaData from thrift format to normal format
-                for (cn.edu.tsinghua.tsfile.format.TimeSeriesChunkMetaData timeSeriesChunkMetaDataInThrift : timeSeriesChunkMetaDataListInThrift) {
-                    TimeSeriesChunkMetaData timeSeriesChunkMetaData = new TimeSeriesChunkMetaData();
-                    timeSeriesChunkMetaData.convertToTSF(timeSeriesChunkMetaDataInThrift);
-                    timeSeriesChunkMetaDataList.add(timeSeriesChunkMetaData);
-                }
-            }
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled())
-                LOGGER.error(
-                        "tsfile-file RowGroupMetaData: failed to convert row group metadata from thrift to TSFile, row group metadata:{}",
-                        metaDataInThrift, e);
-            throw e;
-        }
-    }
-
-    @Override
     public String toString() {
         return String.format(
-                "RowGroupMetaData{ delta object id: %s, number of rows: %d, total byte size: %d, time series chunk list: %s }",
-                deltaObjectID, numOfRows, totalByteSize, timeSeriesChunkMetaDataList);
+                "RowGroupMetaData{ total byte size: %d, time series chunk list: %s }", totalByteSize, timeSeriesChunkMetaDataList);
     }
 
-    public long getNumOfRows() {
-        return numOfRows;
-    }
-
-    public void setNumOfRows(long numOfRows) {
-        this.numOfRows = numOfRows;
-    }
-
+    /**
+     * @return  Total serialized byte size of this row group data (including the rowgroup header)
+     */
     public long getTotalByteSize() {
         return totalByteSize;
     }
 
-    public void setTotalByteSize(long totalByteSize) {
+    public void setTotalByteSize(long totalByteSize) {//TODO 删除掉比较保险
         this.totalByteSize = totalByteSize;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
     }
 
     public String getDeltaObjectID() {
         return deltaObjectID;
     }
 
-    public void setDeltaObjectID(String deltaObjectUID) {
-        this.deltaObjectID = deltaObjectUID;
+    public int serializeTo(OutputStream outputStream) throws IOException {
+        if (sizeOfChunkList != timeSeriesChunkMetaDataList.size()) {
+            //someone call list.add() method rather than using addTimeSeriesChunkMetaData(), so that we have to recalculate
+            //the serializedSize.
+            reCalculateSerializedSize();
+        }
+        int byteLen = 0;
+        byteLen += ReadWriteIOUtils.write(deltaObjectID, outputStream);
+        byteLen += ReadWriteIOUtils.write(totalByteSize, outputStream);
+        byteLen += ReadWriteIOUtils.write(fileOffsetOfCorrespondingData, outputStream);
+
+        byteLen += ReadWriteIOUtils.write(timeSeriesChunkMetaDataList.size(), outputStream);
+        for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList)
+            byteLen += ReadWriteIOUtils.write(timeSeriesChunkMetaData, outputStream);
+        assert byteLen == getSerializedSize();
+        return byteLen;
     }
 
-    public List<TimeSeriesChunkMetaData> getTimeSeriesChunkMetaDataList() {
-        return timeSeriesChunkMetaDataList;
+
+    public int serializeTo(ByteBuffer buffer) throws IOException {
+        if (sizeOfChunkList != timeSeriesChunkMetaDataList.size()) {
+            //someone call list.add() method rather than using addTimeSeriesChunkMetaData(), so that we have to recalculate
+            //the serializedSize.
+            reCalculateSerializedSize();
+        }
+        int byteLen = 0;
+
+        byteLen += ReadWriteIOUtils.write(deltaObjectID, buffer);
+
+        byteLen += ReadWriteIOUtils.write(totalByteSize, buffer);
+        byteLen += ReadWriteIOUtils.write(fileOffsetOfCorrespondingData, buffer);
+
+        byteLen += ReadWriteIOUtils.write(timeSeriesChunkMetaDataList.size(), buffer);
+        for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList)
+            byteLen += ReadWriteIOUtils.write(timeSeriesChunkMetaData, buffer);
+        assert byteLen == getSerializedSize();
+
+        return byteLen;
     }
 
-    public void setTimeSeriesChunkMetaDataList(
-            List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList) {
-        this.timeSeriesChunkMetaDataList = timeSeriesChunkMetaDataList;
+    public static RowGroupMetaData deserializeFrom(InputStream inputStream) throws IOException {
+        RowGroupMetaData rowGroupMetaData = new RowGroupMetaData();
+
+        rowGroupMetaData.deltaObjectID = ReadWriteIOUtils.readString(inputStream);
+
+        rowGroupMetaData.totalByteSize = ReadWriteIOUtils.readLong(inputStream);
+        rowGroupMetaData.fileOffsetOfCorrespondingData = ReadWriteIOUtils.readLong(inputStream);
+
+        int size = ReadWriteIOUtils.readInt(inputStream);
+        rowGroupMetaData.serializedSize = Integer.BYTES + rowGroupMetaData.deltaObjectID.length() + Long.BYTES + Integer.BYTES;
+
+        List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList = new ArrayList<>();
+
+        for (int i = 0; i < size; i++) {
+            TimeSeriesChunkMetaData metaData = ReadWriteIOUtils.readTimeSeriesChunkMetaData(inputStream);
+            timeSeriesChunkMetaDataList.add(metaData);
+            rowGroupMetaData.serializedSize += metaData.getSerializedSize();
+        }
+        rowGroupMetaData.timeSeriesChunkMetaDataList = timeSeriesChunkMetaDataList;
+
+
+        return rowGroupMetaData;
     }
 
-    public String getDeltaObjectType() {
-        return deltaObjectType;
+    public static RowGroupMetaData deserializeFrom(ByteBuffer buffer) throws IOException {
+        RowGroupMetaData rowGroupMetaData = new RowGroupMetaData();
+
+        rowGroupMetaData.deltaObjectID = (ReadWriteIOUtils.readString(buffer));
+
+        rowGroupMetaData.totalByteSize = (ReadWriteIOUtils.readLong(buffer));
+
+        rowGroupMetaData.fileOffsetOfCorrespondingData = ReadWriteIOUtils.readLong(buffer);
+
+        int size = ReadWriteIOUtils.readInt(buffer);
+
+        rowGroupMetaData.serializedSize = Integer.BYTES + rowGroupMetaData.deltaObjectID.length() + Long.BYTES + Integer.BYTES;
+
+
+        List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            TimeSeriesChunkMetaData metaData = ReadWriteIOUtils.readTimeSeriesChunkMetaData(buffer);
+            timeSeriesChunkMetaDataList.add(metaData);
+            rowGroupMetaData.serializedSize += metaData.getSerializedSize();
+        }
+        rowGroupMetaData.timeSeriesChunkMetaDataList = timeSeriesChunkMetaDataList;
+
+        return rowGroupMetaData;
     }
 
-    public void setDeltaObjectType(String deltaObjectType) {
-        this.deltaObjectType = deltaObjectType;
+    public long getFileOffsetOfCorrespondingData() {
+        return fileOffsetOfCorrespondingData;
     }
 
-    public long getWrittenTime() {
-        return writtenTime;
-    }
-
-    public void setWrittenTime(long writtenTime) {
-        this.writtenTime = writtenTime;
-    }
 }
