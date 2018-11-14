@@ -17,14 +17,24 @@ import java.util.List;
 
 public class FilterUtils {
 
+    /** default splitter of path to split delta object ID and measurement ID **/
     private static final char PATH_SPLITER = '.';
 
-    //exp-format:deltaObject,measurement,type,exp
+    /**
+     * split input exp into deltaObject, measurement, filter type and exp
+     * exp-format: deltaObject.measurement,type,exp
+     *
+     * @param exp
+     * @param recordReader
+     * @return
+     * @throws IOException
+     */
     public static SingleSeriesFilterExpression construct(String exp, RecordReader recordReader) throws IOException{
         if (exp == null || exp.equals("null")) {
             return null;
         }
         String args[] = exp.split(",");
+        // if deltaObjectId and measurementId doesn't exist, set them as null
         if (args[0].equals("0") || args[0].equals("1")) {
             return construct("null", "null", args[0], args[1], recordReader);
         }
@@ -35,29 +45,47 @@ public class FilterUtils {
 
     }
 
+    /**
+     * construct {@code SingleSeriesFilterExpression} by input deltaObject, measurement, filter type, exp and recordReader
+     * @param deltaObject
+     * @param measurement
+     * @param filterType
+     * @param exp
+     * @param recordReader
+     * @return
+     * @throws IOException
+     */
     public static SingleSeriesFilterExpression construct(String deltaObject, String measurement, String filterType,
                                                          String exp, RecordReader recordReader) throws IOException{
 
+        // check if exp is null
         if (exp.equals("null")) {
             return null;
         }
+
+        // analyze exp
         if (exp.charAt(0) != '(') {
+            // judge if exp is equal expression
             boolean ifEq = exp.charAt(1) == '=' ? true : false;
             int type = Integer.valueOf(filterType);
+            // offset is used to skip chars before '='
             int offset = ifEq ? 2 : 1;
-            if (exp.charAt(0) == '=') {
-                if (type == 0) {
+            if (exp.charAt(0) == '=') { // construct equal expression
+                if (type == 0) {    // long value
                     long v = Long.valueOf(exp.substring(offset, exp.length()).trim());
                     return FilterFactory.eq(FilterFactory.longFilterSeries(deltaObject, measurement, FilterSeriesType.TIME_FILTER), v);
-                } else if (type == 1) {
+                } else if (type == 1) { // float value
                     float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
                     return FilterFactory.eq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.FREQUENCY_FILTER), v);
                 } else {
                     if (recordReader == null) {
+                        // int value
                         int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
                         return FilterFactory.eq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);
                     }
+                    // get corresponding {@code FilterSeries} of deltaObject and measurementId
                     FilterSeries<?> col = recordReader.getColumnByMeasurementName(deltaObject, measurement);
+                    // init value by type of {@code FilterSeries}
                     if (col instanceof IntFilterSeries) {
                         int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
                         return FilterFactory.eq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v);
@@ -81,19 +109,22 @@ public class FilterUtils {
                     }
 
                 }
-            } else if (exp.charAt(0) == '>') {
-                if (type == 0) {
+            } else if (exp.charAt(0) == '>') {  // construct gtEq expression
+                if (type == 0) {    // long value
                     long v = Long.valueOf(exp.substring(offset, exp.length()).trim());
                     return FilterFactory.gtEq(FilterFactory.longFilterSeries(deltaObject, measurement, FilterSeriesType.TIME_FILTER), v, ifEq);
-                } else if (type == 1) {
+                } else if (type == 1) { // float value
                     float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
                     return FilterFactory.gtEq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.FREQUENCY_FILTER), v, ifEq);
                 } else {
                     if (recordReader == null) {
+                        // int value
                         int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
                         return FilterFactory.gtEq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
                     }
+                    // get corresponding {@code FilterSeries} of deltaObject and measurementId
                     FilterSeries<?> col = recordReader.getColumnByMeasurementName(deltaObject, measurement);
+                    // init value by type of {@code FilterSeries}
                     if (col instanceof IntFilterSeries) {
                         int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
                         return FilterFactory.gtEq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
@@ -114,20 +145,23 @@ public class FilterUtils {
                     }
 
                 }
-            } else if (exp.charAt(0) == '<') {
-                if (type == 0) {
+            } else if (exp.charAt(0) == '<') {  // construct ltEq expression
+                if (type == 0) {    // long value
                     long v = Long.valueOf(exp.substring(offset, exp.length()).trim());
                     return FilterFactory.ltEq(FilterFactory.longFilterSeries(deltaObject, measurement, FilterSeriesType.TIME_FILTER), v, ifEq);
-                } else if (type == 1) {
+                } else if (type == 1) { // float value
                     float v = Float.valueOf(exp.substring(offset, exp.length()).trim());
                     return FilterFactory.ltEq(FilterFactory.floatFilterSeries(deltaObject, measurement, FilterSeriesType.FREQUENCY_FILTER), v, ifEq);
                 } else {
                     //default filter
                     if (recordReader == null) {
+                        // int value
                         int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
                         return FilterFactory.ltEq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
                     }
+                    // get corresponding {@code FilterSeries} of deltaObject and measurementId
                     FilterSeries<?> col = recordReader.getColumnByMeasurementName(deltaObject, measurement);
+                    // init value by type of {@code FilterSeries}
                     if (col instanceof IntFilterSeries) {
                         int v = Integer.valueOf(exp.substring(offset, exp.length()).trim());
                         return FilterFactory.ltEq(FilterFactory.intFilterSeries(deltaObject, measurement, FilterSeriesType.VALUE_FILTER), v, ifEq);
@@ -157,13 +191,19 @@ public class FilterUtils {
         List<Character> operators = new ArrayList<Character>();
         List<SingleSeriesFilterExpression> filters = new ArrayList<>();
 
+        /** current index of char in whole exp **/
         int idx = 0;
+        /** number of '()' **/
         int numbracket = 0;
+        /** indicate if expression is ltEq or gtEq **/
         boolean ltgtFlag = false;
+        /** indicate if expression is Or or And **/
         boolean operFlag = false;
 
+        /** current independent expression **/
         String texp = "";
 
+        // split exp into multi filter expressions
         for (; idx < exp.length(); idx++) {
             char c = exp.charAt(idx);
             if (Character.isWhitespace(c) || c == '\0') {
@@ -182,6 +222,7 @@ public class FilterUtils {
                 operFlag = true;
             }
 
+            // should be a independent expression
             if (ltgtFlag && numbracket == 0 && operFlag) {
                 SingleSeriesFilterExpression filter = construct(deltaObject, measurement, filterType,
                         texp.substring(1, texp.length() - 1), recordReader);
@@ -195,16 +236,20 @@ public class FilterUtils {
                 texp += c;
             }
         }
+        // if expression still exists, construct it
         if (!texp.equals("")) {
             filters.add(construct(deltaObject, measurement, filterType, texp.substring(1, texp.length() - 1), recordReader));
         }
 
+        // check if splitting is correct
         if (filters.size() - operators.size() != 1) {
             return null;
         }
 
+        // combine all filters into one filter
         SingleSeriesFilterExpression filter = filters.get(0);
         for (int i = 0; i < operators.size(); i++) {
+            // combine filters by Or and And
             if (operators.get(i) == '|') {
                 filter = (SingleSeriesFilterExpression) FilterFactory.or(filter, filters.get(i + 1));
             } else if (operators.get(i) == '&') {
@@ -215,6 +260,13 @@ public class FilterUtils {
         return filter;
     }
 
+    /**
+     * construct cross filter
+     * @param exp
+     * @param recordReader
+     * @return
+     * @throws IOException
+     */
     public static FilterExpression constructCrossFilter(String exp, RecordReader recordReader) throws IOException {
         exp = exp.trim();
 
@@ -222,16 +274,21 @@ public class FilterUtils {
             return null;
         }
 
+        // check if exp is not cross filter expression
         if (exp.charAt(0) != '[') {
             return construct(exp, recordReader);
         }
 
+        /** number of '[]' **/
         int numbraket = 0;
+        /** indicate if expression contains operator **/
         boolean operator = false;
         ArrayList<FilterExpression> filters = new ArrayList<>();
         ArrayList<Character> operators = new ArrayList<>();
+        /** current independent expression of {@code SingleSeriesFilterExpression} **/
         String texp = "";
 
+        // split exp into multi filter expressions
         for (int i = 0; i < exp.length(); i++) {
             char c = exp.charAt(i);
 
@@ -249,6 +306,7 @@ public class FilterUtils {
                 operator = true;
             }
 
+            // should be a independent expression of {@code SingleSeriesFilterExpression}
             if (numbraket == 0 && operator) {
 //    			System.out.println(texp);
 //    			System.out.println(texp.length());
@@ -263,15 +321,18 @@ public class FilterUtils {
                 texp += c;
             }
         }
+        // if expression still exists, construct it
         if (!texp.equals("")) {
             filters.add(constructCrossFilter(texp.substring(1, texp.length() - 1), recordReader));
         }
 
+        // if no operator exists in whole exp, warning
         if (operators.size() == 0) {
             //Warning TODO
             return new CSAnd(filters.get(0), filters.get(0));
         }
 
+        // combine the first two {@code FilterExpression} together
         CrossSeriesFilterExpression csf;
         if (operators.get(0) == '|') {
             csf = new CSOr(filters.get(0), filters.get(1));
@@ -279,6 +340,7 @@ public class FilterUtils {
             csf = new CSAnd(filters.get(0), filters.get(1));
         }
 
+        // combine the rest {@code FilterExpression} together
         for (int i = 2; i < filters.size(); i++) {
             if (operators.get(i - 1) == '|') {
                 csf = new CSOr(csf, filters.get(i));
