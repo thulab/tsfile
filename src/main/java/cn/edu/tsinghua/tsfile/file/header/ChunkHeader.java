@@ -12,6 +12,8 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 public class ChunkHeader {
+    public static final byte MARKER = MetaMarker.ChunkHeader;
+
     private String measurementID;
     private int dataSize;
     private TSDataType dataType;
@@ -30,26 +32,27 @@ public class ChunkHeader {
      */
     //private long writtenTime;
 
-    private int serializedSize ;//this filed does not need to be sieralized.
+    private int serializedSize;//this filed does not need to be sieralized.
 
     public int getSerializedSize() {
         return serializedSize;
     }
 
-    private ChunkHeader(){
+    private ChunkHeader() {
 
     }
 
     public ChunkHeader(String measurementID, int dataSize, TSDataType dataType, CompressionType compressionType, TSEncoding encoding, int numOfPages) {
-        this(measurementID,dataSize,dataType,compressionType,encoding,numOfPages,0);
+        this(measurementID, dataSize, dataType, compressionType, encoding, numOfPages, 0);
     }
+
     private ChunkHeader(String measurementID, int dataSize, TSDataType dataType, CompressionType compressionType, TSEncoding encoding, int numOfPages, long maxTombstoneTime) {
         this.measurementID = measurementID;
         this.dataSize = dataSize;
         this.dataType = dataType;
         this.compressionType = compressionType;
         this.numOfPages = numOfPages;
-        this.encodingType=encoding;
+        this.encodingType = encoding;
         this.serializedSize = getSerializedSize(measurementID);
         this.maxTombstoneTime = maxTombstoneTime;
     }
@@ -68,41 +71,54 @@ public class ChunkHeader {
     }
 
     public int serializeTo(OutputStream outputStream) throws IOException {
-        int length=0;
-        length+=ReadWriteIOUtils.write(MetaMarker.ChunkHeader,outputStream);
-        length+=ReadWriteIOUtils.write(measurementID,outputStream);
-        length+=ReadWriteIOUtils.write(dataSize,outputStream);
-        length+=ReadWriteIOUtils.write(dataType,outputStream);
-        length+=ReadWriteIOUtils.write(numOfPages,outputStream);
-        length+=ReadWriteIOUtils.write(compressionType, outputStream);
-        length+=ReadWriteIOUtils.write(encodingType, outputStream);
-        length+=ReadWriteIOUtils.write(maxTombstoneTime, outputStream);
+        int length = 0;
+        length += ReadWriteIOUtils.write(MetaMarker.ChunkHeader, outputStream);
+        length += ReadWriteIOUtils.write(measurementID, outputStream);
+        length += ReadWriteIOUtils.write(dataSize, outputStream);
+        length += ReadWriteIOUtils.write(dataType, outputStream);
+        length += ReadWriteIOUtils.write(numOfPages, outputStream);
+        length += ReadWriteIOUtils.write(compressionType, outputStream);
+        length += ReadWriteIOUtils.write(encodingType, outputStream);
+        length += ReadWriteIOUtils.write(maxTombstoneTime, outputStream);
         assert length == getSerializedSize();
         return length;
     }
+
     public int serializeTo(ByteBuffer buffer) throws IOException {
-        int length=0;
-        length+=ReadWriteIOUtils.write(MetaMarker.ChunkHeader,buffer);
-        length+=ReadWriteIOUtils.write(measurementID,buffer);
-        length+=ReadWriteIOUtils.write(dataSize,buffer);
-        length+=ReadWriteIOUtils.write(dataType,buffer);
-        length+=ReadWriteIOUtils.write(numOfPages,buffer);
-        length+=ReadWriteIOUtils.write(compressionType, buffer);
-        length+=ReadWriteIOUtils.write(encodingType, buffer);
-        length+=ReadWriteIOUtils.write(maxTombstoneTime,buffer);
+        int length = 0;
+        length += ReadWriteIOUtils.write(MetaMarker.ChunkHeader, buffer);
+        length += ReadWriteIOUtils.write(measurementID, buffer);
+        length += ReadWriteIOUtils.write(dataSize, buffer);
+        length += ReadWriteIOUtils.write(dataType, buffer);
+        length += ReadWriteIOUtils.write(numOfPages, buffer);
+        length += ReadWriteIOUtils.write(compressionType, buffer);
+        length += ReadWriteIOUtils.write(encodingType, buffer);
+        length += ReadWriteIOUtils.write(maxTombstoneTime, buffer);
         assert length == getSerializedSize();
         return length;
     }
 
+    /**
+     *
+     * @param inputStream
+     * @param markerRead Whether the marker of the ChunkHeader is read ahead.
+     * @return
+     * @throws IOException
+     */
+    public static ChunkHeader deserializeFrom(InputStream inputStream, boolean markerRead) throws IOException {
+        if (!markerRead) {
+            byte marker = (byte) inputStream.read();
+            if (marker != MARKER)
+                MetaMarker.handleUnexpectedMarker(marker);
+        }
 
-    public static ChunkHeader deserializeFrom(InputStream inputStream) throws IOException {
-        String measurementID=ReadWriteIOUtils.readString(inputStream);
-        int dataSize=ReadWriteIOUtils.readInt(inputStream);
-        TSDataType dataType=TSDataType.deserialize(ReadWriteIOUtils.readShort(inputStream));
-        int numOfPages=ReadWriteIOUtils.readInt(inputStream);
-        CompressionType type=ReadWriteIOUtils.readCompressionType(inputStream);
-        TSEncoding encoding=ReadWriteIOUtils.readEncoding(inputStream);
-        long maxTombstoneTime=ReadWriteIOUtils.readLong(inputStream);
+        String measurementID = ReadWriteIOUtils.readString(inputStream);
+        int dataSize = ReadWriteIOUtils.readInt(inputStream);
+        TSDataType dataType = TSDataType.deserialize(ReadWriteIOUtils.readShort(inputStream));
+        int numOfPages = ReadWriteIOUtils.readInt(inputStream);
+        CompressionType type = ReadWriteIOUtils.readCompressionType(inputStream);
+        TSEncoding encoding = ReadWriteIOUtils.readEncoding(inputStream);
+        long maxTombstoneTime = ReadWriteIOUtils.readLong(inputStream);
         return new ChunkHeader(measurementID, dataSize, dataType, type, encoding, numOfPages, maxTombstoneTime);
     }
 
@@ -126,7 +142,7 @@ public class ChunkHeader {
         this.maxTombstoneTime = maxTombstoneTime;
     }
 
-    public static int getSerializedSize(String measurementID){
+    public static int getSerializedSize(String measurementID) {
         return Byte.BYTES + Integer.BYTES + measurementID.length() + Integer.BYTES + TSDataType.getSerializedSize() + Integer.BYTES
                 + CompressionType.getSerializedSize() + TSEncoding.getSerializedSize() + Long.BYTES;
     }

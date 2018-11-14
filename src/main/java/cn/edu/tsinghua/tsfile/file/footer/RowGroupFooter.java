@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class RowGroupFooter {
+    public static final byte MARKER = MetaMarker.RowGroupFooter;
+
     String deltaObjectID;
     long dataSize;
     int numberOfChunks;
@@ -29,7 +31,7 @@ public class RowGroupFooter {
         this.deltaObjectID = deltaObjectID;
         this.dataSize = dataSize;
         this.numberOfChunks = numberOfChunks;
-        this.serializedSize = Integer.BYTES + deltaObjectID.length() + Long.BYTES + Integer.BYTES;
+        this.serializedSize = Byte.BYTES + Integer.BYTES + deltaObjectID.length() + Long.BYTES + Integer.BYTES;
     }
 
     public String getDeltaObjectID() {
@@ -46,7 +48,7 @@ public class RowGroupFooter {
 
     public int serializeTo(OutputStream outputStream) throws IOException {
         int length=0;
-        length+=ReadWriteIOUtils.write(MetaMarker.RowGroupFooter, outputStream);
+        length+=ReadWriteIOUtils.write(MARKER, outputStream);
         length+=ReadWriteIOUtils.write(deltaObjectID,outputStream);
         length+=ReadWriteIOUtils.write(dataSize,outputStream);
         length+=ReadWriteIOUtils.write(numberOfChunks,outputStream);
@@ -54,7 +56,20 @@ public class RowGroupFooter {
         return length;
     }
 
-    public static RowGroupFooter deserializeFrom(InputStream inputStream) throws IOException {
+    /**
+     *
+     * @param inputStream
+     * @param markerRead  Whether the marker of the RowGroupFooter is read ahead.
+     * @return
+     * @throws IOException
+     */
+    public static RowGroupFooter deserializeFrom(InputStream inputStream, boolean markerRead) throws IOException {
+        if (!markerRead) {
+            byte marker = (byte) inputStream.read();
+            if (marker != MARKER)
+                MetaMarker.handleUnexpectedMarker(marker);
+        }
+
         String deltaObjectID=ReadWriteIOUtils.readString(inputStream);
         long dataSize=ReadWriteIOUtils.readLong(inputStream);
         int numOfChunks=ReadWriteIOUtils.readInt(inputStream);

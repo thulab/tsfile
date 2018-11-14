@@ -39,7 +39,7 @@ public abstract class SeriesChunkReader implements SeriesReader {
         this.seriesChunkInputStream = seriesChunkInputStream;
         this.pageReaderInitialized = false;
         try {
-            chunkHeader=ChunkHeader.deserializeFrom(seriesChunkInputStream);
+            chunkHeader=ChunkHeader.deserializeFrom(seriesChunkInputStream, false);
             this.unCompressor = UnCompressor.getUnCompressor(chunkHeader.getCompressionType());
             valueDecoder = Decoder.getDecoderByType(chunkHeader.getEncodingType(), chunkHeader.getDataType());
         } catch (IOException e) {

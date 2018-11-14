@@ -100,12 +100,12 @@ public class TsFileSequenceReader {
     }
 
     public RowGroupFooter readRowGroupFooter() throws IOException {
-        return RowGroupFooter.deserializeFrom(Channels.newInputStream(channel));
+        return RowGroupFooter.deserializeFrom(Channels.newInputStream(channel), true);
     }
 
     /**
      * After reading the footer of a RowGroup, call this method to set the file pointer to the start of the data of this
-     * RowGroup.
+     * RowGroup if you want to read its data next.
      *
      * @param footer
      * @throws IOException
@@ -115,7 +115,7 @@ public class TsFileSequenceReader {
     }
 
     public ChunkHeader readChunkHeader() throws IOException {
-        return ChunkHeader.deserializeFrom(Channels.newInputStream(channel));
+        return ChunkHeader.deserializeFrom(Channels.newInputStream(channel), true);
     }
 
     /**
@@ -127,7 +127,7 @@ public class TsFileSequenceReader {
      */
     public ChunkHeader readChunkHeader(long offset) throws IOException {
         channel.position(offset);
-        return ChunkHeader.deserializeFrom(Channels.newInputStream(channel));
+        return ChunkHeader.deserializeFrom(Channels.newInputStream(channel), true);
     }
 
     /**
@@ -239,6 +239,10 @@ public class TsFileSequenceReader {
         System.out.println(reader.readHeadMagic());
         System.out.println(reader.readTailMagic());
         TsFileMetaData metaData = reader.readFileMetadata();
+        // Sequential reading of one RowGroup now follows this order:
+        // first SeiresChunks (headers and data) in one RowGroup, then the RowGroupFooter
+        // Because we do not know how many chunks a RowGroup may have, we should read one byte (the marker) ahead and
+        // judge accordingly.
         while (reader.hasNextRowGroup()) {
             byte marker = reader.readMarker();
             switch (marker) {
@@ -269,8 +273,7 @@ public class TsFileSequenceReader {
                      System.out.println("row group: " + rowGroupFooter.getDeltaObjectID());
                      break;
                 default:
-                    throw new IOException("Unrecognized marker " + marker);
-
+                    MetaMarker.handleUnexpectedMarker(marker);
             }
         }
         reader.close();
