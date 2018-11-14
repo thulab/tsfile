@@ -6,6 +6,7 @@ import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 import cn.edu.tsinghua.tsfile.compress.UnCompressor;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
+import cn.edu.tsinghua.tsfile.file.MetaMarker;
 import cn.edu.tsinghua.tsfile.file.footer.RowGroupFooter;
 import cn.edu.tsinghua.tsfile.file.header.ChunkHeader;
 import cn.edu.tsinghua.tsfile.file.header.PageHeader;
@@ -24,12 +25,15 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TsFileSequenceReader {
     private Path path;
     FileChannel channel;
     private long fileMetadataPos;
     private int fileMetadtaSize;
+    private ByteBuffer markerBuffer = ByteBuffer.allocate(Byte.BYTES);
 
     public TsFileSequenceReader(String file) {
         this.path = Paths.get(file);
@@ -216,6 +220,13 @@ public class TsFileSequenceReader {
 
     }
 
+    public byte readMarker() throws IOException {
+        markerBuffer.clear();
+        ReadWriteIOUtils.readAsPossible(channel, markerBuffer);
+        markerBuffer.flip();
+        return markerBuffer.get();
+    }
+
 
     public void close() throws IOException {
         this.channel.close();
@@ -228,31 +239,38 @@ public class TsFileSequenceReader {
         System.out.println(reader.readHeadMagic());
         System.out.println(reader.readTailMagic());
         TsFileMetaData metaData = reader.readFileMetadata();
-        if (reader.hasNextRowGroup()) {
-            RowGroupFooter rowGroupFooter = reader.readRowGroupFooter();
-            reader.prepareReadRowGroup(rowGroupFooter);
-            System.out.println("position: " + reader.channel.position());
-            System.out.println("row group: " + rowGroupFooter.getDeltaObjectID());
-            for (int i = 0; i < rowGroupFooter.getNumberOfChunks(); i++) {
-                ChunkHeader header = reader.readChunkHeader();
-                System.out.println("position: " + reader.channel.position());
-                System.out.println("chunk: " + header.getMeasurementID());
-                Decoder defaultTimeDecoder = Decoder.getDecoderByType(TSEncoding.valueOf(TSFileDescriptor.getInstance().getConfig().timeSeriesEncoder),
-                        TSDataType.INT64);
-                Decoder valueDecoder = Decoder.getDecoderByType(header.getEncodingType(), header.getDataType());
-                for (int j = 0; j < header.getNumOfPages(); j++) {
-                    PageHeader pageHeader = reader.readPageHeader(header.getDataType());
+        while (reader.hasNextRowGroup()) {
+            byte marker = reader.readMarker();
+            switch (marker) {
+                case MetaMarker.ChunkHeader:
+                    ChunkHeader header = reader.readChunkHeader();
                     System.out.println("position: " + reader.channel.position());
-                    System.out.println("points in the page: " + pageHeader.getNumOfValues());
-                    ByteBuffer pageData = reader.readPage(pageHeader, header.getCompressionType());
-                    System.out.println("position: " + reader.channel.position());
-                    System.out.println("page data size: " + pageHeader.getUncompressedSize() + "," + pageData.remaining());
-                    PageDataReader reader1 = new PageDataReader(pageData, header.getDataType(), valueDecoder, defaultTimeDecoder);
-                    while (reader1.hasNext()) {
-                        TimeValuePair pair = reader1.next();
-                        System.out.println("time, value: " + pair.getTimestamp() + "," + pair.getValue());
+                    System.out.println("chunk: " + header.getMeasurementID());
+                    Decoder defaultTimeDecoder = Decoder.getDecoderByType(TSEncoding.valueOf(TSFileDescriptor.getInstance().getConfig().timeSeriesEncoder),
+                            TSDataType.INT64);
+                    Decoder valueDecoder = Decoder.getDecoderByType(header.getEncodingType(), header.getDataType());
+                    for (int j = 0; j < header.getNumOfPages(); j++) {
+                        PageHeader pageHeader = reader.readPageHeader(header.getDataType());
+                        System.out.println("position: " + reader.channel.position());
+                        System.out.println("points in the page: " + pageHeader.getNumOfValues());
+                        ByteBuffer pageData = reader.readPage(pageHeader, header.getCompressionType());
+                        System.out.println("position: " + reader.channel.position());
+                        System.out.println("page data size: " + pageHeader.getUncompressedSize() + "," + pageData.remaining());
+                        PageDataReader reader1 = new PageDataReader(pageData, header.getDataType(), valueDecoder, defaultTimeDecoder);
+                        while (reader1.hasNext()) {
+                            TimeValuePair pair = reader1.next();
+                            System.out.println("time, value: " + pair.getTimestamp() + "," + pair.getValue());
+                        }
                     }
-                }
+                    break;
+                case MetaMarker.RowGroupFooter:
+                     RowGroupFooter rowGroupFooter = reader.readRowGroupFooter();
+                     System.out.println("position: " + reader.channel.position());
+                     System.out.println("row group: " + rowGroupFooter.getDeltaObjectID());
+                     break;
+                default:
+                    throw new IOException("Unrecognized marker " + marker);
+
             }
         }
         reader.close();

@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.file.header;
 
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
+import cn.edu.tsinghua.tsfile.file.MetaMarker;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
@@ -68,6 +69,7 @@ public class ChunkHeader {
 
     public int serializeTo(OutputStream outputStream) throws IOException {
         int length=0;
+        length+=ReadWriteIOUtils.write(MetaMarker.ChunkHeader,outputStream);
         length+=ReadWriteIOUtils.write(measurementID,outputStream);
         length+=ReadWriteIOUtils.write(dataSize,outputStream);
         length+=ReadWriteIOUtils.write(dataType,outputStream);
@@ -80,6 +82,7 @@ public class ChunkHeader {
     }
     public int serializeTo(ByteBuffer buffer) throws IOException {
         int length=0;
+        length+=ReadWriteIOUtils.write(MetaMarker.ChunkHeader,buffer);
         length+=ReadWriteIOUtils.write(measurementID,buffer);
         length+=ReadWriteIOUtils.write(dataSize,buffer);
         length+=ReadWriteIOUtils.write(dataType,buffer);
@@ -124,7 +127,7 @@ public class ChunkHeader {
     }
 
     public static int getSerializedSize(String measurementID){
-        return Integer.BYTES + measurementID.length() + Integer.BYTES + TSDataType.getSerializedSize() + Integer.BYTES
+        return Byte.BYTES + Integer.BYTES + measurementID.length() + Integer.BYTES + TSDataType.getSerializedSize() + Integer.BYTES
                 + CompressionType.getSerializedSize() + TSEncoding.getSerializedSize() + Long.BYTES;
     }
 

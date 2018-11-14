@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.file.footer;
 
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
+import cn.edu.tsinghua.tsfile.file.MetaMarker;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +46,7 @@ public class RowGroupFooter {
 
     public int serializeTo(OutputStream outputStream) throws IOException {
         int length=0;
+        length+=ReadWriteIOUtils.write(MetaMarker.RowGroupFooter, outputStream);
         length+=ReadWriteIOUtils.write(deltaObjectID,outputStream);
         length+=ReadWriteIOUtils.write(dataSize,outputStream);
         length+=ReadWriteIOUtils.write(numberOfChunks,outputStream);
@@ -60,7 +62,7 @@ public class RowGroupFooter {
     }
 
     public static int getSerializedSize(String deltaObjectID) {
-        return Integer.BYTES + deltaObjectID.length() + Long.BYTES + Integer.BYTES;
+        return Byte.BYTES + Integer.BYTES + deltaObjectID.length() + Long.BYTES + Integer.BYTES;
     }
 
     @Override

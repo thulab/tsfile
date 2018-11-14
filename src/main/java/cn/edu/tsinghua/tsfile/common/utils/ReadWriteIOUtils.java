@@ -61,11 +61,22 @@ public class ReadWriteIOUtils {
         return readBool(buffer);
     }
 
+    public static int write(byte n, OutputStream outputStream) throws IOException {
+        outputStream.write(n);
+        return Byte.BYTES;
+    }
+
     public static int write(short n, OutputStream outputStream) throws IOException {
         byte[] bytes = BytesUtils.shortToBytes(n);
         outputStream.write(bytes);
         return bytes.length;
     }
+
+    public static int write(byte n, ByteBuffer buffer) throws IOException {
+        buffer.put(n);
+        return Byte.BYTES;
+    }
+
     public static int write(short n, ByteBuffer buffer) throws IOException {
         buffer.putShort(n);
         return SHORT_LEN;
