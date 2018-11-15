@@ -5,9 +5,11 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSFreqType;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.CharacterCodingException;
 
 /**
  * ConverterUtils is a utility class. It provide conversion between normal datatype and byte array.
@@ -16,12 +18,12 @@ import java.nio.channels.FileChannel;
  */
 public class ReadWriteIOUtils {
 
-    public static int SHORT_LEN = 2;
-    public static int INT_LEN = 4;
-    public static int LONG_LEN = 8;
-    public static int DOUBLE_LEN = 8;
-    public static int FLOAT_LEN = 4;
-    public static int BOOLEAN_LEN = 1;
+    private static int SHORT_LEN = 2;
+    private static int INT_LEN = 4;
+    private static int LONG_LEN = 8;
+    private static int DOUBLE_LEN = 8;
+    private static int FLOAT_LEN = 4;
+    private static int BOOLEAN_LEN = 1;
 
 
     public static int write(Boolean flag, OutputStream outputStream) throws IOException {
@@ -29,7 +31,7 @@ public class ReadWriteIOUtils {
         else outputStream.write(0);
         return 1;
     }
-    public static int write(Boolean flag, ByteBuffer buffer) throws IOException {
+    public static int write(Boolean flag, ByteBuffer buffer) {
         byte a;
         if(flag)a = 1;
         else a = 0;
@@ -42,7 +44,7 @@ public class ReadWriteIOUtils {
         int flag = inputStream.read();
         return flag == 1;
     }
-    public static boolean readBool(ByteBuffer buffer) throws IOException {
+    public static boolean readBool(ByteBuffer buffer) {
         byte a = buffer.get();
         return a == 1;
     }
@@ -57,8 +59,13 @@ public class ReadWriteIOUtils {
     public static boolean readIsNull(InputStream inputStream) throws IOException {
         return readBool(inputStream);
     }
-    public static boolean readIsNull(ByteBuffer buffer) throws IOException {
+    public static boolean readIsNull(ByteBuffer buffer) {
         return readBool(buffer);
+    }
+
+    public static int write(byte n, OutputStream outputStream) throws IOException {
+        outputStream.write(n);
+        return Byte.BYTES;
     }
 
     public static int write(short n, OutputStream outputStream) throws IOException {
@@ -66,7 +73,13 @@ public class ReadWriteIOUtils {
         outputStream.write(bytes);
         return bytes.length;
     }
-    public static int write(short n, ByteBuffer buffer) throws IOException {
+
+    public static int write(byte n, ByteBuffer buffer) {
+        buffer.put(n);
+        return Byte.BYTES;
+    }
+
+    public static int write(short n, ByteBuffer buffer) {
         buffer.putShort(n);
         return SHORT_LEN;
     }
@@ -76,7 +89,7 @@ public class ReadWriteIOUtils {
         inputStream.read(bytes);
         return BytesUtils.bytesToShort(bytes);
     }
-    public static short readShort(ByteBuffer buffer) throws IOException {
+    public static short readShort(ByteBuffer buffer) {
         short n = buffer.getShort();
         return n;
     }
@@ -86,7 +99,7 @@ public class ReadWriteIOUtils {
         outputStream.write(bytes);
         return bytes.length;
     }
-    public static int write(int n, ByteBuffer buffer) throws IOException {
+    public static int write(int n, ByteBuffer buffer) {
         buffer.putInt(n);
         return INT_LEN;
     }
@@ -103,7 +116,7 @@ public class ReadWriteIOUtils {
         return BytesUtils.bytesToFloat(bytes);
     }
 
-    public static float readFloat(ByteBuffer byteBuffer) throws IOException {
+    public static float readFloat(ByteBuffer byteBuffer) {
         byte[] bytes= new byte[FLOAT_LEN];
         byteBuffer.get(bytes);
         return BytesUtils.bytesToFloat(bytes);
@@ -121,7 +134,7 @@ public class ReadWriteIOUtils {
         return BytesUtils.bytesToDouble(bytes);
     }
 
-    public static double readDouble(ByteBuffer byteBuffer) throws IOException {
+    public static double readDouble(ByteBuffer byteBuffer) {
         byte[] bytes= new byte[DOUBLE_LEN];
         byteBuffer.get(bytes);
         return BytesUtils.bytesToDouble(bytes);
@@ -132,7 +145,7 @@ public class ReadWriteIOUtils {
         inputStream.read(bytes);
         return BytesUtils.bytesToInt(bytes);
     }
-    public static int readInt(ByteBuffer buffer) throws IOException {
+    public static int readInt(ByteBuffer buffer) {
         int n = buffer.getInt();
         return n;
     }
@@ -142,7 +155,7 @@ public class ReadWriteIOUtils {
         outputStream.write(bytes);
         return bytes.length;
     }
-    public static int write(long n, ByteBuffer buffer) throws IOException {
+    public static int write(long n, ByteBuffer buffer) {
         buffer.putLong(n);
         return LONG_LEN;
     }
@@ -152,7 +165,7 @@ public class ReadWriteIOUtils {
         inputStream.read(bytes);
         return BytesUtils.bytesToLong(bytes);
     }
-    public static long readLong(ByteBuffer buffer) throws IOException {
+    public static long readLong(ByteBuffer buffer) {
         long n = buffer.getLong();
         return n;
     }
@@ -180,7 +193,7 @@ public class ReadWriteIOUtils {
         inputStream.read(bytes, 0, sLength);
         return new String(bytes, 0, sLength);
     }
-    public static String readString(ByteBuffer buffer) throws IOException {
+    public static String readString(ByteBuffer buffer) {
         int sLength = readInt(buffer);
         byte[] bytes = new byte[sLength];
         buffer.get(bytes, 0, sLength);
@@ -204,13 +217,42 @@ public class ReadWriteIOUtils {
         return len;
     }
 
+    public static ByteBuffer getByteBuffer(String s) {
+        return ByteBuffer.wrap(s.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    public static ByteBuffer getByteBuffer(int i)
+    {
+        return ByteBuffer.allocate(4).putInt(0, i);
+    }
+
+    public static ByteBuffer getByteBuffer(long n)
+    {
+        return ByteBuffer.allocate(8).putLong(0, n);
+    }
+
+    public static ByteBuffer getByteBuffer(float f)
+    {
+        return ByteBuffer.allocate(4).putFloat(0, f);
+    }
+
+    public static ByteBuffer getByteBuffer(double d)
+    {
+        return ByteBuffer.allocate(8).putDouble(0, d);
+    }
+
+    public static ByteBuffer getByteBuffer(boolean i)
+    {
+        return ByteBuffer.allocate(1).put(i ? (byte)1 : (byte)0);
+    }
+
+    public static String readStringFromDirectByteBuffer(ByteBuffer buffer) throws CharacterCodingException
+    {
+        return java.nio.charset.StandardCharsets.UTF_8.newDecoder().decode(buffer.duplicate()).toString();
+    }
 
     /**
      * unlike InputStream.read(bytes), this method makes sure that you can read length bytes or reach to the end of the stream.
-     * @param inputStream
-     * @param length
-     * @return
-     * @throws IOException
      */
     public static byte[] readBytes(InputStream inputStream, int length) throws IOException {
         byte[] bytes=new byte[length];
@@ -224,7 +266,6 @@ public class ReadWriteIOUtils {
 
     /**
      * unlike InputStream.read(bytes), this method makes sure that you can read length bytes or reach to the end of the stream.
-     * @throws IOException
      */
     public static byte[] readBytesWithSelfDescriptionLength(InputStream inputStream) throws IOException {
         int length=readInt(inputStream);
@@ -240,7 +281,7 @@ public class ReadWriteIOUtils {
         return byteBuffer;
     }
 
-    public static ByteBuffer readByteBufferWithSelfDescriptionLength(ByteBuffer buffer) throws IOException {
+    public static ByteBuffer readByteBufferWithSelfDescriptionLength(ByteBuffer buffer) {
         int byteLength = readInt(buffer);
         byte[] bytes = new byte[byteLength];
         buffer.get(bytes);
@@ -267,7 +308,6 @@ public class ReadWriteIOUtils {
         int read;
         while(buffer.hasRemaining()&& (read=channel.read(buffer))!=-1){
             length+=read;
-            //read=channel.read(buffer);
         }
         return length;
     }
@@ -279,7 +319,6 @@ public class ReadWriteIOUtils {
         int read;
         while(length<len && buffer.hasRemaining()&& (read=channel.read(buffer))!=-1){
             length+=read;
-            //read=channel.read(buffer);
         }
         buffer.limit(limit);
         return length;
@@ -375,13 +414,11 @@ public class ReadWriteIOUtils {
 
     public static int write(CompressionType compressionType, OutputStream outputStream) throws IOException {
         short n = compressionType.serialize();
-        int len = write(n, outputStream);
-        return len;
+        return write(n, outputStream);
     }
     public static int write(CompressionType compressionType, ByteBuffer buffer) throws IOException {
         short n = compressionType.serialize();
-        int len = write(n, buffer);
-        return len;
+        return write(n, buffer);
     }
 
     public static CompressionType readCompressionType(InputStream inputStream) throws IOException {
@@ -395,13 +432,11 @@ public class ReadWriteIOUtils {
 
     public static int write(TSDataType dataType, OutputStream outputStream) throws IOException {
         short n = dataType.serialize();
-        int len = write(n, outputStream);
-        return len;
+        return write(n, outputStream);
     }
     public static int write(TSDataType dataType, ByteBuffer buffer) throws IOException {
         short n = dataType.serialize();
-        int len = write(n, buffer);
-        return len;
+        return write(n, buffer);
     }
 
     public static TSDataType readDataType(InputStream inputStream) throws IOException {
@@ -415,13 +450,11 @@ public class ReadWriteIOUtils {
 
     public static int write(TSEncoding encoding, OutputStream outputStream) throws IOException {
         short n = encoding.serialize();
-        int len = write(n, outputStream);
-        return len;
+        return write(n, outputStream);
     }
     public static int write(TSEncoding encoding, ByteBuffer buffer) throws IOException {
         short n = encoding.serialize();
-        int len = write(n, buffer);
-        return len;
+        return write(n, buffer);
     }
 
     public static TSEncoding readEncoding(InputStream inputStream) throws IOException {
@@ -435,13 +468,11 @@ public class ReadWriteIOUtils {
 
     public static int write(TSFreqType freqType, OutputStream outputStream) throws IOException {
         short n = freqType.serialize();
-        int len = write(n, outputStream);
-        return len;
+        return write(n, outputStream);
     }
     public static int write(TSFreqType freqType, ByteBuffer buffer) throws IOException {
         short n = freqType.serialize();
-        int len = write(n, buffer);
-        return len;
+        return write(n, buffer);
     }
 
     public static TSFreqType readFreqType(InputStream inputStream) throws IOException {
@@ -461,28 +492,10 @@ public class ReadWriteIOUtils {
     }
 
     public static TsDigest readDigest(InputStream inputStream) throws IOException {
-        TsDigest tsDigest = TsDigest.deserializeFrom(inputStream);
-        return tsDigest;
+        return TsDigest.deserializeFrom(inputStream);
     }
     public static TsDigest readDigest(ByteBuffer buffer) throws IOException {
-        TsDigest tsDigest = TsDigest.deserializeFrom(buffer);
-        return tsDigest;
-    }
-
-    public static int write(TimeSeriesMetadata timeSeriesMetadata, OutputStream outputStream) throws IOException {
-        return timeSeriesMetadata.serialize(outputStream);
-    }
-    public static int write(TimeSeriesMetadata timeSeriesMetadata, ByteBuffer buffer) throws IOException {
-        return timeSeriesMetadata.serialize(buffer);
-    }
-
-    public static TimeSeriesMetadata readTimeSeriesMetadata(InputStream inputStream) throws IOException {
-        TimeSeriesMetadata timeSeriesMetadata = TimeSeriesMetadata.deserialize(inputStream);
-        return timeSeriesMetadata;
-    }
-    public static TimeSeriesMetadata readTimeSeriesMetadata(ByteBuffer buffer) throws IOException {
-        TimeSeriesMetadata timeSeriesMetadata = TimeSeriesMetadata.deserialize(buffer);
-        return timeSeriesMetadata;
+        return TsDigest.deserializeFrom(buffer);
     }
 
     public static int write(TimeSeriesChunkMetaData timeSeriesChunkMetaData, OutputStream outputStream) throws IOException {
@@ -493,12 +506,10 @@ public class ReadWriteIOUtils {
     }
 
     public static TimeSeriesChunkMetaData readTimeSeriesChunkMetaData(InputStream inputStream) throws IOException {
-        TimeSeriesChunkMetaData timeSeriesChunkMetaData = TimeSeriesChunkMetaData.deserializeFrom(inputStream);
-        return timeSeriesChunkMetaData;
+        return TimeSeriesChunkMetaData.deserializeFrom(inputStream);
     }
     public static TimeSeriesChunkMetaData readTimeSeriesChunkMetaData(ByteBuffer buffer) throws IOException {
-        TimeSeriesChunkMetaData timeSeriesChunkMetaData = TimeSeriesChunkMetaData.deserializeFrom(buffer);
-        return timeSeriesChunkMetaData;
+        return TimeSeriesChunkMetaData.deserializeFrom(buffer);
     }
 
     public static int write(RowGroupMetaData rowGroupMetaData, OutputStream outputStream) throws IOException {
@@ -509,12 +520,10 @@ public class ReadWriteIOUtils {
     }
 
     public static RowGroupMetaData readRowGroupMetaData(InputStream inputStream) throws IOException {
-        RowGroupMetaData rowGroupMetaData = RowGroupMetaData.deserializeFrom(inputStream);
-        return rowGroupMetaData;
+        return RowGroupMetaData.deserializeFrom(inputStream);
     }
     public static RowGroupMetaData readRowGroupMetaData(ByteBuffer buffer) throws IOException {
-        RowGroupMetaData rowGroupMetaData = RowGroupMetaData.deserializeFrom(buffer);
-        return rowGroupMetaData;
+        return RowGroupMetaData.deserializeFrom(buffer);
     }
 
     public static int write(TsDeltaObjectMetadata deltaObjectMetadata, OutputStream outputStream) throws IOException {
@@ -523,10 +532,5 @@ public class ReadWriteIOUtils {
     public static int write(TsDeltaObjectMetadata deltaObjectMetadata, ByteBuffer buffer) throws IOException {
         return deltaObjectMetadata.serializeTo(buffer);
     }
-
-
-
-
-
 
 }

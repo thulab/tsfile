@@ -6,7 +6,7 @@ import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.DataPoint;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import org.json.JSONArray;

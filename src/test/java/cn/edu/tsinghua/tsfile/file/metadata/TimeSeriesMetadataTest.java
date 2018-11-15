@@ -5,14 +5,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
-import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementSchema;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 
 public class TimeSeriesMetadataTest {
     public static final String measurementUID = "sensor01";
@@ -20,10 +17,10 @@ public class TimeSeriesMetadataTest {
     final String PATH = "target/outputTimeSeries.tsfile";
 
     @Before
-    public void setUp() throws Exception {}
+    public void setUp() {}
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         File file = new File(PATH);
         if (file.exists())
             file.delete();
@@ -31,17 +28,15 @@ public class TimeSeriesMetadataTest {
 
     @Test
     public void testWriteIntoFile() throws IOException {
-        TimeSeriesMetadata metaData = TestHelper.createSimpleTimeSeriesMetaData();
+        MeasurementSchema measurementSchema = TestHelper.createSimpleMeasurementSchema();
         File file = new File(PATH);
         if (file.exists())
             file.delete();
         FileOutputStream fos = new FileOutputStream(file);
-        TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-        ReadWriteIOUtils.write(metaData, out.getOutputStream());
-        out.close();
+        measurementSchema.serializeTo(fos);
         fos.close();
 
         FileInputStream fis = new FileInputStream(new File(PATH));
-        Utils.isTimeSeriesEqual(metaData, ReadWriteIOUtils.readTimeSeriesMetadata(fis));
+        measurementSchema.equals(MeasurementSchema.deserializeFrom(fis));
     }
 }

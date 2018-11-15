@@ -9,7 +9,6 @@ import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 
-import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +16,6 @@ import org.junit.Test;
 public class RowGroupMetaDataTest {
 
   public static final String DELTA_OBJECT_UID = "delta-3312";
-  public static final long TOTAL_BYTE_SIZE = 434235463L;
   final String PATH = "target/outputRowGroup.tsfile";
 
   @Before
@@ -37,9 +35,7 @@ public class RowGroupMetaDataTest {
     if (file.exists())
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
-    TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-    ReadWriteIOUtils.write(metaData, out.getOutputStream());
-    out.close();
+    ReadWriteIOUtils.write(metaData, fos);
     fos.close();
 
     FileInputStream fis = new FileInputStream(new File(PATH));

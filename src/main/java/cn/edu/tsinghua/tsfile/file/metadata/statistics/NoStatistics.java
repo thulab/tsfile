@@ -2,7 +2,8 @@ package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 
 
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
-import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -101,25 +102,25 @@ public class NoStatistics extends Statistics<Long> {
 
     @Override
     public ByteBuffer getMaxBytebuffer() {
-        return ByteBufferUtil.bytes(0);
+        return ReadWriteIOUtils.getByteBuffer(0);
     }
 
     @Override
-    public ByteBuffer getMinBytebuffer() { return ByteBufferUtil.bytes(0); }
+    public ByteBuffer getMinBytebuffer() { return ReadWriteIOUtils.getByteBuffer(0); }
 
     @Override
     public ByteBuffer getFirstBytebuffer() {
-        return ByteBufferUtil.bytes(0);
+        return ReadWriteIOUtils.getByteBuffer(0);
     }
 
     @Override
     public ByteBuffer getSumBytebuffer() {
-        return ByteBufferUtil.bytes(0);
+        return ReadWriteIOUtils.getByteBuffer(0);
     }
 
     @Override
     public ByteBuffer getLastBytebuffer() {
-        return ByteBufferUtil.bytes(0);
+        return ReadWriteIOUtils.getByteBuffer(0);
     }
 
 

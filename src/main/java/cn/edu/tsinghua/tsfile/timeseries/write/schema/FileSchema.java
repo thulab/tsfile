@@ -1,17 +1,13 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.schema;
 
-import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesMetadata;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementSchema;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.InvalidJsonSchemaException;
-import cn.edu.tsinghua.tsfile.timeseries.write.schema.converter.JsonConverter;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,18 +22,16 @@ public class FileSchema {
   static private final Logger LOG = LoggerFactory.getLogger(FileSchema.class);
 
   /**
-   * {@code Map<measurementId, MeasurementDescriptor>}
+   * {@code Map<measurementId, MeasurementSchema>}
    */
-  private Map<String, MeasurementDescriptor> measurementNameDescriptorMap;
+  private Map<String, MeasurementSchema> measurementSchema;
 
-  /** all metadatas of TimeSeries **/
-  private List<TimeSeriesMetadata> tsMetadata = new ArrayList<>();
 
   /**
-   * init measurementNameDescriptorMap and additionalProperties as empty map
+   * init measurementSchema and additionalProperties as empty map
    */
   public FileSchema() {
-    this.measurementNameDescriptorMap = new HashMap<>();
+    this.measurementSchema = new HashMap<>();
   }
 
   /**
@@ -78,60 +72,39 @@ public class FileSchema {
   /**
    * init additionalProperties and register measurements
    */
-  public FileSchema(Map<String, MeasurementDescriptor> measurements) {
+  public FileSchema(Map<String, MeasurementSchema> measurements) {
     this();
     this.registerMeasurements(measurements);
   }
 
 
   public TSDataType getMeasurementDataTypes(String measurementUID) {
-    MeasurementDescriptor measurementDescriptor = measurementNameDescriptorMap.get(measurementUID);
-    if(measurementDescriptor == null) {
+    MeasurementSchema measurementSchema = this.measurementSchema.get(measurementUID);
+    if(measurementSchema == null) {
       return null;
     }
-    return measurementDescriptor.getType();
+    return measurementSchema.getType();
 
   }
 
-  public MeasurementDescriptor getMeasurementDescriptor(String measurementUID) {
-    return measurementNameDescriptorMap.get(measurementUID);
+
+  public Map<String, MeasurementSchema> getAllMeasurementSchema() {
+    return measurementSchema;
   }
 
-  public Map<String, MeasurementDescriptor> getDescriptor() {
-    return measurementNameDescriptorMap;
+
+  /**
+   * register a MeasurementSchema
+   */
+  public void registerMeasurement(MeasurementSchema descriptor) {
+    // add to measurementSchema as <measurementID, MeasurementSchema>
+    this.measurementSchema.put(descriptor.getMeasurementId(), descriptor);
   }
 
   /**
-   * add a TimeSeriesMetadata into this fileSchema
-   *
-   * @param measurementId the measurement id of this TimeSeriesMetadata
-   * @param type the data type of this TimeSeriesMetadata
+   * register all MeasurementSchema in input map
    */
-  private void addTimeSeriesMetadata(String measurementId, TSDataType type) {
-    TimeSeriesMetadata ts = new TimeSeriesMetadata(measurementId, type);
-    LOG.debug("add Time Series:{}", ts);
-    this.tsMetadata.add(ts);
-  }
-
-  public List<TimeSeriesMetadata> getTimeSeriesMetadatas() {
-    return tsMetadata;
-  }
-
-  /**
-   * register a MeasurementDescriptor
-   */
-  public void registerMeasurement(MeasurementDescriptor descriptor) {
-    // add to measurementNameDescriptorMap as <measurementID, MeasurementDescriptor>
-    this.measurementNameDescriptorMap.put(descriptor.getMeasurementId(), descriptor);
-
-    // add time series metadata
-    this.addTimeSeriesMetadata(descriptor.getMeasurementId(), descriptor.getType());
-  }
-
-  /**
-   * register all MeasurementDescriptor in input map
-   */
-  private void registerMeasurements(Map<String, MeasurementDescriptor> measurements) {
+  private void registerMeasurements(Map<String, MeasurementSchema> measurements) {
     measurements.forEach((id, md) -> registerMeasurement(md));
   }
 
@@ -139,7 +112,7 @@ public class FileSchema {
    * check is this schema contains input measurementID
    */
   public boolean hasMeasurement(String measurementId) {
-    return measurementNameDescriptorMap.containsKey(measurementId);
+    return measurementSchema.containsKey(measurementId);
   }
 
 }

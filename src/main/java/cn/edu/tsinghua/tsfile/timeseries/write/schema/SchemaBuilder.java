@@ -3,7 +3,7 @@ package cn.edu.tsinghua.tsfile.timeseries.write.schema;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
-import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementSchema;
 
 import java.util.Map;
 
@@ -36,7 +36,7 @@ public class SchemaBuilder {
      */
     public SchemaBuilder addSeries(String measurementId, TSDataType dataType, TSEncoding tsEncoding, CompressionType type,
                                    Map<String, String> props) {
-        MeasurementDescriptor md = new MeasurementDescriptor(measurementId, dataType, tsEncoding, type, props);
+        MeasurementSchema md = new MeasurementSchema(measurementId, dataType, tsEncoding, type, props);
         fileSchema.registerMeasurement(md);
         return this;
     }
@@ -50,18 +50,18 @@ public class SchemaBuilder {
      * @return this
      */
     public SchemaBuilder addSeries(String measurementId, TSDataType dataType, TSEncoding tsEncoding ) {
-        MeasurementDescriptor md = new MeasurementDescriptor(measurementId, dataType, tsEncoding);
+        MeasurementSchema md = new MeasurementSchema(measurementId, dataType, tsEncoding);
         fileSchema.registerMeasurement(md);
         return this;
     }
 
     /**
-     * MeasurementDescriptor is the schema of one series
+     * MeasurementSchema is the schema of one series
      *
      * @param descriptor series schema
      * @return schema builder
      */
-    public SchemaBuilder addSeries(MeasurementDescriptor descriptor) {
+    public SchemaBuilder addSeries(MeasurementSchema descriptor) {
         fileSchema.registerMeasurement(descriptor);
         return this;
     }

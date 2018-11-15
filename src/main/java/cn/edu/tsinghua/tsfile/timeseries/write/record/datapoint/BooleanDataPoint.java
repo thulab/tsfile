@@ -1,8 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
-import cn.edu.tsinghua.tsfile.timeseries.write.series.ISeriesWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.series.IChunkWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,9 +27,9 @@ public class BooleanDataPoint extends DataPoint {
     }
 
     @Override
-    public void writeTo(long time, ISeriesWriter writer) throws IOException {
+    public void writeTo(long time, IChunkWriter writer) throws IOException {
         if (writer == null) {
-            LOG.warn("given ISeriesWriter is null, do nothing and return");
+            LOG.warn("given IChunkWriter is null, do nothing and return");
             return;
         }
         writer.write(time, value);

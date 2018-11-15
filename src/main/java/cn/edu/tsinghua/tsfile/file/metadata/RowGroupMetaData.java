@@ -23,16 +23,6 @@ public class RowGroupMetaData {
      * Name of deltaObject, this field is not serialized.
      */
     private String deltaObjectID;
-    /**
-     * Total serialized byte size of this row group data (including the rowgroup header)
-     */
-    private long totalByteSize; //TODO remove
-
-    /**
-     * Byte offset of the corresponding data in the file
-     * Notice:  include the rowgroup header
-     */
-    private long fileOffsetOfCorrespondingData; //TODO remove
 
     /**
      * Byte size of this metadata. this field is not serialized.
@@ -55,23 +45,21 @@ public class RowGroupMetaData {
 
     /**
      * @param deltaObjectID               name of deltaObject
-     * @param totalByteSize               total byte size of all the uncompressed time series data in this row group
      * @param timeSeriesChunkMetaDataList all time series chunks in this row group. Can not be Null.
      *                                    notice: after constructing a RowGroupMetadata instance. Donot use list.add()
      *                                    to modify `timeSeriesChunkMetaDataList`. Instead, use addTimeSeriesChunkMetaData()
      *                                    to make sure  getSerializedSize() is correct.
      */
-    public RowGroupMetaData(String deltaObjectID, long totalByteSize, long fileOffsetOfCorrespondingData, List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList) {
+    public RowGroupMetaData(String deltaObjectID, List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList) {
         assert timeSeriesChunkMetaDataList != null;
         this.deltaObjectID = deltaObjectID;
-        this.totalByteSize = totalByteSize;
-        this.fileOffsetOfCorrespondingData=fileOffsetOfCorrespondingData;
         this.timeSeriesChunkMetaDataList = timeSeriesChunkMetaDataList;
         reCalculateSerializedSize();
     }
 
     private void reCalculateSerializedSize(){
-        serializedSize = Integer.BYTES + deltaObjectID.length() + 2 * Long.BYTES + Integer.BYTES;
+        serializedSize = Integer.BYTES + deltaObjectID.length() +
+                Integer.BYTES; // size of timeSeriesChunkMetaDataList
         for (TimeSeriesChunkMetaData chunk : timeSeriesChunkMetaDataList) {
             serializedSize += chunk.getSerializedSize();
         }
@@ -97,19 +85,9 @@ public class RowGroupMetaData {
 
     public String toString() {
         return String.format(
-                "RowGroupMetaData{ total byte size: %d, time series chunk list: %s }", totalByteSize, timeSeriesChunkMetaDataList);
+                "RowGroupMetaData{ time series chunk list: %s }", timeSeriesChunkMetaDataList);
     }
 
-    /**
-     * @return  Total serialized byte size of this row group data (including the rowgroup header)
-     */
-    public long getTotalByteSize() {
-        return totalByteSize;
-    }
-
-    public void setTotalByteSize(long totalByteSize) {//TODO 删除掉比较保险
-        this.totalByteSize = totalByteSize;
-    }
 
     public String getDeltaObjectID() {
         return deltaObjectID;
@@ -118,8 +96,6 @@ public class RowGroupMetaData {
     public int serializeTo(OutputStream outputStream) throws IOException {
         int byteLen = 0;
         byteLen += ReadWriteIOUtils.write(deltaObjectID, outputStream);
-        byteLen += ReadWriteIOUtils.write(totalByteSize, outputStream);
-        byteLen += ReadWriteIOUtils.write(fileOffsetOfCorrespondingData, outputStream);
 
         byteLen += ReadWriteIOUtils.write(timeSeriesChunkMetaDataList.size(), outputStream);
         for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList)
@@ -134,9 +110,6 @@ public class RowGroupMetaData {
 
         byteLen += ReadWriteIOUtils.write(deltaObjectID, buffer);
 
-        byteLen += ReadWriteIOUtils.write(totalByteSize, buffer);
-        byteLen += ReadWriteIOUtils.write(fileOffsetOfCorrespondingData, buffer);
-
         byteLen += ReadWriteIOUtils.write(timeSeriesChunkMetaDataList.size(), buffer);
         for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList)
             byteLen += ReadWriteIOUtils.write(timeSeriesChunkMetaData, buffer);
@@ -149,9 +122,6 @@ public class RowGroupMetaData {
         RowGroupMetaData rowGroupMetaData = new RowGroupMetaData();
 
         rowGroupMetaData.deltaObjectID = ReadWriteIOUtils.readString(inputStream);
-
-        rowGroupMetaData.totalByteSize = ReadWriteIOUtils.readLong(inputStream);
-        rowGroupMetaData.fileOffsetOfCorrespondingData = ReadWriteIOUtils.readLong(inputStream);
 
         int size = ReadWriteIOUtils.readInt(inputStream);
         rowGroupMetaData.serializedSize = Integer.BYTES + rowGroupMetaData.deltaObjectID.length() + Long.BYTES + Integer.BYTES;
@@ -173,10 +143,6 @@ public class RowGroupMetaData {
         RowGroupMetaData rowGroupMetaData = new RowGroupMetaData();
 
         rowGroupMetaData.deltaObjectID = (ReadWriteIOUtils.readString(buffer));
-
-        rowGroupMetaData.totalByteSize = (ReadWriteIOUtils.readLong(buffer));
-
-        rowGroupMetaData.fileOffsetOfCorrespondingData = ReadWriteIOUtils.readLong(buffer);
 
         int size = ReadWriteIOUtils.readInt(buffer);
 

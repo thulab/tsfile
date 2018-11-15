@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.compress;
 
 import cn.edu.tsinghua.tsfile.common.exception.CompressionTypeNotSupportedException;
-import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
+
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +62,7 @@ public abstract class Compressor {
 
     public abstract  int getMaxBytesForCompression(int uncompressedDataSize);
 
-    public abstract CompressionType getCodecName();
+    public abstract CompressionType getType();
 
     /**
      * NoCompressor will do nothing for data and return the input data directly.
@@ -90,7 +90,7 @@ public abstract class Compressor {
         }
 
         @Override
-        public CompressionType getCodecName() {
+        public CompressionType getType() {
             return CompressionType.UNCOMPRESSED;
         }
     }
@@ -122,7 +122,7 @@ public abstract class Compressor {
         }
 
         @Override
-        public CompressionType getCodecName() {
+        public CompressionType getType() {
             return CompressionType.SNAPPY;
         }
     }

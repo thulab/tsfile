@@ -26,7 +26,7 @@ The example is to show how to write and read a TsFile File.
 
 ```
   The class is to show how to write Tsfile directly,it use the second interface: 
-            public void addMeasurement(MeasurementDescriptor measurementDescriptor) throws WriteProcessException
+            public void addMeasurement(MeasurementDescriptor measurementSchema) throws WriteProcessException
 ```
 
 ### Notice 

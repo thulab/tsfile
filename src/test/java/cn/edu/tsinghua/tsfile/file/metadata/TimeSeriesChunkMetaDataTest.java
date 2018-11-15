@@ -1,10 +1,7 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
-import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 import org.junit.After;
@@ -44,9 +41,7 @@ public class TimeSeriesChunkMetaDataTest {
     if (file.exists())
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
-    TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-    ReadWriteIOUtils.write(metaData, out.getOutputStream());
-    out.close();
+    ReadWriteIOUtils.write(metaData, fos);
     fos.close();
 
     FileInputStream fis = new FileInputStream(new File(PATH));

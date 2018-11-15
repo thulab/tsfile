@@ -1,10 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.record;
 
 import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.BooleanDataPoint;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.FloatDataPoint;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.IntDataPoint;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.StringDataPoint;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.*;
 
 import java.util.ArrayList;
 import java.util.List;

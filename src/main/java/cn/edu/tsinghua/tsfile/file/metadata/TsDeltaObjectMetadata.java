@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class TsDeltaObjectMetadata {//TODO 为什么这个类中没有deltaObjectID?
+public class TsDeltaObjectMetadata {
 
     /**
      * size of RowGroupMetadataBlock in byte
@@ -30,30 +30,23 @@ public class TsDeltaObjectMetadata {//TODO 为什么这个类中没有deltaObjec
     /**
      * Row groups in this file
      */
-    private List<RowGroupMetaData> rowGroupMetadataList;
-
-    private int sizeOfRowGroupMetadataList; // this field does not need to be serialized.
+    private List<RowGroupMetaData> rowGroupMetadataList = new ArrayList<>();
 
 
     public int getSerializedSize() {
-        if((rowGroupMetadataList!=null && sizeOfRowGroupMetadataList !=rowGroupMetadataList.size()) || (rowGroupMetadataList == null && sizeOfRowGroupMetadataList !=0))
-            reCalculateSerializedSize();
         return serializedSize;
     }
 
-    private void reCalculateSerializedSize(){
-        serializedSize = 2 * Long.BYTES + Integer.BYTES;
-        if(rowGroupMetadataList!=null) {
-            for (RowGroupMetaData meta : rowGroupMetadataList) {
-                serializedSize += meta.getSerializedSize();
-            }
-            this.sizeOfRowGroupMetadataList = rowGroupMetadataList.size();
-        }else{
-            this.sizeOfRowGroupMetadataList = 0;
+    private void reCalculateSerializedSize() {
+        serializedSize = 2 * Long.BYTES + // startTime , endTime
+                Integer.BYTES; // size of rowGroupMetadataList
+
+        for (RowGroupMetaData meta : rowGroupMetadataList) {
+            serializedSize += meta.getSerializedSize();
         }
     }
 
-    public TsDeltaObjectMetadata(){
+    public TsDeltaObjectMetadata() {
     }
 
     /**
@@ -62,12 +55,8 @@ public class TsDeltaObjectMetadata {//TODO 为什么这个类中没有deltaObjec
      * @param rowGroup - row group metadata to add
      */
     public void addRowGroupMetaData(RowGroupMetaData rowGroup) {
-        if (rowGroupMetadataList == null) {
-            rowGroupMetadataList = new ArrayList<RowGroupMetaData>();
-        }
         rowGroupMetadataList.add(rowGroup);
-        sizeOfRowGroupMetadataList++;
-        serializedSize+=rowGroup.getSerializedSize();
+        serializedSize += rowGroup.getSerializedSize();
     }
 
     public List<RowGroupMetaData> getRowGroups() {
@@ -91,44 +80,35 @@ public class TsDeltaObjectMetadata {//TODO 为什么这个类中没有deltaObjec
     }
 
     public int serializeTo(OutputStream outputStream) throws IOException {
-        if(sizeOfRowGroupMetadataList !=rowGroupMetadataList.size()){
-            reCalculateSerializedSize();
-        }
-
         int byteLen = 0;
         byteLen += ReadWriteIOUtils.write(startTime, outputStream);
         byteLen += ReadWriteIOUtils.write(endTime, outputStream);
 
-        if(rowGroupMetadataList == null){
+        if (rowGroupMetadataList == null) {
             byteLen += ReadWriteIOUtils.write(0, outputStream);
         } else {
             byteLen += ReadWriteIOUtils.write(rowGroupMetadataList.size(), outputStream);
-            for(RowGroupMetaData rowGroupMetaData : rowGroupMetadataList)
+            for (RowGroupMetaData rowGroupMetaData : rowGroupMetadataList)
                 byteLen += ReadWriteIOUtils.write(rowGroupMetaData, outputStream);
         }
 
-        assert  getSerializedSize() == byteLen;
+        assert getSerializedSize() == byteLen;
         return byteLen;
     }
 
     public int serializeTo(ByteBuffer buffer) throws IOException {
-        if(sizeOfRowGroupMetadataList !=rowGroupMetadataList.size()){
-            reCalculateSerializedSize();
-        }
         int byteLen = 0;
 
         byteLen += ReadWriteIOUtils.write(startTime, buffer);
         byteLen += ReadWriteIOUtils.write(endTime, buffer);
 
-        if(rowGroupMetadataList == null){
+        if (rowGroupMetadataList == null) {
             byteLen += ReadWriteIOUtils.write(0, buffer);
         } else {
             byteLen += ReadWriteIOUtils.write(rowGroupMetadataList.size(), buffer);
-            for(RowGroupMetaData rowGroupMetaData : rowGroupMetadataList)
+            for (RowGroupMetaData rowGroupMetaData : rowGroupMetadataList)
                 byteLen += ReadWriteIOUtils.write(rowGroupMetaData, buffer);
         }
-
-        assert  sizeOfRowGroupMetadataList == byteLen;
 
         return byteLen;
     }
@@ -140,7 +120,7 @@ public class TsDeltaObjectMetadata {//TODO 为什么这个类中没有deltaObjec
         deltaObjectMetadata.endTime = ReadWriteIOUtils.readLong(inputStream);
 
         int size = ReadWriteIOUtils.readInt(inputStream);
-        if(size > 0) {
+        if (size > 0) {
             List<RowGroupMetaData> rowGroupMetaDataList = new ArrayList<>();
             for (int i = 0; i < size; i++) {
                 rowGroupMetaDataList.add(ReadWriteIOUtils.readRowGroupMetaData(inputStream));
@@ -159,7 +139,7 @@ public class TsDeltaObjectMetadata {//TODO 为什么这个类中没有deltaObjec
         deltaObjectMetadata.endTime = ReadWriteIOUtils.readLong(buffer);
 
         int size = ReadWriteIOUtils.readInt(buffer);
-        if(size > 0) {
+        if (size > 0) {
             List<RowGroupMetaData> rowGroupMetaDataList = new ArrayList<>();
             for (int i = 0; i < size; i++) {
                 rowGroupMetaDataList.add(ReadWriteIOUtils.readRowGroupMetaData(buffer));
@@ -178,7 +158,6 @@ public class TsDeltaObjectMetadata {//TODO 为什么这个类中没有deltaObjec
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", rowGroupMetadataList=" + rowGroupMetadataList +
-                ", sizeOfRowGroupMetadataList=" + sizeOfRowGroupMetadataList +
                 '}';
     }
 }

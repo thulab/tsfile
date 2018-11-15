@@ -9,7 +9,7 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import org.json.JSONObject;
 
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.DataPoint;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.FloatDataPoint;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.IntDataPoint;

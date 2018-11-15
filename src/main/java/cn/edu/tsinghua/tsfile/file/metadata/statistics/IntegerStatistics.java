@@ -1,6 +1,5 @@
 package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 
-import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 
@@ -97,25 +96,25 @@ public class IntegerStatistics extends Statistics<Integer> {
 
 	@Override
 	public ByteBuffer getMaxBytebuffer() {
-		return ByteBufferUtil.bytes(max);
+		return ReadWriteIOUtils.getByteBuffer(max);
 	}
 
 	@Override
-	public ByteBuffer getMinBytebuffer() { return ByteBufferUtil.bytes(min); }
+	public ByteBuffer getMinBytebuffer() { return ReadWriteIOUtils.getByteBuffer(min); }
 
 	@Override
 	public ByteBuffer getFirstBytebuffer() {
-		return ByteBufferUtil.bytes(first);
+		return ReadWriteIOUtils.getByteBuffer(first);
 	}
 
 	@Override
 	public ByteBuffer getSumBytebuffer() {
-		return ByteBufferUtil.bytes(sum);
+		return ReadWriteIOUtils.getByteBuffer(sum);
 	}
 
 	@Override
 	public ByteBuffer getLastBytebuffer() {
-		return ByteBufferUtil.bytes(last);
+		return ReadWriteIOUtils.getByteBuffer(last);
 	}
 
 	@Override

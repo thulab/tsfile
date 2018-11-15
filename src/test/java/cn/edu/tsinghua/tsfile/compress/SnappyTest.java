@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.compress;
 
-import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
+
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +58,7 @@ public class SnappyTest {
         Snappy.uncompress(compressed, uncompressedByteBuffer);
         System.out.println("decompression time cost:" + (System.currentTimeMillis() - time));
         System.out.println(uncompressedByteBuffer.remaining());
-        assert input.equals(ByteBufferUtil.string(uncompressedByteBuffer));
+        assert input.equals(ReadWriteIOUtils.readStringFromDirectByteBuffer(uncompressedByteBuffer));
     }
 
 

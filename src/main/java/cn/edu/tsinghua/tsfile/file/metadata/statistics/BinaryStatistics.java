@@ -1,7 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.metadata.statistics;
 
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
-import cn.edu.tsinghua.tsfile.common.utils.ByteBufferUtil;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
 
@@ -128,7 +127,7 @@ public class BinaryStatistics extends Statistics<Binary> {
 
 	@Override
 	public ByteBuffer getSumBytebuffer() {
-		return ByteBufferUtil.bytes(sum);
+		return ReadWriteIOUtils.getByteBuffer(sum);
 	}
 
 	@Override

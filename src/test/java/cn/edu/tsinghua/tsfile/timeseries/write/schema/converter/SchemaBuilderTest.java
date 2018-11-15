@@ -4,7 +4,7 @@ import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
-import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementSchema;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.SchemaBuilder;
 import org.junit.Test;
@@ -31,14 +31,14 @@ public class SchemaBuilderTest {
         builder.addSeries("s5", TSDataType.INT32, TSEncoding.TS_2DIFF, CompressionType.UNCOMPRESSED, null);
         FileSchema fileSchema = builder.build();
 
-        Collection<MeasurementDescriptor> measurements = fileSchema.getDescriptor().values();
+        Collection<MeasurementSchema> measurements = fileSchema.getAllMeasurementSchema().values();
         String[] measureDesStrings =
                 {
                         "[,s4,DOUBLE,RLE,max_point_number:3,SNAPPY,]",
                         "[,s5,INT32,TS_2DIFF,max_point_number:2,UNCOMPRESSED,]"
                 };
         int i = 0;
-        for (MeasurementDescriptor desc : measurements) {
+        for (MeasurementSchema desc : measurements) {
             assertEquals(measureDesStrings[i++], desc.toString());
         }
     }

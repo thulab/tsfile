@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.file.metadata.utils;
 
 import cn.edu.tsinghua.tsfile.file.metadata.*;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementSchema;
 
 import java.nio.ByteBuffer;
 import java.util.Iterator;
@@ -84,17 +85,6 @@ public class Utils {
 		assertTrue(str1.toString().equals(str2.toString()));
 	}
 
-	public static void isTimeSeriesEqual(TimeSeriesMetadata metadata1, TimeSeriesMetadata metadata2) {
-		if (Utils.isTwoObjectsNotNULL(metadata1, metadata2, "TimeSeriesMataData")) {
-			if (Utils.isTwoObjectsNotNULL(metadata1.getMeasurementUID(), metadata2.getMeasurementUID(),
-					"sensorUID")) {
-				assertTrue(metadata1.getMeasurementUID().equals(metadata2.getMeasurementUID()));
-			}
-			if (Utils.isTwoObjectsNotNULL(metadata1.getType(), metadata2.getType(), "data type")) {
-				assertTrue(metadata1.getType().toString() == metadata2.getType().toString());
-			}
-		}
-	}
 
 	public static void isTimeSeriesChunkMetadataEqual(TimeSeriesChunkMetaData metadata1,
                                                       TimeSeriesChunkMetaData metadata2) {
@@ -104,12 +94,9 @@ public class Utils {
 				assertTrue(metadata1.getMeasurementUID().equals(metadata2.getMeasurementUID()));
 			}
 			assertTrue(metadata1.getFileOffsetOfCorrespondingData() == metadata2.getFileOffsetOfCorrespondingData());
-			//assertTrue(metadata1.getTsDigestOffset() == metadata2.getTsDigestOffset());
-			//Utils.isStringSame(metadata1.getCompression(), metadata2.getCompression(), "compression type");
 			assertTrue(metadata1.getNumOfPoints() == metadata2.getNumOfPoints());
 			assertTrue(metadata1.getStartTime() == metadata2.getStartTime());
 			assertTrue(metadata1.getEndTime() == metadata2.getEndTime());
-			//Utils.isStringSame(metadata1.getDataType(), metadata2.getDataType(), "data type");
 			if (Utils.isTwoObjectsNotNULL(metadata1.getDigest(), metadata2.getDigest(), "digest")) {
 				Utils.isMapBufferEqual(metadata1.getDigest().getStatistics(), metadata2.getDigest().getStatistics(), "statistics");
 			}
@@ -118,8 +105,6 @@ public class Utils {
 
 	public static void isDeltaObjectEqual(TsDeltaObjectMetadata metadata1, TsDeltaObjectMetadata metadata2) {
 		if (Utils.isTwoObjectsNotNULL(metadata1, metadata2, "DeltaObjectMetaData")) {
-			//assertEquals(metadata1.getOffset(), metadata2.getOffset());
-           // assertEquals(metadata1.getMetadataBlockSize(), metadata2.getMetadataBlockSize());
             assertEquals(metadata1.getStartTime(), metadata2.getStartTime());
             assertEquals(metadata1.getEndTime(), metadata2.getEndTime());
 
@@ -137,9 +122,6 @@ public class Utils {
 	public static void isRowGroupMetaDataEqual(RowGroupMetaData metadata1, RowGroupMetaData metadata2) {
 		if (Utils.isTwoObjectsNotNULL(metadata1, metadata2, "RowGroupMetaData")) {
 			assertTrue(metadata1.getDeltaObjectID().equals(metadata2.getDeltaObjectID()));
-			assertEquals(metadata1.getTotalByteSize(), metadata2.getTotalByteSize());
-            //assertEquals(metadata1.getMetadataOffset(), metadata2.getMetadataOffset());
- //           assertEquals(metadata1.getMetadataSize(), metadata2.getMetadataSize());
 
 			if (Utils.isTwoObjectsNotNULL(metadata1.getTimeSeriesChunkMetaDataList(), metadata2.getTimeSeriesChunkMetaDataList(),
 					"Timeseries chunk metadata list")) {
@@ -168,21 +150,16 @@ public class Utils {
                 }
             }
 
-            if (Utils.isTwoObjectsNotNULL(metadata1.getTimeSeriesList(), metadata2.getTimeSeriesList(),
+            if (Utils.isTwoObjectsNotNULL(metadata1.getMeasurementSchema(), metadata2.getMeasurementSchema(),
                     "Timeseries metadata list")) {
-                assertEquals(metadata1.getTimeSeriesList().size(), metadata2.getTimeSeriesList().size());
-                for(int i = 0;i < metadata1.getTimeSeriesList().size();i++){
-                    Utils.isTimeSeriesEqual(metadata1.getTimeSeriesList().get(i),
-                            metadata1.getTimeSeriesList().get(i));
+                assertEquals(metadata1.getMeasurementSchema().size(), metadata2.getMeasurementSchema().size());
+                for(Map.Entry<String, MeasurementSchema> entry: metadata1.getMeasurementSchema().entrySet()){
+                	entry.getValue().equals(metadata2.getMeasurementSchema().get(entry.getKey()));
                 }
             }
 
 			assertEquals(metadata1.getCurrentVersion(), metadata2.getCurrentVersion());
 			assertEquals(metadata1.getCreatedBy(), metadata2.getCreatedBy());
-            assertEquals(metadata1.getFirstTimeSeriesMetadataOffset(), metadata2.getFirstTimeSeriesMetadataOffset());
-            assertEquals(metadata1.getLastTimeSeriesMetadataOffset(), metadata2.getLastTimeSeriesMetadataOffset());
-            assertEquals(metadata1.getFirstTsDeltaObjectMetadataOffset(), metadata2.getFirstTsDeltaObjectMetadataOffset());
-            assertEquals(metadata1.getLastTsDeltaObjectMetadataOffset(), metadata2.getLastTsDeltaObjectMetadataOffset());
 		}
 	}
 }

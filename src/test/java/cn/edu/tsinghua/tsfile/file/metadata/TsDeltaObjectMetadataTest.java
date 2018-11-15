@@ -1,6 +1,5 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
-import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.TestHelper;
 import cn.edu.tsinghua.tsfile.file.metadata.utils.Utils;
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
@@ -20,7 +19,8 @@ public class TsDeltaObjectMetadataTest {
     final String PATH = "target/outputDeltaObject.tsfile";
 
     @Before
-    public void setUp() {}
+    public void setUp() {
+    }
 
     @After
     public void tearDown() {
@@ -36,9 +36,7 @@ public class TsDeltaObjectMetadataTest {
         if (file.exists())
             file.delete();
         FileOutputStream fos = new FileOutputStream(file);
-        TsRandomAccessFileWriter out = new TsRandomAccessFileWriter(file, "rw");
-        ReadWriteIOUtils.write(metaData, out.getOutputStream());
-        out.close();
+        ReadWriteIOUtils.write(metaData, fos);
         fos.close();
 
         FileInputStream fis = new FileInputStream(new File(PATH));

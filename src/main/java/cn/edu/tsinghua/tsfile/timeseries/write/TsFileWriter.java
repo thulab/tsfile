@@ -2,17 +2,17 @@ package cn.edu.tsinghua.tsfile.timeseries.write;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.tsinghua.tsfile.file.footer.RowGroupFooter;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementSchema;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.NoMeasurementException;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.write.io.TsFileIOWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.DataPoint;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
-import cn.edu.tsinghua.tsfile.timeseries.write.schema.converter.JsonConverter;
-import cn.edu.tsinghua.tsfile.timeseries.write.series.IRowGroupWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.series.RowGroupWriterImpl;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.JsonConverter;
+import cn.edu.tsinghua.tsfile.timeseries.write.series.IChunkGroupWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.series.ChunkGroupWriterImpl;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,19 +38,19 @@ public class TsFileWriter {
     /**
      * IO writer of this TsFile
      **/
-    protected final TsFileIOWriter deltaFileWriter;
+    private final TsFileIOWriter deltaFileWriter;
 
     /**
      * schema of this TsFile
      **/
     protected final FileSchema schema;
-    protected final int pageSize;
-    protected long recordCount = 0;
+    private final int pageSize;
+    private long recordCount = 0;
 
     /**
      * all IRowGroupWriters
      **/
-    protected Map<String, IRowGroupWriter> groupWriters = new HashMap<String, IRowGroupWriter>();
+    private Map<String, IChunkGroupWriter> groupWriters = new HashMap<String, IChunkGroupWriter>();
 
     /**
      * min value of threshold of data points num check
@@ -106,56 +106,6 @@ public class TsFileWriter {
     /**
      * init this TsFileWriter
      *
-     * @param output the file writer of this TsFileWriter
-     * @throws IOException
-     */
-    public TsFileWriter(ITsRandomAccessFileWriter output) throws IOException {
-        this(new TsFileIOWriter(output), new FileSchema(), TSFileDescriptor.getInstance().getConfig());
-    }
-
-
-    /**
-     * init this TsFileWriter
-     *
-     * @param output the file writer of this TsFileWriter
-     * @param schema the schema of this TsFile
-     * @throws IOException
-     */
-    public TsFileWriter(ITsRandomAccessFileWriter output, FileSchema schema)
-            throws IOException {
-        this(new TsFileIOWriter(output), schema, TSFileDescriptor.getInstance().getConfig());
-    }
-
-
-    /**
-     * init this TsFileWriter
-     *
-     * @param output the file writer of this TsFileWriter
-     * @param conf   the configuration of this TsFile
-     * @throws IOException
-     */
-    public TsFileWriter(ITsRandomAccessFileWriter output, TSFileConfig conf)
-            throws IOException {
-        this(new TsFileIOWriter(output), new FileSchema(), conf);
-    }
-
-
-    /**
-     * init this TsFileWriter
-     *
-     * @param output the file writer of this TsFileWriter
-     * @param schema the schema of this TsFile
-     * @param conf   the configuration of this TsFile
-     * @throws IOException
-     */
-    public TsFileWriter(ITsRandomAccessFileWriter output, FileSchema schema, TSFileConfig conf)
-            throws IOException {
-        this(new TsFileIOWriter(output), schema, conf);
-    }
-
-    /**
-     * init this TsFileWriter
-     *
      * @param tsfileWriter the io writer of this TsFile
      * @param schema       the schema of this TsFile
      * @param conf         the configuration of this TsFile
@@ -168,32 +118,26 @@ public class TsFileWriter {
     }
 
     /**
-     * add a MeasurementDescriptor to this TsFile
+     * add a MeasurementSchema to this TsFile
      */
-    public void addMeasurement(MeasurementDescriptor measurementDescriptor)
+    public void addMeasurement(MeasurementSchema measurementSchema)
             throws WriteProcessException {
-        if (schema.hasMeasurement(measurementDescriptor.getMeasurementId()))
+        if (schema.hasMeasurement(measurementSchema.getMeasurementId()))
             throw new WriteProcessException(
-                    "given measurement has exists! " + measurementDescriptor.getMeasurementId());
-        schema.registerMeasurement(measurementDescriptor);
-        try {
-            checkMemorySizeAndMayFlushGroup();
-        } catch (IOException e) {
-            throw new WriteProcessException(e.getMessage());
-        }
+                    "given measurement has exists! " + measurementSchema.getMeasurementId());
+        schema.registerMeasurement(measurementSchema);
     }
 
     /**
      * add a new measurement according to json string.
      *
      * @param measurement example:
-     *               {
+     *                    {
      *                    "measurement_id": "sensor_cpu_50",
      *                    "data_type": "INT32",
      *                    "encoding": "RLE"
      *                    "compressor": "SNAPPY"
-     *               }
-     *
+     *                    }
      * @throws WriteProcessException if the json is illegal or the measurement exists
      */
     public void addMeasurementByJson(JSONObject measurement) throws WriteProcessException {
@@ -209,16 +153,16 @@ public class TsFileWriter {
      * @throws WriteProcessException exception
      */
     protected boolean checkIsTimeSeriesExist(TSRecord record) throws WriteProcessException {
-        IRowGroupWriter groupWriter;
+        IChunkGroupWriter groupWriter;
         if (!groupWriters.containsKey(record.deltaObjectId)) {
-            groupWriter = new RowGroupWriterImpl(record.deltaObjectId);
+            groupWriter = new ChunkGroupWriterImpl(record.deltaObjectId);
             groupWriters.put(record.deltaObjectId, groupWriter);
         } else {
             groupWriter = groupWriters.get(record.deltaObjectId);
         }
 
         // add all SeriesWriter of measurements in this TSRecord to this RowGroupWriter
-        Map<String, MeasurementDescriptor> schemaDescriptorMap = schema.getDescriptor();
+        Map<String, MeasurementSchema> schemaDescriptorMap = schema.getAllMeasurementSchema();
         for (DataPoint dp : record.dataPointList) {
             String measurementId = dp.getMeasurementId();
             if (schemaDescriptorMap.containsKey(measurementId))
@@ -258,7 +202,7 @@ public class TsFileWriter {
      */
     public long calculateMemSizeForAllGroup() {
         int memTotalSize = 0;
-        for (IRowGroupWriter group : groupWriters.values()) {
+        for (IChunkGroupWriter group : groupWriters.values()) {
             memTotalSize += group.updateMaxGroupMemSize();
         }
         return memTotalSize;
@@ -273,15 +217,17 @@ public class TsFileWriter {
      * false - otherwise
      * @throws IOException exception in IO
      */
-    protected boolean checkMemorySizeAndMayFlushGroup() throws IOException {
+    private boolean checkMemorySizeAndMayFlushGroup() throws IOException {
         if (recordCount >= recordCountForNextMemCheck) {
             long memSize = calculateMemSizeForAllGroup();
             if (memSize > rowGroupSizeThreshold) {
-                LOG.info("start_write_row_group, memory space occupy:" + memSize);
-                recordCountForNextMemCheck = recordCount * memSize / rowGroupSizeThreshold;
+                LOG.info("start_flush_row_group, memory space occupy:" + memSize);
+                recordCountForNextMemCheck = recordCount * rowGroupSizeThreshold / memSize;
+                LOG.debug("current threshold:{}, next check:{}", recordCount, recordCountForNextMemCheck);
                 return flushAllRowGroups();
             } else {
                 recordCountForNextMemCheck = recordCount * rowGroupSizeThreshold / memSize;
+                LOG.debug("current threshold:{}, next check:{}", recordCount, recordCountForNextMemCheck);
                 return false;
             }
         }
@@ -301,20 +247,21 @@ public class TsFileWriter {
         if (recordCount > 0) {
             long totalMemStart = deltaFileWriter.getPos();
             //make sure all the pages have been compressed into buffers, so that we can get correct groupWriter.getCurrentRowGroupSize().
-            for (IRowGroupWriter writer : groupWriters.values()) {
+            for (IChunkGroupWriter writer : groupWriters.values()) {
                 writer.preFlush();
             }
             for (String deltaObjectId : groupWriters.keySet()) {
                 long memSize = deltaFileWriter.getPos();
-                IRowGroupWriter groupWriter = groupWriters.get(deltaObjectId);
+                IChunkGroupWriter groupWriter = groupWriters.get(deltaObjectId);
                 long RowGroupSize = groupWriter.getCurrentRowGroupSize();
-                deltaFileWriter.startFlushRowGroup(deltaObjectId, RowGroupSize, groupWriter.getSeriesNumber());
+                RowGroupFooter rowGroupFooter = deltaFileWriter.startFlushRowGroup(deltaObjectId, RowGroupSize, groupWriter.getSeriesNumber());
                 groupWriter.flushToFileWriter(deltaFileWriter);
 
-                assert deltaFileWriter.getPos() - memSize == RowGroupSize;
+                if (deltaFileWriter.getPos() - memSize != RowGroupSize)
+                    throw new IOException(String.format("Flushed data size is inconsistent with computation! Estimated: %d, Actuall: %d",
+                            RowGroupSize, deltaFileWriter.getPos() - memSize));
 
-                deltaFileWriter.endRowGroup(deltaFileWriter.getPos() - memSize);
-
+                deltaFileWriter.endRowGroup(deltaFileWriter.getPos() - memSize, rowGroupFooter);
             }
             long actualTotalRowGroupSize = deltaFileWriter.getPos() - totalMemStart;
             LOG.info("total row group size:{}", actualTotalRowGroupSize);

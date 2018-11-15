@@ -3,6 +3,8 @@ package cn.edu.tsinghua.tsfile.file.metadata.utils;
 import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
 import cn.edu.tsinghua.tsfile.file.metadata.*;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementSchema;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -18,14 +20,10 @@ public class TestHelper {
 	private static final String LAST_VALUE = "222";
 
     public static TsFileMetaData createSimpleFileMetaData() {
-        TsFileMetaData metaData = new TsFileMetaData(generateDeltaObjectMetadataMap(), new ArrayList<>(), TsFileMetaDataTest.VERSION);
-        metaData.addTimeSeriesMetaData(TestHelper.createSimpleTimeSeriesMetaData());
-        metaData.addTimeSeriesMetaData(TestHelper.createSimpleTimeSeriesMetaData());
+        TsFileMetaData metaData = new TsFileMetaData(generateDeltaObjectMetadataMap(), new HashMap<>(), TsFileMetaDataTest.VERSION);
+        metaData.addMeasurementSchema(TestHelper.createSimpleMeasurementSchema());
+        metaData.addMeasurementSchema(TestHelper.createSimpleMeasurementSchema());
         metaData.setCreatedBy(TsFileMetaDataTest.CREATED_BY);
-        metaData.setFirstTimeSeriesMetadataOffset(TsFileMetaDataTest.FIRST_TSMETADATA_OFFSET);
-        metaData.setLastTimeSeriesMetadataOffset(TsFileMetaDataTest.LAST_TSMETADATA_OFFSET);
-        metaData.setFirstTsDeltaObjectMetadataOffset(TsFileMetaDataTest.FIRST_DOMETADATA_OFFSET);
-        metaData.setLastTimeSeriesMetadataOffset(TsFileMetaDataTest.LAST_DOMETADATA_OFFSET);
         return metaData;
     }
 
@@ -47,8 +45,7 @@ public class TestHelper {
     }
 
     public static RowGroupMetaData createSimpleRowGroupMetaData() {
-    RowGroupMetaData metaData = new RowGroupMetaData(RowGroupMetaDataTest.DELTA_OBJECT_UID,
-            RowGroupMetaDataTest.TOTAL_BYTE_SIZE, 12, new ArrayList<>());
+    RowGroupMetaData metaData = new RowGroupMetaData(RowGroupMetaDataTest.DELTA_OBJECT_UID, new ArrayList<>());
     metaData.addTimeSeriesChunkMetaData(TestHelper.createSimpleTimeSeriesChunkMetaData());
     metaData.addTimeSeriesChunkMetaData(TestHelper.createSimpleTimeSeriesChunkMetaData());
     return metaData;
@@ -56,7 +53,7 @@ public class TestHelper {
 
     public static TimeSeriesChunkMetaData createSimpleTimeSeriesChunkMetaData() {
     TimeSeriesChunkMetaData metaData =
-        new TimeSeriesChunkMetaData(TimeSeriesChunkMetaDataTest.MEASUREMENT_UID, TimeSeriesChunkMetaDataTest.FILE_OFFSET,
+        new TimeSeriesChunkMetaData(TimeSeriesChunkMetaDataTest.MEASUREMENT_UID, TimeSeriesChunkMetaDataTest.DATA_TYPE, TimeSeriesChunkMetaDataTest.FILE_OFFSET,
             TimeSeriesChunkMetaDataTest.START_TIME, TimeSeriesChunkMetaDataTest.END_TIME//, TimeSeriesChunkMetaDataTest.ENCODING_TYPE
         );
     metaData.setNumOfPoints(TimeSeriesChunkMetaDataTest.NUM_OF_POINTS);
@@ -64,9 +61,8 @@ public class TestHelper {
     return metaData;
     }
 
-    public static TimeSeriesMetadata createSimpleTimeSeriesMetaData() {
-    TimeSeriesMetadata timeSeries = new TimeSeriesMetadata(TimeSeriesMetadataTest.measurementUID,
-        TSDataType.INT64);
+    public static MeasurementSchema createSimpleMeasurementSchema() {
+    MeasurementSchema timeSeries = new MeasurementSchema(TimeSeriesMetadataTest.measurementUID, TSDataType.INT64, TSEncoding.RLE);
     return timeSeries;
     }
 

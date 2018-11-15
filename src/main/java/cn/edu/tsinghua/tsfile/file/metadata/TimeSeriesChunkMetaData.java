@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ public class TimeSeriesChunkMetaData {
 
     /**
      * Byte offset of the corresponding data in the file
-     * Notice:  include the chunk header
+     * Notice:  include the chunk header and marker
      */
     private long fileOffsetOfCorrespondingData;
 
@@ -30,6 +31,7 @@ public class TimeSeriesChunkMetaData {
 
     private long endTime;
 
+    private TSDataType tsDataType;
 
     /**
      * The maximum time of the tombstones that take effect on this chunk. Only data with larger timestamps than this
@@ -39,19 +41,21 @@ public class TimeSeriesChunkMetaData {
 
     private TsDigest valuesStatistics;//TODO 谁赋值的？？
 
-    //private TSEncoding dataEncoding;//FIXME put me to TimeSeriesMetaData
 
     public int getSerializedSize(){
-        //6 * Long.BYTES: fileOffsetOfCorrespondingData, tsDigestOffset, numOfPoints, totalByteSizeOfPagesOnDisk, startTime, endTime
-        return (Integer.BYTES + measurementUID.length()) + 5 * Long.BYTES  + (valuesStatistics==null? TsDigest.getNullDigestSize():valuesStatistics.getSerializedSize());
+        return (Integer.BYTES + measurementUID.length()) +  // measurementUID
+                4 * Long.BYTES  + //4 long: fileOffsetOfCorrespondingData, numOfPoints, startTime, endTime
+                TSDataType.getSerializedSize() +  // TSDataType
+                (valuesStatistics==null? TsDigest.getNullDigestSize():valuesStatistics.getSerializedSize());
 
     }
 
 
     private TimeSeriesChunkMetaData(){}
 
-    public TimeSeriesChunkMetaData(String measurementUID, long fileOffset,  long startTime, long endTime) {
+    public TimeSeriesChunkMetaData(String measurementUID, TSDataType tsDataType, long fileOffset,  long startTime, long endTime) {
         this.measurementUID = measurementUID;
+        this.tsDataType = tsDataType;
         this.fileOffsetOfCorrespondingData = fileOffset;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -105,18 +109,23 @@ public class TimeSeriesChunkMetaData {
         this.endTime = endTime;
     }
 
+    public TSDataType getTsDataType() {
+        return tsDataType;
+    }
+
+    public void setTsDataType(TSDataType tsDataType) {
+        this.tsDataType = tsDataType;
+    }
 
     public int serializeTo(OutputStream outputStream) throws IOException {
         int byteLen = 0;
 
         byteLen += ReadWriteIOUtils.write(measurementUID, outputStream);
-
         byteLen += ReadWriteIOUtils.write(fileOffsetOfCorrespondingData, outputStream);
-
-
         byteLen += ReadWriteIOUtils.write(numOfPoints, outputStream);
         byteLen += ReadWriteIOUtils.write(startTime, outputStream);
         byteLen += ReadWriteIOUtils.write(endTime, outputStream);
+        byteLen += ReadWriteIOUtils.write(tsDataType, outputStream);
 
         if(valuesStatistics==null) byteLen += TsDigest.serializeNullTo(outputStream);
         else byteLen += ReadWriteIOUtils.write(valuesStatistics, outputStream);
@@ -129,14 +138,11 @@ public class TimeSeriesChunkMetaData {
         int byteLen = 0;
 
         byteLen += ReadWriteIOUtils.write(measurementUID, buffer);
-
         byteLen += ReadWriteIOUtils.write(fileOffsetOfCorrespondingData, buffer);
-
-
         byteLen += ReadWriteIOUtils.write(numOfPoints, buffer);
         byteLen += ReadWriteIOUtils.write(startTime, buffer);
         byteLen += ReadWriteIOUtils.write(endTime, buffer);
-
+        byteLen += ReadWriteIOUtils.write(tsDataType, buffer);
 
         if(valuesStatistics==null) byteLen += TsDigest.serializeNullTo(buffer);
         else byteLen += ReadWriteIOUtils.write(valuesStatistics, buffer);
@@ -157,6 +163,7 @@ public class TimeSeriesChunkMetaData {
         timeSeriesChunkMetaData.startTime = ReadWriteIOUtils.readLong(inputStream);
         timeSeriesChunkMetaData.endTime = ReadWriteIOUtils.readLong(inputStream);
 
+        timeSeriesChunkMetaData.tsDataType = ReadWriteIOUtils.readDataType(inputStream);
 
         timeSeriesChunkMetaData.valuesStatistics = ReadWriteIOUtils.readDigest(inputStream);
 
@@ -168,12 +175,11 @@ public class TimeSeriesChunkMetaData {
         TimeSeriesChunkMetaData timeSeriesChunkMetaData = new TimeSeriesChunkMetaData();
 
         timeSeriesChunkMetaData.measurementUID = ReadWriteIOUtils.readString(buffer);
-
         timeSeriesChunkMetaData.fileOffsetOfCorrespondingData = ReadWriteIOUtils.readLong(buffer);
-
         timeSeriesChunkMetaData.numOfPoints = ReadWriteIOUtils.readLong(buffer);
         timeSeriesChunkMetaData.startTime = ReadWriteIOUtils.readLong(buffer);
         timeSeriesChunkMetaData.endTime = ReadWriteIOUtils.readLong(buffer);
+        timeSeriesChunkMetaData.tsDataType = ReadWriteIOUtils.readDataType(buffer);
 
         timeSeriesChunkMetaData.valuesStatistics = ReadWriteIOUtils.readDigest(buffer);
 
