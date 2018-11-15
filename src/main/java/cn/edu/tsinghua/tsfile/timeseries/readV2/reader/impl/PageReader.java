@@ -31,6 +31,7 @@ public class PageReader implements TimeValuePairReader {
         this.valueDecoder = valueDecoder;
         this.timeDecoder = timeDecoder;
         hasOneCachedTimeValuePair = false;
+        cachedTimeValuePair = new TimeValuePair(-1L, null);
         splitInputStreamToTimeStampAndValue(pageContent);
     }
 
@@ -72,7 +73,9 @@ public class PageReader implements TimeValuePairReader {
     private void cacheOneTimeValuePair() {
         long timestamp = timeDecoder.readLong(timestampInputStream);
         TsPrimitiveType value = readOneValue();
-        this.cachedTimeValuePair = new TimeValuePair(timestamp, value);
+        this.cachedTimeValuePair.setTimestamp(timestamp);
+        this.cachedTimeValuePair.setValue(value);
+        //this.cachedTimeValuePair = new TimeValuePair(timestamp, value);
     }
 
     @Override

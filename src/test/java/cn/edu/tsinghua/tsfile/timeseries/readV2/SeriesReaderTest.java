@@ -7,6 +7,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filterV2.ValueFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.basic.Filter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.SeriesFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.factory.FilterFactory;
+import cn.edu.tsinghua.tsfile.timeseries.filterV2.operator.And;
 import cn.edu.tsinghua.tsfile.timeseries.read.TsRandomAccessLocalFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
@@ -91,7 +92,7 @@ public class SeriesReaderTest {
 
         Filter<Integer> filter = new FilterFactory().or(
                 FilterFactory.and(TimeFilter.gt(1480563570029L), TimeFilter.lt(1480563570033L)),
-                FilterFactory.and(ValueFilter.gtEq(9520331), ValueFilter.ltEq(9520361)));
+                (And<Integer>)FilterFactory.and(ValueFilter.gtEq(9520331), ValueFilter.ltEq(9520361)));
         SeriesFilter<Integer> seriesFilter = new SeriesFilter<>(new Path("d1.s1"), filter);
         SeriesReader seriesReader = new SeriesReaderFromSingleFileWithFilterImpl(seriesChunkLoader, encodedSeriesChunkDescriptorList, seriesFilter.getFilter());
 
