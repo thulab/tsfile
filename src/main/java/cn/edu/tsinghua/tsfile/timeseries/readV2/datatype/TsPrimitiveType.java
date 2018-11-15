@@ -66,6 +66,10 @@ public abstract class TsPrimitiveType implements Serializable {
             return value;
         }
 
+        public void setValue(boolean value) {
+            this.value = value;
+        }
+
         @Override
         public int getSize() {
             return 4 + 1;
@@ -96,6 +100,10 @@ public abstract class TsPrimitiveType implements Serializable {
 
         public int getInt() {
             return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
         }
 
         @Override
@@ -130,6 +138,10 @@ public abstract class TsPrimitiveType implements Serializable {
             return value;
         }
 
+        public void setValue(long value) {
+            this.value = value;
+        }
+
         @Override
         public int getSize() {
             return 4 + 8;
@@ -160,6 +172,10 @@ public abstract class TsPrimitiveType implements Serializable {
 
         public float getFloat() {
             return value;
+        }
+
+        public void setValue(float value) {
+            this.value = value;
         }
 
         @Override
@@ -194,6 +210,10 @@ public abstract class TsPrimitiveType implements Serializable {
             return value;
         }
 
+        public void setValue(double value) {
+            this.value = value;
+        }
+
         @Override
         public int getSize() {
             return 4 + 8;
@@ -224,6 +244,10 @@ public abstract class TsPrimitiveType implements Serializable {
 
         public Binary getBinary() {
             return value;
+        }
+
+        public void setValue(Binary value) {
+            this.value = value;
         }
 
         @Override

@@ -26,6 +26,13 @@ public class PageReader implements TimeValuePairReader {
     private boolean hasOneCachedTimeValuePair;
     private TimeValuePair cachedTimeValuePair;
 
+    private TsBoolean booleanValue = new TsBoolean(false);
+    private TsInt intValue = new TsInt(0);
+    private TsLong longValue = new TsLong(0);
+    private TsFloat floatValue = new TsFloat(0);
+    private TsDouble doubleValue = new TsDouble(0);
+    private TsBinary textValue = new TsBinary(null);
+
     public PageReader(InputStream pageContent, TSDataType dataType, Decoder valueDecoder, Decoder timeDecoder) throws IOException {
         this.dataType = dataType;
         this.valueDecoder = valueDecoder;
@@ -74,10 +81,10 @@ public class PageReader implements TimeValuePairReader {
         long timestamp = timeDecoder.readLong(timestampInputStream);
         TsPrimitiveType value = readOneValue();
 
-        //this.cachedTimeValuePair = new TimeValuePair(timestamp, value);
+        this.cachedTimeValuePair = new TimeValuePair(timestamp, value);
 
-        this.cachedTimeValuePair.setTimestamp(timestamp);
-        this.cachedTimeValuePair.setValue(value);
+        //this.cachedTimeValuePair.setTimestamp(timestamp);
+        //this.cachedTimeValuePair.setValue(value);
 
     }
 
@@ -95,17 +102,29 @@ public class PageReader implements TimeValuePairReader {
     private TsPrimitiveType readOneValue() {
         switch (dataType) {
             case BOOLEAN:
-                return new TsBoolean(valueDecoder.readBoolean(valueInputStream));
+                booleanValue.setValue(valueDecoder.readBoolean(valueInputStream));
+                return booleanValue;
+                //return new TsBoolean(valueDecoder.readBoolean(valueInputStream));
             case INT32:
-                return new TsInt(valueDecoder.readInt(valueInputStream));
+                intValue.setValue(valueDecoder.readInt(valueInputStream));
+                return intValue;
+                //return new TsInt(valueDecoder.readInt(valueInputStream));
             case INT64:
-                return new TsLong(valueDecoder.readLong(valueInputStream));
+                longValue.setValue(valueDecoder.readLong(valueInputStream));
+                return longValue;
+                //return new TsLong(valueDecoder.readLong(valueInputStream));
             case FLOAT:
-                return new TsFloat(valueDecoder.readFloat(valueInputStream));
+                floatValue.setValue(valueDecoder.readFloat(valueInputStream));
+                return floatValue;
+                //return new TsFloat(valueDecoder.readFloat(valueInputStream));
             case DOUBLE:
-                return new TsDouble(valueDecoder.readDouble(valueInputStream));
+                doubleValue.setValue(valueDecoder.readDouble(valueInputStream));
+                return doubleValue;
+                //return new TsDouble(valueDecoder.readDouble(valueInputStream));
             case TEXT:
-                return new TsBinary(valueDecoder.readBinary(valueInputStream));
+                textValue.setValue(valueDecoder.readBinary(valueInputStream));
+                return textValue;
+                //return new TsBinary(valueDecoder.readBinary(valueInputStream));
             case ENUMS:
                 return new TsInt(valueDecoder.readInt(valueInputStream));
             default:
