@@ -1,9 +1,10 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.controller;
 
 
+import cn.edu.tsinghua.tsfile.file.header.ChunkHeader;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileGeneratorForTest;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.MemSeriesChunk;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
@@ -40,12 +41,13 @@ public class SeriesChunkLoaderTest {
         fileReader = new TsFileSequenceReader(FILE_PATH);
         fileReader.open();
         MetadataQuerierByFileImpl metadataQuerierByFile = new MetadataQuerierByFileImpl(fileReader);
-        List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d2.s1"));
+        List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d2.s1"));
 
         SeriesChunkLoaderImpl seriesChunkLoader = new SeriesChunkLoaderImpl(fileReader);
-        for (EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor : encodedSeriesChunkDescriptorList) {
-            MemSeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
-            Assert.assertEquals(encodedSeriesChunkDescriptor.getLengthOfBytes(), memSeriesChunk.getSeriesChunkBodyStream().available());
+        for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList) {
+            MemSeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(timeSeriesChunkMetaData);
+            ChunkHeader chunkHeader = ChunkHeader.deserializeFrom(memSeriesChunk.getSeriesChunkBodyStream());
+            Assert.assertEquals(chunkHeader.getDataSize(), memSeriesChunk.getSeriesChunkBodyStream().remaining());
         }
     }
 }

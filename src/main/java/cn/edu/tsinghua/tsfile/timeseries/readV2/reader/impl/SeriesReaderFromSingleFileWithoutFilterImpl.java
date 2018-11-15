@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
 import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunk;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
@@ -14,8 +14,8 @@ import java.util.List;
  */
 public class SeriesReaderFromSingleFileWithoutFilterImpl extends SeriesReaderFromSingleFile {
 
-    public SeriesReaderFromSingleFileWithoutFilterImpl(SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
-        super(seriesChunkLoader, encodedSeriesChunkDescriptorList);
+    public SeriesReaderFromSingleFileWithoutFilterImpl(SeriesChunkLoader seriesChunkLoader, List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList) {
+        super(seriesChunkLoader, timeSeriesChunkMetaDataList);
     }
 
     public SeriesReaderFromSingleFileWithoutFilterImpl(TsFileSequenceReader tsFileReader, Path path) throws IOException {
@@ -23,18 +23,18 @@ public class SeriesReaderFromSingleFileWithoutFilterImpl extends SeriesReaderFro
     }
 
     public SeriesReaderFromSingleFileWithoutFilterImpl(TsFileSequenceReader tsFileReader,
-                                      SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
-        super(tsFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
+                                      SeriesChunkLoader seriesChunkLoader, List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList) {
+        super(tsFileReader, seriesChunkLoader, timeSeriesChunkMetaDataList);
     }
 
-    protected void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException {
-        SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
+    protected void initSeriesChunkReader(TimeSeriesChunkMetaData timeSeriesChunkMetaData) throws IOException {
+        SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(timeSeriesChunkMetaData);
         this.seriesChunkReader = new SeriesChunkReaderWithoutFilterImpl(memSeriesChunk.getSeriesChunkBodyStream());
- 		this.seriesChunkReader.setMaxTombstoneTime(encodedSeriesChunkDescriptor.getMaxTombstoneTime());
+ 		this.seriesChunkReader.setMaxTombstoneTime(timeSeriesChunkMetaData.getMaxTombstoneTime());
     }
 
     @Override
-    protected boolean seriesChunkSatisfied(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) {
+    protected boolean seriesChunkSatisfied(TimeSeriesChunkMetaData timeSeriesChunkMetaData) {
         return true;
     }
 }

@@ -5,7 +5,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filter.utils.DigestForFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.basic.Filter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.visitor.impl.DigestFilterVisitor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunk;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
@@ -22,15 +22,15 @@ public class SeriesReaderFromSingleFileWithFilterImpl extends SeriesReaderFromSi
     private DigestFilterVisitor digestFilterVisitor;
 
     public SeriesReaderFromSingleFileWithFilterImpl(SeriesChunkLoader seriesChunkLoader
-            , List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList, Filter<?> filter) {
-        super(seriesChunkLoader, encodedSeriesChunkDescriptorList);
+            , List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList, Filter<?> filter) {
+        super(seriesChunkLoader, timeSeriesChunkMetaDataList);
         this.filter = filter;
         this.digestFilterVisitor = new DigestFilterVisitor();
     }
 
     public SeriesReaderFromSingleFileWithFilterImpl(TsFileSequenceReader tsFileReader, SeriesChunkLoader seriesChunkLoader,
-                                                    List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList, Filter<?> filter) {
-        super(tsFileReader, seriesChunkLoader, encodedSeriesChunkDescriptorList);
+                                                    List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList, Filter<?> filter) {
+        super(tsFileReader, seriesChunkLoader, timeSeriesChunkMetaDataList);
         this.filter = filter;
         this.digestFilterVisitor = new DigestFilterVisitor();
     }
@@ -42,22 +42,22 @@ public class SeriesReaderFromSingleFileWithFilterImpl extends SeriesReaderFromSi
         this.digestFilterVisitor = new DigestFilterVisitor();
     }
 
-    protected void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException {
-        SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(encodedSeriesChunkDescriptor);
+    protected void initSeriesChunkReader(TimeSeriesChunkMetaData timeSeriesChunkMetaData) throws IOException {
+        SeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(timeSeriesChunkMetaData);
         this.seriesChunkReader = new SeriesChunkReaderWithFilterImpl(memSeriesChunk.getSeriesChunkBodyStream(),
                 filter);
-        this.seriesChunkReader.setMaxTombstoneTime(encodedSeriesChunkDescriptor.getMaxTombstoneTime());
+        this.seriesChunkReader.setMaxTombstoneTime(timeSeriesChunkMetaData.getMaxTombstoneTime());
     }
 
     @Override
-    protected boolean seriesChunkSatisfied(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) {
-        DigestForFilter timeDigest = new DigestForFilter(encodedSeriesChunkDescriptor.getMinTimestamp(),
-                encodedSeriesChunkDescriptor.getMaxTimestamp());
+    protected boolean seriesChunkSatisfied(TimeSeriesChunkMetaData timeSeriesChunkMetaData) {
+        DigestForFilter timeDigest = new DigestForFilter(timeSeriesChunkMetaData.getStartTime(),
+                timeSeriesChunkMetaData.getEndTime());
         //TODO: Using ByteBuffer as min/max is best
         DigestForFilter valueDigest = new DigestForFilter(
-                encodedSeriesChunkDescriptor.getValueDigest().getStatistics().get(StatisticConstant.MIN_VALUE),
-                encodedSeriesChunkDescriptor.getValueDigest().getStatistics().get(StatisticConstant.MAX_VALUE),
-                encodedSeriesChunkDescriptor.getDataType());
+                timeSeriesChunkMetaData.getDigest().getStatistics().get(StatisticConstant.MIN_VALUE),
+                timeSeriesChunkMetaData.getDigest().getStatistics().get(StatisticConstant.MAX_VALUE),
+                timeSeriesChunkMetaData.getDataType());
         return digestFilterVisitor.satisfy(timeDigest, valueDigest, filter);
     }
 }

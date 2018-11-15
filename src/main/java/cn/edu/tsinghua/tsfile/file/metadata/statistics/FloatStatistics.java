@@ -159,4 +159,13 @@ public class FloatStatistics extends Statistics<Float> {
 		this.last = ReadWriteIOUtils.readFloat(inputStream);
 		this.sum = ReadWriteIOUtils.readDouble(inputStream);
 	}
+
+	@Override
+	void fill(ByteBuffer byteBuffer) throws IOException {
+		this.min = ReadWriteIOUtils.readFloat(byteBuffer);
+		this.max = ReadWriteIOUtils.readFloat(byteBuffer);
+		this.first = ReadWriteIOUtils.readFloat(byteBuffer);
+		this.last = ReadWriteIOUtils.readFloat(byteBuffer);
+		this.sum = ReadWriteIOUtils.readDouble(byteBuffer);
+	}
 }

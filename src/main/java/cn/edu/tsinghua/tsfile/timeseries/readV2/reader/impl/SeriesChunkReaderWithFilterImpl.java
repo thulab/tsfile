@@ -1,9 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
 import cn.edu.tsinghua.tsfile.file.header.PageHeader;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.filter.utils.DigestForFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.basic.Filter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.visitor.TimeValuePairFilterVisitor;
@@ -11,7 +8,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filterV2.visitor.impl.DigestFilterVisit
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.visitor.impl.TimeValuePairFilterVisitorImpl;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 
-import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 /**
  * Created by zhangjinrui on 2017/12/24.
@@ -22,8 +19,8 @@ public class SeriesChunkReaderWithFilterImpl extends SeriesChunkReader {
     private DigestFilterVisitor digestFilterVisitor;
     private TimeValuePairFilterVisitor<Boolean> timeValuePairFilterVisitor;
 
-    public SeriesChunkReaderWithFilterImpl(InputStream seriesChunkInputStream, Filter<?> filter) {
-        super(seriesChunkInputStream);
+    public SeriesChunkReaderWithFilterImpl(ByteBuffer seriesChunkByteBuffer, Filter<?> filter) {
+        super(seriesChunkByteBuffer);
         this.filter = filter;
         this.timeValuePairFilterVisitor = new TimeValuePairFilterVisitorImpl();
         this.digestFilterVisitor = new DigestFilterVisitor();

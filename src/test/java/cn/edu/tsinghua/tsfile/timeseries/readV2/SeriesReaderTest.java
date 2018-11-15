@@ -7,7 +7,7 @@ import cn.edu.tsinghua.tsfile.timeseries.filterV2.basic.Filter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.expression.impl.SeriesFilter;
 import cn.edu.tsinghua.tsfile.timeseries.filterV2.factory.FilterFactory;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.MetadataQuerierByFileImpl;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoaderImpl;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
@@ -52,9 +52,9 @@ public class SeriesReaderTest {
     public void readTest() throws IOException {
         int count = 0;
         SeriesChunkLoaderImpl seriesChunkLoader = new SeriesChunkLoaderImpl(fileReader);
-        List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d1.s1"));
+        List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d1.s1"));
 
-        SeriesReader seriesReader = new SeriesReaderFromSingleFileWithoutFilterImpl(seriesChunkLoader, encodedSeriesChunkDescriptorList);
+        SeriesReader seriesReader = new SeriesReaderFromSingleFileWithoutFilterImpl(seriesChunkLoader, timeSeriesChunkMetaDataList);
         long startTime = TsFileGeneratorForTest.START_TIMESTAMP;
         long startTimestamp = System.currentTimeMillis();
         while (seriesReader.hasNext()) {
@@ -69,8 +69,8 @@ public class SeriesReaderTest {
                 " ms. [Read Count]: " + count);
 
 
-        encodedSeriesChunkDescriptorList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d1.s4"));
-        seriesReader = new SeriesReaderFromSingleFileWithoutFilterImpl(seriesChunkLoader, encodedSeriesChunkDescriptorList);
+        timeSeriesChunkMetaDataList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d1.s4"));
+        seriesReader = new SeriesReaderFromSingleFileWithoutFilterImpl(seriesChunkLoader, timeSeriesChunkMetaDataList);
         count = 0;
         startTimestamp = System.currentTimeMillis();
         while (seriesReader.hasNext()) {
@@ -86,13 +86,13 @@ public class SeriesReaderTest {
 //    @Test
 //    public void readWithFilterTest() throws IOException {
 //        SeriesChunkLoaderImpl seriesChunkLoader = new SeriesChunkLoaderImpl(fileReader);
-//        List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d1.s1"));
+//        List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d1.s1"));
 //
 //        Filter<Integer> filter = new FilterFactory().or(
 //                FilterFactory.and(TimeFilter.gt(1480563570029L), TimeFilter.lt(1480563570033L)),
 //                FilterFactory.and(ValueFilter.gtEq(9520331), ValueFilter.ltEq(9520361)));
 //        SeriesFilter<Integer> seriesFilter = new SeriesFilter<>(new Path("d1.s1"), filter);
-//        SeriesReader seriesReader = new SeriesReaderFromSingleFileWithFilterImpl(seriesChunkLoader, encodedSeriesChunkDescriptorList, seriesFilter.getFilter());
+//        SeriesReader seriesReader = new SeriesReaderFromSingleFileWithFilterImpl(seriesChunkLoader, timeSeriesChunkMetaDataList, seriesFilter.getFilter());
 //
 //        long startTimestamp = System.currentTimeMillis();
 //        int count = 0;

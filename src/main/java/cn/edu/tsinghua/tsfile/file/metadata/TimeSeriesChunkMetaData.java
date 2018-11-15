@@ -1,9 +1,6 @@
 package cn.edu.tsinghua.tsfile.file.metadata;
 
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,32 +23,19 @@ public class TimeSeriesChunkMetaData {
      * Notice:  include the chunk header
      */
     private long fileOffsetOfCorrespondingData;
-    /**
-     * total byte size of all  pages in this time series chunk (including the headers)
-     */
-    private long totalByteSizeOfPagesOnDisk;
-
-
-    /**
-     * Byte offset of timseries chunk metadata in the file
-     * Each timeseries chunk metadata has fixed length: 68 bytes.
-     */
-    //private long tsDigestOffset;
-
-    //private CompressionType compression;//FIXME put me to TimeSeriesMetaData
 
     private long numOfPoints;
 
     private long startTime;
+
+    private long endTime;
+
 
     /**
      * The maximum time of the tombstones that take effect on this chunk. Only data with larger timestamps than this
      * should be exposed to user.
      */
     private long maxTombstoneTime;
-
-    private long endTime;
-
 
     private TsDigest valuesStatistics;//TODO 谁赋值的？？
 
@@ -75,7 +59,7 @@ public class TimeSeriesChunkMetaData {
 
     @Override
     public String toString() {
-        return String.format("numPoints %d, totalByteSizeOfPagesOnDisk %d", numOfPoints, totalByteSizeOfPagesOnDisk);
+        return String.format("numPoints %d", numOfPoints);
     }
 
     public long getNumOfPoints() {
@@ -84,19 +68,6 @@ public class TimeSeriesChunkMetaData {
 
     public void setNumOfPoints(long numRows) {
         this.numOfPoints = numRows;
-    }
-    /**
-     *
-     * @return total byte size of all uncompressed pages in this time series chunk (including the headers)
-     */
-    public long getTotalByteSizeOfPagesOnDisk() {
-        return totalByteSizeOfPagesOnDisk;
-    }
-    /**
-     * total byte size of all  pages in this time series chunk (including the headers)
-     */
-    public void setTotalByteSizeOfPagesOnDisk(long totalByteSizeOfPagesOnDisk) {
-        this.totalByteSizeOfPagesOnDisk = totalByteSizeOfPagesOnDisk;
     }
 
     /**
@@ -144,7 +115,6 @@ public class TimeSeriesChunkMetaData {
 
 
         byteLen += ReadWriteIOUtils.write(numOfPoints, outputStream);
-        byteLen += ReadWriteIOUtils.write(totalByteSizeOfPagesOnDisk, outputStream);
         byteLen += ReadWriteIOUtils.write(startTime, outputStream);
         byteLen += ReadWriteIOUtils.write(endTime, outputStream);
 
@@ -164,7 +134,6 @@ public class TimeSeriesChunkMetaData {
 
 
         byteLen += ReadWriteIOUtils.write(numOfPoints, buffer);
-        byteLen += ReadWriteIOUtils.write(totalByteSizeOfPagesOnDisk, buffer);
         byteLen += ReadWriteIOUtils.write(startTime, buffer);
         byteLen += ReadWriteIOUtils.write(endTime, buffer);
 
@@ -185,7 +154,6 @@ public class TimeSeriesChunkMetaData {
 
 
         timeSeriesChunkMetaData.numOfPoints = ReadWriteIOUtils.readLong(inputStream);
-        timeSeriesChunkMetaData.totalByteSizeOfPagesOnDisk = ReadWriteIOUtils.readLong(inputStream);
         timeSeriesChunkMetaData.startTime = ReadWriteIOUtils.readLong(inputStream);
         timeSeriesChunkMetaData.endTime = ReadWriteIOUtils.readLong(inputStream);
 
@@ -204,7 +172,6 @@ public class TimeSeriesChunkMetaData {
         timeSeriesChunkMetaData.fileOffsetOfCorrespondingData = ReadWriteIOUtils.readLong(buffer);
 
         timeSeriesChunkMetaData.numOfPoints = ReadWriteIOUtils.readLong(buffer);
-        timeSeriesChunkMetaData.totalByteSizeOfPagesOnDisk = ReadWriteIOUtils.readLong(buffer);
         timeSeriesChunkMetaData.startTime = ReadWriteIOUtils.readLong(buffer);
         timeSeriesChunkMetaData.endTime = ReadWriteIOUtils.readLong(buffer);
 

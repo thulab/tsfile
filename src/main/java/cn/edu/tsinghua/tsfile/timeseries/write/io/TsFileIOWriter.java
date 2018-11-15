@@ -157,8 +157,7 @@ public class TsFileIOWriter {
     }
 
 
-    public void endChunk(long size, long totalValueCount) {
-        currentChunkMetaData.setTotalByteSizeOfPagesOnDisk(size);
+    public void endChunk(long totalValueCount) {
         currentChunkMetaData.setNumOfPoints(totalValueCount);
         currentRowGroupMetaData.addTimeSeriesChunkMetaData(currentChunkMetaData);
         LOG.debug("end series chunk:{},totalvalue:{}", currentChunkMetaData, totalValueCount);

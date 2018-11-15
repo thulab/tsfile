@@ -129,6 +129,10 @@ public class NoStatistics extends Statistics<Long> {
     }
 
     @Override
+    void fill(ByteBuffer byteBuffer) throws IOException {
+    }
+
+    @Override
 	public void updateStats(long min, long max) {
 		throw new UnsupportedOperationException();
 	}

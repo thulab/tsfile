@@ -181,6 +181,8 @@ public abstract class Statistics<T> {
      */
     abstract void fill(InputStream inputStream) throws IOException;
 
+    abstract void fill(ByteBuffer byteBuffer) throws IOException;
+
 
     public int getSerializedSize() {
         if(sizeOfDatum()==0){
@@ -234,6 +236,34 @@ public abstract class Statistics<T> {
             case INT32:
                  statistics = new IntegerStatistics();
                  break;
+            case INT64:
+                statistics = new LongStatistics();
+                break;
+            case TEXT:
+                statistics = new BinaryStatistics();
+                break;
+            case BOOLEAN:
+                statistics = new BooleanStatistics();
+                break;
+            case DOUBLE:
+                statistics = new DoubleStatistics();
+                break;
+            case FLOAT:
+                statistics = new FloatStatistics();
+                break;
+            default:
+                throw new UnknownColumnTypeException(dataType.toString());
+        }
+        statistics.fill(inputStream);
+        return statistics;
+    }
+
+    public static Statistics deserialize(ByteBuffer inputStream, TSDataType dataType) throws IOException {
+        Statistics statistics=null;
+        switch (dataType) {
+            case INT32:
+                statistics = new IntegerStatistics();
+                break;
             case INT64:
                 statistics = new LongStatistics();
                 break;

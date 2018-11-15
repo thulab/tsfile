@@ -161,4 +161,13 @@ public class IntegerStatistics extends Statistics<Integer> {
 		this.last = ReadWriteIOUtils.readInt(inputStream);
 		this.sum = ReadWriteIOUtils.readDouble(inputStream);
 	}
+
+	@Override
+	void fill(ByteBuffer byteBuffer) throws IOException {
+		this.min = ReadWriteIOUtils.readInt(byteBuffer);
+		this.max = ReadWriteIOUtils.readInt(byteBuffer);
+		this.first = ReadWriteIOUtils.readInt(byteBuffer);
+		this.last = ReadWriteIOUtils.readInt(byteBuffer);
+		this.sum = ReadWriteIOUtils.readDouble(byteBuffer);
+	}
 }

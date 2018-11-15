@@ -103,6 +103,12 @@ public class ReadWriteIOUtils {
         return BytesUtils.bytesToFloat(bytes);
     }
 
+    public static float readFloat(ByteBuffer byteBuffer) throws IOException {
+        byte[] bytes= new byte[FLOAT_LEN];
+        byteBuffer.get(bytes);
+        return BytesUtils.bytesToFloat(bytes);
+    }
+
     public static int write(double n, OutputStream outputStream) throws IOException {
         byte[] bytes= BytesUtils.doubleToBytes(n);
         outputStream.write(bytes);
@@ -112,6 +118,12 @@ public class ReadWriteIOUtils {
     public static double readDouble(InputStream inputStream) throws IOException {
         byte[] bytes= new byte[DOUBLE_LEN];
         inputStream.read(bytes);
+        return BytesUtils.bytesToDouble(bytes);
+    }
+
+    public static double readDouble(ByteBuffer byteBuffer) throws IOException {
+        byte[] bytes= new byte[DOUBLE_LEN];
+        byteBuffer.get(bytes);
         return BytesUtils.bytesToDouble(bytes);
     }
 
@@ -235,7 +247,6 @@ public class ReadWriteIOUtils {
         ByteBuffer byteBuffer = ByteBuffer.allocate(byteLength);
         byteBuffer.put(bytes);
         byteBuffer.flip();
-
         return byteBuffer;
     }
 

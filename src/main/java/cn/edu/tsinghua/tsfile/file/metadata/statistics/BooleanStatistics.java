@@ -158,5 +158,14 @@ public class BooleanStatistics extends Statistics<Boolean> {
 		this.sum = ReadWriteIOUtils.readDouble(inputStream);
 	}
 
+	@Override
+	void fill(ByteBuffer byteBuffer) throws IOException {
+		this.min = ReadWriteIOUtils.readBool(byteBuffer);
+		this.max = ReadWriteIOUtils.readBool(byteBuffer);
+		this.first = ReadWriteIOUtils.readBool(byteBuffer);
+		this.last = ReadWriteIOUtils.readBool(byteBuffer);
+		this.sum = ReadWriteIOUtils.readDouble(byteBuffer);
+	}
+
 
 }

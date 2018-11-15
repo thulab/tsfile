@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
 import cn.edu.tsinghua.tsfile.timeseries.readV2.TsFileSequenceReader;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.MetadataQuerierByFileImpl;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoader;
@@ -18,7 +18,7 @@ import java.util.List;
 public abstract class SeriesReaderFromSingleFile implements SeriesReader {
 
     protected SeriesChunkLoader seriesChunkLoader;
-    protected List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList;
+    protected List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList;
 
     protected SeriesChunkReader seriesChunkReader;
     protected boolean seriesChunkReaderInitialized;
@@ -29,25 +29,25 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
     public SeriesReaderFromSingleFile(TsFileSequenceReader fileReader, Path path) throws IOException {
         this.fileReader = fileReader;
         this.seriesChunkLoader = new SeriesChunkLoaderImpl(fileReader);
-        this.encodedSeriesChunkDescriptorList = new MetadataQuerierByFileImpl(fileReader).getSeriesChunkDescriptorList(path);
+        this.timeSeriesChunkMetaDataList = new MetadataQuerierByFileImpl(fileReader).getSeriesChunkDescriptorList(path);
         this.currentReadSeriesChunkIndex = -1;
         this.seriesChunkReaderInitialized = false;
     }
 
     public SeriesReaderFromSingleFile(TsFileSequenceReader fileReader,
-                                      SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
-        this(seriesChunkLoader, encodedSeriesChunkDescriptorList);
+                                      SeriesChunkLoader seriesChunkLoader, List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList) {
+        this(seriesChunkLoader, timeSeriesChunkMetaDataList);
         this.fileReader = fileReader;
     }
 
     /**
      * Using this constructor cannot close corresponding FileStream
      * @param seriesChunkLoader
-     * @param encodedSeriesChunkDescriptorList
+     * @param timeSeriesChunkMetaDataList
      */
-    public SeriesReaderFromSingleFile(SeriesChunkLoader seriesChunkLoader, List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList) {
+    public SeriesReaderFromSingleFile(SeriesChunkLoader seriesChunkLoader, List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList) {
         this.seriesChunkLoader = seriesChunkLoader;
-        this.encodedSeriesChunkDescriptorList = encodedSeriesChunkDescriptorList;
+        this.timeSeriesChunkMetaDataList = timeSeriesChunkMetaDataList;
         this.currentReadSeriesChunkIndex = -1;
         this.seriesChunkReaderInitialized = false;
     }
@@ -57,11 +57,11 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
         if (seriesChunkReaderInitialized && seriesChunkReader.hasNext()) {
             return true;
         }
-        while ((currentReadSeriesChunkIndex + 1) < encodedSeriesChunkDescriptorList.size()) {
+        while ((currentReadSeriesChunkIndex + 1) < timeSeriesChunkMetaDataList.size()) {
             if (!seriesChunkReaderInitialized) {
-                EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor = encodedSeriesChunkDescriptorList.get(++currentReadSeriesChunkIndex);
-                if (seriesChunkSatisfied(encodedSeriesChunkDescriptor)) {
-                    initSeriesChunkReader(encodedSeriesChunkDescriptor);
+                TimeSeriesChunkMetaData timeSeriesChunkMetaData = timeSeriesChunkMetaDataList.get(++currentReadSeriesChunkIndex);
+                if (seriesChunkSatisfied(timeSeriesChunkMetaData)) {
+                    initSeriesChunkReader(timeSeriesChunkMetaData);
                     seriesChunkReaderInitialized = true;
                 } else {
                     continue;
@@ -86,9 +86,9 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
         next();
     }
 
-    protected abstract void initSeriesChunkReader(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException;
+    protected abstract void initSeriesChunkReader(TimeSeriesChunkMetaData timeSeriesChunkMetaData) throws IOException;
 
-    protected abstract boolean seriesChunkSatisfied(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor);
+    protected abstract boolean seriesChunkSatisfied(TimeSeriesChunkMetaData timeSeriesChunkMetaData);
 
     public void close() throws IOException {
         if (fileReader != null) {

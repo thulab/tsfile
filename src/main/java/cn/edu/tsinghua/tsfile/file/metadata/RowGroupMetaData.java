@@ -20,19 +20,19 @@ public class RowGroupMetaData {
     private static final Logger LOGGER = LoggerFactory.getLogger(RowGroupMetaData.class);
 
     /**
-     * Name of deltaObject
+     * Name of deltaObject, this field is not serialized.
      */
-    private String deltaObjectID; //TODO move to DeltaObjectMetadata
+    private String deltaObjectID;
     /**
      * Total serialized byte size of this row group data (including the rowgroup header)
      */
-    private long totalByteSize;
+    private long totalByteSize; //TODO remove
 
     /**
      * Byte offset of the corresponding data in the file
      * Notice:  include the rowgroup header
      */
-    private long fileOffsetOfCorrespondingData;
+    private long fileOffsetOfCorrespondingData; //TODO remove
 
     /**
      * Byte size of this metadata. this field is not serialized.
@@ -40,19 +40,11 @@ public class RowGroupMetaData {
     private int serializedSize;
 
     /**
-     * this field is to check whether users call list.add() to modify the list rather than addTimeSeriesChunkMetaData()
-     */
-    private int sizeOfChunkList;
-
-    /**
      * All time series chunks in this row group.
      */
     private List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList;
 
     public int getSerializedSize() {
-        if( sizeOfChunkList!=timeSeriesChunkMetaDataList.size()){
-            reCalculateSerializedSize();
-        }
         return serializedSize;
     }
 
@@ -83,7 +75,6 @@ public class RowGroupMetaData {
         for (TimeSeriesChunkMetaData chunk : timeSeriesChunkMetaDataList) {
             serializedSize += chunk.getSerializedSize();
         }
-        this.sizeOfChunkList = timeSeriesChunkMetaDataList.size();
     }
     /**
      * add time series chunk metadata to list. THREAD NOT SAFE
@@ -96,7 +87,6 @@ public class RowGroupMetaData {
         }
         timeSeriesChunkMetaDataList.add(metadata);
         serializedSize += metadata.getSerializedSize();
-        sizeOfChunkList++;
     }
 
     public List<TimeSeriesChunkMetaData> getTimeSeriesChunkMetaDataList() {
@@ -126,11 +116,6 @@ public class RowGroupMetaData {
     }
 
     public int serializeTo(OutputStream outputStream) throws IOException {
-        if (sizeOfChunkList != timeSeriesChunkMetaDataList.size()) {
-            //someone call list.add() method rather than using addTimeSeriesChunkMetaData(), so that we have to recalculate
-            //the serializedSize.
-            reCalculateSerializedSize();
-        }
         int byteLen = 0;
         byteLen += ReadWriteIOUtils.write(deltaObjectID, outputStream);
         byteLen += ReadWriteIOUtils.write(totalByteSize, outputStream);
@@ -145,11 +130,6 @@ public class RowGroupMetaData {
 
 
     public int serializeTo(ByteBuffer buffer) throws IOException {
-        if (sizeOfChunkList != timeSeriesChunkMetaDataList.size()) {
-            //someone call list.add() method rather than using addTimeSeriesChunkMetaData(), so that we have to recalculate
-            //the serializedSize.
-            reCalculateSerializedSize();
-        }
         int byteLen = 0;
 
         byteLen += ReadWriteIOUtils.write(deltaObjectID, buffer);
@@ -214,8 +194,5 @@ public class RowGroupMetaData {
         return rowGroupMetaData;
     }
 
-    public long getFileOffsetOfCorrespondingData() {
-        return fileOffsetOfCorrespondingData;
-    }
 
 }

@@ -103,6 +103,17 @@ public class ChunkHeader {
         return new ChunkHeader(measurementID, dataSize, dataType, type, encoding, numOfPages, maxTombstoneTime);
     }
 
+    public static ChunkHeader deserializeFrom(ByteBuffer byteBuffer) throws IOException {
+        String measurementID=ReadWriteIOUtils.readString(byteBuffer);
+        int dataSize=ReadWriteIOUtils.readInt(byteBuffer);
+        TSDataType dataType=TSDataType.deserialize(ReadWriteIOUtils.readShort(byteBuffer));
+        int numOfPages=ReadWriteIOUtils.readInt(byteBuffer);
+        CompressionType type=ReadWriteIOUtils.readCompressionType(byteBuffer);
+        TSEncoding encoding=ReadWriteIOUtils.readEncoding(byteBuffer);
+        long maxTombstoneTime=ReadWriteIOUtils.readLong(byteBuffer);
+        return new ChunkHeader(measurementID, dataSize, dataType, type, encoding, numOfPages, maxTombstoneTime);
+    }
+
     public int getNumOfPages() {
         return numOfPages;
     }

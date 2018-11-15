@@ -166,7 +166,7 @@ public class ChunkWriterImpl implements IChunkWriter {
         long size = writer.getPos() - totalByteSize;
         assert  size == pageBuffer.size();
 
-        writer.endChunk(size + headerSize, totalValueCount);
+        writer.endChunk(totalValueCount);
         return headerSize + size;
     }
 

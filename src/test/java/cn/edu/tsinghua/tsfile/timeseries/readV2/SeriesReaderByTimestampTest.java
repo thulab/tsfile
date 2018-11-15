@@ -2,7 +2,7 @@ package cn.edu.tsinghua.tsfile.timeseries.readV2;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.Path;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.MetadataQuerierByFileImpl;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.SeriesChunkLoaderImpl;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
@@ -49,8 +49,8 @@ public class SeriesReaderByTimestampTest {
     @Test
     public void readByTimestamp() throws IOException {
         SeriesChunkLoaderImpl seriesChunkLoader = new SeriesChunkLoaderImpl(fileReader);
-        List<EncodedSeriesChunkDescriptor> encodedSeriesChunkDescriptorList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d1.s1"));
-        SeriesReader seriesReader = new SeriesReaderFromSingleFileWithoutFilterImpl(seriesChunkLoader, encodedSeriesChunkDescriptorList);
+        List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList = metadataQuerierByFile.getSeriesChunkDescriptorList(new Path("d1.s1"));
+        SeriesReader seriesReader = new SeriesReaderFromSingleFileWithoutFilterImpl(seriesChunkLoader, timeSeriesChunkMetaDataList);
 
         List<TimeValuePair> timeValuePairList = new ArrayList<>();
         int count = 0;
@@ -66,7 +66,7 @@ public class SeriesReaderByTimestampTest {
         long startTimestamp = System.currentTimeMillis();
         count = 0;
 
-        SeriesReaderFromSingleFileByTimestampImpl seriesReaderFromSingleFileByTimestamp = new SeriesReaderFromSingleFileByTimestampImpl(seriesChunkLoader, encodedSeriesChunkDescriptorList);
+        SeriesReaderFromSingleFileByTimestampImpl seriesReaderFromSingleFileByTimestamp = new SeriesReaderFromSingleFileByTimestampImpl(seriesChunkLoader, timeSeriesChunkMetaDataList);
 
         for (TimeValuePair timeValuePair : timeValuePairList) {
             TsPrimitiveType value = seriesReaderFromSingleFileByTimestamp.getValueInTimestamp(timeValuePair.getTimestamp());

@@ -7,6 +7,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 
 public class PageHeader {
 
@@ -104,6 +105,16 @@ public class PageHeader {
     }
 
     public static PageHeader deserializeFrom(InputStream inputStream, TSDataType dataType) throws IOException {
+        int uncompressedSize = ReadWriteIOUtils.readInt(inputStream);
+        int compressedSize = ReadWriteIOUtils.readInt(inputStream);
+        int numOfValues = ReadWriteIOUtils.readInt(inputStream);
+        long max_timestamp = ReadWriteIOUtils.readLong(inputStream);
+        long min_timestamp = ReadWriteIOUtils.readLong(inputStream);
+        Statistics statistics = Statistics.deserialize(inputStream, dataType);
+        return new PageHeader(uncompressedSize, compressedSize, numOfValues, statistics, max_timestamp, min_timestamp);
+    }
+
+    public static PageHeader deserializeFrom(ByteBuffer inputStream, TSDataType dataType) throws IOException {
         int uncompressedSize = ReadWriteIOUtils.readInt(inputStream);
         int compressedSize = ReadWriteIOUtils.readInt(inputStream);
         int numOfValues = ReadWriteIOUtils.readInt(inputStream);

@@ -40,7 +40,6 @@ public class TsFileGeneratorForTest {
     public static String inputDataFile;
     public static String outputDataFile = "src/test/resources/testTsFile.tsfile";
     public static String errorOutputDataFile;
-    //public static JSONObject jsonSchema;
 
     public static final long START_TIMESTAMP = 1480562618000L;
 
@@ -55,7 +54,6 @@ public class TsFileGeneratorForTest {
     public static void prepare() throws IOException {
         inputDataFile = "src/test/resources/perTestInputData";
         errorOutputDataFile = "src/test/resources/perTestErrorOutputData.tsfile";
-        //jsonSchema = generateTestData();
         generateSampleInputDataFile();
     }
 

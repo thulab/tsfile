@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.controller;
 
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.SeriesChunk;
-import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
+import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
 
 import java.io.IOException;
 
@@ -13,9 +13,9 @@ import java.io.IOException;
 public interface SeriesChunkLoader {
     /**
      * 将该chunk的数据从磁盘上全部读出并放在内存中返回。
-     * @param encodedSeriesChunkDescriptor
+     * @param timeSeriesChunkMetaData
      * @return
      * @throws IOException
      */
-    SeriesChunk getMemSeriesChunk(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor) throws IOException;
+    SeriesChunk getMemSeriesChunk(TimeSeriesChunkMetaData timeSeriesChunkMetaData) throws IOException;
 }

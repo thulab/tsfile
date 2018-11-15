@@ -159,4 +159,12 @@ public class DoubleStatistics extends Statistics<Double> {
 		this.sum = ReadWriteIOUtils.readDouble(inputStream);
 	}
 
+	@Override
+	void fill(ByteBuffer byteBuffer) throws IOException {
+		this.min = ReadWriteIOUtils.readDouble(byteBuffer);
+		this.max = ReadWriteIOUtils.readDouble(byteBuffer);
+		this.first = ReadWriteIOUtils.readDouble(byteBuffer);
+		this.last = ReadWriteIOUtils.readDouble(byteBuffer);
+		this.sum = ReadWriteIOUtils.readDouble(byteBuffer);
+	}
 }

@@ -1,24 +1,26 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.common;
 
-import java.io.ByteArrayInputStream;
+import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
+
+import java.nio.ByteBuffer;
 
 /**
  * Created by zhangjinrui on 2017/12/25.
  */
 public class MemSeriesChunk implements SeriesChunk{
-    private EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor;
-    private ByteArrayInputStream seriesChunkBodyStream;
+    private TimeSeriesChunkMetaData timeSeriesChunkMetaData;
+    private ByteBuffer seriesChunkBodyStream;
 
-    public MemSeriesChunk(EncodedSeriesChunkDescriptor encodedSeriesChunkDescriptor, ByteArrayInputStream seriesChunkBodyStream) {
-        this.encodedSeriesChunkDescriptor = encodedSeriesChunkDescriptor;
+    public MemSeriesChunk(TimeSeriesChunkMetaData timeSeriesChunkMetaData, ByteBuffer seriesChunkBodyStream) {
+        this.timeSeriesChunkMetaData = timeSeriesChunkMetaData;
         this.seriesChunkBodyStream = seriesChunkBodyStream;
     }
 
-    public EncodedSeriesChunkDescriptor getEncodedSeriesChunkDescriptor() {
-        return encodedSeriesChunkDescriptor;
+    public TimeSeriesChunkMetaData getTimeSeriesChunkMetaData() {
+        return timeSeriesChunkMetaData;
     }
 
-    public ByteArrayInputStream getSeriesChunkBodyStream() {
+    public ByteBuffer getSeriesChunkBodyStream() {
         return seriesChunkBodyStream;
     }
 }

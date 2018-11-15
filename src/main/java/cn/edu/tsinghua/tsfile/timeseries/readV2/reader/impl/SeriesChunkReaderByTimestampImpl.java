@@ -6,7 +6,7 @@ import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.SeriesReaderByTimeStamp;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 /**
  * Created by zhangjinrui on 2017/12/26.
@@ -15,7 +15,7 @@ public class SeriesChunkReaderByTimestampImpl extends SeriesChunkReader implemen
 
     private long currentTimestamp;
 
-    public SeriesChunkReaderByTimestampImpl(InputStream seriesChunkInputStream) {
+    public SeriesChunkReaderByTimestampImpl(ByteBuffer seriesChunkInputStream) {
         super(seriesChunkInputStream);
     }
 

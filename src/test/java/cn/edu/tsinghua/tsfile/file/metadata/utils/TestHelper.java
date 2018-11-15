@@ -39,8 +39,6 @@ public class TestHelper {
 
     public static TsDeltaObjectMetadata createSimpleDeltaObjectMetaData() {
         TsDeltaObjectMetadata metaData = new TsDeltaObjectMetadata();
-        //metaData.setOffset(TsDeltaObjectMetadataTest.OFFSET);
-        //metaData.setMetadataBlockSize(TsDeltaObjectMetadataTest.METADATA_BLOCK_SIZE);
         metaData.setStartTime(TsDeltaObjectMetadataTest.START_TIME);
         metaData.setEndTime(TsDeltaObjectMetadataTest.END_TIME);
         metaData.addRowGroupMetaData(TestHelper.createSimpleRowGroupMetaData());
@@ -53,20 +51,15 @@ public class TestHelper {
             RowGroupMetaDataTest.TOTAL_BYTE_SIZE, 12, new ArrayList<>());
     metaData.addTimeSeriesChunkMetaData(TestHelper.createSimpleTimeSeriesChunkMetaData());
     metaData.addTimeSeriesChunkMetaData(TestHelper.createSimpleTimeSeriesChunkMetaData());
-    //metaData.setMetadataOffset(RowGroupMetaDataTest.METADATA_OFFSET);
-    //metaData.setMetadataSize(RowGroupMetaDataTest.METADATA_SIZE);
     return metaData;
     }
 
     public static TimeSeriesChunkMetaData createSimpleTimeSeriesChunkMetaData() {
     TimeSeriesChunkMetaData metaData =
         new TimeSeriesChunkMetaData(TimeSeriesChunkMetaDataTest.MEASUREMENT_UID, TimeSeriesChunkMetaDataTest.FILE_OFFSET,
-            //TimeSeriesChunkMetaDataTest.COMPRESSION_TYPE, TimeSeriesChunkMetaDataTest.DATA_TYPE,
             TimeSeriesChunkMetaDataTest.START_TIME, TimeSeriesChunkMetaDataTest.END_TIME//, TimeSeriesChunkMetaDataTest.ENCODING_TYPE
         );
-    //metaData.setTsDigestOffset(TimeSeriesChunkMetaDataTest.DIGEST_OFFSET);
     metaData.setNumOfPoints(TimeSeriesChunkMetaDataTest.NUM_OF_POINTS);
-    metaData.setTotalByteSizeOfPagesOnDisk(TimeSeriesChunkMetaDataTest.TOTAL_BYTE_SIZE);
     metaData.setDigest(new TsDigest());
     return metaData;
     }

@@ -107,7 +107,6 @@ public class Utils {
 			//assertTrue(metadata1.getTsDigestOffset() == metadata2.getTsDigestOffset());
 			//Utils.isStringSame(metadata1.getCompression(), metadata2.getCompression(), "compression type");
 			assertTrue(metadata1.getNumOfPoints() == metadata2.getNumOfPoints());
-			assertTrue(metadata1.getTotalByteSizeOfPagesOnDisk() == metadata2.getTotalByteSizeOfPagesOnDisk());
 			assertTrue(metadata1.getStartTime() == metadata2.getStartTime());
 			assertTrue(metadata1.getEndTime() == metadata2.getEndTime());
 			//Utils.isStringSame(metadata1.getDataType(), metadata2.getDataType(), "data type");

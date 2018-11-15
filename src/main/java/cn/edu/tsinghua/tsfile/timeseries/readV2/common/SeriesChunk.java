@@ -1,6 +1,8 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.common;
 
-import java.io.InputStream;
+import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
+
+import java.nio.ByteBuffer;
 
 /**
  *
@@ -8,7 +10,7 @@ import java.io.InputStream;
  */
 public interface SeriesChunk {
 
-    SeriesChunkDescriptor getEncodedSeriesChunkDescriptor();
+    TimeSeriesChunkMetaData getTimeSeriesChunkMetaData();
 
-    InputStream getSeriesChunkBodyStream();
+    ByteBuffer getSeriesChunkBodyStream();
 }

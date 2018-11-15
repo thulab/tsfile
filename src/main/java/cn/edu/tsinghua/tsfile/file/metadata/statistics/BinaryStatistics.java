@@ -157,4 +157,13 @@ public class BinaryStatistics extends Statistics<Binary> {
 		this.last = new Binary(ReadWriteIOUtils.readBytesWithSelfDescriptionLength(inputStream));
 		this.sum = ReadWriteIOUtils.readDouble(inputStream);
 	}
+
+	@Override
+	void fill(ByteBuffer byteBuffer) throws IOException {
+		this.min = new Binary(ReadWriteIOUtils.readByteBufferWithSelfDescriptionLength(byteBuffer).array());
+		this.max = new Binary(ReadWriteIOUtils.readByteBufferWithSelfDescriptionLength(byteBuffer).array());
+		this.first = new Binary(ReadWriteIOUtils.readByteBufferWithSelfDescriptionLength(byteBuffer).array());
+		this.last = new Binary(ReadWriteIOUtils.readByteBufferWithSelfDescriptionLength(byteBuffer).array());
+		this.sum = ReadWriteIOUtils.readDouble(byteBuffer);
+	}
 }

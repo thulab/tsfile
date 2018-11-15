@@ -171,4 +171,13 @@ public class LongStatistics extends Statistics<Long> {
 		this.sum = ReadWriteIOUtils.readDouble(inputStream);
 	}
 
+	@Override
+	void fill(ByteBuffer byteBuffer) throws IOException {
+		this.min = ReadWriteIOUtils.readLong(byteBuffer);
+		this.max = ReadWriteIOUtils.readLong(byteBuffer);
+		this.first = ReadWriteIOUtils.readLong(byteBuffer);
+		this.last = ReadWriteIOUtils.readLong(byteBuffer);
+		this.sum = ReadWriteIOUtils.readDouble(byteBuffer);
+	}
+
 }
