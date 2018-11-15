@@ -98,7 +98,7 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
                 return null;
             }
         }
-        if(hasNext()){
+        if (hasNext()){
             cachedTimeValuePair = next();
             if (cachedTimeValuePair.getTimestamp() == timestamp) {
                 return cachedTimeValuePair.getValue();

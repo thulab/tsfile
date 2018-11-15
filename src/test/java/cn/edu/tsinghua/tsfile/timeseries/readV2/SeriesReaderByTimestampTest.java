@@ -58,7 +58,7 @@ public class SeriesReaderByTimestampTest {
             TimeValuePair timeValuePair = seriesReader.next();
             if (count % 100 == 0) {
                 timeValuePairList.add(new TimeValuePair(timeValuePair.getTimestamp() - 1, null));
-                timeValuePairList.add(timeValuePair);
+                timeValuePairList.add(new TimeValuePair(timeValuePair.getTimestamp(), timeValuePair.getValue()));
             }
             count++;
         }
@@ -66,13 +66,15 @@ public class SeriesReaderByTimestampTest {
         long startTimestamp = System.currentTimeMillis();
         count = 0;
 
-        SeriesReaderFromSingleFileByTimestampImpl seriesReaderFromSingleFileByTimestamp = new SeriesReaderFromSingleFileByTimestampImpl(seriesChunkLoader, encodedSeriesChunkDescriptorList);
-
+        SeriesReaderFromSingleFileByTimestampImpl seriesReaderFromSingleFileByTimestamp
+                = new SeriesReaderFromSingleFileByTimestampImpl(seriesChunkLoader, encodedSeriesChunkDescriptorList);
         for (TimeValuePair timeValuePair : timeValuePairList) {
             TsPrimitiveType value = seriesReaderFromSingleFileByTimestamp.getValueInTimestamp(timeValuePair.getTimestamp());
+            System.out.println(timeValuePair);
             Assert.assertEquals(timeValuePair.getValue(), value);
             count ++;
         }
+
         long endTimestamp = System.currentTimeMillis();
         System.out.println("SeriesReadWithFilterTest. [Time used]: " + (endTimestamp - startTimestamp) +
                 " ms. [Read Count]: " + count);
