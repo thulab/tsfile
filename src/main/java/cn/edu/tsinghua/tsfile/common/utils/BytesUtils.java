@@ -29,7 +29,7 @@ public class BytesUtils {
      * @return byte[4] for integer
      */
     public static byte[] intToBytes(int i) {
-        return new byte[] {
+        return new byte[]{
                 (byte) ((i >> 24) & 0xFF),
                 (byte) ((i >> 16) & 0xFF),
                 (byte) ((i >> 8) & 0xFF),
@@ -78,23 +78,12 @@ public class BytesUtils {
      * @param bytes input byte[]
      * @return integer
      */
-//   public static int bytesToInt(byte[] bytes) {
-//        int value = 0;
-//        // high bit to low
-//        for (int i = 0; i < 4; i++) {
-//            int shift = (4 - 1 - i) * 8;
-//            value += (bytes[i] & 0x000000FF) << shift;
-//        }
-//        return value;
-//    }
-
     public static int bytesToInt(byte[] bytes) {
-        return   bytes[3] & 0xFF |
+        return bytes[3] & 0xFF |
                 (bytes[2] & 0xFF) << 8 |
                 (bytes[1] & 0xFF) << 16 |
                 (bytes[0] & 0xFF) << 24;
     }
-
 
 
     /**
@@ -205,8 +194,9 @@ public class BytesUtils {
 
     /**
      * convert double to byte into the given byte array started from offset.
-     * @param d input double
-     * @param bytes target byte[]
+     *
+     * @param d      input double
+     * @param bytes  target byte[]
      * @param offset start pos
      */
     public static void doubleToBytes(double d, byte[] bytes, int offset) {
@@ -319,7 +309,7 @@ public class BytesUtils {
     /**
      * convert one-bytes byte array cut from parameters to boolean.
      *
-     * @param b source bytes which length should be greater than 1
+     * @param b      source bytes which length should be greater than 1
      * @param offset position in parameter byte array that conversion result should start
      * @return boolean
      */
@@ -362,7 +352,6 @@ public class BytesUtils {
         }
         return byteNum;
     }
-
 
 
     /**
@@ -778,7 +767,7 @@ public class BytesUtils {
      * @param count number of byte to read
      * @param in    InputStream
      * @return byte array
-     * @throws IOException  cannot read from InputStream
+     * @throws IOException cannot read from InputStream
      */
     public static byte[] safeReadInputStreamToBytes(int count, InputStream in) throws IOException {
         byte[] bytes = new byte[count];
@@ -790,14 +779,12 @@ public class BytesUtils {
     }
 
 
-
-
     //we modify the order of serialization for fitting ByteBuffer.putShort()
-    public static byte[] shortToBytes(short number){
+    public static byte[] shortToBytes(short number) {
         int temp = number;
         byte[] b = new byte[2];
-        for(int i = b.length-1 ; i >=0; i--){
-            b[i] = new Integer(temp &0xff).byteValue();
+        for (int i = b.length - 1; i >= 0; i--) {
+            b[i] = new Integer(temp & 0xff).byteValue();
             temp = temp >> 8;
         }
 
@@ -805,12 +792,12 @@ public class BytesUtils {
     }
 
     //we modify the order of serialization for fitting ByteBuffer.getShort()
-    public static short bytesToShort(byte[] b){
+    public static short bytesToShort(byte[] b) {
         short s = 0;
-        short s0 = (short)(b[1]&0xff);
-        short s1 = (short)(b[0]&0xff);
+        short s0 = (short) (b[1] & 0xff);
+        short s1 = (short) (b[0] & 0xff);
         s1 <<= 8;
-        s = (short)(s0 | s1);
+        s = (short) (s0 | s1);
         return s;
     }
 

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TSRecord is a kind of format that TsFile receives.TSRecord contains timestamp, deltaObjectId and
+ * TSRecord is a kind of format that TsFile receives.TSRecord contains timestamp, deviceId and
  * a list of data points.
  *
  * @author kangrong
@@ -15,19 +15,19 @@ import java.util.List;
 public class TSRecord {
     /** timestamp of this TSRecord **/
     public long time;
-    /** deltaObjectId of this TSRecord **/
-    public String deltaObjectId;
+    /** deviceId of this TSRecord **/
+    public String deviceId;
     /** all value of this TSRecord **/
     public List<DataPoint> dataPointList = new ArrayList<>();
 
     /**
      * constructor of TSRecord
      * @param timestamp timestamp of this TSRecord
-     * @param deltaObjectId deltaObjectId of this TSRecord
+     * @param deviceId deviceId of this TSRecord
      */
-    public TSRecord(long timestamp, String deltaObjectId) {
+    public TSRecord(long timestamp, String deviceId) {
         this.time = timestamp;
-        this.deltaObjectId = deltaObjectId;
+        this.deviceId = deviceId;
     }
 
     public void setTime(long timestamp) {
@@ -53,7 +53,7 @@ public class TSRecord {
      */
     public String toString() {
         StringContainer sc = new StringContainer(" ");
-        sc.addTail("{delta object id:", deltaObjectId, "time:", time, ",data:[");
+        sc.addTail("{delta object id:", deviceId, "time:", time, ",data:[");
         for (DataPoint tuple : dataPointList) {
             sc.addTail(tuple);
         }

@@ -83,7 +83,7 @@ public class RecordUtilsTest {
         String testString = "d1,1471522347000,s1,1";
         TSRecord record = RecordUtils.parseSimpleTupleRecord(testString, schema);
         assertEquals(record.time, 1471522347000l);
-        assertEquals(record.deltaObjectId, "d1");
+        assertEquals(record.deviceId, "d1");
         List<DataPoint> tuples = record.dataPointList;
         assertEquals(1, tuples.size());
         DataPoint tuple = tuples.get(0);
@@ -94,7 +94,7 @@ public class RecordUtilsTest {
         testString = "d1,1471522347000,s1,1,";
         record = RecordUtils.parseSimpleTupleRecord(testString, schema);
         assertEquals(record.time, 1471522347000l);
-        assertEquals(record.deltaObjectId, "d1");
+        assertEquals(record.deviceId, "d1");
         tuples = record.dataPointList;
         assertEquals(1, tuples.size());
         tuple = tuples.get(0);
@@ -105,7 +105,7 @@ public class RecordUtilsTest {
         testString = "d1,1471522347000,s1,1,s2";
         record = RecordUtils.parseSimpleTupleRecord(testString, schema);
         assertEquals(record.time, 1471522347000l);
-        assertEquals(record.deltaObjectId, "d1");
+        assertEquals(record.deviceId, "d1");
         tuples = record.dataPointList;
         assertEquals(1, tuples.size());
         tuple = tuples.get(0);
@@ -134,7 +134,7 @@ public class RecordUtilsTest {
                 "d1,1471522347000,s1,1,s2,134134287192587,s3,1.4,s4,1.128794817,s5,true";
         TSRecord record = RecordUtils.parseSimpleTupleRecord(testString, schema);
         assertEquals(record.time, 1471522347000l);
-        assertEquals(record.deltaObjectId, "d1");
+        assertEquals(record.deviceId, "d1");
         List<DataPoint> tuples = record.dataPointList;
         assertEquals(5, tuples.size());// enum type is omitted.
         DataPoint tuple = tuples.get(0);

@@ -12,7 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class TsDeltaObjectMetadataTest {
+public class TsDeviceMetadataTest {
 
     public static final long START_TIME = 523372036854775806L;
     public static final long END_TIME = 523372036854775806L;
@@ -31,7 +31,7 @@ public class TsDeltaObjectMetadataTest {
 
     @Test
     public void testWriteIntoFile() throws IOException {
-        TsDeltaObjectMetadata metaData = TestHelper.createSimpleDeltaObjectMetaData();
+        TsDeviceMetadata metaData = TestHelper.createSimpleDeltaObjectMetaData();
         File file = new File(PATH);
         if (file.exists())
             file.delete();
@@ -40,6 +40,6 @@ public class TsDeltaObjectMetadataTest {
         fos.close();
 
         FileInputStream fis = new FileInputStream(new File(PATH));
-        Utils.isDeltaObjectEqual(metaData, TsDeltaObjectMetadata.deserializeFrom(fis));
+        Utils.isDeltaObjectEqual(metaData, TsDeviceMetadata.deserializeFrom(fis));
     }
 }

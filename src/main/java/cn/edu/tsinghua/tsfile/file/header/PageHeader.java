@@ -11,14 +11,15 @@ import java.nio.ByteBuffer;
 
 public class PageHeader {
 
-    int uncompressedSize;
-    int compressedSize;
-    int numOfValues;
-    Statistics<?> statistics;
-    long max_timestamp;
-    long min_timestamp;
+    private int uncompressedSize;
+    private int compressedSize;
+    private int numOfValues;
+    private Statistics<?> statistics;
+    private long max_timestamp;
+    private long min_timestamp;
 
-    private int serializedSize;//this filed does not need to be sieralized.
+    //this field does not need to be serialized.
+    private int serializedSize;
 
     public static int calculatePageHeaderSize(TSDataType type) {
         return 3 * Integer.BYTES + 2 * Long.BYTES + Statistics.getStatsByType(type).getSerializedSize();
@@ -39,9 +40,6 @@ public class PageHeader {
         serializedSize = 3 * Integer.BYTES + 2 * Long.BYTES + statistics.getSerializedSize();
     }
 
-
-    private PageHeader() {
-    }
 
     public int getUncompressedSize() {
         return uncompressedSize;

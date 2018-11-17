@@ -86,9 +86,9 @@ public class Utils {
 	}
 
 
-	public static void isTimeSeriesChunkMetadataEqual(TimeSeriesChunkMetaData metadata1,
-                                                      TimeSeriesChunkMetaData metadata2) {
-		if (Utils.isTwoObjectsNotNULL(metadata1, metadata2, "TimeSeriesChunkMetaData")) {
+	public static void isTimeSeriesChunkMetadataEqual(ChunkMetaData metadata1,
+													  ChunkMetaData metadata2) {
+		if (Utils.isTwoObjectsNotNULL(metadata1, metadata2, "ChunkMetaData")) {
 			if (Utils.isTwoObjectsNotNULL(metadata1.getMeasurementUID(), metadata2.getMeasurementUID(),
 					"sensorUID")) {
 				assertTrue(metadata1.getMeasurementUID().equals(metadata2.getMeasurementUID()));
@@ -103,7 +103,7 @@ public class Utils {
 		}
 	}
 
-	public static void isDeltaObjectEqual(TsDeltaObjectMetadata metadata1, TsDeltaObjectMetadata metadata2) {
+	public static void isDeltaObjectEqual(TsDeviceMetadata metadata1, TsDeviceMetadata metadata2) {
 		if (Utils.isTwoObjectsNotNULL(metadata1, metadata2, "DeltaObjectMetaData")) {
             assertEquals(metadata1.getStartTime(), metadata2.getStartTime());
             assertEquals(metadata1.getEndTime(), metadata2.getEndTime());
@@ -119,17 +119,17 @@ public class Utils {
 		}
 	}
 
-	public static void isRowGroupMetaDataEqual(RowGroupMetaData metadata1, RowGroupMetaData metadata2) {
-		if (Utils.isTwoObjectsNotNULL(metadata1, metadata2, "RowGroupMetaData")) {
+	public static void isRowGroupMetaDataEqual(ChunkGroupMetaData metadata1, ChunkGroupMetaData metadata2) {
+		if (Utils.isTwoObjectsNotNULL(metadata1, metadata2, "ChunkGroupMetaData")) {
 			assertTrue(metadata1.getDeltaObjectID().equals(metadata2.getDeltaObjectID()));
 
-			if (Utils.isTwoObjectsNotNULL(metadata1.getTimeSeriesChunkMetaDataList(), metadata2.getTimeSeriesChunkMetaDataList(),
+			if (Utils.isTwoObjectsNotNULL(metadata1.getChunkMetaDataList(), metadata2.getChunkMetaDataList(),
 					"Timeseries chunk metadata list")) {
-				assertEquals(metadata1.getTimeSeriesChunkMetaDataList().size(),
-                        metadata2.getTimeSeriesChunkMetaDataList().size());
-				for(int i = 0;i < metadata1.getTimeSeriesChunkMetaDataList().size();i++){
-				    Utils.isTimeSeriesChunkMetadataEqual(metadata1.getTimeSeriesChunkMetaDataList().get(i),
-                            metadata1.getTimeSeriesChunkMetaDataList().get(i));
+				assertEquals(metadata1.getChunkMetaDataList().size(),
+                        metadata2.getChunkMetaDataList().size());
+				for(int i = 0; i < metadata1.getChunkMetaDataList().size(); i++){
+				    Utils.isTimeSeriesChunkMetadataEqual(metadata1.getChunkMetaDataList().get(i),
+                            metadata1.getChunkMetaDataList().get(i));
                 }
 			}
 		}
@@ -139,14 +139,14 @@ public class Utils {
 		if (Utils.isTwoObjectsNotNULL(metadata1, metadata2, "File MetaData")) {
             if (Utils.isTwoObjectsNotNULL(metadata1.getDeltaObjectMap(), metadata2.getDeltaObjectMap(),
                     "Delta object metadata list")) {
-                Map<String, TsDeltaObjectMetadata> deltaObjectMetadataMap1 = metadata1.getDeltaObjectMap();
-                Map<String, TsDeltaObjectMetadata> deltaObjectMetadataMap2 = metadata2.getDeltaObjectMap();
-                assertEquals(deltaObjectMetadataMap1.size(), deltaObjectMetadataMap2.size());
-                Iterator<String> iterator = deltaObjectMetadataMap1.keySet().iterator();
+                Map<String, TsDeviceMetadata> deviceMetadataMap1 = metadata1.getDeltaObjectMap();
+                Map<String, TsDeviceMetadata> deviceMetadataMap2 = metadata2.getDeltaObjectMap();
+                assertEquals(deviceMetadataMap1.size(), deviceMetadataMap2.size());
+                Iterator<String> iterator = deviceMetadataMap1.keySet().iterator();
                 while(iterator.hasNext()) {
                     String key = iterator.next();
-                    assertTrue(deltaObjectMetadataMap2.containsKey(key));
-                    Utils.isDeltaObjectEqual(deltaObjectMetadataMap1.get(key), deltaObjectMetadataMap2.get(key));
+                    assertTrue(deviceMetadataMap2.containsKey(key));
+                    Utils.isDeltaObjectEqual(deviceMetadataMap1.get(key), deviceMetadataMap2.get(key));
                 }
             }
 

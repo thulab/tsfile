@@ -154,11 +154,11 @@ public class TsFileWriter {
      */
     protected boolean checkIsTimeSeriesExist(TSRecord record) throws WriteProcessException {
         IChunkGroupWriter groupWriter;
-        if (!groupWriters.containsKey(record.deltaObjectId)) {
-            groupWriter = new ChunkGroupWriterImpl(record.deltaObjectId);
-            groupWriters.put(record.deltaObjectId, groupWriter);
+        if (!groupWriters.containsKey(record.deviceId)) {
+            groupWriter = new ChunkGroupWriterImpl(record.deviceId);
+            groupWriters.put(record.deviceId, groupWriter);
         } else {
-            groupWriter = groupWriters.get(record.deltaObjectId);
+            groupWriter = groupWriters.get(record.deviceId);
         }
 
         // add all SeriesWriter of measurements in this TSRecord to this RowGroupWriter
@@ -188,7 +188,7 @@ public class TsFileWriter {
         if (checkIsTimeSeriesExist(record)) {
 
             // get corresponding RowGroupWriter and write this TSRecord
-            groupWriters.get(record.deltaObjectId).write(record.time, record.dataPointList);
+            groupWriters.get(record.deviceId).write(record.time, record.dataPointList);
             ++recordCount;
             return checkMemorySizeAndMayFlushGroup();
         }
@@ -250,11 +250,11 @@ public class TsFileWriter {
             for (IChunkGroupWriter writer : groupWriters.values()) {
                 writer.preFlush();
             }
-            for (String deltaObjectId : groupWriters.keySet()) {
+            for (String deviceId : groupWriters.keySet()) {
                 long memSize = deltaFileWriter.getPos();
-                IChunkGroupWriter groupWriter = groupWriters.get(deltaObjectId);
+                IChunkGroupWriter groupWriter = groupWriters.get(deviceId);
                 long RowGroupSize = groupWriter.getCurrentRowGroupSize();
-                RowGroupFooter rowGroupFooter = deltaFileWriter.startFlushRowGroup(deltaObjectId, RowGroupSize, groupWriter.getSeriesNumber());
+                RowGroupFooter rowGroupFooter = deltaFileWriter.startFlushRowGroup(deviceId, RowGroupSize, groupWriter.getSeriesNumber());
                 groupWriter.flushToFileWriter(deltaFileWriter);
 
                 if (deltaFileWriter.getPos() - memSize != RowGroupSize)

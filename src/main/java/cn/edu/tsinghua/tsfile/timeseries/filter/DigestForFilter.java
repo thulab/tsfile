@@ -13,13 +13,9 @@ import java.nio.ByteBuffer;
  */
 public class DigestForFilter {
 
-    private ByteBuffer min = null;
-    private ByteBuffer max = null;
+    private ByteBuffer min;
+    private ByteBuffer max;
     private TSDataType type;
-
-    public DigestForFilter() {
-
-    }
 
     public DigestForFilter(ByteBuffer min, ByteBuffer max, TSDataType type) {
         this.min = min;

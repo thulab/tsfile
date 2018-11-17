@@ -44,14 +44,14 @@ public class GenerateBigDataCSV {
     private static int[][] maxMinHorizontal = { {5, 2}, {20, 10}, {50, 30}};
     private static double[] glitchProbability = {0.008, 0.01, 0.005};
 
-    private static String deltaObjectType = "root.laptop";
+    private static String deviceType = "root.laptop";
 
     private static float freqWave[] = {0, 0, 0};
 
     private static void getNextRecordToFile(long timestamp, long index, FileWriter fw) throws IOException {
         for (int i = 0; i < deviceCount; i++) {
             StringContainer sc = new StringContainer(",");
-            sc.addTail("d" + i, timestamp+index, deltaObjectType);
+            sc.addTail("d" + i, timestamp+index, deviceType);
             if (sensorSet.contains("s0")) {
                 // s0:broken line, int
                 if ((index % brokenLineConfigs[i][2]) == 0)

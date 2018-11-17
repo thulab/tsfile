@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.read.reader.impl;
 
+import cn.edu.tsinghua.tsfile.file.metadata.ChunkMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.read.TsFileSequenceReader;
-import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.read.common.Path;
 import cn.edu.tsinghua.tsfile.timeseries.read.controller.MetadataQuerierByFileImpl;
 import cn.edu.tsinghua.tsfile.timeseries.read.controller.SeriesChunkLoader;
@@ -18,7 +18,7 @@ import java.util.List;
 public abstract class SeriesReaderFromSingleFile implements SeriesReader {
 
     protected SeriesChunkLoader seriesChunkLoader;
-    protected List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList;
+    protected List<ChunkMetaData> chunkMetaDataList;
 
     protected SeriesChunkReader seriesChunkReader;
     protected boolean seriesChunkReaderInitialized;
@@ -29,25 +29,25 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
     public SeriesReaderFromSingleFile(TsFileSequenceReader fileReader, Path path) throws IOException {
         this.fileReader = fileReader;
         this.seriesChunkLoader = new SeriesChunkLoaderImpl(fileReader);
-        this.timeSeriesChunkMetaDataList = new MetadataQuerierByFileImpl(fileReader).getSeriesChunkMetaDataList(path);
+        this.chunkMetaDataList = new MetadataQuerierByFileImpl(fileReader).getSeriesChunkMetaDataList(path);
         this.currentReadSeriesChunkIndex = -1;
         this.seriesChunkReaderInitialized = false;
     }
 
     public SeriesReaderFromSingleFile(TsFileSequenceReader fileReader,
-                                      SeriesChunkLoader seriesChunkLoader, List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList) {
-        this(seriesChunkLoader, timeSeriesChunkMetaDataList);
+                                      SeriesChunkLoader seriesChunkLoader, List<ChunkMetaData> chunkMetaDataList) {
+        this(seriesChunkLoader, chunkMetaDataList);
         this.fileReader = fileReader;
     }
 
     /**
      * Using this constructor cannot close corresponding FileStream
      * @param seriesChunkLoader
-     * @param timeSeriesChunkMetaDataList
+     * @param chunkMetaDataList
      */
-    public SeriesReaderFromSingleFile(SeriesChunkLoader seriesChunkLoader, List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList) {
+    public SeriesReaderFromSingleFile(SeriesChunkLoader seriesChunkLoader, List<ChunkMetaData> chunkMetaDataList) {
         this.seriesChunkLoader = seriesChunkLoader;
-        this.timeSeriesChunkMetaDataList = timeSeriesChunkMetaDataList;
+        this.chunkMetaDataList = chunkMetaDataList;
         this.currentReadSeriesChunkIndex = -1;
         this.seriesChunkReaderInitialized = false;
     }
@@ -57,11 +57,11 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
         if (seriesChunkReaderInitialized && seriesChunkReader.hasNext()) {
             return true;
         }
-        while ((currentReadSeriesChunkIndex + 1) < timeSeriesChunkMetaDataList.size()) {
+        while ((currentReadSeriesChunkIndex + 1) < chunkMetaDataList.size()) {
             if (!seriesChunkReaderInitialized) {
-                TimeSeriesChunkMetaData timeSeriesChunkMetaData = timeSeriesChunkMetaDataList.get(++currentReadSeriesChunkIndex);
-                if (seriesChunkSatisfied(timeSeriesChunkMetaData)) {
-                    initSeriesChunkReader(timeSeriesChunkMetaData);
+                ChunkMetaData chunkMetaData = chunkMetaDataList.get(++currentReadSeriesChunkIndex);
+                if (seriesChunkSatisfied(chunkMetaData)) {
+                    initSeriesChunkReader(chunkMetaData);
                     seriesChunkReaderInitialized = true;
                 } else {
                     continue;
@@ -86,9 +86,9 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
         next();
     }
 
-    protected abstract void initSeriesChunkReader(TimeSeriesChunkMetaData timeSeriesChunkMetaData) throws IOException;
+    protected abstract void initSeriesChunkReader(ChunkMetaData chunkMetaData) throws IOException;
 
-    protected abstract boolean seriesChunkSatisfied(TimeSeriesChunkMetaData timeSeriesChunkMetaData);
+    protected abstract boolean seriesChunkSatisfied(ChunkMetaData chunkMetaData);
 
     public void close() throws IOException {
         if (fileReader != null) {

@@ -13,7 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class TimeSeriesChunkMetaDataTest {
+public class ChunkMetaDataTest {
 
   public static final String MEASUREMENT_UID = "sensor231";
   public static final long FILE_OFFSET = 2313424242L;
@@ -36,7 +36,7 @@ public class TimeSeriesChunkMetaDataTest {
 
   @Test
   public void testWriteIntoFile() throws IOException {
-    TimeSeriesChunkMetaData metaData = TestHelper.createSimpleTimeSeriesChunkMetaData();
+    ChunkMetaData metaData = TestHelper.createSimpleTimeSeriesChunkMetaData();
     File file = new File(PATH);
     if (file.exists())
       file.delete();

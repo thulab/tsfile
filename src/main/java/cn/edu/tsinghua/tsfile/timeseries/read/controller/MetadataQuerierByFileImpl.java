@@ -1,8 +1,8 @@
 package cn.edu.tsinghua.tsfile.timeseries.read.controller;
 
 import cn.edu.tsinghua.tsfile.common.exception.cache.CacheException;
-import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
+import cn.edu.tsinghua.tsfile.file.metadata.ChunkGroupMetaData;
+import cn.edu.tsinghua.tsfile.file.metadata.ChunkMetaData;
 import cn.edu.tsinghua.tsfile.file.metadata.TsFileMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.read.TsFileSequenceReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.common.Path;
@@ -21,18 +21,18 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
 
     private TsFileMetaData fileMetaData;
 
-    private LRUCache<Path, List<TimeSeriesChunkMetaData>> seriesChunkDescriptorCache;
+    private LRUCache<Path, List<ChunkMetaData>> seriesChunkDescriptorCache;
 
 
     public MetadataQuerierByFileImpl(TsFileSequenceReader tsFileReader) throws IOException {
         this.fileMetaData=tsFileReader.readFileMetadata();
-        seriesChunkDescriptorCache = new LRUCache<Path, List<TimeSeriesChunkMetaData>>(SERIESCHUNK_DESCRIPTOR_CACHE_SIZE) {
+        seriesChunkDescriptorCache = new LRUCache<Path, List<ChunkMetaData>>(SERIESCHUNK_DESCRIPTOR_CACHE_SIZE) {
             @Override
-            public void beforeRemove(List<TimeSeriesChunkMetaData> object) {
+            public void beforeRemove(List<ChunkMetaData> object) {
             }
 
             @Override
-            public List<TimeSeriesChunkMetaData> loadObjectByKey(Path key) {
+            public List<ChunkMetaData> loadObjectByKey(Path key) {
                 return loadSeriesChunkDescriptor(key);
             }
         };
@@ -40,7 +40,7 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
 
 
     @Override
-    public List<TimeSeriesChunkMetaData> getSeriesChunkMetaDataList(Path path) throws IOException {
+    public List<ChunkMetaData> getSeriesChunkMetaDataList(Path path) throws IOException {
         try {
             return seriesChunkDescriptorCache.get(path);
         } catch (CacheException e) {
@@ -53,18 +53,18 @@ public class MetadataQuerierByFileImpl implements MetadataQuerier {
         return fileMetaData;
     }
 
-    private List<TimeSeriesChunkMetaData> loadSeriesChunkDescriptor(Path path) {
-        List<RowGroupMetaData> rowGroupMetaDataList = fileMetaData.getDeltaObject(path.getDeltaObjectToString()).getRowGroups();
-        List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList = new ArrayList<>();
-        for (RowGroupMetaData rowGroupMetaData : rowGroupMetaDataList) {
-            List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataListInOneRowGroup = rowGroupMetaData.getTimeSeriesChunkMetaDataList();
-            for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataListInOneRowGroup) {
-                if (path.getMeasurementToString().equals(timeSeriesChunkMetaData.getMeasurementUID())) {
-                    timeSeriesChunkMetaDataList.add(timeSeriesChunkMetaData);
+    private List<ChunkMetaData> loadSeriesChunkDescriptor(Path path) {
+        List<ChunkGroupMetaData> chunkGroupMetaDataList = fileMetaData.getDeltaObject(path.getDeltaObjectToString()).getRowGroups();
+        List<ChunkMetaData> chunkMetaDataList = new ArrayList<>();
+        for (ChunkGroupMetaData chunkGroupMetaData : chunkGroupMetaDataList) {
+            List<ChunkMetaData> chunkMetaDataListInOneRowGroup = chunkGroupMetaData.getChunkMetaDataList();
+            for (ChunkMetaData chunkMetaData : chunkMetaDataListInOneRowGroup) {
+                if (path.getMeasurementToString().equals(chunkMetaData.getMeasurementUID())) {
+                    chunkMetaDataList.add(chunkMetaData);
                 }
             }
         }
-        return timeSeriesChunkMetaDataList;
+        return chunkMetaDataList;
     }
 
 }

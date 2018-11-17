@@ -22,14 +22,14 @@ import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.DataPoint;
  */
 public class ChunkGroupWriterImpl implements IChunkGroupWriter {
     private static Logger LOG = LoggerFactory.getLogger(ChunkGroupWriterImpl.class);
-    private final String deltaObjectId;
+    private final String deviceId;
     /**
      * <measurementID, ChunkWriterImpl>
      */
     private Map<String, IChunkWriter> dataSeriesWriters = new HashMap<String, IChunkWriter>();
 
-    public ChunkGroupWriterImpl(String deltaObjectId) {
-        this.deltaObjectId = deltaObjectId;
+    public ChunkGroupWriterImpl(String deviceId) {
+        this.deviceId = deviceId;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class ChunkGroupWriterImpl implements IChunkGroupWriter {
 
     @Override
     public void flushToFileWriter(TsFileIOWriter deltaFileWriter) throws IOException {
-        LOG.debug("start flush delta object id:{}", deltaObjectId);
+        LOG.debug("start flush delta object id:{}", deviceId);
         for (IChunkWriter seriesWriter : dataSeriesWriters.values()) {
             seriesWriter.writeToFileWriter(deltaFileWriter);
         }

@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.read.query.impl;
 
+import cn.edu.tsinghua.tsfile.file.metadata.ChunkMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.read.common.Path;
-import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.read.controller.MetadataQuerier;
 import cn.edu.tsinghua.tsfile.timeseries.read.controller.SeriesChunkLoader;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryDataSet;
@@ -41,9 +41,9 @@ public class QueryWithQueryFilterExecutorImpl implements QueryExecutor {
     private void initReadersOfSelectedSeries(LinkedHashMap<Path, SeriesReaderFromSingleFileByTimestampImpl> readersOfSelectedSeries,
                                              List<Path> selectedSeries) throws IOException {
         for (Path path : selectedSeries) {
-            List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList = metadataQuerier.getSeriesChunkMetaDataList(path);
+            List<ChunkMetaData> chunkMetaDataList = metadataQuerier.getSeriesChunkMetaDataList(path);
             SeriesReaderFromSingleFileByTimestampImpl seriesReader = new SeriesReaderFromSingleFileByTimestampImpl(
-                    seriesChunkLoader, timeSeriesChunkMetaDataList);
+                    seriesChunkLoader, chunkMetaDataList);
             readersOfSelectedSeries.put(path, seriesReader);
         }
     }

@@ -11,11 +11,10 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 /**
- *
- * For more information, see TimeSeriesChunkMetaData in cn.edu.thu.tsfile.format package
+ * MetaData of one chunk
  */
-public class TimeSeriesChunkMetaData {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TimeSeriesChunkMetaData.class);
+public class ChunkMetaData {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChunkMetaData.class);
 
     private String measurementUID;
 
@@ -39,7 +38,7 @@ public class TimeSeriesChunkMetaData {
      */
     private long maxTombstoneTime;
 
-    private TsDigest valuesStatistics;//TODO 谁赋值的？？
+    private TsDigest valuesStatistics;
 
 
     public int getSerializedSize(){
@@ -51,9 +50,9 @@ public class TimeSeriesChunkMetaData {
     }
 
 
-    private TimeSeriesChunkMetaData(){}
+    private ChunkMetaData(){}
 
-    public TimeSeriesChunkMetaData(String measurementUID, TSDataType tsDataType, long fileOffset,  long startTime, long endTime) {
+    public ChunkMetaData(String measurementUID, TSDataType tsDataType, long fileOffset, long startTime, long endTime) {
         this.measurementUID = measurementUID;
         this.tsDataType = tsDataType;
         this.fileOffsetOfCorrespondingData = fileOffset;
@@ -151,40 +150,40 @@ public class TimeSeriesChunkMetaData {
         return byteLen;
     }
 
-    public static TimeSeriesChunkMetaData deserializeFrom(InputStream inputStream) throws IOException {
-        TimeSeriesChunkMetaData timeSeriesChunkMetaData = new TimeSeriesChunkMetaData();
+    public static ChunkMetaData deserializeFrom(InputStream inputStream) throws IOException {
+        ChunkMetaData chunkMetaData = new ChunkMetaData();
 
-        timeSeriesChunkMetaData.measurementUID = ReadWriteIOUtils.readString(inputStream);
+        chunkMetaData.measurementUID = ReadWriteIOUtils.readString(inputStream);
 
-        timeSeriesChunkMetaData.fileOffsetOfCorrespondingData = ReadWriteIOUtils.readLong(inputStream);
-
-
-        timeSeriesChunkMetaData.numOfPoints = ReadWriteIOUtils.readLong(inputStream);
-        timeSeriesChunkMetaData.startTime = ReadWriteIOUtils.readLong(inputStream);
-        timeSeriesChunkMetaData.endTime = ReadWriteIOUtils.readLong(inputStream);
-
-        timeSeriesChunkMetaData.tsDataType = ReadWriteIOUtils.readDataType(inputStream);
-
-        timeSeriesChunkMetaData.valuesStatistics = ReadWriteIOUtils.readDigest(inputStream);
+        chunkMetaData.fileOffsetOfCorrespondingData = ReadWriteIOUtils.readLong(inputStream);
 
 
-        return timeSeriesChunkMetaData;
+        chunkMetaData.numOfPoints = ReadWriteIOUtils.readLong(inputStream);
+        chunkMetaData.startTime = ReadWriteIOUtils.readLong(inputStream);
+        chunkMetaData.endTime = ReadWriteIOUtils.readLong(inputStream);
+
+        chunkMetaData.tsDataType = ReadWriteIOUtils.readDataType(inputStream);
+
+        chunkMetaData.valuesStatistics = ReadWriteIOUtils.readDigest(inputStream);
+
+
+        return chunkMetaData;
     }
 
-    public static TimeSeriesChunkMetaData deserializeFrom(ByteBuffer buffer) throws IOException {
-        TimeSeriesChunkMetaData timeSeriesChunkMetaData = new TimeSeriesChunkMetaData();
+    public static ChunkMetaData deserializeFrom(ByteBuffer buffer) throws IOException {
+        ChunkMetaData chunkMetaData = new ChunkMetaData();
 
-        timeSeriesChunkMetaData.measurementUID = ReadWriteIOUtils.readString(buffer);
-        timeSeriesChunkMetaData.fileOffsetOfCorrespondingData = ReadWriteIOUtils.readLong(buffer);
-        timeSeriesChunkMetaData.numOfPoints = ReadWriteIOUtils.readLong(buffer);
-        timeSeriesChunkMetaData.startTime = ReadWriteIOUtils.readLong(buffer);
-        timeSeriesChunkMetaData.endTime = ReadWriteIOUtils.readLong(buffer);
-        timeSeriesChunkMetaData.tsDataType = ReadWriteIOUtils.readDataType(buffer);
+        chunkMetaData.measurementUID = ReadWriteIOUtils.readString(buffer);
+        chunkMetaData.fileOffsetOfCorrespondingData = ReadWriteIOUtils.readLong(buffer);
+        chunkMetaData.numOfPoints = ReadWriteIOUtils.readLong(buffer);
+        chunkMetaData.startTime = ReadWriteIOUtils.readLong(buffer);
+        chunkMetaData.endTime = ReadWriteIOUtils.readLong(buffer);
+        chunkMetaData.tsDataType = ReadWriteIOUtils.readDataType(buffer);
 
-        timeSeriesChunkMetaData.valuesStatistics = ReadWriteIOUtils.readDigest(buffer);
+        chunkMetaData.valuesStatistics = ReadWriteIOUtils.readDigest(buffer);
 
 
-        return timeSeriesChunkMetaData;
+        return chunkMetaData;
     }
 
     public long getMaxTombstoneTime() {

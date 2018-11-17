@@ -18,7 +18,7 @@ public class RecordUtils {
     private static final Logger LOG = LoggerFactory.getLogger(RecordUtils.class);
 
     /**
-     * support input format: {@code <deltaObjectId>,<timestamp>,[<measurementId>,<value>,]}.CSV line
+     * support input format: {@code <deviceId>,<timestamp>,[<measurementId>,<value>,]}.CSV line
      * is separated by ","
      *
      * @param str    - input string
@@ -28,17 +28,17 @@ public class RecordUtils {
     public static TSRecord parseSimpleTupleRecord(String str, FileSchema schema) {
         // spliall items
         String[] items = str.split(JsonFormatConstant.TSRECORD_SEPARATOR);
-        // get deltaObjectId and timestamp, then create a new TSRecord
-        String deltaObjectId = items[0].trim();
+        // get deviceId and timestamp, then create a new TSRecord
+        String deviceId = items[0].trim();
         long timestamp;
         try {
             timestamp = Long.valueOf(items[1].trim());
         } catch (NumberFormatException e) {
             LOG.warn("given timestamp is illegal:{}", str);
             // return a TSRecord without any data points
-            return new TSRecord(-1, deltaObjectId);
+            return new TSRecord(-1, deviceId);
         }
-        TSRecord ret = new TSRecord(timestamp, deltaObjectId);
+        TSRecord ret = new TSRecord(timestamp, deviceId);
 
         // loop all rest items except the last one
         String measurementId;

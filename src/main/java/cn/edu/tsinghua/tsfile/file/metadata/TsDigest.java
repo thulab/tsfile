@@ -11,21 +11,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * For more information, see Digest in cn.edu.thu.tsfile.format package
+ * Digest/statistics per row group and per page.
  */
 public class TsDigest {
-    /**
-     * Digest/statistics per row group and per page.
-     */
+
     private Map<String, ByteBuffer> statistics;
-
-
 
     private int serializedSize=Integer.BYTES;
 
-
     private int sizeOfList;
-
 
     private void reCalculateSerializedSize(){
         serializedSize =Integer.BYTES;
@@ -91,7 +85,7 @@ public class TsDigest {
         return byteLen;
     }
 
-    public int serializeTo(ByteBuffer buffer) throws IOException {
+    public int serializeTo(ByteBuffer buffer) {
         if((statistics!=null && sizeOfList!=statistics.size())||(statistics==null&&sizeOfList!=0))
             reCalculateSerializedSize();
         int byteLen = 0;
@@ -108,14 +102,16 @@ public class TsDigest {
         assert byteLen== getSerializedSize();
         return byteLen;
     }
+
     public static int getNullDigestSize(){
         return Integer.BYTES;
     }
+
     public static int serializeNullTo(OutputStream outputStream) throws IOException {
         return ReadWriteIOUtils.write(0, outputStream);// Integer.BYTES;
     }
 
-    public static int serializeNullTo(ByteBuffer buffer) throws IOException {
+    public static int serializeNullTo(ByteBuffer buffer) {
         return ReadWriteIOUtils.write(0, buffer);// Integer.BYTES;
     }
 
@@ -138,7 +134,7 @@ public class TsDigest {
         return digest;
     }
 
-    public static TsDigest deserializeFrom(ByteBuffer buffer) throws IOException {
+    public static TsDigest deserializeFrom(ByteBuffer buffer) {
         TsDigest digest = new TsDigest();
 
         int size = ReadWriteIOUtils.readInt(buffer);

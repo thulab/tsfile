@@ -10,6 +10,8 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.CharacterCodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ConverterUtils is a utility class. It provide conversion between normal datatype and byte array.
@@ -178,7 +180,7 @@ public class ReadWriteIOUtils {
         len += bytes.length;
         return len;
     }
-    public static int write(String s, ByteBuffer buffer) throws IOException {
+    public static int write(String s, ByteBuffer buffer) {
         int len = 0;
         len += write(s.length(), buffer);
         byte[] bytes = s.getBytes();
@@ -208,7 +210,7 @@ public class ReadWriteIOUtils {
         len += bytes.length;
         return len;
     }
-    public static int write(ByteBuffer byteBuffer, ByteBuffer buffer) throws IOException {
+    public static int write(ByteBuffer byteBuffer, ByteBuffer buffer) {
         int len = 0;
         len += write(byteBuffer.capacity(), buffer);
         byte[] bytes = byteBuffer.array();
@@ -324,99 +326,96 @@ public class ReadWriteIOUtils {
         return length;
     }
 
-//    public static int write(List list, TSDataType dataType, OutputStream outputStream) throws IOException {
-//        int len = 0;
-//
-//        len += write(list.size(), outputStream);
-//        for(Object one : list){
-//            switch (dataType){
-//                case INT32:
-//                    len += write((int)one, outputStream);
-//                    break;
-//                case TEXT:
-//                    len += write((String)one, outputStream);
-//                    break;
-//                default:
-//                    throw new IOException(String.format("Unsupported data type for {}", dataType.toString()));
-//            }
-//        }
-//
-//        return len;
-//    }
-//    public static int write(List list, TSDataType dataType, ByteBuffer buffer) throws IOException {
-//        int len = 0;
-//
-//        if(list == null){
-//            len += write(list.size(), buffer);
-//            return len;
-//        }
-//
-//        len += write(list.size(), buffer);
-//        for(Object one : list){
-//            switch (dataType){
-//                case INT32:
-//                    len += write((int)one, buffer);
-//                    break;
-//                case TEXT:
-//                    len += write((String)one, buffer);
-//                    break;
-//                default:
-//                    throw new IOException(String.format("Unsupported data type for {}", dataType.toString()));
-//            }
-//        }
-//
-//        return len;
-//    }
+    public static int write(List list, TSDataType dataType, OutputStream outputStream) throws IOException {
+        int len = 0;
 
-//    public static List<Integer> readIntegerList(InputStream inputStream) throws IOException {
-//        int size = readInt(inputStream);
-//        if(size <= 0)return null;
-//
-//        List<Integer> list = new ArrayList<>();
-//        for(int i = 0;i < size;i++)
-//            list.add(readInt(inputStream));
-//
-//        return list;
-//    }
-//    public static List<Integer> readIntegerList(ByteBuffer buffer) throws IOException {
-//        int size = readInt(buffer);
-//        if(size <= 0)return null;
-//
-//        List<Integer> list = new ArrayList<>();
-//        for(int i = 0;i < size;i++)
-//            list.add(readInt(buffer));
-//        return list;
-//    }
-//
-//    public static List<String> readStringList(InputStream inputStream) throws IOException {
-//        List<String> list = new ArrayList<>();
-//        int size = readInt(inputStream);
-//
-//        for(int i = 0;i < size;i++)
-//            list.add(readString(inputStream));
-//
-//        return list;
-//    }
-//    public static List<String> readStringList(ByteBuffer buffer) throws IOException {
-//        int size = readInt(buffer);
-//        if(size <= 0)return null;
-//
-//        List<String> list = new ArrayList<>();
-//        for(int i = 0;i < size;i++)
-//            list.add(readString(buffer));
-//
-//        return list;
-//    }
+        len += write(list.size(), outputStream);
+        for(Object one : list){
+            switch (dataType){
+                case INT32:
+                    len += write((int)one, outputStream);
+                    break;
+                case TEXT:
+                    len += write((String)one, outputStream);
+                    break;
+                default:
+                    throw new IOException(String.format("Unsupported data type for {}", dataType.toString()));
+            }
+        }
 
+        return len;
+    }
+    public static int write(List list, TSDataType dataType, ByteBuffer buffer) throws IOException {
+        int len = 0;
 
-    //TODO 下面的代码都没有意义
+        if(list == null){
+            len += write(list.size(), buffer);
+            return len;
+        }
+
+        len += write(list.size(), buffer);
+        for(Object one : list){
+            switch (dataType){
+                case INT32:
+                    len += write((int)one, buffer);
+                    break;
+                case TEXT:
+                    len += write((String)one, buffer);
+                    break;
+                default:
+                    throw new IOException(String.format("Unsupported data type for {}", dataType.toString()));
+            }
+        }
+
+        return len;
+    }
+
+    public static List<Integer> readIntegerList(InputStream inputStream) throws IOException {
+        int size = readInt(inputStream);
+        if(size <= 0)return null;
+
+        List<Integer> list = new ArrayList<>();
+        for(int i = 0;i < size;i++)
+            list.add(readInt(inputStream));
+
+        return list;
+    }
+    public static List<Integer> readIntegerList(ByteBuffer buffer) throws IOException {
+        int size = readInt(buffer);
+        if(size <= 0)return null;
+
+        List<Integer> list = new ArrayList<>();
+        for(int i = 0;i < size;i++)
+            list.add(readInt(buffer));
+        return list;
+    }
+
+    public static List<String> readStringList(InputStream inputStream) throws IOException {
+        List<String> list = new ArrayList<>();
+        int size = readInt(inputStream);
+
+        for(int i = 0;i < size;i++)
+            list.add(readString(inputStream));
+
+        return list;
+    }
+    public static List<String> readStringList(ByteBuffer buffer) throws IOException {
+        int size = readInt(buffer);
+        if(size <= 0)return null;
+
+        List<String> list = new ArrayList<>();
+        for(int i = 0;i < size;i++)
+            list.add(readString(buffer));
+
+        return list;
+    }
 
 
     public static int write(CompressionType compressionType, OutputStream outputStream) throws IOException {
         short n = compressionType.serialize();
         return write(n, outputStream);
     }
-    public static int write(CompressionType compressionType, ByteBuffer buffer) throws IOException {
+    public static int write(CompressionType compressionType, ByteBuffer buffer) {
         short n = compressionType.serialize();
         return write(n, buffer);
     }
@@ -425,7 +424,7 @@ public class ReadWriteIOUtils {
         short n = readShort(inputStream);
         return CompressionType.deserialize(n);
     }
-    public static CompressionType readCompressionType(ByteBuffer buffer) throws IOException {
+    public static CompressionType readCompressionType(ByteBuffer buffer) {
         short n = readShort(buffer);
         return CompressionType.deserialize(n);
     }
@@ -434,7 +433,7 @@ public class ReadWriteIOUtils {
         short n = dataType.serialize();
         return write(n, outputStream);
     }
-    public static int write(TSDataType dataType, ByteBuffer buffer) throws IOException {
+    public static int write(TSDataType dataType, ByteBuffer buffer) {
         short n = dataType.serialize();
         return write(n, buffer);
     }
@@ -443,7 +442,7 @@ public class ReadWriteIOUtils {
         short n = readShort(inputStream);
         return TSDataType.deserialize(n);
     }
-    public static TSDataType readDataType(ByteBuffer buffer) throws IOException {
+    public static TSDataType readDataType(ByteBuffer buffer) {
         short n = readShort(buffer);
         return TSDataType.deserialize(n);
     }
@@ -452,7 +451,7 @@ public class ReadWriteIOUtils {
         short n = encoding.serialize();
         return write(n, outputStream);
     }
-    public static int write(TSEncoding encoding, ByteBuffer buffer) throws IOException {
+    public static int write(TSEncoding encoding, ByteBuffer buffer) {
         short n = encoding.serialize();
         return write(n, buffer);
     }
@@ -461,7 +460,7 @@ public class ReadWriteIOUtils {
         short n = readShort(inputStream);
         return TSEncoding.deserialize(n);
     }
-    public static TSEncoding readEncoding(ByteBuffer buffer) throws IOException {
+    public static TSEncoding readEncoding(ByteBuffer buffer) {
         short n = readShort(buffer);
         return TSEncoding.deserialize(n);
     }
@@ -470,7 +469,7 @@ public class ReadWriteIOUtils {
         short n = freqType.serialize();
         return write(n, outputStream);
     }
-    public static int write(TSFreqType freqType, ByteBuffer buffer) throws IOException {
+    public static int write(TSFreqType freqType, ByteBuffer buffer) {
         short n = freqType.serialize();
         return write(n, buffer);
     }
@@ -479,7 +478,7 @@ public class ReadWriteIOUtils {
         short n = readShort(inputStream);
         return TSFreqType.deserialize(n);
     }
-    public static TSFreqType readFreqType(ByteBuffer buffer) throws IOException {
+    public static TSFreqType readFreqType(ByteBuffer buffer) {
         short n = readShort(buffer);
         return TSFreqType.deserialize(n);
     }
@@ -498,38 +497,38 @@ public class ReadWriteIOUtils {
         return TsDigest.deserializeFrom(buffer);
     }
 
-    public static int write(TimeSeriesChunkMetaData timeSeriesChunkMetaData, OutputStream outputStream) throws IOException {
-        return timeSeriesChunkMetaData.serializeTo(outputStream);
+    public static int write(ChunkMetaData chunkMetaData, OutputStream outputStream) throws IOException {
+        return chunkMetaData.serializeTo(outputStream);
     }
-    public static int write(TimeSeriesChunkMetaData timeSeriesChunkMetaData, ByteBuffer buffer) throws IOException {
-        return timeSeriesChunkMetaData.serializeTo(buffer);
-    }
-
-    public static TimeSeriesChunkMetaData readTimeSeriesChunkMetaData(InputStream inputStream) throws IOException {
-        return TimeSeriesChunkMetaData.deserializeFrom(inputStream);
-    }
-    public static TimeSeriesChunkMetaData readTimeSeriesChunkMetaData(ByteBuffer buffer) throws IOException {
-        return TimeSeriesChunkMetaData.deserializeFrom(buffer);
+    public static int write(ChunkMetaData chunkMetaData, ByteBuffer buffer) throws IOException {
+        return chunkMetaData.serializeTo(buffer);
     }
 
-    public static int write(RowGroupMetaData rowGroupMetaData, OutputStream outputStream) throws IOException {
-        return rowGroupMetaData.serializeTo(outputStream);
+    public static ChunkMetaData readTimeSeriesChunkMetaData(InputStream inputStream) throws IOException {
+        return ChunkMetaData.deserializeFrom(inputStream);
     }
-    public static int write(RowGroupMetaData rowGroupMetaData, ByteBuffer buffer) throws IOException {
-        return rowGroupMetaData.serializeTo(buffer);
-    }
-
-    public static RowGroupMetaData readRowGroupMetaData(InputStream inputStream) throws IOException {
-        return RowGroupMetaData.deserializeFrom(inputStream);
-    }
-    public static RowGroupMetaData readRowGroupMetaData(ByteBuffer buffer) throws IOException {
-        return RowGroupMetaData.deserializeFrom(buffer);
+    public static ChunkMetaData readTimeSeriesChunkMetaData(ByteBuffer buffer) throws IOException {
+        return ChunkMetaData.deserializeFrom(buffer);
     }
 
-    public static int write(TsDeltaObjectMetadata deltaObjectMetadata, OutputStream outputStream) throws IOException {
+    public static int write(ChunkGroupMetaData chunkGroupMetaData, OutputStream outputStream) throws IOException {
+        return chunkGroupMetaData.serializeTo(outputStream);
+    }
+    public static int write(ChunkGroupMetaData chunkGroupMetaData, ByteBuffer buffer) throws IOException {
+        return chunkGroupMetaData.serializeTo(buffer);
+    }
+
+    public static ChunkGroupMetaData readRowGroupMetaData(InputStream inputStream) throws IOException {
+        return ChunkGroupMetaData.deserializeFrom(inputStream);
+    }
+    public static ChunkGroupMetaData readRowGroupMetaData(ByteBuffer buffer) throws IOException {
+        return ChunkGroupMetaData.deserializeFrom(buffer);
+    }
+
+    public static int write(TsDeviceMetadata deltaObjectMetadata, OutputStream outputStream) throws IOException {
         return deltaObjectMetadata.serializeTo(outputStream);
     }
-    public static int write(TsDeltaObjectMetadata deltaObjectMetadata, ByteBuffer buffer) throws IOException {
+    public static int write(TsDeviceMetadata deltaObjectMetadata, ByteBuffer buffer) throws IOException {
         return deltaObjectMetadata.serializeTo(buffer);
     }
 

@@ -46,13 +46,13 @@ public class GenerateBigTSFile {
     // y = A*sin(wt), sinConfigs:w,A
     private static double[][] sinConfigs = {{0.05, 10}, {0.3, 100}, {2, 50}};
     private static double[][] sinAbnormalConfigs = {{0.8, 20}, {0.3, 100}, {2, 50}};
-    private static String deltaObjectType = "root.laptop";
+    private static String deviceType = "root.laptop";
 
 
     private static void getNextRecord(long timestamp, long index) throws IOException {
         for (int i = 0; i < deviceCount; i++) {
             StringContainer sc = new StringContainer(",");
-            sc.addTail("d" + i, timestamp, deltaObjectType);
+            sc.addTail("d" + i, timestamp, deviceType);
             if (sensorSet.contains("s0")) {
                 // s0:broken line, int
                 if ((timestamp % brokenLineConfigs[i][2]) == 0)

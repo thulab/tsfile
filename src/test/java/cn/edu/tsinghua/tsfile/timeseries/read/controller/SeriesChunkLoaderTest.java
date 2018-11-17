@@ -2,9 +2,9 @@ package cn.edu.tsinghua.tsfile.timeseries.read.controller;
 
 
 import cn.edu.tsinghua.tsfile.file.header.ChunkHeader;
+import cn.edu.tsinghua.tsfile.file.metadata.ChunkMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.readV1.TsFileGeneratorForTest;
 import cn.edu.tsinghua.tsfile.timeseries.read.TsFileSequenceReader;
-import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
 import cn.edu.tsinghua.tsfile.timeseries.read.common.MemSeriesChunk;
 import cn.edu.tsinghua.tsfile.timeseries.read.common.Path;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
@@ -40,11 +40,11 @@ public class SeriesChunkLoaderTest {
     public void test() throws IOException {
         fileReader = new TsFileSequenceReader(FILE_PATH);
         MetadataQuerierByFileImpl metadataQuerierByFile = new MetadataQuerierByFileImpl(fileReader);
-        List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList = metadataQuerierByFile.getSeriesChunkMetaDataList(new Path("d2.s1"));
+        List<ChunkMetaData> chunkMetaDataList = metadataQuerierByFile.getSeriesChunkMetaDataList(new Path("d2.s1"));
 
         SeriesChunkLoaderImpl seriesChunkLoader = new SeriesChunkLoaderImpl(fileReader);
-        for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : timeSeriesChunkMetaDataList) {
-            MemSeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(timeSeriesChunkMetaData);
+        for (ChunkMetaData chunkMetaData : chunkMetaDataList) {
+            MemSeriesChunk memSeriesChunk = seriesChunkLoader.getMemSeriesChunk(chunkMetaData);
             ChunkHeader chunkHeader = ChunkHeader.deserializeFrom(memSeriesChunk.getSeriesChunkBodyStream(), false);
             Assert.assertEquals(chunkHeader.getDataSize(), memSeriesChunk.getSeriesChunkBodyStream().remaining());
         }

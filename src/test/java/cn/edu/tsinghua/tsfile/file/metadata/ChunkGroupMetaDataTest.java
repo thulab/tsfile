@@ -13,7 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RowGroupMetaDataTest {
+public class ChunkGroupMetaDataTest {
 
   public static final String DELTA_OBJECT_UID = "delta-3312";
   final String PATH = "target/outputRowGroup.tsfile";
@@ -30,7 +30,7 @@ public class RowGroupMetaDataTest {
 
   @Test
   public void testWriteIntoFile() throws IOException {
-    RowGroupMetaData metaData = TestHelper.createSimpleRowGroupMetaData();
+    ChunkGroupMetaData metaData = TestHelper.createSimpleRowGroupMetaData();
     File file = new File(PATH);
     if (file.exists())
       file.delete();

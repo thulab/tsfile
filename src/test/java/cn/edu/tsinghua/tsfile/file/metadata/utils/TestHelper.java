@@ -27,36 +27,36 @@ public class TestHelper {
         return metaData;
     }
 
-    public static Map<String, TsDeltaObjectMetadata> generateDeltaObjectMetadataMap() {
-        Map<String, TsDeltaObjectMetadata> deltaObjectMetadataMap = new HashMap<>();
+    public static Map<String, TsDeviceMetadata> generateDeltaObjectMetadataMap() {
+        Map<String, TsDeviceMetadata> deviceMetadataMap = new HashMap<>();
         for(int i = 0;i < 5;i++){
-            deltaObjectMetadataMap.put("device_" + i, createSimpleDeltaObjectMetaData());
+            deviceMetadataMap.put("device_" + i, createSimpleDeltaObjectMetaData());
         }
-        return deltaObjectMetadataMap;
+        return deviceMetadataMap;
     }
 
-    public static TsDeltaObjectMetadata createSimpleDeltaObjectMetaData() {
-        TsDeltaObjectMetadata metaData = new TsDeltaObjectMetadata();
-        metaData.setStartTime(TsDeltaObjectMetadataTest.START_TIME);
-        metaData.setEndTime(TsDeltaObjectMetadataTest.END_TIME);
+    public static TsDeviceMetadata createSimpleDeltaObjectMetaData() {
+        TsDeviceMetadata metaData = new TsDeviceMetadata();
+        metaData.setStartTime(TsDeviceMetadataTest.START_TIME);
+        metaData.setEndTime(TsDeviceMetadataTest.END_TIME);
         metaData.addRowGroupMetaData(TestHelper.createSimpleRowGroupMetaData());
         metaData.addRowGroupMetaData(TestHelper.createSimpleRowGroupMetaData());
         return metaData;
     }
 
-    public static RowGroupMetaData createSimpleRowGroupMetaData() {
-    RowGroupMetaData metaData = new RowGroupMetaData(RowGroupMetaDataTest.DELTA_OBJECT_UID, new ArrayList<>());
+    public static ChunkGroupMetaData createSimpleRowGroupMetaData() {
+    ChunkGroupMetaData metaData = new ChunkGroupMetaData(ChunkGroupMetaDataTest.DELTA_OBJECT_UID, new ArrayList<>());
     metaData.addTimeSeriesChunkMetaData(TestHelper.createSimpleTimeSeriesChunkMetaData());
     metaData.addTimeSeriesChunkMetaData(TestHelper.createSimpleTimeSeriesChunkMetaData());
     return metaData;
     }
 
-    public static TimeSeriesChunkMetaData createSimpleTimeSeriesChunkMetaData() {
-    TimeSeriesChunkMetaData metaData =
-        new TimeSeriesChunkMetaData(TimeSeriesChunkMetaDataTest.MEASUREMENT_UID, TimeSeriesChunkMetaDataTest.DATA_TYPE, TimeSeriesChunkMetaDataTest.FILE_OFFSET,
-            TimeSeriesChunkMetaDataTest.START_TIME, TimeSeriesChunkMetaDataTest.END_TIME//, TimeSeriesChunkMetaDataTest.ENCODING_TYPE
+    public static ChunkMetaData createSimpleTimeSeriesChunkMetaData() {
+    ChunkMetaData metaData =
+        new ChunkMetaData(ChunkMetaDataTest.MEASUREMENT_UID, ChunkMetaDataTest.DATA_TYPE, ChunkMetaDataTest.FILE_OFFSET,
+            ChunkMetaDataTest.START_TIME, ChunkMetaDataTest.END_TIME//, ChunkMetaDataTest.ENCODING_TYPE
         );
-    metaData.setNumOfPoints(TimeSeriesChunkMetaDataTest.NUM_OF_POINTS);
+    metaData.setNumOfPoints(ChunkMetaDataTest.NUM_OF_POINTS);
     metaData.setDigest(new TsDigest());
     return metaData;
     }

@@ -38,9 +38,9 @@ public class TsFileIOWriter {
     }
 
     private FileOutputStream out;
-    protected List<RowGroupMetaData> rowGroupMetaDatas = new ArrayList<>();
-    private RowGroupMetaData currentRowGroupMetaData;
-    private TimeSeriesChunkMetaData currentChunkMetaData;
+    protected List<ChunkGroupMetaData> chunkGroupMetaData = new ArrayList<>();
+    private ChunkGroupMetaData currentChunkGroupMetaData;
+    private ChunkMetaData currentChunkMetaData;
 
     /**
      * for writing a new tsfile.
@@ -71,22 +71,22 @@ public class TsFileIOWriter {
     }
 
     /**
-     * start a {@linkplain RowGroupMetaData RowGroupMetaData}.
+     * start a {@linkplain ChunkGroupMetaData ChunkGroupMetaData}.
      *
-     * @param deltaObjectId delta object id
+     * @param deviceId delta object id
      * @param dataSize      the serialized size of all chunks
      * @return the serialized size of RowGroupFooter
      */
-    public RowGroupFooter startFlushRowGroup(String deltaObjectId, long dataSize, int numberOfChunks) throws IOException {
-        LOG.debug("start row group:{}, file position {}", deltaObjectId, out.getChannel().position());
-        currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, new ArrayList<>());
-        RowGroupFooter header = new RowGroupFooter(deltaObjectId, dataSize, numberOfChunks);
+    public RowGroupFooter startFlushRowGroup(String deviceId, long dataSize, int numberOfChunks) throws IOException {
+        LOG.debug("start row group:{}, file position {}", deviceId, out.getChannel().position());
+        currentChunkGroupMetaData = new ChunkGroupMetaData(deviceId, new ArrayList<>());
+        RowGroupFooter header = new RowGroupFooter(deviceId, dataSize, numberOfChunks);
         LOG.debug("finishing writing row group header {}, file position {}", header, out.getChannel().position());
         return header;
     }
 
     /**
-     * start a {@linkplain TimeSeriesChunkMetaData TimeSeriesChunkMetaData}.
+     * start a {@linkplain ChunkMetaData ChunkMetaData}.
      *
      * @param descriptor           - measurement of this time series
      * @param compressionCodecName - compression name of this time series
@@ -102,7 +102,7 @@ public class TsFileIOWriter {
                                TSDataType tsDataType, TSEncoding encodingType, Statistics<?> statistics, long maxTime, long minTime, int datasize, int numOfPages) throws IOException {
         LOG.debug("start series chunk:{}, file position {}", descriptor, out.getChannel().position());
 
-        currentChunkMetaData = new TimeSeriesChunkMetaData(descriptor.getMeasurementId(), tsDataType, out.getChannel().position(), minTime, maxTime);
+        currentChunkMetaData = new ChunkMetaData(descriptor.getMeasurementId(), tsDataType, out.getChannel().position(), minTime, maxTime);
 
         ChunkHeader header = new ChunkHeader(descriptor.getMeasurementId(), datasize, tsDataType, compressionCodecName, encodingType, numOfPages);
         header.serializeTo(out);
@@ -126,16 +126,16 @@ public class TsFileIOWriter {
 
     public void endChunk(long totalValueCount) {
         currentChunkMetaData.setNumOfPoints(totalValueCount);
-        currentRowGroupMetaData.addTimeSeriesChunkMetaData(currentChunkMetaData);
+        currentChunkGroupMetaData.addTimeSeriesChunkMetaData(currentChunkMetaData);
         LOG.debug("end series chunk:{},totalvalue:{}", currentChunkMetaData, totalValueCount);
         currentChunkMetaData = null;
     }
 
     public void endRowGroup(long memSize, RowGroupFooter rowGroupFooter) throws IOException {
         rowGroupFooter.serializeTo(out);
-        rowGroupMetaDatas.add(currentRowGroupMetaData);
-        LOG.debug("end row group:{}", currentRowGroupMetaData);
-        currentRowGroupMetaData = null;
+        chunkGroupMetaData.add(currentChunkGroupMetaData);
+        LOG.debug("end row group:{}", currentChunkGroupMetaData);
+        currentChunkGroupMetaData = null;
     }
 
     /**
@@ -152,19 +152,19 @@ public class TsFileIOWriter {
         // clustering rowGroupMetadata and build the range
 
         String currentDeltaObject;
-        TsDeltaObjectMetadata currentTsDeltaObjectMetadata;
+        TsDeviceMetadata currentTsDeviceMetadata;
 
-        LinkedHashMap<String, TsDeltaObjectMetadata> tsDeltaObjectMetadataMap = new LinkedHashMap<>();
+        LinkedHashMap<String, TsDeviceMetadata> tsDeltaObjectMetadataMap = new LinkedHashMap<>();
 
-        for (RowGroupMetaData rowGroupMetaData : rowGroupMetaDatas) {
-            currentDeltaObject = rowGroupMetaData.getDeltaObjectID();
+        for (ChunkGroupMetaData chunkGroupMetaData : this.chunkGroupMetaData) {
+            currentDeltaObject = chunkGroupMetaData.getDeltaObjectID();
             if (!tsDeltaObjectMetadataMap.containsKey(currentDeltaObject)) {
-                TsDeltaObjectMetadata tsDeltaObjectMetadata = new TsDeltaObjectMetadata();
-                tsDeltaObjectMetadataMap.put(currentDeltaObject, tsDeltaObjectMetadata);
+                TsDeviceMetadata tsDeviceMetadata = new TsDeviceMetadata();
+                tsDeltaObjectMetadataMap.put(currentDeltaObject, tsDeviceMetadata);
             }
-            tsDeltaObjectMetadataMap.get(currentDeltaObject).addRowGroupMetaData(rowGroupMetaData);
+            tsDeltaObjectMetadataMap.get(currentDeltaObject).addRowGroupMetaData(chunkGroupMetaData);
         }
-        Iterator<Map.Entry<String, TsDeltaObjectMetadata>> iterator = tsDeltaObjectMetadataMap.entrySet().iterator();
+        Iterator<Map.Entry<String, TsDeviceMetadata>> iterator = tsDeltaObjectMetadataMap.entrySet().iterator();
 
         /** start time for a delta object **/
         long startTime;
@@ -176,21 +176,21 @@ public class TsFileIOWriter {
             startTime = Long.MAX_VALUE;
             endTime = Long.MIN_VALUE;
 
-            Map.Entry<String, TsDeltaObjectMetadata> entry = iterator.next();
-            currentTsDeltaObjectMetadata = entry.getValue();
+            Map.Entry<String, TsDeviceMetadata> entry = iterator.next();
+            currentTsDeviceMetadata = entry.getValue();
 
-            for (RowGroupMetaData rowGroupMetaData : currentTsDeltaObjectMetadata.getRowGroups()) {
-                for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : rowGroupMetaData
-                        .getTimeSeriesChunkMetaDataList()) {
+            for (ChunkGroupMetaData chunkGroupMetaData : currentTsDeviceMetadata.getRowGroups()) {
+                for (ChunkMetaData chunkMetaData : chunkGroupMetaData
+                        .getChunkMetaDataList()) {
 
 					// update startTime and endTime
-                    startTime = Long.min(startTime, timeSeriesChunkMetaData.getStartTime());
-                    endTime = Long.max(endTime, timeSeriesChunkMetaData.getEndTime());
+                    startTime = Long.min(startTime, chunkMetaData.getStartTime());
+                    endTime = Long.max(endTime, chunkMetaData.getEndTime());
                 }
             }
             // flush tsRowGroupBlockMetaDatas in order
-            currentTsDeltaObjectMetadata.setStartTime(startTime);
-            currentTsDeltaObjectMetadata.setEndTime(endTime);
+            currentTsDeviceMetadata.setStartTime(startTime);
+            currentTsDeviceMetadata.setEndTime(endTime);
         }
 
         TsFileMetaData tsFileMetaData = new TsFileMetaData(tsDeltaObjectMetadataMap, schemaDescriptors,

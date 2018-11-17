@@ -70,7 +70,7 @@ public abstract class Compressor {
     static public class NoCompressor extends Compressor {
 
         @Override
-        public byte[] compress(byte[] data) throws IOException {//FIXME why do we use bytes[] rather than bytebuffer.
+        public byte[] compress(byte[] data) {
             return data;
         }
 
@@ -80,7 +80,7 @@ public abstract class Compressor {
         }
 
         @Override
-        public int compress(ByteBuffer data, ByteBuffer compressed) throws IOException {//FIXME why do we use bytes[] rather than bytebuffer.
+        public int compress(ByteBuffer data, ByteBuffer compressed) throws IOException {
             throw new IOException("No Compressor does not support compression function");
         }
 
