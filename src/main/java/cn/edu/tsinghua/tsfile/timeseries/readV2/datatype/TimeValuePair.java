@@ -2,6 +2,7 @@ package cn.edu.tsinghua.tsfile.timeseries.readV2.datatype;
 
 import java.io.Serializable;
 
+
 /**
  * @author Jinrui Zhang
  */
