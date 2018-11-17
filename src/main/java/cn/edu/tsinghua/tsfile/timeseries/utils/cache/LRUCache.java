@@ -6,7 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * TODO 这个和apache的对比下性能：https://github.com/apache/commons-collections/blob/master/src/main/java/org/apache/commons/collections4/map/LRUMap.java
+ *
  * Created by zhangjinrui on 2017/12/25.
  */
 public abstract class LRUCache<K, T> implements Cache<K, T> {

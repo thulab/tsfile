@@ -39,7 +39,6 @@ public class SeriesChunkLoaderTest {
     @Test
     public void test() throws IOException {
         fileReader = new TsFileSequenceReader(FILE_PATH);
-        fileReader.open();
         MetadataQuerierByFileImpl metadataQuerierByFile = new MetadataQuerierByFileImpl(fileReader);
         List<TimeSeriesChunkMetaData> timeSeriesChunkMetaDataList = metadataQuerierByFile.getSeriesChunkMetaDataList(new Path("d2.s1"));
 

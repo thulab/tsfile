@@ -42,7 +42,7 @@ public class MeasurementSchema implements Comparable<MeasurementSchema> {
   private TSEncodingBuilder encodingConverter;
   private Compressor compressor;
   private TSFileConfig conf;
-  private Map<String, String> props;
+  private Map<String, String> props = new HashMap<>();
 
   public MeasurementSchema() {}
 
@@ -278,9 +278,8 @@ public class MeasurementSchema implements Comparable<MeasurementSchema> {
 
   @Override
   public String toString() {
-    StringContainer sc = new StringContainer(",");
-    sc.addTail("[", measurementId, type.toString(), encoding.toString(),
-        encodingConverter.toString(), compressor.getType().toString());
+    StringContainer sc = new StringContainer("");
+    sc.addTail("[", measurementId, ",", type.toString(), ",", encoding.toString(), ",", props.toString(), ",", compressor.getType().toString());
     sc.addTail("]");
     return sc.toString();
   }

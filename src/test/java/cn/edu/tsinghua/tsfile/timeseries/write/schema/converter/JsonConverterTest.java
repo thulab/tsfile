@@ -42,10 +42,10 @@ public class JsonConverterTest {
         Collection<MeasurementSchema> measurements = fileSchema.getAllMeasurementSchema().values();
         String[] measureDesStrings =
                 {
-                        "[,s4,DOUBLE,RLE,max_point_number:2,UNCOMPRESSED,]",
-                        "[,s5,INT32,TS_2DIFF,max_point_number:2,UNCOMPRESSED,]",
-                        "[,s1,INT32,RLE,max_point_number:2,UNCOMPRESSED,]",
-                        "[,s2,INT64,TS_2DIFF,max_point_number:2,UNCOMPRESSED,]",
+                        "[s4,DOUBLE,RLE,{max_error=12},UNCOMPRESSED]",
+                        "[s5,INT32,TS_2DIFF,{},UNCOMPRESSED]",
+                        "[s1,INT32,RLE,{},UNCOMPRESSED]",
+                        "[s2,INT64,TS_2DIFF,{},UNCOMPRESSED]",
 
                 };
         int i = 0;

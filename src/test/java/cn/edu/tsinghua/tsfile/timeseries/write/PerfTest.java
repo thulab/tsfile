@@ -70,9 +70,9 @@ public class PerfTest {
         if (file.exists())
             file.delete();
         LoggerContext loggerContext= (LoggerContext) LoggerFactory.getILoggerFactory();
-        //设置全局日志级别
+        // set global log level
         ch.qos.logback.classic.Logger logger=loggerContext.getLogger("root");
-        logger.setLevel(Level.toLevel("debug"));
+        logger.setLevel(Level.toLevel("info"));
     }
     
     static private void generateSampleInputDataFile() throws IOException {

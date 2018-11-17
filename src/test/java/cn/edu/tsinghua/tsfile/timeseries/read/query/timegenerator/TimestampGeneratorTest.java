@@ -38,7 +38,6 @@ public class TimestampGeneratorTest {
         TSFileDescriptor.getInstance().getConfig().timeSeriesEncoder = "TS_2DIFF";
         TsFileGeneratorForTest.generateFile(1000, 10 * 1024 * 1024, 10000);
         fileReader = new TsFileSequenceReader(FILE_PATH);
-        fileReader.open();
         metadataQuerierByFile = new MetadataQuerierByFileImpl(fileReader);
         seriesChunkLoader = new SeriesChunkLoaderImpl(fileReader);
     }

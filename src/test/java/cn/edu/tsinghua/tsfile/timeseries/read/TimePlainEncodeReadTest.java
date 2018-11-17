@@ -36,7 +36,6 @@ public class TimePlainEncodeReadTest {
 		TSFileDescriptor.getInstance().getConfig().timeSeriesEncoder = "PLAIN";
 		ReadPerf.generateFile();
 		TsFileSequenceReader reader = new TsFileSequenceReader(fileName);
-		reader.open();
 		roTsFile = new ReadOnlyTsFile(reader);
 	}
 

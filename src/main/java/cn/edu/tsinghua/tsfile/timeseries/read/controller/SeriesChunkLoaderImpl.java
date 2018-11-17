@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
+ * Read one Chunk and cache it
+ *
  * Created by zhangjinrui on 2017/12/25.
  */
 public class SeriesChunkLoaderImpl implements SeriesChunkLoader {

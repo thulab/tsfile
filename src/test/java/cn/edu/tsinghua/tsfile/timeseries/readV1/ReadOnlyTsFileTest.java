@@ -39,7 +39,6 @@ public class ReadOnlyTsFileTest {
         TSFileDescriptor.getInstance().getConfig().timeSeriesEncoder = "TS_2DIFF";
         TsFileGeneratorForTest.generateFile(rowCount, 16 * 1024 * 1024, 10000);
         fileReader = new TsFileSequenceReader(FILE_PATH);
-        fileReader.open();
         tsFile = new ReadOnlyTsFile(fileReader);
     }
 

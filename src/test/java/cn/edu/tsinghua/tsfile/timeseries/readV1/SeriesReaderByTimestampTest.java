@@ -36,7 +36,6 @@ public class SeriesReaderByTimestampTest {
         TSFileDescriptor.getInstance().getConfig().timeSeriesEncoder = "TS_2DIFF";
         TsFileGeneratorForSeriesReaderByTimestamp.generateFile(rowCount, 10 * 1024 * 1024, 10000);
         fileReader = new TsFileSequenceReader(FILE_PATH);//TODO remove this class
-        fileReader.open();
         metadataQuerierByFile = new MetadataQuerierByFileImpl(fileReader);
 
     }

@@ -1,6 +1,5 @@
 package cn.edu.tsinghua.tsfile.common.utils;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
@@ -8,23 +7,22 @@ import java.nio.ByteBuffer;
  * this class is to transfer bytebuffer to an inputstream.
  * this class can be removed if all other codes use java NIO.
  */
-public class ByteBufferBackedInputStream extends InputStream {
+public class ByteBufferBasedInputStream extends InputStream {
 
-    ByteBuffer buf;
+    private ByteBuffer buf;
 
-    public ByteBufferBackedInputStream(ByteBuffer buf) {
+    public ByteBufferBasedInputStream(ByteBuffer buf) {
         this.buf = buf;
     }
 
-    public int read() throws IOException {
+    public int read() {
         if (!buf.hasRemaining()) {
             return -1;
         }
         return buf.get() & 0xFF;
     }
 
-    public int read(byte[] bytes, int off, int len)
-            throws IOException {
+    public int read(byte[] bytes, int off, int len) {
         if (!buf.hasRemaining()) {
             return -1;
         }
@@ -35,7 +33,7 @@ public class ByteBufferBackedInputStream extends InputStream {
     }
 
     @Override
-    public int available() throws IOException {
+    public int available() {
         return buf.remaining();
     }
 

@@ -34,8 +34,8 @@ public class SchemaBuilderTest {
         Collection<MeasurementSchema> measurements = fileSchema.getAllMeasurementSchema().values();
         String[] measureDesStrings =
                 {
-                        "[,s4,DOUBLE,RLE,max_point_number:3,SNAPPY,]",
-                        "[,s5,INT32,TS_2DIFF,max_point_number:2,UNCOMPRESSED,]"
+                        "[s4,DOUBLE,RLE,{max_point_number=3},SNAPPY]",
+                        "[s5,INT32,TS_2DIFF,{},UNCOMPRESSED]"
                 };
         int i = 0;
         for (MeasurementSchema desc : measurements) {

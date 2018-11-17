@@ -22,20 +22,5 @@
             "data_type": "INT32",
             "encoding": "TS_2DIFF"
         }
-    ],
-    "properties":{
-        "k1":"v1",
-        "k2":"v2"
-    }
+    ]
 }
-/*
-{
-            "measurement_id": "s3",
-            "data_type": "ENUMS",
-            "encoding": "BITMAP",
-            "compressor": "SNAPPY",
-            "enum_values":["MAN","WOMAN"],
-            "max_error":12,
-            "max_point_number":3
-        },
-*/

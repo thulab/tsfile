@@ -34,7 +34,6 @@ public class ReadTest {
     public void prepare() throws IOException, InterruptedException, WriteProcessException {
         ReadPerf.generateFile();
         TsFileSequenceReader reader = new TsFileSequenceReader(fileName);
-        reader.open();
         roTsFile = new ReadOnlyTsFile(reader);
     }
 

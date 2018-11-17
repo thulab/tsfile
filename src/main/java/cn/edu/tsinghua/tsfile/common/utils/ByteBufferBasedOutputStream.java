@@ -4,10 +4,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-public class ByteBufferBackedOutputStream extends OutputStream {
+/**
+ * this class is to transfer bytebuffer to an inputstream.
+ * this class can be removed if all other codes use java NIO.
+ */
+public class ByteBufferBasedOutputStream extends OutputStream {
     ByteBuffer buf;
 
-    public ByteBufferBackedOutputStream(ByteBuffer buf) {
+    public ByteBufferBasedOutputStream(ByteBuffer buf) {
         this.buf = buf;
     }
 

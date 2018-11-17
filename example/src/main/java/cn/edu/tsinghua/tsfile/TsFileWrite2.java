@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.tsfile.timeseries;
+package cn.edu.tsinghua.tsfile;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,10 +14,9 @@ import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.FloatDataPoint;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.IntDataPoint;
 
-public class TsFileWriteTest {
+public class TsFileWrite2 {
 
     public static void main(String args[]) throws IOException, WriteProcessException {
-        //String path = "src/test/resources/test.tsfile";
         String path = "test.tsfile";
         String s = "{\n" +
                 "    \"schema\": [\n" +
@@ -37,34 +36,29 @@ public class TsFileWriteTest {
                 "            \"encoding\": \"TS_2DIFF\"\n" +
                 "        }\n" +
                 "    ],\n" +
-                "    \"properties\": \n" +
-                "        {\n" +
-                "            \"key1\": \"value1\",\n"+
-                "            \"key2\": \"value2\"\n"+
-                "        },\n" +
                 "    \"row_group_size\": 134217728\n" +
                 "}";
         JSONObject schemaObject = new JSONObject(s);
 
-        FileSchema schema=new FileSchema(schemaObject);
-        TsFileWriter tsFileWriter=new TsFileWriter(new File(path), schema);
+        FileSchema schema = new FileSchema(schemaObject);
+        TsFileWriter tsFileWriter = new TsFileWriter(new File(path), schema);
 
-        TSRecord record=new TSRecord(1,"device_1");
+        TSRecord record = new TSRecord(1, "device_1");
         record.addTuple(new FloatDataPoint("sensor_1", 1.2f));
         record.addTuple(new IntDataPoint("sensor_2", 20));
         tsFileWriter.write(record);
 
-        record=new TSRecord(2,"device_1");
+        record = new TSRecord(2, "device_1");
         record.addTuple(new IntDataPoint("sensor_2", 20));
         record.addTuple(new IntDataPoint("sensor_3", 50));
         tsFileWriter.write(record);
 
-        record=new TSRecord(2,"device_1");
+        record = new TSRecord(2, "device_1");
         record.addTuple(new FloatDataPoint("sensor_1", 1.4f));
         record.addTuple(new IntDataPoint("sensor_2", 21));
         tsFileWriter.write(record);
 
-        record=new TSRecord(2,"device_1");
+        record = new TSRecord(2, "device_1");
         record.addTuple(new FloatDataPoint("sensor_1", 1.2f));
         record.addTuple(new IntDataPoint("sensor_2", 20));
         record.addTuple(new IntDataPoint("sensor_3", 51));

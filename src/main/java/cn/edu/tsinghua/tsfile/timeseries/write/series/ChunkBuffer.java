@@ -73,7 +73,7 @@ public class ChunkBuffer {
         if (this.minTimestamp == -1)
             this.minTimestamp = minTimestamp;
         if(this.minTimestamp==-1){
-        	LOG.error("Write page error, {}, minTime:{}, maxTime:{}", schema,minTimestamp,maxTimestamp);
+            throw new PageException("minTimestamp of this page is -1, no valid data point in this page");
         }
         this.maxTimestamp = maxTimestamp;
         int uncompressedSize = data.remaining();

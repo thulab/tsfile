@@ -141,6 +141,9 @@ public class JsonConverter {
         // all information of one series
         Map<String, String> props = new HashMap<>();
         for (Object key : measurementObj.keySet()) {
+            if(key.equals(JsonFormatConstant.MEASUREMENT_ENCODING) || key.equals(JsonFormatConstant.COMPRESS_TYPE) ||
+                    key.equals(JsonFormatConstant.MEASUREMENT_UID) || key.equals(JsonFormatConstant.DATA_TYPE))
+                continue;
             String value = measurementObj.get(key.toString()).toString();
             props.put(key.toString(), value);
         }
