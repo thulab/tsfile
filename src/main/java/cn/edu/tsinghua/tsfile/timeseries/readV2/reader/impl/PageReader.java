@@ -44,6 +44,7 @@ public class PageReader implements TimeValuePairReader {
     private List<TsBinary> binaryList = new ArrayList<>();
     private List<TsInt> enumsList = new ArrayList<>();
 
+
     // whether this page input stream has been deserialized to value
     private boolean initFlag = false;
     // the number of this page value list
@@ -93,34 +94,42 @@ public class PageReader implements TimeValuePairReader {
     }
 
     private void initPageValue() throws IOException {
-        while (timeDecoder.hasNext(timestampInputStream) && valueDecoder.hasNext(valueInputStream)) {
-            valueSize ++;
+        while (timeDecoder.hasNext(timestampInputStream)) {
+            valueSize++;
             timeList.add(timeDecoder.readLong(timestampInputStream));
-            switch (dataType) {
-                case BOOLEAN:
+        }
+
+        switch (dataType) {
+            case BOOLEAN:
+                for (int i = 0; i < valueSize; i++)
                     booleanList.add(new TsBoolean(valueDecoder.readBoolean(valueInputStream)));
-                    break;
-                case INT32:
+                break;
+            case INT32:
+                for (int i = 0; i < valueSize; i++)
                     intList.add(new TsInt(valueDecoder.readInt(valueInputStream)));
-                    break;
-                case INT64:
+                break;
+            case INT64:
+                for (int i = 0; i < valueSize; i++)
                     longList.add(new TsLong(valueDecoder.readLong(valueInputStream)));
-                    break;
-                case FLOAT:
+                break;
+            case FLOAT:
+                for (int i = 0; i < valueSize; i++)
                     floatList.add(new TsFloat(valueDecoder.readFloat(valueInputStream)));
-                    break;
-                case DOUBLE:
+                break;
+            case DOUBLE:
+                for (int i = 0; i < valueSize; i++)
                     doubleList.add(new TsDouble(valueDecoder.readDouble(valueInputStream)));
-                    break;
-                case TEXT:
+                break;
+            case TEXT:
+                for (int i = 0; i < valueSize; i++)
                     binaryList.add(new TsBinary(valueDecoder.readBinary(valueInputStream)));
-                    break;
-                case ENUMS:
+                break;
+            case ENUMS:
+                for (int i = 0; i < valueSize; i++)
                     enumsList.add(new TsInt(valueDecoder.readInt(valueInputStream)));
-                    break;
-                default:
-                    break;
-            }
+                break;
+            default:
+                break;
         }
 
     }
