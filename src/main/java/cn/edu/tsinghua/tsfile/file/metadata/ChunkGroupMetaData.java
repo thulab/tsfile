@@ -99,7 +99,7 @@ public class ChunkGroupMetaData {
 
         byteLen += ReadWriteIOUtils.write(chunkMetaDataList.size(), outputStream);
         for (ChunkMetaData chunkMetaData : chunkMetaDataList)
-            byteLen += ReadWriteIOUtils.write(chunkMetaData, outputStream);
+            byteLen += chunkMetaData.serializeTo(outputStream);
         assert byteLen == getSerializedSize();
         return byteLen;
     }
@@ -112,7 +112,7 @@ public class ChunkGroupMetaData {
 
         byteLen += ReadWriteIOUtils.write(chunkMetaDataList.size(), buffer);
         for (ChunkMetaData chunkMetaData : chunkMetaDataList)
-            byteLen += ReadWriteIOUtils.write(chunkMetaData, buffer);
+            byteLen += chunkMetaData.serializeTo(buffer);
         assert byteLen == getSerializedSize();
 
         return byteLen;
@@ -129,7 +129,7 @@ public class ChunkGroupMetaData {
         List<ChunkMetaData> chunkMetaDataList = new ArrayList<>();
 
         for (int i = 0; i < size; i++) {
-            ChunkMetaData metaData = ReadWriteIOUtils.readTimeSeriesChunkMetaData(inputStream);
+            ChunkMetaData metaData = ChunkMetaData.deserializeFrom(inputStream);
             chunkMetaDataList.add(metaData);
             chunkGroupMetaData.serializedSize += metaData.getSerializedSize();
         }
@@ -151,7 +151,7 @@ public class ChunkGroupMetaData {
 
         List<ChunkMetaData> chunkMetaDataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            ChunkMetaData metaData = ReadWriteIOUtils.readTimeSeriesChunkMetaData(buffer);
+            ChunkMetaData metaData = ChunkMetaData.deserializeFrom(buffer);
             chunkMetaDataList.add(metaData);
             chunkGroupMetaData.serializedSize += metaData.getSerializedSize();
         }

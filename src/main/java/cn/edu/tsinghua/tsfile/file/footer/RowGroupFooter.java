@@ -23,7 +23,8 @@ public class RowGroupFooter {
     private long writtenTime;
 
 
-    private int serializedSize;//this field does not need to be serialized.
+    //this field does not need to be serialized.
+    private int serializedSize;
 
     public int getSerializedSize() {
         return serializedSize;

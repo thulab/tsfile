@@ -43,10 +43,10 @@ public class TsFileGeneratorForTest {
 
     public static final long START_TIMESTAMP = 1480562618000L;
 
-    public static void generateFile(int row_count, int row_group_size, int page_size) throws IOException, InterruptedException, WriteProcessException {
-        rowCount = row_count;
-        rowGroupSize = row_group_size;
-        pageSize = page_size;
+    public static void generateFile(int rowCount, int rowGroupSize, int pageSize) throws IOException, InterruptedException, WriteProcessException {
+        TsFileGeneratorForTest.rowCount = rowCount;
+        TsFileGeneratorForTest.rowGroupSize = rowGroupSize;
+        TsFileGeneratorForTest.pageSize = pageSize;
         prepare();
         write();
     }
@@ -126,7 +126,7 @@ public class TsFileGeneratorForTest {
         //FileSchema schema = new FileSchema(jsonSchema);
         FileSchema schema = generateTestSchema();
 
-                TSFileDescriptor.getInstance().getConfig().groupSizeInByte = rowGroupSize;
+        TSFileDescriptor.getInstance().getConfig().groupSizeInByte = rowGroupSize;
         TSFileDescriptor.getInstance().getConfig().maxNumberOfPointsInPage = pageSize;
         innerWriter = new TsFileWriter(file, schema, TSFileDescriptor.getInstance().getConfig());
 
@@ -195,11 +195,11 @@ public class TsFileGeneratorForTest {
 
 
     private static FileSchema generateTestSchema() {
-        SchemaBuilder schemaBuilder=new SchemaBuilder();
+        SchemaBuilder schemaBuilder = new SchemaBuilder();
         schemaBuilder.addSeries("s1", TSDataType.INT32, TSEncoding.RLE);
         schemaBuilder.addSeries("s2", TSDataType.INT64, TSEncoding.PLAIN);
         schemaBuilder.addSeries("s3", TSDataType.INT64, TSEncoding.TS_2DIFF);
-        schemaBuilder.addSeries("s4", TSDataType.TEXT, TSEncoding.PLAIN,  CompressionType.UNCOMPRESSED, Collections.singletonMap(Encoder.MAX_STRING_LENGTH, "20"));
+        schemaBuilder.addSeries("s4", TSDataType.TEXT, TSEncoding.PLAIN, CompressionType.UNCOMPRESSED, Collections.singletonMap(Encoder.MAX_STRING_LENGTH, "20"));
         schemaBuilder.addSeries("s5", TSDataType.BOOLEAN, TSEncoding.RLE);
         schemaBuilder.addSeries("s6", TSDataType.FLOAT, TSEncoding.RLE, CompressionType.SNAPPY, Collections.singletonMap(Encoder.MAX_POINT_NUMBER, "5"));
         schemaBuilder.addSeries("s7", TSDataType.DOUBLE, TSEncoding.GORILLA);

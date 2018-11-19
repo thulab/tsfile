@@ -1,7 +1,9 @@
 package cn.edu.tsinghua.tsfile.file.metadata.enums;
 
 public enum TSEncoding {
+
     PLAIN, PLAIN_DICTIONARY, RLE, DIFF, TS_2DIFF, BITMAP, GORILLA;
+
     public static TSEncoding deserialize(short i){
         switch (i) {
             case 0: return PLAIN;
@@ -14,6 +16,7 @@ public enum TSEncoding {
             default: return PLAIN;
         }
     }
+
     public short serialize(){
         switch (this) {
             case PLAIN: return 0;
@@ -26,5 +29,6 @@ public enum TSEncoding {
             default: return 0;
         }
     }
+
     public static int getSerializedSize(){ return Short.BYTES;}
 }

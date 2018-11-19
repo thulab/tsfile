@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 
 /**
  * Abstract class for all rle decoder. Decoding values according to
@@ -62,7 +63,6 @@ public abstract class RleDecoder extends Decoder {
         isLengthAndBitWidthReaded = false;
         bitPackingNum = 0;
         byteCache = new ByteArrayInputStream(new byte[0]);
-        // LOGGER.debug("tsfile-encoding RleDecoder: init rle decoder");
     }
 
     /**
@@ -143,13 +143,6 @@ public abstract class RleDecoder extends Decoder {
         return false;
     }
 
-//    @Override
-//    public boolean hasNext(ByteBuffer in) throws IOException {
-//        if (currentCount > 0 || in.hasRemaining() || hasNextPackage()) {
-//            return true;
-//        }
-//        return false;
-//    }
 
     /**
      * Check whether there is another pattern left for reading

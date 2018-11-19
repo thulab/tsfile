@@ -35,10 +35,10 @@ public class ChunkGroupMetaDataTest {
     if (file.exists())
       file.delete();
     FileOutputStream fos = new FileOutputStream(file);
-    ReadWriteIOUtils.write(metaData, fos);
+    metaData.serializeTo(fos);
     fos.close();
 
     FileInputStream fis = new FileInputStream(new File(PATH));
-    Utils.isRowGroupMetaDataEqual(metaData, ReadWriteIOUtils.readRowGroupMetaData(fis));
+    Utils.isRowGroupMetaDataEqual(metaData, ChunkGroupMetaData.deserializeFrom(fis));
   }
 }

@@ -127,13 +127,13 @@ public class ChunkMetaData {
         byteLen += ReadWriteIOUtils.write(tsDataType, outputStream);
 
         if(valuesStatistics==null) byteLen += TsDigest.serializeNullTo(outputStream);
-        else byteLen += ReadWriteIOUtils.write(valuesStatistics, outputStream);
+        else byteLen += valuesStatistics.serializeTo(outputStream);
 
         assert  byteLen == getSerializedSize();
         return byteLen;
     }
 
-    public int serializeTo(ByteBuffer buffer) throws IOException {
+    public int serializeTo(ByteBuffer buffer) {
         int byteLen = 0;
 
         byteLen += ReadWriteIOUtils.write(measurementUID, buffer);
@@ -144,7 +144,7 @@ public class ChunkMetaData {
         byteLen += ReadWriteIOUtils.write(tsDataType, buffer);
 
         if(valuesStatistics==null) byteLen += TsDigest.serializeNullTo(buffer);
-        else byteLen += ReadWriteIOUtils.write(valuesStatistics, buffer);
+        else byteLen += valuesStatistics.serializeTo(buffer);
 
         assert  byteLen == getSerializedSize();
         return byteLen;
@@ -164,13 +164,13 @@ public class ChunkMetaData {
 
         chunkMetaData.tsDataType = ReadWriteIOUtils.readDataType(inputStream);
 
-        chunkMetaData.valuesStatistics = ReadWriteIOUtils.readDigest(inputStream);
+        chunkMetaData.valuesStatistics = TsDigest.deserializeFrom(inputStream);
 
 
         return chunkMetaData;
     }
 
-    public static ChunkMetaData deserializeFrom(ByteBuffer buffer) throws IOException {
+    public static ChunkMetaData deserializeFrom(ByteBuffer buffer) {
         ChunkMetaData chunkMetaData = new ChunkMetaData();
 
         chunkMetaData.measurementUID = ReadWriteIOUtils.readString(buffer);
@@ -180,7 +180,7 @@ public class ChunkMetaData {
         chunkMetaData.endTime = ReadWriteIOUtils.readLong(buffer);
         chunkMetaData.tsDataType = ReadWriteIOUtils.readDataType(buffer);
 
-        chunkMetaData.valuesStatistics = ReadWriteIOUtils.readDigest(buffer);
+        chunkMetaData.valuesStatistics = TsDigest.deserializeFrom(buffer);
 
 
         return chunkMetaData;

@@ -123,7 +123,7 @@ public class TsFileMetaData {
         byteLen += ReadWriteIOUtils.write(deviceMap.size(), outputStream);
         for (Map.Entry<String, TsDeviceMetadata> entry : deviceMap.entrySet()) {
             byteLen += ReadWriteIOUtils.write(entry.getKey(), outputStream);
-            byteLen += ReadWriteIOUtils.write(entry.getValue(), outputStream);
+            byteLen += entry.getValue().serializeTo(outputStream);
         }
 
         byteLen += ReadWriteIOUtils.write(measurementSchema.size(), outputStream);
@@ -146,7 +146,7 @@ public class TsFileMetaData {
         byteLen += ReadWriteIOUtils.write(deviceMap.size(), buffer);
         for (Map.Entry<String, TsDeviceMetadata> entry : deviceMap.entrySet()) {
             byteLen += ReadWriteIOUtils.write(entry.getKey(), buffer);
-            byteLen += ReadWriteIOUtils.write(entry.getValue(), buffer);
+            byteLen += entry.getValue().serializeTo(buffer);
         }
 
         byteLen += ReadWriteIOUtils.write(measurementSchema.size(), buffer);

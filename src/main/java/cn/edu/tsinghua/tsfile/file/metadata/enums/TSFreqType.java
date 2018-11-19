@@ -1,7 +1,9 @@
 package cn.edu.tsinghua.tsfile.file.metadata.enums;
 
 public enum TSFreqType {
+
     SINGLE_FREQ, MULTI_FREQ, IRREGULAR_FREQ;
+
     public static TSFreqType deserialize(short i){
         switch (i) {
             case 0: return SINGLE_FREQ;
@@ -10,6 +12,7 @@ public enum TSFreqType {
             default: return IRREGULAR_FREQ;
         }
     }
+
     public short serialize(){
         switch (this) {
             case SINGLE_FREQ: return 0;

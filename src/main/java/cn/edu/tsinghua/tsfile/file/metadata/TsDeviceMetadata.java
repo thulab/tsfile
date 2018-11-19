@@ -89,7 +89,7 @@ public class TsDeviceMetadata {
         } else {
             byteLen += ReadWriteIOUtils.write(chunkGroupMetadataList.size(), outputStream);
             for (ChunkGroupMetaData chunkGroupMetaData : chunkGroupMetadataList)
-                byteLen += ReadWriteIOUtils.write(chunkGroupMetaData, outputStream);
+                byteLen += chunkGroupMetaData.serializeTo(outputStream);
         }
 
         assert getSerializedSize() == byteLen;
@@ -107,7 +107,7 @@ public class TsDeviceMetadata {
         } else {
             byteLen += ReadWriteIOUtils.write(chunkGroupMetadataList.size(), buffer);
             for (ChunkGroupMetaData chunkGroupMetaData : chunkGroupMetadataList)
-                byteLen += ReadWriteIOUtils.write(chunkGroupMetaData, buffer);
+                byteLen += chunkGroupMetaData.serializeTo(buffer);
         }
 
         return byteLen;
@@ -123,7 +123,7 @@ public class TsDeviceMetadata {
         if (size > 0) {
             List<ChunkGroupMetaData> chunkGroupMetaDataList = new ArrayList<>();
             for (int i = 0; i < size; i++) {
-                chunkGroupMetaDataList.add(ReadWriteIOUtils.readRowGroupMetaData(inputStream));
+                chunkGroupMetaDataList.add(ChunkGroupMetaData.deserializeFrom(inputStream));
             }
             deviceMetadata.chunkGroupMetadataList = chunkGroupMetaDataList;
         }
@@ -142,7 +142,7 @@ public class TsDeviceMetadata {
         if (size > 0) {
             List<ChunkGroupMetaData> chunkGroupMetaDataList = new ArrayList<>();
             for (int i = 0; i < size; i++) {
-                chunkGroupMetaDataList.add(ReadWriteIOUtils.readRowGroupMetaData(buffer));
+                chunkGroupMetaDataList.add(ChunkGroupMetaData.deserializeFrom(buffer));
             }
             deviceMetadata.chunkGroupMetadataList = chunkGroupMetaDataList;
         }
