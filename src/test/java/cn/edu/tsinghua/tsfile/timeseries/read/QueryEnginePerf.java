@@ -1,16 +1,5 @@
 package cn.edu.tsinghua.tsfile.timeseries.read;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Scanner;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
@@ -22,6 +11,16 @@ import cn.edu.tsinghua.tsfile.timeseries.write.TsFileWriter;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
 
 public class QueryEnginePerf {
 	private static final Logger LOG = LoggerFactory.getLogger(QueryEnginePerf.class);
@@ -39,8 +38,8 @@ public class QueryEnginePerf {
 
 	public static void prepare() throws IOException {
 		inputDataFile = "src/test/resources/perTestInputData";
-		outputDataFile = "src/test/resources/perTestOutputData.ksn";
-		errorOutputDataFile = "src/test/resources/perTestErrorOutputData.ksn";
+		outputDataFile = "src/test/resources/perTestOutputData.tsfile";
+		errorOutputDataFile = "src/test/resources/perTestErrorOutputData.tsfile";
 		jsonSchema = generateTestData();
 		generateSampleInputDataFile();
 	}
@@ -128,7 +127,7 @@ public class QueryEnginePerf {
 		FileSchema schema = new FileSchema(jsonSchema);
 
 		// TSFileDescriptor.conf.rowGroupSize = 2000;
-		// TSFileDescriptor.conf.pageSize = 100;
+		// TSFileDescriptor.conf.pageSizeInByte = 100;
 		innerWriter = new TsFileWriter(file, schema, TSFileDescriptor.getInstance().getConfig());
 
 		// write

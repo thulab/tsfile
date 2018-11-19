@@ -8,8 +8,8 @@ import java.io.File;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.write.TsFileWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementSchema;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.DataPoint;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.*;
 
@@ -17,12 +17,12 @@ public class TsFileWrite2 {
 
     public static void main(String args[]) {
         try {
-            TsFileWriter tsFileWriter = new TsFileWriter(new File("test.ts"));
+            TsFileWriter tsFileWriter = new TsFileWriter(new File("test.tsfile"));
 
             // add measurements
-            tsFileWriter.addMeasurement(new MeasurementDescriptor("sensor_1", TSDataType.FLOAT, TSEncoding.RLE));
-            tsFileWriter.addMeasurement(new MeasurementDescriptor("sensor_2", TSDataType.INT32, TSEncoding.TS_2DIFF));
-            tsFileWriter.addMeasurement(new MeasurementDescriptor("sensor_3", TSDataType.INT32, TSEncoding.TS_2DIFF));
+            tsFileWriter.addMeasurement(new MeasurementSchema("sensor_1", TSDataType.FLOAT, TSEncoding.RLE));
+            tsFileWriter.addMeasurement(new MeasurementSchema("sensor_2", TSDataType.INT32, TSEncoding.TS_2DIFF));
+            tsFileWriter.addMeasurement(new MeasurementSchema("sensor_3", TSDataType.INT32, TSEncoding.TS_2DIFF));
 
             // construct TSRecord
             TSRecord tsRecord = new TSRecord(1, "device_1");

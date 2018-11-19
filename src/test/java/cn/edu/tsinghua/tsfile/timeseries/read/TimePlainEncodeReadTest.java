@@ -1,12 +1,19 @@
 package cn.edu.tsinghua.tsfile.timeseries.read;
 
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
-import cn.edu.tsinghua.tsfile.timeseries.read.query.OnePassQueryDataSet;
-import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryConfig;
-import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryEngine;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Field;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.OldRowRecord;
+import cn.edu.tsinghua.tsfile.common.utils.Binary;
+import cn.edu.tsinghua.tsfile.timeseries.filter.TimeFilter;
+import cn.edu.tsinghua.tsfile.timeseries.filter.ValueFilter;
+import cn.edu.tsinghua.tsfile.timeseries.filter.expression.QueryFilter;
+import cn.edu.tsinghua.tsfile.timeseries.filter.expression.impl.GlobalTimeFilter;
+import cn.edu.tsinghua.tsfile.timeseries.filter.expression.impl.QueryFilterFactory;
+import cn.edu.tsinghua.tsfile.timeseries.filter.expression.impl.SeriesFilter;
+import cn.edu.tsinghua.tsfile.timeseries.read.basis.ReadOnlyTsFile;
+import cn.edu.tsinghua.tsfile.timeseries.read.common.Path;
+import cn.edu.tsinghua.tsfile.timeseries.read.datatype.RowRecord;
+import cn.edu.tsinghua.tsfile.timeseries.read.datatype.TsPrimitiveType;
+import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryDataSet;
+import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryExpression;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import org.junit.After;
 import org.junit.Assert;
@@ -14,75 +21,46 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 public class TimePlainEncodeReadTest {
 
-	private static String fileName = "src/test/resources/perTestOutputData.ksn";
-	private static TsRandomAccessLocalFileReader inputFile;
-	private static QueryEngine engine = null;
-	static ITsRandomAccessFileReader raf;
-	private static QueryConfig configOneSeriesWithNoFilter = new QueryConfig("d1.s1");
-
-	private static QueryConfig configTwoSeriesWithNoFilter = new QueryConfig("d1.s1|d2.s2");
-
-	private static QueryConfig configWithTwoSeriesTimeValueNoCrossFilter = new QueryConfig("d2.s1|d2.s4",
-			"0,(>=1480562618970)&(<1480562618977)", "null", "2,d2.s2,(>9722)");
-	private static QueryConfig configWithTwoSeriesTimeValueNoCrossFilter2 = new QueryConfig("d2.s2",
-			"0,(>=1480562618970)&(<1480562618977)", "null", "2,d2.s2,(!=9722)");
-
-	private static QueryConfig configWithTwoSeriesTimeValueCrossFilter = new QueryConfig("d1.s1|d2.s2",
-			"0,(>=1480562618970)&(<1480562618977)", "null", "[2,d2.s2,(>9722)]");
-
-	private static QueryConfig configWithCrossSeriesTimeValueFilter = new QueryConfig("d1.s1|d2.s2",
-			"0,(>=1480562618950)&(<=1480562618960)", "null", "[2,d2.s3,(>9541)|(<=9511)]&[2,d1.s1,(<=9562)]");
-
-	private static QueryConfig configWithCrossSeriesTimeValueFilterOrOpe = new QueryConfig("d1.s1|d2.s2",
-			"0,((>=1480562618906)&(<=1480562618915))|((>=1480562618928)&(<=1480562618933))", "null",
-			"[2,d1.s1,(<=9321)]|[2,d2.s2,(>9312)]");
-
-	private static QueryConfig booleanConfig = new QueryConfig("d1.s5",
-			"0,(>=1480562618970)&(<=1480562618981)", "null", "2,d1.s5,(=false)");
-
-	private static QueryConfig greatStringConfig = new QueryConfig("d1.s4",
-			"0,(>=1480562618970)&(<=1480562618981)", "null", "2,d1.s4,(>dog97)");
-
-	private static QueryConfig lessStringConfig = new QueryConfig("d1.s4",
-			"0,(>=1480562618970)&(<=1480562618981)", "null", "2,d1.s4,(<dog97)");
-
-	private static QueryConfig floatConfig = new QueryConfig("d1.s6",
-			"0,(>=1480562618970)&(<=1480562618981)", "null", "2,d1.s6,(>103.0)");
-
-	private static QueryConfig doubleConfig = new QueryConfig("d1.s7",
-			"0,(>=1480562618021)&(<=1480562618033)", "null", "2,d1.s7,(<=7.0)");
-
-	private static QueryConfig floatDoubleConfigFilter = new QueryConfig("d1.s6",
-			"0,(>=1480562618005)&(<1480562618977)", "null", "2,d1.s6,(>=103.0)");
+	private static String fileName = "src/test/resources/perTestOutputData.tsfile";
+	private static ReadOnlyTsFile roTsFile = null;
 
 	@Before
 	public void prepare() throws IOException, InterruptedException, WriteProcessException {
 		TSFileDescriptor.getInstance().getConfig().timeSeriesEncoder = "PLAIN";
 		ReadPerf.generateFile();
+		TsFileSequenceReader reader = new TsFileSequenceReader(fileName);
+		roTsFile = new ReadOnlyTsFile(reader);
 	}
 
 	@After
-	public void after() {
+	public void after() throws IOException {
+		if (roTsFile != null)
+			roTsFile.close();
 		ReadPerf.after();
 	}
 
 	@Test
 	public void queryOneMeasurementWithoutFilterTest() throws IOException {
-		OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(configOneSeriesWithNoFilter, fileName);
+		List<Path> pathList = new ArrayList<>();
+		pathList.add(new Path("d1.s1"));
+		QueryExpression queryExpression = QueryExpression.create(pathList, null);
+		QueryDataSet dataSet = roTsFile.query(queryExpression);
 
 		int count = 0;
-		while (onePassQueryDataSet.hasNextRecord()) {
-			OldRowRecord r = onePassQueryDataSet.getNextRecord();
+		while (dataSet.hasNext()) {
+			RowRecord r = dataSet.next();
 			if (count == 0) {
-				assertEquals(r.timestamp, 1480562618010L);
+				assertEquals(r.getTimestamp(), 1480562618010L);
 			}
 			if (count == 499) {
-				assertEquals(r.timestamp, 1480562618999L);
+				assertEquals(r.getTimestamp(), 1480562618999L);
 			}
 			count++;
 		}
@@ -91,71 +69,84 @@ public class TimePlainEncodeReadTest {
 
 	@Test
 	public void queryTwoMeasurementsWithoutFilterTest() throws IOException {
-		OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(configTwoSeriesWithNoFilter, fileName);
+		List<Path> pathList = new ArrayList<>();
+		pathList.add(new Path("d1.s1"));
+		pathList.add(new Path("d2.s2"));
+		QueryExpression queryExpression = QueryExpression.create(pathList, null);
+		QueryDataSet dataSet = roTsFile.query(queryExpression);
+
 		int count = 0;
-		while (onePassQueryDataSet.hasNextRecord()) {
-			OldRowRecord r = onePassQueryDataSet.getNextRecord();
+		while (dataSet.hasNext()) {
+			RowRecord r = dataSet.next();
 			if (count == 0) {
 				if (count == 0) {
-					assertEquals(1480562618005L, r.timestamp);
+					assertEquals(1480562618005L, r.getTimestamp());
 				}
 			}
 			count++;
 		}
 		assertEquals(count, 750);
-//		// verify d1.s1
-//		DynamicOneColumnData d1s1Data = onePassQueryDataSet.mapRet.get("d1.s1");
-//		assertEquals(d1s1Data.length, 500);
-//		assertEquals(d1s1Data.getTime(0), 1480562618010L);
-//		assertEquals(d1s1Data.getInt(0), 101);
-//		assertEquals(d1s1Data.getTime(d1s1Data.length - 1), 1480562618999L);
-//		assertEquals(d1s1Data.getInt(d1s1Data.length - 1), 9991);
-//
-//		// verify d2.s2
-//		DynamicOneColumnData d2s2Data = onePassQueryDataSet.mapRet.get("d2.s2");
-//		assertEquals(d2s2Data.length, 750);
-//		assertEquals(d2s2Data.getTime(500), 1480562618670L);
-//		assertEquals(d2s2Data.getLong(500), 6702L);
-//		assertEquals(d2s2Data.getTime(d2s2Data.length - 1), 1480562618999L);
-//		assertEquals(d2s2Data.getLong(d2s2Data.length - 1), 9992L);
 	}
 
 	@Test
 	public void queryTwoMeasurementsWithSingleFilterTest() throws IOException {
-		OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(configWithTwoSeriesTimeValueNoCrossFilter2, fileName);
+		List<Path> pathList = new ArrayList<>();
+		pathList.add(new Path("d2.s1"));
+		pathList.add(new Path("d2.s4"));
+		QueryFilter valFilter = new SeriesFilter<>(new Path("d2.s2"), ValueFilter.gt(9722L));
+		QueryFilter tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618970L)),
+				new GlobalTimeFilter(TimeFilter.lt(1480562618977L)));
+		QueryFilter finalFilter = QueryFilterFactory.and(valFilter, tFilter);
+		QueryExpression queryExpression = QueryExpression.create(pathList, finalFilter);
+		QueryDataSet dataSet = roTsFile.query(queryExpression);
 
-		while (onePassQueryDataSet.hasNextRecord()) {
-			OldRowRecord r = onePassQueryDataSet.getNextRecord();
-			System.out.println(r);
+		while (dataSet.hasNext()) {
+			RowRecord r = dataSet.next();
 		}
 
 	}
 
 	@Test
 	public void queryWithTwoSeriesTimeValueFilterCrossTest() throws IOException {
-		OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(configWithTwoSeriesTimeValueCrossFilter, fileName);
+		List<Path> pathList = new ArrayList<>();
+		pathList.add(new Path("d2.s2"));
+		QueryFilter valFilter = new SeriesFilter<>(new Path("d2.s2"), ValueFilter.notEq(9722L));
+		QueryFilter tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618970L)),
+				new GlobalTimeFilter(TimeFilter.lt(1480562618977L)));
+		QueryFilter finalFilter = QueryFilterFactory.and(valFilter, tFilter);
+		QueryExpression queryExpression = QueryExpression.create(pathList, finalFilter);
+		QueryDataSet dataSet = roTsFile.query(queryExpression);
 
 		// time filter & value filter
 		// verify d1.s1, d2.s1
 		int cnt = 1;
-		while (onePassQueryDataSet.hasNextRecord()) {
-			OldRowRecord r = onePassQueryDataSet.getNextRecord();
+		while (dataSet.hasNext()) {
+			RowRecord r = dataSet.next();
 			if (cnt == 1) {
-				assertEquals(r.timestamp, 1480562618973L);
+				assertEquals(r.getTimestamp(), 1480562618970L);
 			} else if (cnt == 2) {
-				assertEquals(r.timestamp, 1480562618974L);
+				assertEquals(r.getTimestamp(), 1480562618971L);
 			} else if (cnt == 3) {
-				assertEquals(r.timestamp, 1480562618975L);
+				assertEquals(r.getTimestamp(), 1480562618973L);
 			}
 			//System.out.println(r);
 			cnt++;
 		}
-		assertEquals(cnt, 5);
+		assertEquals(cnt, 7);
 	}
 
 	@Test
 	public void queryWithCrossSeriesTimeValueFilterTest() throws IOException {
-		OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(configWithCrossSeriesTimeValueFilter, fileName);
+		List<Path> pathList = new ArrayList<>();
+		pathList.add(new Path("d1.s1"));
+		pathList.add(new Path("d2.s2"));
+		QueryFilter valFilter = new SeriesFilter<>(new Path("d2.s2"), ValueFilter.gt(9722L));
+		QueryFilter tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618970L)),
+				new GlobalTimeFilter(TimeFilter.lt(1480562618977L)));
+		QueryFilter finalFilter = QueryFilterFactory.and(valFilter, tFilter);
+		QueryExpression queryExpression = QueryExpression.create(pathList, finalFilter);
+		QueryDataSet dataSet = roTsFile.query(queryExpression);
+
 		// time filter & value filter
 		// verify d1.s1, d2.s1
 		/**
@@ -165,23 +156,37 @@ public class TimePlainEncodeReadTest {
 		 1480562618956	9561	9562
 		 */
 		int cnt = 1;
-		while (onePassQueryDataSet.hasNextRecord()) {
-			OldRowRecord r = onePassQueryDataSet.getNextRecord();
+		while (dataSet.hasNext()) {
+			RowRecord r = dataSet.next();
 			if (cnt == 1) {
-				assertEquals(r.timestamp, 1480562618950L);
+				assertEquals(r.getTimestamp(), 1480562618973L);
 			} else if (cnt == 2) {
-				assertEquals(r.timestamp, 1480562618954L);
+				assertEquals(r.getTimestamp(), 1480562618974L);
 			} else if (cnt == 3) {
-				assertEquals(r.timestamp, 1480562618955L);
+				assertEquals(r.getTimestamp(), 1480562618975L);
 			} else if (cnt == 4) {
-				assertEquals(r.timestamp, 1480562618956L);
+				assertEquals(r.getTimestamp(), 1480562618976L);
 			}
 			//System.out.println(r);
 			cnt++;
 		}
 		assertEquals(cnt, 5);
 
-		OnePassQueryDataSet onePassQueryDataSetOrOpe = QueryEngine.query(configWithCrossSeriesTimeValueFilterOrOpe, fileName);
+		pathList.clear();
+		pathList.add(new Path("d1.s1"));
+		pathList.add(new Path("d2.s2"));
+		valFilter = new SeriesFilter<>(new Path("d1.s1"), ValueFilter.ltEq(9321));
+		valFilter = QueryFilterFactory.and(new SeriesFilter<>(new Path("d2.s2"), ValueFilter.ltEq(9312L)),
+				valFilter);
+		tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618906L)),
+				new GlobalTimeFilter(TimeFilter.ltEq(1480562618915L)));
+		tFilter = QueryFilterFactory.or(tFilter,
+				QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618928L)),
+						new GlobalTimeFilter(TimeFilter.ltEq(1480562618933L))));
+		finalFilter = QueryFilterFactory.and(valFilter, tFilter);
+		queryExpression = QueryExpression.create(pathList, finalFilter);
+		dataSet = roTsFile.query(queryExpression);
+
 		// time filter & value filter
 		// verify d1.s1, d2.s1
 		/**
@@ -197,34 +202,43 @@ public class TimePlainEncodeReadTest {
 		 1480562618933	9331	9332
 		 */
 		cnt = 1;
-		while (onePassQueryDataSetOrOpe.hasNextRecord()) {
-			OldRowRecord r = onePassQueryDataSetOrOpe.getNextRecord();
+		while (dataSet.hasNext()) {
+			RowRecord r = dataSet.next();
 			//System.out.println(r);
 			if (cnt == 4) {
-				assertEquals(r.timestamp, 1480562618913L);
+				assertEquals(r.getTimestamp(), 1480562618913L);
 			} else if (cnt == 7) {
-				assertEquals(r.timestamp, 1480562618930L);
+				assertEquals(r.getTimestamp(), 1480562618930L);
 			}
 			cnt++;
 		}
-		assertEquals(cnt, 11);
+		assertEquals(cnt, 9);
 	}
 
-	// @Test
+	@Test
 	public void queryBooleanTest() throws IOException {
-		OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(booleanConfig, fileName);
+		List<Path> pathList = new ArrayList<>();
+		pathList.add(new Path("d1.s5"));
+		QueryFilter valFilter = new SeriesFilter<>(new Path("d1.s5"), ValueFilter.eq(false));
+		QueryFilter tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618970L)),
+				new GlobalTimeFilter(TimeFilter.lt(1480562618981L)));
+		QueryFilter finalFilter = QueryFilterFactory.and(valFilter, tFilter);
+		QueryExpression queryExpression = QueryExpression.create(pathList, finalFilter);
+		QueryDataSet dataSet = roTsFile.query(queryExpression);
+
 		int cnt = 1;
-		while (onePassQueryDataSet.hasNextRecord()) {
-			OldRowRecord r = onePassQueryDataSet.getNextRecord();
+		while (dataSet.hasNext()) {
+			RowRecord r = dataSet.next();
+			System.out.println(r);
 			if (cnt == 1) {
-				assertEquals(r.getTime(), 1480562618972L);
-				Field f1 = r.getFields().get(0);
-				assertEquals(f1.getBoolV(), false);
+				assertEquals(r.getTimestamp(), 1480562618972L);
+				TsPrimitiveType f1 = r.getFields().get(new Path("d1.s5"));
+				assertEquals(f1.getBoolean(), false);
 			}
 			if (cnt == 2) {
-				assertEquals(r.getTime(), 1480562618981L);
-				Field f2 = r.getFields().get(0);
-				assertEquals(f2.getBoolV(), false);
+				assertEquals(r.getTimestamp(), 1480562618981L);
+				TsPrimitiveType f2 = r.getFields().get(new Path("d1.s5"));
+				assertEquals(f2.getBoolean(), false);
 			}
 			cnt++;
 		}
@@ -232,50 +246,74 @@ public class TimePlainEncodeReadTest {
 
 	@Test
 	public void queryStringTest() throws IOException {
-		OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(lessStringConfig, fileName);
-		int cnt = 0;
-		while (onePassQueryDataSet.hasNextRecord()) {
-			OldRowRecord r = onePassQueryDataSet.getNextRecord();
-			if (cnt == 1) {
-				assertEquals(r.getTime(), 1480562618976L);
-				Field f1 = r.getFields().get(0);
-				assertEquals(f1.getStringValue(), "dog976");
-			}
-			// System.out.println(r);
-			cnt++;
-		}
-		Assert.assertEquals(cnt, 0);
+		List<Path> pathList = new ArrayList<>();
+		pathList.add(new Path("d1.s4"));
+		QueryFilter valFilter = new SeriesFilter<>(new Path("d1.s4"), ValueFilter.gt(new Binary("dog97")));
+		QueryFilter tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618970L)),
+				new GlobalTimeFilter(TimeFilter.ltEq(1480562618981L)));
+		QueryFilter finalFilter = QueryFilterFactory.and(valFilter, tFilter);
+		QueryExpression queryExpression = QueryExpression.create(pathList, finalFilter);
+		QueryDataSet dataSet = roTsFile.query(queryExpression);
 
-		onePassQueryDataSet = QueryEngine.query(greatStringConfig, fileName);
-		cnt = 0;
-		while (onePassQueryDataSet.hasNextRecord()) {
-			OldRowRecord r = onePassQueryDataSet.getNextRecord();
+		int cnt = 0;
+		while (dataSet.hasNext()) {
+			RowRecord r = dataSet.next();
 			if (cnt == 0) {
-				assertEquals(r.getTime(), 1480562618976L);
-				Field f1 = r.getFields().get(0);
+				assertEquals(r.getTimestamp(), 1480562618976L);
+				TsPrimitiveType f1 = r.getFields().get(new Path("d1.s4"));
 				assertEquals(f1.getStringValue(), "dog976");
 			}
 			// System.out.println(r);
 			cnt++;
 		}
 		Assert.assertEquals(cnt, 1);
+
+		pathList = new ArrayList<>();
+		pathList.add(new Path("d1.s4"));
+		valFilter = new SeriesFilter<>(new Path("d1.s4"), ValueFilter.lt(new Binary("dog97")));
+		tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618970L)),
+				new GlobalTimeFilter(TimeFilter.ltEq(1480562618981L)));
+		finalFilter = QueryFilterFactory.and(valFilter, tFilter);
+		queryExpression = QueryExpression.create(pathList, finalFilter);
+		dataSet = roTsFile.query(queryExpression);
+		cnt = 0;
+		while (dataSet.hasNext()) {
+			RowRecord r = dataSet.next();
+			if (cnt == 1) {
+				assertEquals(r.getTimestamp(), 1480562618976L);
+				TsPrimitiveType f1 = r.getFields().get(new Path("d1.s4"));
+				assertEquals(f1.getBinary(), "dog976");
+			}
+			// System.out.println(r);
+			cnt++;
+		}
+		Assert.assertEquals(cnt, 0);
+
 	}
 
 	@Test
 	public void queryFloatTest() throws IOException {
-		OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(floatConfig, fileName);
+		List<Path> pathList = new ArrayList<>();
+		pathList.add(new Path("d1.s6"));
+		QueryFilter valFilter = new SeriesFilter<>(new Path("d1.s6"), ValueFilter.gt(103.0f));
+		QueryFilter tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618970L)),
+				new GlobalTimeFilter(TimeFilter.ltEq(1480562618981L)));
+		QueryFilter finalFilter = QueryFilterFactory.and(valFilter, tFilter);
+		QueryExpression queryExpression = QueryExpression.create(pathList, finalFilter);
+		QueryDataSet dataSet = roTsFile.query(queryExpression);
+
 		int cnt = 0;
-		while (onePassQueryDataSet.hasNextRecord()) {
-			OldRowRecord r = onePassQueryDataSet.getNextRecord();
+		while (dataSet.hasNext()) {
+			RowRecord r = dataSet.next();
 			if (cnt == 1) {
-				assertEquals(r.getTime(), 1480562618980L);
-				Field f1 = r.getFields().get(0);
-				assertEquals(f1.getFloatV(), 108.0, 0.0);
+				assertEquals(r.getTimestamp(), 1480562618980L);
+				TsPrimitiveType f1 = r.getFields().get(new Path("d1.s6"));
+				assertEquals(f1.getFloat(), 108.0, 0.0);
 			}
 			if (cnt == 2) {
-				assertEquals(r.getTime(), 1480562618990L);
-				Field f2 = r.getFields().get(0);
-				assertEquals(f2.getFloatV(), 110.0, 0.0);
+				assertEquals(r.getTimestamp(), 1480562618990L);
+				TsPrimitiveType f2 = r.getFields().get(new Path("d1.s6"));
+				assertEquals(f2.getFloat(), 110.0, 0.0);
 			}
 			cnt++;
 		}
@@ -283,19 +321,27 @@ public class TimePlainEncodeReadTest {
 
 	@Test
 	public void queryDoubleTest() throws IOException {
-		OnePassQueryDataSet onePassQueryDataSet = QueryEngine.query(doubleConfig, fileName);
+		List<Path> pathList = new ArrayList<>();
+		pathList.add(new Path("d1.s7"));
+		QueryFilter valFilter = new SeriesFilter<>(new Path("d1.s7"), ValueFilter.gt(7.0));
+		QueryFilter tFilter = QueryFilterFactory.and(new GlobalTimeFilter(TimeFilter.gtEq(1480562618021L)),
+				new GlobalTimeFilter(TimeFilter.ltEq(1480562618033L)));
+		QueryFilter finalFilter = QueryFilterFactory.and(valFilter, tFilter);
+		QueryExpression queryExpression = QueryExpression.create(pathList, finalFilter);
+		QueryDataSet dataSet = roTsFile.query(queryExpression);
+
 		int cnt = 1;
-		while (onePassQueryDataSet.hasNextRecord()) {
-			OldRowRecord r = onePassQueryDataSet.getNextRecord();
+		while (dataSet.hasNext()) {
+			RowRecord r = dataSet.next();
 			if (cnt == 1) {
-				assertEquals(r.getTime(), 1480562618022L);
-				Field f1 = r.getFields().get(0);
-				assertEquals(f1.getDoubleV(), 2.0, 0.0);
+				assertEquals(r.getTimestamp(), 1480562618022L);
+				TsPrimitiveType f1 = r.getFields().get(0);
+				assertEquals(f1.getDouble(), 2.0, 0.0);
 			}
 			if (cnt == 2) {
-				assertEquals(r.getTime(), 1480562618033L);
-				Field f1 = r.getFields().get(0);
-				assertEquals(f1.getDoubleV(), 3.0, 0.0);
+				assertEquals(r.getTimestamp(), 1480562618033L);
+				TsPrimitiveType f1 = r.getFields().get(0);
+				assertEquals(f1.getDouble(), 3.0, 0.0);
 			}
 			cnt++;
 		}

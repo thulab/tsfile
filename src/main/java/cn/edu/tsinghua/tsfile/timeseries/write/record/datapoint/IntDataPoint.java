@@ -1,8 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint;
 
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
-import cn.edu.tsinghua.tsfile.timeseries.write.series.ISeriesWriter;
+import cn.edu.tsinghua.tsfile.timeseries.write.series.IChunkWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,17 +15,21 @@ import java.io.IOException;
  */
 public class IntDataPoint extends DataPoint {
     private static final Logger LOG = LoggerFactory.getLogger(IntDataPoint.class);
+    /** actual value **/
     private int value;
 
+    /**
+     * constructor of IntDataPoint, the value type will be set automatically
+     */
     public IntDataPoint(String measurementId, int v) {
         super(TSDataType.INT32, measurementId);
         this.value = v;
     }
 
     @Override
-    public void write(long time, ISeriesWriter writer) throws IOException {
+    public void writeTo(long time, IChunkWriter writer) throws IOException {
         if (writer == null) {
-            LOG.warn("given ISeriesWriter is null, do nothing and return");
+            LOG.warn("given IChunkWriter is null, do nothing and return");
             return;
         }
         writer.write(time, value);

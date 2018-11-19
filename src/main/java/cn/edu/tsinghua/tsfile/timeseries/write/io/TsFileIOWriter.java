@@ -1,41 +1,26 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.io;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
+import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
+import cn.edu.tsinghua.tsfile.common.constant.StatisticConstant;
+import cn.edu.tsinghua.tsfile.common.utils.*;
+import cn.edu.tsinghua.tsfile.file.footer.RowGroupFooter;
+import cn.edu.tsinghua.tsfile.file.header.ChunkHeader;
+import cn.edu.tsinghua.tsfile.file.metadata.*;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
+import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteIOUtils;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementSchema;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
-import cn.edu.tsinghua.tsfile.common.constant.StatisticConstant;
-import cn.edu.tsinghua.tsfile.common.utils.BytesUtils;
-import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.common.utils.ListByteArrayOutputStream;
-import cn.edu.tsinghua.tsfile.common.utils.TsRandomAccessFileWriter;
-import cn.edu.tsinghua.tsfile.file.metadata.RowGroupMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TInTimeSeriesChunkMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesChunkMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TimeSeriesMetadata;
-import cn.edu.tsinghua.tsfile.file.metadata.TsDeltaObject;
-import cn.edu.tsinghua.tsfile.file.metadata.TsDigest;
-import cn.edu.tsinghua.tsfile.file.metadata.TsFileMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.TsRowGroupBlockMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.VInTimeSeriesChunkMetaData;
-import cn.edu.tsinghua.tsfile.file.metadata.converter.TsFileMetaDataConverter;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionTypeName;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSChunkType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.file.metadata.statistics.Statistics;
-import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
-import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
-import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.*;
 
 /**
  * TSFileIOWriter is used to construct metadata and write data stored in memory
@@ -45,297 +30,190 @@ import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
  */
 public class TsFileIOWriter {
 
-	public static final byte[] magicStringBytes;
-	public static final TsFileMetaDataConverter metadataConverter = new TsFileMetaDataConverter();
-	private static final Logger LOG = LoggerFactory.getLogger(TsFileIOWriter.class);
+    public static final byte[] magicStringBytes;
+    private static final Logger LOG = LoggerFactory.getLogger(TsFileIOWriter.class);
 
-	static {
-		magicStringBytes = BytesUtils.StringToBytes(TSFileConfig.MAGIC_STRING);
-	}
+    static {
+        magicStringBytes = BytesUtils.StringToBytes(TSFileConfig.MAGIC_STRING);
+    }
 
-	private ITsRandomAccessFileWriter out;
-	protected List<RowGroupMetaData> rowGroupMetaDatas = new ArrayList<>();
-	private RowGroupMetaData currentRowGroupMetaData;
-	private TimeSeriesChunkMetaData currentChunkMetaData;
-	
-	
-	public TsFileIOWriter(){
-		
-	}
-	
-	public void setIOWriter(ITsRandomAccessFileWriter out){
-		this.out = out;
-	}
+    private FileOutputStream out;
+    protected List<ChunkGroupMetaData> chunkGroupMetaData = new ArrayList<>();
+    private ChunkGroupMetaData currentChunkGroupMetaData;
+    private ChunkMetaData currentChunkMetaData;
 
-	/**
-	 * for writing a new tsfile.
-	 *
-	 * @param file
-	 *            be used to output written data
-	 * @throws IOException
-	 *             if I/O error occurs
-	 */
-	public TsFileIOWriter(File file) throws IOException {
-		this.out = new TsRandomAccessFileWriter(file);
-		startFile();
-	}
+    /**
+     * for writing a new tsfile.
+     *
+     * @param file be used to output written data
+     * @throws IOException if I/O error occurs
+     */
+    public TsFileIOWriter(File file) throws IOException {
+        this.out = new FileOutputStream(file);
+        startFile();
+    }
 
-	/**
-	 * for writing a new tsfile.
-	 *
-	 * @param output
-	 *            be used to output written data
-	 * @throws IOException
-	 *             if I/O error occurs
-	 */
-	public TsFileIOWriter(ITsRandomAccessFileWriter output) throws IOException {
-		this.out = output;
-		startFile();
-	}
 
-	/**
-	 * This is just used to restore one TSFile from List of RowGroupMetaData and
-	 * the offset.
-	 *
-	 * @param output
-	 *            be used to output written data
-	 * @param offset
-	 *            offset to restore
-	 * @param rowGroups
-	 *            given a constructed row group list for fault recovery
-	 * @throws IOException
-	 *             if I/O error occurs
-	 */
-	public TsFileIOWriter(ITsRandomAccessFileWriter output, long offset, List<RowGroupMetaData> rowGroups)
-			throws IOException {
-		this.out = output;
-		out.seek(offset);
-		this.rowGroupMetaDatas = rowGroups;
-	}
+    /**
+     * Writes given bytes to output stream.
+     * This method is called when total memory size exceeds the row group size
+     * threshold.
+     *
+     * @param bytes - data of several pages which has been packed
+     * @throws IOException if an I/O error occurs.
+     */
+    public void writeBytesToStream(PublicBAOS bytes) throws IOException {
+        bytes.writeTo(out);
+    }
 
-	/**
-	 * Writes given <code>ListByteArrayOutputStream</code> to output stream.
-	 * This method is called when total memory size exceeds the row group size
-	 * threshold.
-	 *
-	 * @param bytes
-	 *            - data of several pages which has been packed
-	 * @throws IOException
-	 *             if an I/O error occurs.
-	 */
-	public void writeBytesToStream(ListByteArrayOutputStream bytes) throws IOException {
-		bytes.writeAllTo(out.getOutputStream());
-	}
+    private void startFile() throws IOException {
+        out.write(magicStringBytes);
+    }
 
-	private void startFile() throws IOException {
-		out.write(magicStringBytes);
-	}
+    /**
+     * start a {@linkplain ChunkGroupMetaData ChunkGroupMetaData}.
+     *
+     * @param deviceId delta object id
+     * @param dataSize      the serialized size of all chunks
+     * @return the serialized size of RowGroupFooter
+     */
+    public RowGroupFooter startFlushRowGroup(String deviceId, long dataSize, int numberOfChunks) throws IOException {
+        LOG.debug("start row group:{}, file position {}", deviceId, out.getChannel().position());
+        currentChunkGroupMetaData = new ChunkGroupMetaData(deviceId, new ArrayList<>());
+        RowGroupFooter header = new RowGroupFooter(deviceId, dataSize, numberOfChunks);
+        LOG.debug("finishing writing row group header {}, file position {}", header, out.getChannel().position());
+        return header;
+    }
 
-	/**
-	 * start a {@linkplain RowGroupMetaData RowGroupMetaData}.
-	 *
-	 * @param recordCount
-	 *            - the record count of this time series input in this stage
-	 * @param deltaObjectId
-	 *            - delta object id
-	 */
-	public void startRowGroup(long recordCount, String deltaObjectId) {
-		LOG.debug("start row group:{}", deltaObjectId);
-		currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, recordCount, 0, new ArrayList<>(), "");
-																												
-																												
-	}
-	
-	public void startRowGroup(String deltaObjectId) {
-		LOG.debug("start row group:{}", deltaObjectId);
-		currentRowGroupMetaData = new RowGroupMetaData(deltaObjectId, 0, 0, new ArrayList<>(), "");
-	}
+    /**
+     * start a {@linkplain ChunkMetaData ChunkMetaData}.
+     *
+     * @param descriptor           - measurement of this time series
+     * @param compressionCodecName - compression name of this time series
+     * @param tsDataType           - data type
+     * @param statistics           - statistic of the whole series
+     * @param maxTime              - maximum timestamp of the whole series in this stage
+     * @param minTime              - minimum timestamp of the whole series in this stage
+     * @param datasize             -  the serialized size of all pages
+     * @return the serialized size of CHunkHeader
+     * @throws IOException if I/O error occurs
+     */
+    public int startFlushChunk(MeasurementSchema descriptor, CompressionType compressionCodecName,
+                               TSDataType tsDataType, TSEncoding encodingType, Statistics<?> statistics, long maxTime, long minTime, int datasize, int numOfPages) throws IOException {
+        LOG.debug("start series chunk:{}, file position {}", descriptor, out.getChannel().position());
 
-	/**
-	 * start a {@linkplain TimeSeriesChunkMetaData TimeSeriesChunkMetaData}.
-	 *
-	 * @param descriptor
-	 *            - measurement of this time series
-	 * @param compressionCodecName
-	 *            - compression name of this time series
-	 * @param tsDataType
-	 *            - data type
-	 * @param statistics
-	 *            - statistic of the whole series
-	 * @param maxTime
-	 *            - maximum timestamp of the whole series in this stage
-	 * @param minTime
-	 *            - minimum timestamp of the whole series in this stage
-	 * @throws IOException
-	 *             if I/O error occurs
-	 */
-	public void startSeries(MeasurementDescriptor descriptor, CompressionTypeName compressionCodecName,
-			TSDataType tsDataType, Statistics<?> statistics, long maxTime, long minTime) throws IOException {
-		LOG.debug("start series:{}", descriptor);
-		currentChunkMetaData = new TimeSeriesChunkMetaData(descriptor.getMeasurementId(), TSChunkType.VALUE,
-				out.getPos(), compressionCodecName);
-		TInTimeSeriesChunkMetaData t = new TInTimeSeriesChunkMetaData(tsDataType, minTime, maxTime);
-		currentChunkMetaData.setTInTimeSeriesChunkMetaData(t);
+        currentChunkMetaData = new ChunkMetaData(descriptor.getMeasurementId(), tsDataType, out.getChannel().position(), minTime, maxTime);
 
-		VInTimeSeriesChunkMetaData v = new VInTimeSeriesChunkMetaData(tsDataType);
-		TsDigest tsDigest = new TsDigest();
-		Map<String, ByteBuffer> statisticsMap = new HashMap<>();
-		// TODO add your statistics
-		statisticsMap.put(StatisticConstant.MAX_VALUE,ByteBuffer.wrap(statistics.getMaxBytes()));
-		statisticsMap.put(StatisticConstant.MIN_VALUE,ByteBuffer.wrap(statistics.getMinBytes()));
-		statisticsMap.put(StatisticConstant.FIRST,ByteBuffer.wrap(statistics.getFirstBytes()));
-		statisticsMap.put(StatisticConstant.SUM,ByteBuffer.wrap(statistics.getSumBytes()));
-		statisticsMap.put(StatisticConstant.LAST,ByteBuffer.wrap(statistics.getLastBytes()));
-		tsDigest.setStatistics(statisticsMap);
+        ChunkHeader header = new ChunkHeader(descriptor.getMeasurementId(), datasize, tsDataType, compressionCodecName, encodingType, numOfPages);
+        header.serializeTo(out);
+        LOG.debug("finish series chunk:{} header, file position {}", header, out.getChannel().position());
 
-		v.setDigest(tsDigest);
-		descriptor.setDataValues(v);
-		currentChunkMetaData.setVInTimeSeriesChunkMetaData(v);
-	}
+        TsDigest tsDigest = new TsDigest();
+        Map<String, ByteBuffer> statisticsMap = new HashMap<>();
+        // TODO add your statistics
+        statisticsMap.put(StatisticConstant.MAX_VALUE, ByteBuffer.wrap(statistics.getMaxBytes()));
+        statisticsMap.put(StatisticConstant.MIN_VALUE, ByteBuffer.wrap(statistics.getMinBytes()));
+        statisticsMap.put(StatisticConstant.FIRST, ByteBuffer.wrap(statistics.getFirstBytes()));
+        statisticsMap.put(StatisticConstant.SUM, ByteBuffer.wrap(statistics.getSumBytes()));
+        statisticsMap.put(StatisticConstant.LAST, ByteBuffer.wrap(statistics.getLastBytes()));
+        tsDigest.setStatistics(statisticsMap);
 
-	public void endSeries(long size, long totalValueCount) {
-		LOG.debug("end series:{},totalvalue:{}", currentChunkMetaData, totalValueCount);
-		currentChunkMetaData.setTotalByteSize(size);
-		currentChunkMetaData.setNumRows(totalValueCount);
-		currentRowGroupMetaData.addTimeSeriesChunkMetaData(currentChunkMetaData);
-		currentChunkMetaData = null;
-	}
+        currentChunkMetaData.setDigest(tsDigest);
 
-	public void endRowGroup(long memSize) {
-		currentRowGroupMetaData.setTotalByteSize(memSize);
-		rowGroupMetaDatas.add(currentRowGroupMetaData);
-		LOG.debug("end row group:{}", currentRowGroupMetaData);
-		currentRowGroupMetaData = null;
-	}
-	
-	public void endRowGroup(long memSize,long recordCount) {
-		currentRowGroupMetaData.setTotalByteSize(memSize);
-		currentRowGroupMetaData.setNumOfRows(recordCount);
-		rowGroupMetaDatas.add(currentRowGroupMetaData);
-		LOG.debug("end row group:{}", currentRowGroupMetaData);
-		currentRowGroupMetaData = null;
-	}
+        return header.getSerializedSize();
+    }
 
-	/**
-	 * write {@linkplain TsFileMetaData TSFileMetaData} to output stream and
-	 * close it.
-	 *
-	 * @param schema
-	 *            FileSchema
-	 * @throws IOException
-	 *             if I/O error occurs
-	 */
-	public void endFile(FileSchema schema) throws IOException {
-		List<TimeSeriesMetadata> timeSeriesList = schema.getTimeSeriesMetadatas();
-		LOG.debug("get time series list:{}", timeSeriesList);
-		// clustering rowGroupMetadata and build the range
 
-		Map<String, TsDeltaObject> tsDeltaObjectMap = new HashMap<>();
-		String currentDeltaObject;
-		TsRowGroupBlockMetaData currentTsRowGroupBlockMetaData;
+    public void endChunk(long totalValueCount) {
+        currentChunkMetaData.setNumOfPoints(totalValueCount);
+        currentChunkGroupMetaData.addTimeSeriesChunkMetaData(currentChunkMetaData);
+        LOG.debug("end series chunk:{},totalvalue:{}", currentChunkMetaData, totalValueCount);
+        currentChunkMetaData = null;
+    }
 
-		LinkedHashMap<String, TsRowGroupBlockMetaData> tsRowGroupBlockMetaDataMap = new LinkedHashMap<>();
-		for (RowGroupMetaData rowGroupMetaData : rowGroupMetaDatas) {
-			currentDeltaObject = rowGroupMetaData.getDeltaObjectID();
-			if (!tsRowGroupBlockMetaDataMap.containsKey(currentDeltaObject)) {
-				TsRowGroupBlockMetaData tsRowGroupBlockMetaData = new TsRowGroupBlockMetaData();
-				tsRowGroupBlockMetaData.setDeltaObjectID(currentDeltaObject);
-				tsRowGroupBlockMetaDataMap.put(currentDeltaObject, tsRowGroupBlockMetaData);
-			}
-			tsRowGroupBlockMetaDataMap.get(currentDeltaObject).addRowGroupMetaData(rowGroupMetaData);
-		}
-		Iterator<Map.Entry<String, TsRowGroupBlockMetaData>> iterator = tsRowGroupBlockMetaDataMap.entrySet()
-				.iterator();
-		long offset;
-		long offsetIndex;
-		/** size of RowGroupMetadataBlock in byte **/
-		int metadataBlockSize;
+    public void endRowGroup(long memSize, RowGroupFooter rowGroupFooter) throws IOException {
+        rowGroupFooter.serializeTo(out);
+        chunkGroupMetaData.add(currentChunkGroupMetaData);
+        LOG.debug("end row group:{}", currentChunkGroupMetaData);
+        currentChunkGroupMetaData = null;
+    }
 
-		/** start time for a delta object **/
-		long startTime;
+    /**
+     * write {@linkplain TsFileMetaData TSFileMetaData} to output stream and
+     * close it.
+     *
+     * @param schema FileSchema
+     * @throws IOException if I/O error occurs
+     */
+    public void endFile(FileSchema schema) throws IOException {
+    	// get all TimeSeriesMetadatas of this TsFile
+        Map<String, MeasurementSchema> schemaDescriptors = schema.getAllMeasurementSchema();
+        LOG.debug("get time series list:{}", schemaDescriptors);
+        // clustering rowGroupMetadata and build the range
 
-		/** end time for a delta object **/
-		long endTime;
+        String currentDeltaObject;
+        TsDeviceMetadata currentTsDeviceMetadata;
 
-		while (iterator.hasNext()) {
-			startTime = Long.MAX_VALUE;
-			endTime = Long.MIN_VALUE;
+        LinkedHashMap<String, TsDeviceMetadata> tsDeltaObjectMetadataMap = new LinkedHashMap<>();
 
-			Map.Entry<String, TsRowGroupBlockMetaData> entry = iterator.next();
-			currentDeltaObject = entry.getKey();
-			currentTsRowGroupBlockMetaData = entry.getValue();
+        for (ChunkGroupMetaData chunkGroupMetaData : this.chunkGroupMetaData) {
+            currentDeltaObject = chunkGroupMetaData.getDeltaObjectID();
+            if (!tsDeltaObjectMetadataMap.containsKey(currentDeltaObject)) {
+                TsDeviceMetadata tsDeviceMetadata = new TsDeviceMetadata();
+                tsDeltaObjectMetadataMap.put(currentDeltaObject, tsDeviceMetadata);
+            }
+            tsDeltaObjectMetadataMap.get(currentDeltaObject).addRowGroupMetaData(chunkGroupMetaData);
+        }
+        Iterator<Map.Entry<String, TsDeviceMetadata>> iterator = tsDeltaObjectMetadataMap.entrySet().iterator();
 
-			for (RowGroupMetaData rowGroupMetaData : currentTsRowGroupBlockMetaData.getRowGroups()) {
-				for (TimeSeriesChunkMetaData timeSeriesChunkMetaData : rowGroupMetaData
-						.getTimeSeriesChunkMetaDataList()) {
-					startTime = Long.min(startTime,
-							timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getStartTime());
-					endTime = Long.max(endTime, timeSeriesChunkMetaData.getTInTimeSeriesChunkMetaData().getEndTime());
-				}
-			}
-			offsetIndex = out.getPos();
-			// flush tsRowGroupBlockMetaDatas in order
-			ReadWriteThriftFormatUtils.writeRowGroupBlockMetadata(currentTsRowGroupBlockMetaData.convertToThrift(),
-					out.getOutputStream());
-			offset = out.getPos();
-			TsDeltaObject tsDeltaObject = new TsDeltaObject(offsetIndex, (int) (offset - offsetIndex), startTime,
-					endTime);
-			tsDeltaObjectMap.put(currentDeltaObject, tsDeltaObject);
-		}
+        /** start time for a delta object **/
+        long startTime;
 
-		TsFileMetaData tsFileMetaData = new TsFileMetaData(tsDeltaObjectMap, timeSeriesList,
-				TSFileConfig.currentVersion);
-		Map<String, String> props = schema.getProps();
-		tsFileMetaData.setProps(props);
-		serializeTsFileMetadata(tsFileMetaData);
-		out.close();
-		LOG.info("output stream is closed");
-	}
+        /** end time for a delta object **/
+        long endTime;
 
-	/**
-	 * get the length of normal OutputStream.
-	 *
-	 * @return - length of normal OutputStream
-	 * @throws IOException
-	 *             if I/O error occurs
-	 */
-	public long getPos() throws IOException {
-		return out.getPos();
-	}
+        while (iterator.hasNext()) {
+            startTime = Long.MAX_VALUE;
+            endTime = Long.MIN_VALUE;
 
-	private void serializeTsFileMetadata(TsFileMetaData footer) throws IOException {
-		long footerIndex = out.getPos();
-		LOG.debug("serialize the footer,file pos:{}", footerIndex);
-		TsFileMetaDataConverter metadataConverter = new TsFileMetaDataConverter();
-		ReadWriteThriftFormatUtils.writeFileMetaData(metadataConverter.toThriftFileMetadata(footer),
-				out.getOutputStream());
-		LOG.debug("serialize the footer finished, file pos:{}", out.getPos());
-		out.write(BytesUtils.intToBytes((int) (out.getPos() - footerIndex)));
-		out.write(magicStringBytes);
-	}
+            Map.Entry<String, TsDeviceMetadata> entry = iterator.next();
+            currentTsDeviceMetadata = entry.getValue();
 
-	/**
-	 * fill in output stream to complete row group threshold.
-	 *
-	 * @param diff
-	 *            how many bytes that will be filled.
-	 * @throws IOException
-	 *             if diff is greater than Integer.max_value
-	 */
-	public void fillInRowGroup(long diff) throws IOException {
-		if (diff <= Integer.MAX_VALUE) {
-			out.write(new byte[(int) diff]);
-		} else {
-			throw new IOException("write too much blank byte array!array size:" + diff);
-		}
-	}
+            for (ChunkGroupMetaData chunkGroupMetaData : currentTsDeviceMetadata.getRowGroups()) {
+                for (ChunkMetaData chunkMetaData : chunkGroupMetaData
+                        .getChunkMetaDataList()) {
 
-	/**
-	 * Get the list of RowGroupMetaData in memory.
-	 *
-	 * @return - current list of RowGroupMetaData
-	 */
-	public List<RowGroupMetaData> getRowGroups() {
-		return rowGroupMetaDatas;
-	}
+					// update startTime and endTime
+                    startTime = Long.min(startTime, chunkMetaData.getStartTime());
+                    endTime = Long.max(endTime, chunkMetaData.getEndTime());
+                }
+            }
+            // flush tsRowGroupBlockMetaDatas in order
+            currentTsDeviceMetadata.setStartTime(startTime);
+            currentTsDeviceMetadata.setEndTime(endTime);
+        }
+
+        TsFileMetaData tsFileMetaData = new TsFileMetaData(tsDeltaObjectMetadataMap, schemaDescriptors,
+                TSFileConfig.currentVersion);
+
+        long footerIndex = out.getChannel().position();
+        LOG.debug("start to flush the footer,file pos:{}", footerIndex);
+        int size = tsFileMetaData.serializeTo(out);
+        LOG.debug("finish flushing the footer {}, file pos:{}", tsFileMetaData, out.getChannel().position());
+        ReadWriteIOUtils.write(size, out);//write the size of the file metadata.
+        out.write(magicStringBytes);
+        out.close();
+        LOG.info("output stream is closed");
+    }
+
+    /**
+     * get the length of normal OutputStream.
+     *
+     * @return - length of normal OutputStream
+     * @throws IOException if I/O error occurs
+     */
+    public long getPos() throws IOException {
+        return out.getChannel().position();
+    }
+
 }

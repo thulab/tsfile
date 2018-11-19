@@ -1,14 +1,15 @@
 package cn.edu.tsinghua.tsfile.timeseries.write;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Random;
-
+import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
+import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
+import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
+import cn.edu.tsinghua.tsfile.file.metadata.TsFileMetaData;
+import cn.edu.tsinghua.tsfile.timeseries.read.TsFileSequenceReader;
+import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
+import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -19,16 +20,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
-import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
-import cn.edu.tsinghua.tsfile.common.constant.JsonFormatConstant;
-import cn.edu.tsinghua.tsfile.timeseries.basis.TsFile;
-import cn.edu.tsinghua.tsfile.timeseries.read.TsRandomAccessLocalFileReader;
-import cn.edu.tsinghua.tsfile.timeseries.utils.RecordUtils;
-import cn.edu.tsinghua.tsfile.timeseries.utils.StringContainer;
-import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
-import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Random;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -56,8 +55,8 @@ public class WriteTest {
     @Before
     public void prepare() throws IOException, WriteProcessException {
         inputDataFile = "src/test/resources/writeTestInputData";
-        outputDataFile = "src/test/resources/writeTestOutputData.ksn";
-        errorOutputDataFile = "src/test/resources/writeTestErrorOutputData.ksn";
+        outputDataFile = "src/test/resources/writeTestOutputData.tsfile";
+        errorOutputDataFile = "src/test/resources/writeTestErrorOutputData.tsfile";
         schemaFile = "src/test/resources/test_write_schema.json";
         // for each row, flush page forcely
         prePageSize = conf.pageSizeInByte;
@@ -148,20 +147,22 @@ public class WriteTest {
     }
 
     @Test
-    public void writeTest() throws IOException, InterruptedException {
+    public void writeTest() throws IOException {
         try {
             write();
         } catch (WriteProcessException e) {
             e.printStackTrace();
         }
         LOG.info("write processing has finished");
+        TsFileSequenceReader reader = new TsFileSequenceReader(outputDataFile);
+        TsFileMetaData metaData = reader.readFileMetadata();
 
-        TsRandomAccessLocalFileReader input = new TsRandomAccessLocalFileReader(outputDataFile);
-        TsFile readTsFile = new TsFile(input);
-        String value1 = readTsFile.getProp("key1");
-        Assert.assertEquals("value1", value1);
-        String value2 = readTsFile.getProp("key2");
-        Assert.assertEquals("value2", value2);
+        Assert.assertEquals("{s3=[s3,DOUBLE,TS_2DIFF,{max_point_number=3},UNCOMPRESSED], " +
+                        "s4=[s4,BOOLEAN,PLAIN,{},UNCOMPRESSED], " +
+                        "s0=[s0,INT32,RLE,{},UNCOMPRESSED], " +
+                        "s1=[s1,INT64,TS_2DIFF,{},UNCOMPRESSED], " +
+                        "s2=[s2,FLOAT,RLE,{max_point_number=2},UNCOMPRESSED]}",
+                metaData.getMeasurementSchema().toString());
     }
 
     public void write() throws IOException, WriteProcessException {

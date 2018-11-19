@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ *
  * Created by zhangjinrui on 2017/12/25.
  */
 public abstract class LRUCache<K, T> implements Cache<K, T> {

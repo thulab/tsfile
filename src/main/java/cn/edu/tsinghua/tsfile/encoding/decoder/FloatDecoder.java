@@ -2,7 +2,7 @@ package cn.edu.tsinghua.tsfile.encoding.decoder;
 
 import cn.edu.tsinghua.tsfile.common.exception.TSFileDecodingException;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
 import cn.edu.tsinghua.tsfile.encoding.encoder.FloatEncoder;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
@@ -82,7 +82,7 @@ public class FloatDecoder extends Decoder {
     private void readMaxPointValue(InputStream in) {
         try {
             if (!isMaxPointNumberRead) {
-                int maxPointNumber = ReadWriteStreamUtils.readUnsignedVarInt(in);
+                int maxPointNumber = ReadWriteForEncodingUtils.readUnsignedVarInt(in);
                 if (maxPointNumber <= 0) {
                     maxPointValue = 1;
                 } else {

@@ -1,9 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.exception;
 
 /**
- * This exception means the the page size exceeding threshold what user setting.
- *
- * @author kangrong
+ * Exception occurs when writing a page
  */
 public class PageException extends WriteProcessException {
 

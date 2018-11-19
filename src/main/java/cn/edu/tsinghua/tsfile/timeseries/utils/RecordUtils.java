@@ -18,7 +18,7 @@ public class RecordUtils {
     private static final Logger LOG = LoggerFactory.getLogger(RecordUtils.class);
 
     /**
-     * support input format: {@code <deltaObjectId>,<timestamp>,[<measurementId>,<value>,]}.CSV line
+     * support input format: {@code <deviceId>,<timestamp>,[<measurementId>,<value>,]}.CSV line
      * is separated by ","
      *
      * @param str    - input string
@@ -26,20 +26,25 @@ public class RecordUtils {
      * @return TSRecord constructed from str
      */
     public static TSRecord parseSimpleTupleRecord(String str, FileSchema schema) {
+        // spliall items
         String[] items = str.split(JsonFormatConstant.TSRECORD_SEPARATOR);
-        String deltaObjectId = items[0].trim();
+        // get deviceId and timestamp, then create a new TSRecord
+        String deviceId = items[0].trim();
         long timestamp;
         try {
             timestamp = Long.valueOf(items[1].trim());
         } catch (NumberFormatException e) {
             LOG.warn("given timestamp is illegal:{}", str);
             // return a TSRecord without any data points
-            return new TSRecord(-1, deltaObjectId);
+            return new TSRecord(-1, deviceId);
         }
-        TSRecord ret = new TSRecord(timestamp, deltaObjectId);
+        TSRecord ret = new TSRecord(timestamp, deviceId);
+
+        // loop all rest items except the last one
         String measurementId;
         TSDataType type;
         for (int i = 2; i < items.length - 1; i += 2) {
+            // get measurementId and value
             measurementId = items[i].trim();
             type = schema.getMeasurementDataTypes(measurementId);
             if (type == null) {
@@ -47,6 +52,7 @@ public class RecordUtils {
                 continue;
             }
             String value = items[i + 1].trim();
+            // if value is not null, wrap it with corresponding DataPoint and add to TSRecord
             if (!"".equals(value)) {
                 try {
                     switch (type) {
@@ -65,10 +71,6 @@ public class RecordUtils {
                         case DOUBLE:
                             ret.addTuple(new DoubleDataPoint(measurementId, Double
                                     .valueOf(value)));
-                            break;
-                        case ENUMS:
-                            ret.addTuple(new EnumDataPoint(measurementId, (schema
-                                    .getMeasurementDescriptor(measurementId)).parseEnumValue(value)));
                             break;
                         case BOOLEAN:
                             ret.addTuple(new BooleanDataPoint(measurementId, Boolean

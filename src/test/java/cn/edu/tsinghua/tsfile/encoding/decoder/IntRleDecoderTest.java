@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
 import cn.edu.tsinghua.tsfile.encoding.encoder.IntRleEncoder;
 import cn.edu.tsinghua.tsfile.encoding.encoder.RleEncoder;
@@ -40,7 +40,7 @@ public class IntRleDecoderTest {
 			rleCount += 2;
 			rleStart *= -3;
 		}
-		rleBitWidth = ReadWriteStreamUtils.getIntMaxBitWidth(rleList);
+		rleBitWidth = ReadWriteForEncodingUtils.getIntMaxBitWidth(rleList);
 		
 		bpList = new ArrayList<Integer>();
 		int bpCount = 100000;
@@ -53,7 +53,7 @@ public class IntRleDecoderTest {
 				bpList.add(bpStart);
 			}
 		}
-		bpBitWidth = ReadWriteStreamUtils.getIntMaxBitWidth(bpList);
+		bpBitWidth = ReadWriteForEncodingUtils.getIntMaxBitWidth(bpList);
 		
 		hybridList = new ArrayList<Integer>();
 		int hybridCount = 11;
@@ -78,7 +78,7 @@ public class IntRleDecoderTest {
 			}
 			hybridCount += 2;
 		}
-		hybridWidth = ReadWriteStreamUtils.getIntMaxBitWidth(hybridList);
+		hybridWidth = ReadWriteForEncodingUtils.getIntMaxBitWidth(hybridList);
 	}
 
 	@After
@@ -91,7 +91,7 @@ public class IntRleDecoderTest {
 		for(int i = 7000000; i < 10000000;i++){
 			list.add(i);
 		}
-		int width = ReadWriteStreamUtils.getIntMaxBitWidth(list);
+		int width = ReadWriteForEncodingUtils.getIntMaxBitWidth(list);
 		testLength(list,width,false,1);
 		for(int i = 1;i < 10;i++){
 			testLength(list,width,false,i);
@@ -121,7 +121,7 @@ public class IntRleDecoderTest {
 			rleCount *= 7;
 			rleStart *= -3;
 		}
-		int bitWidth = ReadWriteStreamUtils.getIntMaxBitWidth(repeatList);
+		int bitWidth = ReadWriteForEncodingUtils.getIntMaxBitWidth(repeatList);
 		for(int i = 1;i < 10;i++){
 			testLength(repeatList,bitWidth,false,i);
 		}
@@ -218,16 +218,16 @@ public class IntRleDecoderTest {
 			list.add(i);
 		}
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		int bitWidth = ReadWriteStreamUtils.getIntMaxBitWidth(list);
+		int bitWidth = ReadWriteForEncodingUtils.getIntMaxBitWidth(list);
 		RleEncoder<Integer> encoder = new IntRleEncoder(EndianType.LITTLE_ENDIAN);
 		for(int value : list){
 			encoder.encode(value, baos);
 		}
 		encoder.flush(baos);
 		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-		ReadWriteStreamUtils.readUnsignedVarInt(bais);
+		ReadWriteForEncodingUtils.readUnsignedVarInt(bais);
 		assertEquals(bitWidth, bais.read());
-		int header = ReadWriteStreamUtils.readUnsignedVarInt(bais);	
+		int header = ReadWriteForEncodingUtils.readUnsignedVarInt(bais);
 		int group = header >> 1;
 		assertEquals(group, (num+7)/8);
 		int lastBitPackedNum = bais.read();

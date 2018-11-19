@@ -1,102 +1,92 @@
-/**
- * There are two ways to construct a TsFile instance,they generate the same TsFile file.
- * The class use the second interface: 
- *     public void addMeasurement(MeasurementDescriptor measurementDescriptor) throws WriteProcessException
- */
 package cn.edu.tsinghua.tsfile;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
-import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 import cn.edu.tsinghua.tsfile.timeseries.write.TsFileWriter;
-import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.DataPoint;
+import cn.edu.tsinghua.tsfile.timeseries.write.schema.FileSchema;
+import org.json.JSONObject;
+
+import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.DataPoint;
 import cn.edu.tsinghua.tsfile.timeseries.write.record.TSRecord;
-import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.*;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.FloatDataPoint;
+import cn.edu.tsinghua.tsfile.timeseries.write.record.datapoint.IntDataPoint;
 
 public class TsFileWrite2 {
 
-	public static void main(String args[]) {
-		try {
-			String path = "test.ts";
-			File f = new File(path);
-			if(f.exists()) {
-				f.delete();
-			}
-			TsFileWriter tsFileWriter = new TsFileWriter(f);
+    public static void main(String args[]) throws IOException, WriteProcessException {
+        String path = "test.tsfile";
+        String s = "{\n" +
+                "    \"schema\": [\n" +
+                "        {\n" +
+                "            \"measurement_id\": \"sensor_1\",\n" +
+                "            \"data_type\": \"FLOAT\",\n" +
+                "            \"encoding\": \"RLE\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"measurement_id\": \"sensor_2\",\n" +
+                "            \"data_type\": \"INT32\",\n" +
+                "            \"encoding\": \"TS_2DIFF\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"measurement_id\": \"sensor_3\",\n" +
+                "            \"data_type\": \"INT32\",\n" +
+                "            \"encoding\": \"TS_2DIFF\"\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"row_group_size\": 134217728\n" +
+                "}";
+        JSONObject schemaObject = new JSONObject(s);
 
-			// add measurements
-			tsFileWriter.addMeasurement(new MeasurementDescriptor("sensor_1", TSDataType.FLOAT, TSEncoding.RLE));
-			tsFileWriter.addMeasurement(new MeasurementDescriptor("sensor_2", TSDataType.INT32, TSEncoding.TS_2DIFF));
-			tsFileWriter.addMeasurement(new MeasurementDescriptor("sensor_3", TSDataType.INT32, TSEncoding.TS_2DIFF));
+        FileSchema schema = new FileSchema(schemaObject);
+        TsFileWriter tsFileWriter = new TsFileWriter(new File(path), schema);
 
-			// construct TSRecord
-			TSRecord tsRecord = new TSRecord(1, "device_1");
-			DataPoint dPoint1 = new FloatDataPoint("sensor_1", 1.2f);
-			DataPoint dPoint2 = new IntDataPoint("sensor_2", 20);
-			DataPoint dPoint3;
-			tsRecord.addTuple(dPoint1);
-			tsRecord.addTuple(dPoint2);
-			tsFileWriter.write(tsRecord);
-			
-			
-			tsRecord = new TSRecord(2, "device_1");
-			dPoint2 = new IntDataPoint("sensor_2", 20);
-			dPoint3 = new IntDataPoint("sensor_3", 50);
-			tsRecord.addTuple(dPoint2);
-			tsRecord.addTuple(dPoint3);
-			tsFileWriter.write(tsRecord);
-			
-			tsRecord = new TSRecord(3, "device_1");
-			dPoint1 = new FloatDataPoint("sensor_1", 1.4f);
-			dPoint2 = new IntDataPoint("sensor_2", 21);
-			tsRecord.addTuple(dPoint1);
-			tsRecord.addTuple(dPoint2);
-			tsFileWriter.write(tsRecord);
-			
-			tsRecord = new TSRecord(4, "device_1");
-			dPoint1 = new FloatDataPoint("sensor_1", 1.2f);
-			dPoint2 = new IntDataPoint("sensor_2", 20);
-			dPoint3 = new IntDataPoint("sensor_3", 51);
-			tsRecord.addTuple(dPoint1);
-			tsRecord.addTuple(dPoint2);
-			tsRecord.addTuple(dPoint3);
-			tsFileWriter.write(tsRecord);
-			
-			tsRecord = new TSRecord(6, "device_1");
-			dPoint1 = new FloatDataPoint("sensor_1", 7.2f);
-			dPoint2 = new IntDataPoint("sensor_2", 10);
-			dPoint3 = new IntDataPoint("sensor_3", 11);
-			tsRecord.addTuple(dPoint1);
-			tsRecord.addTuple(dPoint2);
-			tsRecord.addTuple(dPoint3);
-			tsFileWriter.write(tsRecord);
-			
-			tsRecord = new TSRecord(7, "device_1");
-			dPoint1 = new FloatDataPoint("sensor_1", 6.2f);
-			dPoint2 = new IntDataPoint("sensor_2", 20);
-			dPoint3 = new IntDataPoint("sensor_3", 21);
-			tsRecord.addTuple(dPoint1);
-			tsRecord.addTuple(dPoint2);
-			tsRecord.addTuple(dPoint3);
-			tsFileWriter.write(tsRecord);
-			
-			tsRecord = new TSRecord(8, "device_1");
-			dPoint1 = new FloatDataPoint("sensor_1", 9.2f);
-			dPoint2 = new IntDataPoint("sensor_2", 30);
-			dPoint3 = new IntDataPoint("sensor_3", 31);
-			tsRecord.addTuple(dPoint1);
-			tsRecord.addTuple(dPoint2);
-			tsRecord.addTuple(dPoint3);
-			tsFileWriter.write(tsRecord);
+        TSRecord record = new TSRecord(1, "device_1");
+        record.addTuple(new FloatDataPoint("sensor_1", 1.2f));
+        record.addTuple(new IntDataPoint("sensor_2", 20));
+        tsFileWriter.write(record);
 
-			// close TsFile
-			tsFileWriter.close();
-		} catch (Throwable e) {
-			e.printStackTrace();
-			System.out.println(e.getMessage());
-		}
-	}
+        record = new TSRecord(2, "device_1");
+        record.addTuple(new IntDataPoint("sensor_2", 20));
+        record.addTuple(new IntDataPoint("sensor_3", 50));
+        tsFileWriter.write(record);
 
+        record = new TSRecord(2, "device_1");
+        record.addTuple(new FloatDataPoint("sensor_1", 1.4f));
+        record.addTuple(new IntDataPoint("sensor_2", 21));
+        tsFileWriter.write(record);
+
+        record = new TSRecord(2, "device_1");
+        record.addTuple(new FloatDataPoint("sensor_1", 1.2f));
+        record.addTuple(new IntDataPoint("sensor_2", 20));
+        record.addTuple(new IntDataPoint("sensor_3", 51));
+        tsFileWriter.write(record);
+
+
+        TSRecord tsRecord1 = new TSRecord(6, "device_1");
+        tsRecord1.dataPointList = new ArrayList<DataPoint>() {{
+            add(new FloatDataPoint("sensor_1", 7.2f));
+            add(new IntDataPoint("sensor_2", 10));
+            add(new IntDataPoint("sensor_3", 11));
+        }};
+        TSRecord tsRecord2 = new TSRecord(7, "device_1");
+        tsRecord2.dataPointList = new ArrayList<DataPoint>() {{
+            add(new FloatDataPoint("sensor_1", 6.2f));
+            add(new IntDataPoint("sensor_2", 20));
+            add(new IntDataPoint("sensor_3", 21));
+        }};
+        TSRecord tsRecord3 = new TSRecord(8, "device_1");
+        tsRecord3.dataPointList = new ArrayList<DataPoint>() {{
+            add(new FloatDataPoint("sensor_1", 9.2f));
+            add(new IntDataPoint("sensor_2", 30));
+            add(new IntDataPoint("sensor_3", 31));
+        }};
+        tsFileWriter.write(tsRecord1);
+        tsFileWriter.write(tsRecord2);
+        tsFileWriter.write(tsRecord3);
+        tsFileWriter.close();
+    }
 }
+

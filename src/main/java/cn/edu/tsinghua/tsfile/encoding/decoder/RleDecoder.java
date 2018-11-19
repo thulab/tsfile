@@ -4,7 +4,7 @@ import cn.edu.tsinghua.tsfile.common.conf.TSFileConfig;
 import cn.edu.tsinghua.tsfile.common.conf.TSFileDescriptor;
 import cn.edu.tsinghua.tsfile.common.exception.TSFileDecodingException;
 import cn.edu.tsinghua.tsfile.common.utils.Binary;
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
 
@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 
 /**
  * Abstract class for all rle decoder. Decoding values according to
@@ -62,7 +63,6 @@ public abstract class RleDecoder extends Decoder {
         isLengthAndBitWidthReaded = false;
         bitPackingNum = 0;
         byteCache = new ByteArrayInputStream(new byte[0]);
-        // LOGGER.debug("tsfile-encoding RleDecoder: init rle decoder");
     }
 
     /**
@@ -72,7 +72,7 @@ public abstract class RleDecoder extends Decoder {
      * @throws IOException cannot get header
      */
     public int getHeader() throws IOException {
-        int header = ReadWriteStreamUtils.readUnsignedVarInt(byteCache);
+        int header = ReadWriteForEncodingUtils.readUnsignedVarInt(byteCache);
         mode = (header & 1) == 0 ? MODE.RLE : MODE.BIT_PACKED;
         return header;
     }
@@ -118,7 +118,7 @@ public abstract class RleDecoder extends Decoder {
      */
     protected void readLengthAndBitWidth(InputStream in) throws IOException {
         // long st = System.currentTimeMillis();
-        length = ReadWriteStreamUtils.readUnsignedVarInt(in);
+        length = ReadWriteForEncodingUtils.readUnsignedVarInt(in);
         byte[] tmp = new byte[length];
         in.read(tmp, 0, length);
         byteCache = new ByteArrayInputStream(tmp);
@@ -142,6 +142,7 @@ public abstract class RleDecoder extends Decoder {
         }
         return false;
     }
+
 
     /**
      * Check whether there is another pattern left for reading

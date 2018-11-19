@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.encoding.decoder;
 
 import cn.edu.tsinghua.tsfile.common.exception.TSFileDecodingException;
-import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
+import cn.edu.tsinghua.tsfile.common.utils.ReadWriteForEncodingUtils;
 import cn.edu.tsinghua.tsfile.encoding.bitpacking.IntPacker;
 import cn.edu.tsinghua.tsfile.encoding.common.EndianType;
 import org.slf4j.Logger;
@@ -40,6 +40,8 @@ public class IntRleDecoder extends RleDecoder {
     public boolean readBoolean(InputStream in) {
     	return this.readInt(in) == 0 ? false : true;
     }
+
+
 
     /**
      * read a int value from InputStream
@@ -91,7 +93,7 @@ public class IntRleDecoder extends RleDecoder {
 
     @Override
     protected void readNumberInRLE() throws IOException {
-        currentValue = ReadWriteStreamUtils.readIntLittleEndianPaddedOnBitWidth(byteCache, bitWidth);
+        currentValue = ReadWriteForEncodingUtils.readIntLittleEndianPaddedOnBitWidth(byteCache, bitWidth);
     }
 
     @Override

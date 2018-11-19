@@ -140,10 +140,6 @@ public class PlainEncoder extends Encoder {
             case TEXT:
                 // refer to encode(Binary,ByteArrayOutputStream)
                 return 4 + TSFileConfig.BYTE_SIZE_PER_CHAR * maxStringLength;
-            case ENUMS:
-                return 4;
-            case BIGDECIMAL:
-                return 8;
             default:
                 throw new UnsupportedOperationException(dataType.toString());
         }

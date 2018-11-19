@@ -1,9 +1,9 @@
 package cn.edu.tsinghua.tsfile.timeseries.write.schema;
 
-import cn.edu.tsinghua.tsfile.common.constant.SystemConstant;
+import cn.edu.tsinghua.tsfile.file.metadata.enums.CompressionType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSEncoding;
-import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementDescriptor;
+import cn.edu.tsinghua.tsfile.timeseries.write.desc.MeasurementSchema;
 
 import java.util.Map;
 
@@ -13,10 +13,32 @@ import java.util.Map;
  * @author qiaojialin
  */
 public class SchemaBuilder {
+    /** the FileSchema which is being built **/
     private FileSchema fileSchema;
 
+    /**
+     * init schema by default value
+     */
     public SchemaBuilder() {
         fileSchema = new FileSchema();
+    }
+
+    /**
+     * add one series to TsFile schema
+     *
+     * @param measurementId (not null) id of the series
+     * @param dataType      (not null) series data type
+     * @param tsEncoding    (not null) encoding method you specified
+     * @param props         information in encoding method.
+     *                      For RLE, Encoder.MAX_POINT_NUMBER
+     *                      For PLAIN, Encoder.MAX_STRING_LENGTH
+     * @return this
+     */
+    public SchemaBuilder addSeries(String measurementId, TSDataType dataType, TSEncoding tsEncoding, CompressionType type,
+                                   Map<String, String> props) {
+        MeasurementSchema md = new MeasurementSchema(measurementId, dataType, tsEncoding, type, props);
+        fileSchema.registerMeasurement(md);
+        return this;
     }
 
     /**
@@ -25,52 +47,22 @@ public class SchemaBuilder {
      * @param measurementId (not null) id of the series
      * @param dataType      (not null) series data type
      * @param tsEncoding    (not null) encoding method you specified
-     * @param props         information in encoding method
      * @return this
      */
-    public SchemaBuilder addSeries(String measurementId, TSDataType dataType, TSEncoding tsEncoding,
-                                   Map<String, String> props) {
-        MeasurementDescriptor md = new MeasurementDescriptor(measurementId, dataType, tsEncoding, props);
+    public SchemaBuilder addSeries(String measurementId, TSDataType dataType, TSEncoding tsEncoding ) {
+        MeasurementSchema md = new MeasurementSchema(measurementId, dataType, tsEncoding);
         fileSchema.registerMeasurement(md);
         return this;
     }
 
-
     /**
-     * MeasurementDescriptor is the schema of one series
+     * MeasurementSchema is the schema of one series
      *
      * @param descriptor series schema
      * @return schema builder
      */
-    public SchemaBuilder addSeries(MeasurementDescriptor descriptor) {
+    public SchemaBuilder addSeries(MeasurementSchema descriptor) {
         fileSchema.registerMeasurement(descriptor);
-        return this;
-    }
-
-
-    /**
-     * add one series to tsfile schema
-     *
-     * @param measurementId (not null) id of the series
-     * @param dataType      (not null) series data type
-     * @param encoding      (not null) encoding method you specified
-     * @param props         information in encoding method
-     * @return this
-     */
-    public SchemaBuilder addSeries(String measurementId, TSDataType dataType, String encoding,
-                                   Map<String, String> props) {
-        TSEncoding tsEncoding = TSEncoding.valueOf(encoding);
-        addSeries(measurementId, dataType, tsEncoding, props);
-        return this;
-    }
-
-    public SchemaBuilder addProp(String key, String value) {
-        fileSchema.addProp(key, value);
-        return this;
-    }
-
-    public SchemaBuilder setProps(Map<String, String> props) {
-        fileSchema.setProps(props);
         return this;
     }
 
