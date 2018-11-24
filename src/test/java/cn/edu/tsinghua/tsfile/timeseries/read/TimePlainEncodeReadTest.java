@@ -5,7 +5,7 @@ import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.OnePassQueryDataSet;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryConfig;
 import cn.edu.tsinghua.tsfile.timeseries.read.query.QueryEngine;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Field;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.FieldV1;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.OldRowRecord;
 import cn.edu.tsinghua.tsfile.timeseries.write.exception.WriteProcessException;
 import org.junit.After;
@@ -218,12 +218,12 @@ public class TimePlainEncodeReadTest {
 			OldRowRecord r = onePassQueryDataSet.getNextRecord();
 			if (cnt == 1) {
 				assertEquals(r.getTime(), 1480562618972L);
-				Field f1 = r.getFields().get(0);
+				FieldV1 f1 = r.getFieldV1s().get(0);
 				assertEquals(f1.getBoolV(), false);
 			}
 			if (cnt == 2) {
 				assertEquals(r.getTime(), 1480562618981L);
-				Field f2 = r.getFields().get(0);
+				FieldV1 f2 = r.getFieldV1s().get(0);
 				assertEquals(f2.getBoolV(), false);
 			}
 			cnt++;
@@ -238,7 +238,7 @@ public class TimePlainEncodeReadTest {
 			OldRowRecord r = onePassQueryDataSet.getNextRecord();
 			if (cnt == 1) {
 				assertEquals(r.getTime(), 1480562618976L);
-				Field f1 = r.getFields().get(0);
+				FieldV1 f1 = r.getFieldV1s().get(0);
 				assertEquals(f1.getStringValue(), "dog976");
 			}
 			// System.out.println(r);
@@ -252,7 +252,7 @@ public class TimePlainEncodeReadTest {
 			OldRowRecord r = onePassQueryDataSet.getNextRecord();
 			if (cnt == 0) {
 				assertEquals(r.getTime(), 1480562618976L);
-				Field f1 = r.getFields().get(0);
+				FieldV1 f1 = r.getFieldV1s().get(0);
 				assertEquals(f1.getStringValue(), "dog976");
 			}
 			// System.out.println(r);
@@ -269,12 +269,12 @@ public class TimePlainEncodeReadTest {
 			OldRowRecord r = onePassQueryDataSet.getNextRecord();
 			if (cnt == 1) {
 				assertEquals(r.getTime(), 1480562618980L);
-				Field f1 = r.getFields().get(0);
+				FieldV1 f1 = r.getFieldV1s().get(0);
 				assertEquals(f1.getFloatV(), 108.0, 0.0);
 			}
 			if (cnt == 2) {
 				assertEquals(r.getTime(), 1480562618990L);
-				Field f2 = r.getFields().get(0);
+				FieldV1 f2 = r.getFieldV1s().get(0);
 				assertEquals(f2.getFloatV(), 110.0, 0.0);
 			}
 			cnt++;
@@ -289,12 +289,12 @@ public class TimePlainEncodeReadTest {
 			OldRowRecord r = onePassQueryDataSet.getNextRecord();
 			if (cnt == 1) {
 				assertEquals(r.getTime(), 1480562618022L);
-				Field f1 = r.getFields().get(0);
+				FieldV1 f1 = r.getFieldV1s().get(0);
 				assertEquals(f1.getDoubleV(), 2.0, 0.0);
 			}
 			if (cnt == 2) {
 				assertEquals(r.getTime(), 1480562618033L);
-				Field f1 = r.getFields().get(0);
+				FieldV1 f1 = r.getFieldV1s().get(0);
 				assertEquals(f1.getDoubleV(), 3.0, 0.0);
 			}
 			cnt++;

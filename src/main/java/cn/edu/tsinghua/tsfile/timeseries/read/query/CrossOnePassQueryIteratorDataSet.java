@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.read.query;
 
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Field;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.FieldV1;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.OldRowRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +72,7 @@ public abstract class CrossOnePassQueryIteratorDataSet extends OnePassQueryDataS
             if (i == 0) {
                 r.setDeltaObjectId(deltaObjectIds[i]);
             }
-            Field f;
+            FieldV1 f;
 
             //get more fields in columns i
             if (timeIdxs[i] < cols[i].valueLength) {
@@ -80,7 +80,7 @@ public abstract class CrossOnePassQueryIteratorDataSet extends OnePassQueryDataS
             }
 
             if (timeIdxs[i] < cols[i].valueLength && minTime == cols[i].getTime(timeIdxs[i])) {
-                f = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
+                f = new FieldV1(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
                 f.setNull(false);
                 putValueToField(cols[i], timeIdxs[i], f);
                 timeIdxs[i]++;
@@ -88,7 +88,7 @@ public abstract class CrossOnePassQueryIteratorDataSet extends OnePassQueryDataS
                     heapPut(cols[i].getTime(timeIdxs[i]));
                 }
             } else {
-                f = new Field(cols[i].dataType, measurementIds[i]);
+                f = new FieldV1(cols[i].dataType, measurementIds[i]);
                 f.setNull(true);
             }
             r.addField(f);

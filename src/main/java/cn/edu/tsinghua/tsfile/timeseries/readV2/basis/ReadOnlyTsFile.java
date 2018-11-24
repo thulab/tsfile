@@ -17,8 +17,14 @@ import java.io.IOException;
 public class ReadOnlyTsFile {
 
     private ITsRandomAccessFileReader randomAccessFileReader;
+
+    // used to store metadata of a path
     private MetadataQuerier metadataQuerier;
+
+    // to load series byte value
     private SeriesChunkLoader seriesChunkLoader;
+
+    // query executor, constructed of metadataQuerier and seriesChunkLoader
     private QueryExecutorRouter queryExecutorRouter;
 
     public ReadOnlyTsFile(ITsRandomAccessFileReader randomAccessFileReader) throws IOException {

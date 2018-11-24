@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.query;
 
+import cn.edu.tsinghua.tsfile.timeseries.read.support.OldRowRecord;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.RowRecord;
 
 import java.io.IOException;
@@ -12,5 +13,7 @@ public interface QueryDataSet {
     boolean hasNext() throws IOException;
 
     RowRecord next() throws IOException;
+
+    OldRowRecord nextRowRecord() throws IOException;
 
 }

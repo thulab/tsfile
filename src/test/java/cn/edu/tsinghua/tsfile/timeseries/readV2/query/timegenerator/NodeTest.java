@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.query.timegenerator;
 
+import cn.edu.tsinghua.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.query.timegenerator.node.AndNode;
@@ -102,6 +103,11 @@ public class NodeTest {
         @Override
         public void close() throws IOException {
 
+        }
+
+        @Override
+        public DynamicOneColumnData getNextBatchData() throws IOException {
+            return null;
         }
     }
 }

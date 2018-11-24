@@ -70,7 +70,7 @@ public class TSFileDescriptor {
 				ClassLoader  classLoader = Loader.getClassLoaderOfObject(this);
 				URL u = getResource(TSFileConfig.CONFIG_FILE_NAME, classLoader);
 				if(u == null){
-					LOGGER.warn("Failed to find config file {} at classpath, use default configuration", TSFileConfig.CONFIG_FILE_NAME);
+					// LOGGER.warn("Failed to find config file {} at classpath, use default configuration", TSFileConfig.CONFIG_FILE_NAME);
 					return;
 				} else{
 					multiplicityWarning(TSFileConfig.CONFIG_FILE_NAME, classLoader);

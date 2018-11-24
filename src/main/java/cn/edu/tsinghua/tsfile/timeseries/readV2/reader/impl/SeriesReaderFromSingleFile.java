@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.reader.impl;
 
 import cn.edu.tsinghua.tsfile.common.utils.ITsRandomAccessFileReader;
+import cn.edu.tsinghua.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.common.EncodedSeriesChunkDescriptor;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.controller.MetadataQuerierByFileImpl;
@@ -94,5 +95,12 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
         if (randomAccessFileReader != null) {
             randomAccessFileReader.close();
         }
+    }
+
+    @Override
+    public DynamicOneColumnData getNextBatchData() throws IOException {
+        hasNext();
+        seriesChunkReaderInitialized = false;
+        return seriesChunkReader.getNextBatchData();
     }
 }

@@ -21,8 +21,8 @@ import java.util.List;
 public class MetadataQuerierByFileImpl implements MetadataQuerier {
     private static final int FOOTER_LENGTH = 4;
     private static final int MAGIC_LENGTH = TsFileIOWriter.magicStringBytes.length;
-    private static final int ROWGROUP_METADATA_CACHE_SIZE = 1000; //TODO: how to specify this value
-    private static final int SERIESCHUNK_DESCRIPTOR_CACHE_SIZE = 100000;
+    private static final int ROWGROUP_METADATA_CACHE_SIZE = 1000000; //TODO: how to specify this value
+    private static final int SERIESCHUNK_DESCRIPTOR_CACHE_SIZE = 1000000;
 
     private ITsRandomAccessFileReader randomAccessFileReader;
     private TsFileMetaData fileMetaData;

@@ -187,10 +187,10 @@ public class QueryEngineTest {
 				System.out.printf("|%15s|", String.valueOf(r.timestamp));
 			}
 
-			for (int i = 0; i < r.fields.size(); i++) {
-				line.append("\t" + r.fields.get(i).getStringValue());
+			for (int i = 0; i < r.fieldV1s.size(); i++) {
+				line.append("\t" + r.fieldV1s.get(i).getStringValue());
 				if (printToConsole) {
-					System.out.printf("%15s|", String.valueOf(r.fields.get(i).getStringValue()));
+					System.out.printf("%15s|", String.valueOf(r.fieldV1s.get(i).getStringValue()));
 				}
 			}
 

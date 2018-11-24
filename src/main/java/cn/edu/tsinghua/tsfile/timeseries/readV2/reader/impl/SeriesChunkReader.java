@@ -7,6 +7,7 @@ import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 import cn.edu.tsinghua.tsfile.file.utils.ReadWriteThriftFormatUtils;
 import cn.edu.tsinghua.tsfile.format.Encoding;
 import cn.edu.tsinghua.tsfile.format.PageHeader;
+import cn.edu.tsinghua.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.TimeValuePairReader;
 
@@ -54,14 +55,18 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
                 pageReaderInitialized = true;
             }
 
-            while (pageReader.hasNext()) {
-                TimeValuePair timeValuePair = pageReader.next();
-                if (timeValuePairSatisfied(timeValuePair) && timeValuePair.getTimestamp() > maxTombstoneTime) {
-                    this.hasCachedTimeValuePair = true;
-                    this.cachedTimeValuePair = timeValuePair;
-                    return true;
-                }
-            }
+//            while (pageReader.hasNext()) {
+//                TimeValuePair timeValuePair = pageReader.next();
+//                if (timeValuePairSatisfied(timeValuePair) && timeValuePair.getTimestamp() > maxTombstoneTime) {
+//                    this.hasCachedTimeValuePair = true;
+//                    this.cachedTimeValuePair = timeValuePair;
+//                    return true;
+//                }
+//            }
+
+            if (pageReader.hasNext())
+                return true;
+
             pageReaderInitialized = false;
         }
     }
@@ -127,12 +132,10 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
 
     @Override
     public void skipCurrentTimeValuePair() {
-
     }
 
     @Override
     public void close() throws IOException {
-
     }
 
     public void setMaxTombstoneTime(long maxTombStoneTime) {
@@ -141,5 +144,12 @@ public abstract class SeriesChunkReader implements TimeValuePairReader {
 
     public long getMaxTombstoneTime() {
         return this.maxTombstoneTime;
+    }
+
+    // to test Dynamic promotion
+    public DynamicOneColumnData getNextBatchData() throws IOException {
+        hasNext();
+        pageReaderInitialized = false;
+        return pageReader.getBatchData();
     }
 }

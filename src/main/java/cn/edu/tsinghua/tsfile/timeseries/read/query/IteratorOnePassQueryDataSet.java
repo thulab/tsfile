@@ -2,7 +2,7 @@ package cn.edu.tsinghua.tsfile.timeseries.read.query;
 
 import cn.edu.tsinghua.tsfile.timeseries.read.support.OldRowRecord;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Field;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.FieldV1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,10 +83,10 @@ public abstract class IteratorOnePassQueryDataSet extends OnePassQueryDataSet {
         Long minTime = heapGet();
         OldRowRecord r = new OldRowRecord(minTime, null, null);
         for (Path p : retMap.keySet()) {
-            Field f;
+            FieldV1 f;
             DynamicOneColumnData res = retMap.get(p);
             if (res.curIdx < res.valueLength && minTime == res.getTime(res.curIdx)) {
-                f = new Field(res.dataType, p.getDeltaObjectToString(), p.getMeasurementToString());
+                f = new FieldV1(res.dataType, p.getDeltaObjectToString(), p.getMeasurementToString());
                 f.setNull(false);
                 putValueToField(res, res.curIdx, f);
                 res.curIdx++;
@@ -106,7 +106,7 @@ public abstract class IteratorOnePassQueryDataSet extends OnePassQueryDataSet {
                     heapPut(res.getTime(res.curIdx));
                 }
             } else {
-                f = new Field(res.dataType, p.getDeltaObjectToString(), p.getMeasurementToString());
+                f = new FieldV1(res.dataType, p.getDeltaObjectToString(), p.getMeasurementToString());
                 f.setNull(true);
             }
             r.addField(f);

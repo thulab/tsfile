@@ -42,6 +42,7 @@ public abstract class LRUCache<K, T> implements Cache<K, T> {
     private void removeFirstObjectIfCacheIsFull() throws CacheException {
         if (cache.size() == this.cacheSize) {
             removeFirstObject();
+            //System.out.println("HHHHH");
         }
     }
 

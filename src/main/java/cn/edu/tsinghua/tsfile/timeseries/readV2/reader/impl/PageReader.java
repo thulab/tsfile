@@ -4,6 +4,7 @@ import cn.edu.tsinghua.tsfile.common.exception.UnSupportedDataTypeException;
 import cn.edu.tsinghua.tsfile.common.utils.ReadWriteStreamUtils;
 import cn.edu.tsinghua.tsfile.encoding.decoder.Decoder;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
+import cn.edu.tsinghua.tsfile.timeseries.read.query.DynamicOneColumnData;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TimeValuePair;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.TsPrimitiveType.*;
@@ -12,8 +13,6 @@ import cn.edu.tsinghua.tsfile.timeseries.readV2.reader.TimeValuePairReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Jinrui Zhang
@@ -28,36 +27,11 @@ public class PageReader implements TimeValuePairReader {
     private boolean hasOneCachedTimeValuePair;
     private TimeValuePair cachedTimeValuePair;
 
-    private TsBoolean booleanValue = new TsBoolean(false);
-    private TsInt intValue = new TsInt(0);
-    private TsLong longValue = new TsLong(0);
-    private TsFloat floatValue = new TsFloat(0);
-    private TsDouble doubleValue = new TsDouble(0);
-    private TsBinary textValue = new TsBinary(null);
-
-    private List<Long> timeList = new ArrayList<>();
-    private List<TsBoolean> booleanList = new ArrayList<>();
-    private List<TsInt> intList = new ArrayList<>();
-    private List<TsLong> longList = new ArrayList<>();
-    private List<TsFloat> floatList = new ArrayList<>();
-    private List<TsDouble> doubleList = new ArrayList<>();
-    private List<TsBinary> binaryList = new ArrayList<>();
-    private List<TsInt> enumsList = new ArrayList<>();
-
-
-    // whether this page input stream has been deserialized to value
-    private boolean initFlag = false;
-    // the number of this page value list
-    private int valueSize = 0;
-    // the used value index of this page value list
-    private int valueIndex = 0;
-
     public PageReader(InputStream pageContent, TSDataType dataType, Decoder valueDecoder, Decoder timeDecoder) throws IOException {
         this.dataType = dataType;
         this.valueDecoder = valueDecoder;
         this.timeDecoder = timeDecoder;
         hasOneCachedTimeValuePair = false;
-        cachedTimeValuePair = new TimeValuePair(-1L, null);
         splitInputStreamToTimeStampAndValue(pageContent);
     }
 
@@ -78,88 +52,19 @@ public class PageReader implements TimeValuePairReader {
         if (hasOneCachedTimeValuePair) {
             return true;
         }
-        if (!initFlag) {
-            initPageValue();
-            initFlag = true;
-        }
-
-        if (valueIndex < valueSize) {
-            this.cachedTimeValuePair.setTimestamp(timeList.get(valueIndex));
-            this.cachedTimeValuePair.setValue(getCacheValue());
-            hasOneCachedTimeValuePair = true;
-            return true;
-        }
-
-        return false;
-    }
-
-    private void initPageValue() throws IOException {
-        while (timeDecoder.hasNext(timestampInputStream)) {
-            valueSize++;
-            timeList.add(timeDecoder.readLong(timestampInputStream));
-        }
-
-        switch (dataType) {
-            case BOOLEAN:
-                for (int i = 0; i < valueSize; i++)
-                    booleanList.add(new TsBoolean(valueDecoder.readBoolean(valueInputStream)));
-                break;
-            case INT32:
-                for (int i = 0; i < valueSize; i++)
-                    intList.add(new TsInt(valueDecoder.readInt(valueInputStream)));
-                break;
-            case INT64:
-                for (int i = 0; i < valueSize; i++)
-                    longList.add(new TsLong(valueDecoder.readLong(valueInputStream)));
-                break;
-            case FLOAT:
-                for (int i = 0; i < valueSize; i++)
-                    floatList.add(new TsFloat(valueDecoder.readFloat(valueInputStream)));
-                break;
-            case DOUBLE:
-                for (int i = 0; i < valueSize; i++)
-                    doubleList.add(new TsDouble(valueDecoder.readDouble(valueInputStream)));
-                break;
-            case TEXT:
-                for (int i = 0; i < valueSize; i++)
-                    binaryList.add(new TsBinary(valueDecoder.readBinary(valueInputStream)));
-                break;
-            case ENUMS:
-                for (int i = 0; i < valueSize; i++)
-                    enumsList.add(new TsInt(valueDecoder.readInt(valueInputStream)));
-                break;
-            default:
-                break;
-        }
-
-    }
-
-    private TsPrimitiveType getCacheValue() {
-        switch (dataType) {
-            case BOOLEAN:
-                return booleanList.get(valueIndex);
-            case INT32:
-                return intList.get(valueIndex);
-            case INT64:
-                return longList.get(valueIndex);
-            case FLOAT:
-                return floatList.get(valueIndex);
-            case DOUBLE:
-                return doubleList.get(valueIndex);
-            case TEXT:
-                return binaryList.get(valueIndex);
-            case ENUMS:
-                return enumsList.get(valueIndex);
-            default:
-                throw new UnSupportedDataTypeException("Unsupported data type :" + dataType);
-        }
+        return timeDecoder.hasNext(timestampInputStream);
+//        if (timeDecoder.hasNext(timestampInputStream) && valueDecoder.hasNext(valueInputStream)) {
+//            cacheOneTimeValuePair();
+//            this.hasOneCachedTimeValuePair = true;
+//            return true;
+//        }
+        //return false;
     }
 
     @Override
     public TimeValuePair next() throws IOException {
         if (hasNext()) {
             this.hasOneCachedTimeValuePair = false;
-            valueIndex ++;
             return cachedTimeValuePair;
         } else {
             throw new IOException("No more TimeValuePair in current page");
@@ -169,12 +74,7 @@ public class PageReader implements TimeValuePairReader {
     private void cacheOneTimeValuePair() {
         long timestamp = timeDecoder.readLong(timestampInputStream);
         TsPrimitiveType value = readOneValue();
-
-        //this.cachedTimeValuePair = new TimeValuePair(timestamp, value);
-
-        this.cachedTimeValuePair.setTimestamp(timestamp);
-        this.cachedTimeValuePair.setValue(value);
-
+        this.cachedTimeValuePair = new TimeValuePair(timestamp, value);
     }
 
     @Override
@@ -191,28 +91,61 @@ public class PageReader implements TimeValuePairReader {
     private TsPrimitiveType readOneValue() {
         switch (dataType) {
             case BOOLEAN:
-                booleanValue.setValue(valueDecoder.readBoolean(valueInputStream));
-                return booleanValue;
+                return new TsBoolean(valueDecoder.readBoolean(valueInputStream));
             case INT32:
-                intValue.setValue(valueDecoder.readInt(valueInputStream));
-                return intValue;
+                return new TsInt(valueDecoder.readInt(valueInputStream));
             case INT64:
-                longValue.setValue(valueDecoder.readLong(valueInputStream));
-                return longValue;
+                return new TsLong(valueDecoder.readLong(valueInputStream));
             case FLOAT:
-                floatValue.setValue(valueDecoder.readFloat(valueInputStream));
-                return floatValue;
+                return new TsFloat(valueDecoder.readFloat(valueInputStream));
             case DOUBLE:
-                doubleValue.setValue(valueDecoder.readDouble(valueInputStream));
-                return doubleValue;
+                return new TsDouble(valueDecoder.readDouble(valueInputStream));
             case TEXT:
-                textValue.setValue(valueDecoder.readBinary(valueInputStream));
-                return textValue;
+                return new TsBinary(valueDecoder.readBinary(valueInputStream));
             case ENUMS:
                 return new TsInt(valueDecoder.readInt(valueInputStream));
             default:
                 break;
         }
         throw new UnSupportedDataTypeException("Unsupported data type :" + dataType);
+    }
+
+    public DynamicOneColumnData getBatchData() throws IOException {
+        DynamicOneColumnData pageData = new DynamicOneColumnData(dataType, true);
+
+        while (timeDecoder.hasNext(timestampInputStream)) {
+            long timestamp = timeDecoder.readLong(timestampInputStream);
+
+            pageData.putTime(timestamp);
+            switch (dataType) {
+                case BOOLEAN:
+                    pageData.putBoolean(valueDecoder.readBoolean(valueInputStream));
+                    break;
+                case INT32:
+                    pageData.putInt(valueDecoder.readInt(valueInputStream));
+                    break;
+                case INT64:
+                    pageData.putLong(valueDecoder.readLong(valueInputStream));
+                    break;
+                case FLOAT:
+                    pageData.putFloat(valueDecoder.readFloat(valueInputStream));
+                    break;
+                case DOUBLE:
+                    pageData.putDouble(valueDecoder.readDouble(valueInputStream));
+                    break;
+                case TEXT:
+                    pageData.putBinary(valueDecoder.readBinary(valueInputStream));
+                    break;
+                case ENUMS:
+                    pageData.putInt(valueDecoder.readInt(valueInputStream));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        this.hasOneCachedTimeValuePair = true;
+
+        return pageData;
     }
 }

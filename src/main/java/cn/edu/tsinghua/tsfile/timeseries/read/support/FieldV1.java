@@ -5,12 +5,12 @@ import cn.edu.tsinghua.tsfile.common.utils.Binary;
 import cn.edu.tsinghua.tsfile.file.metadata.enums.TSDataType;
 
 /**
- * Field is the components of one {@code OldRowRecord} which store a value in
- * specific data type.
+ * <p> Field is the components of one {@code OldRowRecord} which store a value in
+ * specific data type. The value type of FieldV1 is primitive.
  *
- * @author Jinrui Zhang
+ *
  */
-public class Field {
+public class FieldV1 {
 
     public TSDataType dataType;
     public String deltaObjectId;
@@ -23,13 +23,13 @@ public class Field {
     private Binary binaryV;
     private boolean isNull;
 
-    public Field(TSDataType dataType, String measurementId) {
+    public FieldV1(TSDataType dataType, String measurementId) {
         this.dataType = dataType;
         this.measurementId = measurementId;
         this.deltaObjectId = "default";
     }
 
-    public Field(TSDataType dataType, String deltaObjectId, String measurementId) {
+    public FieldV1(TSDataType dataType, String deltaObjectId, String measurementId) {
         this.dataType = dataType;
         this.deltaObjectId = deltaObjectId;
         this.measurementId = measurementId;

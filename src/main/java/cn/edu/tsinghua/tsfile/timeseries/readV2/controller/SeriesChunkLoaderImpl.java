@@ -13,8 +13,14 @@ import java.io.IOException;
  * Created by zhangjinrui on 2017/12/25.
  */
 public class SeriesChunkLoaderImpl implements SeriesChunkLoader {
+
+    // TODO? modify to test efficiency?
     private static final int DEFAULT_MEMSERISCHUNK_CACHE_SIZE = 100;
+
     private ITsRandomAccessFileReader randomAccessFileReader;
+
+    // key : value byte of a series chunk
+    // value : value byte content
     private LRUCache<EncodedSeriesChunkDescriptor, byte[]> seriesChunkBytesCache;
 
     public SeriesChunkLoaderImpl(ITsRandomAccessFileReader randomAccessFileReader) {

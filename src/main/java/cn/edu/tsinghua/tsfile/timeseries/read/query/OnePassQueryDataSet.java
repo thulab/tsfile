@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.tsfile.timeseries.read.query;
 
 import cn.edu.tsinghua.tsfile.common.exception.UnSupportedDataTypeException;
-import cn.edu.tsinghua.tsfile.timeseries.read.support.Field;
+import cn.edu.tsinghua.tsfile.timeseries.read.support.FieldV1;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.OldRowRecord;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.RowRecord;
@@ -17,7 +17,9 @@ import java.util.Map;
 import java.util.PriorityQueue;
 
 public class OnePassQueryDataSet implements QueryDataSet{
+
     protected static final Logger LOG = LoggerFactory.getLogger(OnePassQueryDataSet.class);
+
     protected static final char PATH_SPLITTER = '.';
 
     /**
@@ -145,7 +147,7 @@ public class OnePassQueryDataSet implements QueryDataSet{
             if (i == 0) {
                 record.setDeltaObjectId(deltaObjectIds[i]);
             }
-            Field field = new Field(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
+            FieldV1 field = new FieldV1(cols[i].dataType, deltaObjectIds[i], measurementIds[i]);
             if (timeIdxs[i] < cols[i].timeLength && minTime == cols[i].getTime(timeIdxs[i])) {
                 field.setNull(false);
                 putValueToField(cols[i], timeIdxs[i], field);
@@ -193,36 +195,41 @@ public class OnePassQueryDataSet implements QueryDataSet{
         return OnePassQueryDataSet.convertToNew(oldRowRecord);
     }
 
+    @Override
+    public OldRowRecord nextRowRecord() {
+        return null;
+    }
+
     public static RowRecord convertToNew(OldRowRecord oldRowRecord) {
         RowRecord rowRecord = new RowRecord(oldRowRecord.timestamp);
-        for(Field field: oldRowRecord.fields) {
-            String path = field.deltaObjectId + field.measurementId;
+        for(FieldV1 fieldV1 : oldRowRecord.fieldV1s) {
+            String path = fieldV1.deltaObjectId + fieldV1.measurementId;
 
-            if(field.isNull()) {
+            if(fieldV1.isNull()) {
                 rowRecord.putField(new Path(path), null);
             } else {
                 TsPrimitiveType value;
-                switch (field.dataType) {
+                switch (fieldV1.dataType) {
                     case TEXT:
-                        value = new TsPrimitiveType.TsBinary(field.getBinaryV());
+                        value = new TsPrimitiveType.TsBinary(fieldV1.getBinaryV());
                         break;
                     case FLOAT:
-                        value = new TsPrimitiveType.TsFloat(field.getFloatV());
+                        value = new TsPrimitiveType.TsFloat(fieldV1.getFloatV());
                         break;
                     case INT32:
-                        value = new TsPrimitiveType.TsInt(field.getIntV());
+                        value = new TsPrimitiveType.TsInt(fieldV1.getIntV());
                         break;
                     case INT64:
-                        value = new TsPrimitiveType.TsLong(field.getLongV());
+                        value = new TsPrimitiveType.TsLong(fieldV1.getLongV());
                         break;
                     case DOUBLE:
-                        value = new TsPrimitiveType.TsDouble(field.getDoubleV());
+                        value = new TsPrimitiveType.TsDouble(fieldV1.getDoubleV());
                         break;
                     case BOOLEAN:
-                        value = new TsPrimitiveType.TsBoolean(field.getBoolV());
+                        value = new TsPrimitiveType.TsBoolean(fieldV1.getBoolV());
                         break;
                     default:
-                        throw new UnSupportedDataTypeException("UnSupported datatype: " + String.valueOf(field.dataType));
+                        throw new UnSupportedDataTypeException("UnSupported datatype: " + String.valueOf(fieldV1.dataType));
                 }
                 rowRecord.putField(new Path(path), value);
             }
@@ -238,7 +245,7 @@ public class OnePassQueryDataSet implements QueryDataSet{
         return currentRecord;
     }
 
-    public void putValueToField(DynamicOneColumnData col, int idx, Field f) {
+    public void putValueToField(DynamicOneColumnData col, int idx, FieldV1 f) {
         switch (col.dataType) {
             case BOOLEAN:
                 f.setBoolV(col.getBoolean(idx));

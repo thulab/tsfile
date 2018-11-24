@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.tsfile.timeseries.readV2.query.impl;
 
+import cn.edu.tsinghua.tsfile.timeseries.read.support.OldRowRecord;
 import cn.edu.tsinghua.tsfile.timeseries.read.support.Path;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.datatype.RowRecord;
 import cn.edu.tsinghua.tsfile.timeseries.readV2.query.QueryDataSet;
@@ -36,5 +37,10 @@ public class QueryDataSetForQueryWithQueryFilterImpl implements QueryDataSet {
             rowRecord.putField(path, seriesChunkReaderByTimestamp.getValueInTimestamp(timestamp));
         }
         return rowRecord;
+    }
+
+    @Override
+    public OldRowRecord nextRowRecord() throws IOException {
+        return null;
     }
 }

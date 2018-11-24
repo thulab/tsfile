@@ -31,7 +31,7 @@ public class QueryWithoutFilterExecutorImpl implements QueryExecutor {
     public QueryDataSet execute(QueryExpression queryExpression) throws IOException {
         LinkedHashMap<Path, SeriesReader> readersOfSelectedSeries = new LinkedHashMap<>();
         initReadersOfSelectedSeries(readersOfSelectedSeries, queryExpression.getSelectedSeries());
-        return new MergeQueryDataSet(readersOfSelectedSeries);
+        return new MergeQueryDataSet(readersOfSelectedSeries, true);
     }
 
     private void initReadersOfSelectedSeries(LinkedHashMap<Path, SeriesReader> readersOfSelectedSeries,
