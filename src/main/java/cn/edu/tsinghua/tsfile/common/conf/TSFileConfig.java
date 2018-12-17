@@ -132,7 +132,7 @@ public class TSFileConfig {
      */
     public static int dynamicDataSize = 1000;
     
-    public static final String MAGIC_STRING = "TsFilev0.8.0";
+    public static final String MAGIC_STRING = "TsFilev0.7.1";
     /**
      * only can be used by TsFileDescriptor
      */
