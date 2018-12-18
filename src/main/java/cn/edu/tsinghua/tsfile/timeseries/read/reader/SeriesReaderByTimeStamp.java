@@ -6,9 +6,10 @@ import java.io.IOException;
 
 public interface SeriesReaderByTimeStamp extends SeriesReader {
     /**
-     * @param timestamp
+     *
+     * @param timestamp timestamp
      * @return If there is no TimeValuePair whose timestamp equals to given timestamp, then return null.
-     * @throws IOException
+     * @throws IOException IOException
      */
     TsPrimitiveType getValueInTimestamp(long timestamp) throws IOException;
 

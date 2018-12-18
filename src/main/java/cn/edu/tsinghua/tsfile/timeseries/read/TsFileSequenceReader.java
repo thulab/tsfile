@@ -37,10 +37,8 @@ public class TsFileSequenceReader {
     }
 
     /**
-     * After open the file, the reader position is at the end of the  magic string in the header.
-     *
-     * @return
-     * @throws IOException
+     * After open the file, the reader position is at the end of the magic string in the header.
+     * @throws IOException IOException
      */
     private void open() throws IOException {
         channel = FileChannel.open(path, StandardOpenOption.READ);
@@ -55,8 +53,8 @@ public class TsFileSequenceReader {
     /**
      * this function does not modify the position of the file reader.
      *
-     * @return
-     * @throws IOException
+     * @return magic string bytes array in string format
+     * @throws IOException IOException
      */
     public String readTailMagic() throws IOException {
         long totalSize = channel.size();
@@ -69,8 +67,8 @@ public class TsFileSequenceReader {
     /**
      * this function does not modify the position of the file reader.
      *
-     * @return
-     * @throws IOException
+     * @return magic string bytes array in string format
+     * @throws IOException IOException
      */
     public String readHeadMagic() throws IOException {
         ByteBuffer magicStringBytes = ByteBuffer.allocate(TSFileConfig.MAGIC_STRING.length());
@@ -82,8 +80,8 @@ public class TsFileSequenceReader {
     /**
      * this function does not modify the position of the file reader.
      *
-     * @return
-     * @throws IOException
+     * @return deserialized TsFile metadata
+     * @throws IOException IOException
      */
     public TsFileMetaData readFileMetadata() throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(fileMetadtaSize);
@@ -104,8 +102,8 @@ public class TsFileSequenceReader {
      * After reading the footer of a RowGroup, call this method to set the file pointer to the start of the data of this
      * RowGroup if you want to read its data next.
      *
-     * @param footer
-     * @throws IOException
+     * @param footer row group footer
+     * @throws IOException IOException
      */
     public void prepareReadRowGroup(RowGroupFooter footer) throws IOException {
         channel.position(channel.position() - footer.getDataSize() - footer.getSerializedSize());
@@ -119,8 +117,8 @@ public class TsFileSequenceReader {
      * notice, this function will modify channel's position.
      *
      * @param offset the file offset of this chunk's header
-     * @return
-     * @throws IOException
+     * @return deserialized chunk header
+     * @throws IOException IOException
      */
     public ChunkHeader readChunkHeader(long offset) throws IOException {
         channel.position(offset);
@@ -130,9 +128,9 @@ public class TsFileSequenceReader {
     /**
      * notice, the position of the channel MUST be at the end of this header.
      *
-     * @param header
+     * @param header chunk header
      * @return the pages of this chunk
-     * @throws IOException
+     * @throws IOException IOException
      */
     public ByteBuffer readChunk(ChunkHeader header) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(header.getDataSize());
@@ -144,9 +142,9 @@ public class TsFileSequenceReader {
     /**
      * notice, this function will modify channel's position.
      *
-     * @param position
-     * @return
-     * @throws IOException
+     * @param position read chunk header position
+     * @return chunk and header in ByteBuffer format
+     * @throws IOException IOException
      */
     public ByteBuffer readChunkAndHeader(long position) throws IOException {
         ChunkHeader header = readChunkHeader(position);
@@ -158,13 +156,13 @@ public class TsFileSequenceReader {
     }
 
     /**
-     * notice, the function will midify channel's position.
+     * notice, the function will modify channel's position.
      *
-     * @param position
-     * @param length
-     * @param output
-     * @return
-     * @throws IOException
+     * @param position channel start position
+     * @param length read length of raw ByteBuffer
+     * @param output output in ByteBuffer format
+     * @return read length
+     * @throws IOException IOException
      */
     public int readRaw(long position, int length, ByteBuffer output) throws IOException {
         channel.position(position);
@@ -174,9 +172,10 @@ public class TsFileSequenceReader {
     /**
      * notice, this function will modify channel's position.
      *
-     * @param header
+     * @param header chunk header
+     * @param positionOfChunkHeader position of chunk header
      * @return the pages of this chunk
-     * @throws IOException
+     * @throws IOException IOException
      */
     public ByteBuffer readChunk(ChunkHeader header, long positionOfChunkHeader) throws IOException {
         channel.position(positionOfChunkHeader);
@@ -190,9 +189,10 @@ public class TsFileSequenceReader {
     /**
      * notice, this function will modify channel's position.
      *
+     * @param type time series data type
      * @param offset the file offset of this page header's header
-     * @return
-     * @throws IOException
+     * @return page header
+     * @throws IOException IOException
      */
     public PageHeader readPageHeader(TSDataType type, long offset) throws IOException {
         channel.position(offset);

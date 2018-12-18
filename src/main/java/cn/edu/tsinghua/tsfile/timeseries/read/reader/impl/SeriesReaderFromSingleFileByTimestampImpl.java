@@ -88,9 +88,9 @@ public class SeriesReaderFromSingleFileByTimestampImpl extends SeriesReaderFromS
     }
 
     /**
-     * @param timestamp
+     * @param timestamp timestamp
      * @return If there is no TimeValuePair whose timestamp equals to given timestamp, then return null.
-     * @throws IOException
+     * @throws IOException IOException
      */
     @Override
     public TsPrimitiveType getValueInTimestamp(long timestamp) throws IOException {

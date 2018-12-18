@@ -30,6 +30,9 @@ public class PageWriter {
 
     /**
      * write a time value pair into encoder
+     * @param time data timestamp
+     * @param value MUST be boolean
+     * @throws IOException IOException
      */
     public void write(long time, boolean value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -38,6 +41,9 @@ public class PageWriter {
 
     /**
      * write a time value pair into encoder
+     * @param time data timestamp
+     * @param value MUST be short
+     * @throws IOException IOException
      */
     public void write(long time, short value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -46,6 +52,9 @@ public class PageWriter {
 
     /**
      * write a time value pair into encoder
+     * @param time data timestamp
+     * @param value MUST be int
+     * @throws IOException IOException
      */
     public void write(long time, int value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -54,6 +63,9 @@ public class PageWriter {
 
     /**
      * write a time value pair into encoder
+     * @param time data timestamp
+     * @param value MUST be long
+     * @throws IOException IOException
      */
     public void write(long time, long value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -62,6 +74,9 @@ public class PageWriter {
 
     /**
      * write a time value pair into encoder
+     * @param time data timestamp
+     * @param value MUST be float
+     * @throws IOException IOException
      */
     public void write(long time, float value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -70,6 +85,9 @@ public class PageWriter {
 
     /**
      * write a time value pair into encoder
+     * @param time data timestamp
+     * @param value MUST be double
+     * @throws IOException IOException
      */
     public void write(long time, double value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -78,6 +96,9 @@ public class PageWriter {
 
     /**
      * write a time value pair into encoder
+     * @param time data timestamp
+     * @param value MUST be BigDecimal
+     * @throws IOException IOException
      */
     public void write(long time, BigDecimal value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -86,6 +107,9 @@ public class PageWriter {
 
     /**
      * write a time value pair into encoder
+     * @param time data timestamp
+     * @param value MUST be Binary
+     * @throws IOException IOException
      */
     public void write(long time, Binary value) throws IOException {
         timeEncoder.encode(time, timeOut);
@@ -94,17 +118,18 @@ public class PageWriter {
 
     /**
      * flush all data remained in encoders.
+     * @throws IOException IOException
      */
     private void prepareEndWriteOnePage() throws IOException {
         timeEncoder.flush(timeOut);
         valueEncoder.flush(valueOut);
     }
 
-
     /**
      * getUncompressedBytes return data what it has been written in form of <code>size of time list, time list, value list</code>
      *
      * @return a new readable ByteBuffer whose position is 0.
+     * @throws IOException IOException
      */
     public ByteBuffer getUncompressedBytes() throws IOException {
         prepareEndWriteOnePage();

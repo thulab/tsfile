@@ -57,8 +57,8 @@ public abstract class LRUCache<K, T> implements Cache<K, T> {
 
     /**
      * Do something before remove object from cache.
-     *
-     * @param object
+     * @param object removed object
+     * @throws CacheException CacheException
      */
     public abstract void beforeRemove(T object) throws CacheException;
 

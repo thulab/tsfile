@@ -42,12 +42,12 @@ public abstract class Compressor {
 
     /**
      *
-     * @param data
-     * @param offset
-     * @param length
-     * @param compressed
+     * @param data MUST be byte[]
+     * @param offset offset of data
+     * @param length length of data
+     * @param compressed MUST be byte[]
      * @return byte length of compressed data.
-     * @throws IOException
+     * @throws IOException IOException
      */
     public abstract  int  compress(byte[] data, int offset, int length, byte[] compressed) throws IOException;
 
@@ -56,7 +56,7 @@ public abstract class Compressor {
      * @param data MUST be DirectByteBuffer  for Snappy.
      * @param compressed MUST be DirectByteBuffer for Snappy.
      * @return byte length of compressed data.
-     * @throws IOException
+     * @throws IOException IOException
      */
     public abstract int compress(ByteBuffer data, ByteBuffer compressed) throws IOException;
 

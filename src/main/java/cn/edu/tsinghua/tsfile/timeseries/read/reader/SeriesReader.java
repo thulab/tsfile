@@ -10,17 +10,22 @@ import java.io.IOException;
 public interface SeriesReader {
 
     /**
-     * if there is a next time-value pair
+     *
+     * @return if there is a next time-value pair
+     * @throws IOException IOException
      */
     boolean hasNext() throws IOException;
 
     /**
+     *
      * @return next time value pair
+     * @throws IOException IOException
      */
     TimeValuePair next() throws IOException;
 
     /**
      * skip the current time value pair, just call next()
+     * @throws IOException IOException
      */
     void skipCurrentTimeValuePair() throws IOException;
 

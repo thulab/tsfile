@@ -63,7 +63,7 @@ public class ChunkBuffer {
      * @param maxTimestamp  - timestamp maximum in given data
      * @param minTimestamp  - timestamp minimum in given data
      * @return  byte size of the page header and uncompressed data in the page body.
-     * @throws PageException
+     * @throws PageException PageException
      */
     public int writePageHeaderAndDataIntoBuff(ByteBuffer data, int valueCount, Statistics<?> statistics,
                                               long maxTimestamp, long minTimestamp) throws PageException {

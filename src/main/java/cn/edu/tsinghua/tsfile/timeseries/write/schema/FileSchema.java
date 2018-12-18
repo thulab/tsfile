@@ -63,6 +63,7 @@ public class FileSchema {
    *   };
    *
    * @param jsonSchema file schema in json format
+   * @throws InvalidJsonSchemaException invalid JSON schema
    */
   @Deprecated
   public FileSchema(JSONObject jsonSchema) throws InvalidJsonSchemaException {
@@ -71,6 +72,7 @@ public class FileSchema {
 
   /**
    * init additionalProperties and register measurements
+   * @param measurements (measurements id, measurement schema) map
    */
   public FileSchema(Map<String, MeasurementSchema> measurements) {
     this();
@@ -87,14 +89,13 @@ public class FileSchema {
 
   }
 
-
   public Map<String, MeasurementSchema> getAllMeasurementSchema() {
     return measurementSchema;
   }
 
-
   /**
    * register a MeasurementSchema
+   * @param descriptor measurement schema descriptor
    */
   public void registerMeasurement(MeasurementSchema descriptor) {
     // add to measurementSchema as <measurementID, MeasurementSchema>
@@ -103,6 +104,7 @@ public class FileSchema {
 
   /**
    * register all MeasurementSchema in input map
+   * @param measurements measurements name and schema map
    */
   private void registerMeasurements(Map<String, MeasurementSchema> measurements) {
     measurements.forEach((id, md) -> registerMeasurement(md));
@@ -110,6 +112,8 @@ public class FileSchema {
 
   /**
    * check is this schema contains input measurementID
+   * @param measurementId measurement ID
+   * @return if measurementSchema has the measurement ID
    */
   public boolean hasMeasurement(String measurementId) {
     return measurementSchema.containsKey(measurementId);

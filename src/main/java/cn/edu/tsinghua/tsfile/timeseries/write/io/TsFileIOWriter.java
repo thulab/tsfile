@@ -72,10 +72,11 @@ public class TsFileIOWriter {
 
     /**
      * start a {@linkplain ChunkGroupMetaData ChunkGroupMetaData}.
-     *
      * @param deviceId delta object id
-     * @param dataSize      the serialized size of all chunks
+     * @param dataSize the serialized size of all chunks
+     * @param numberOfChunks number of chunks
      * @return the serialized size of RowGroupFooter
+     * @throws IOException IOException
      */
     public RowGroupFooter startFlushRowGroup(String deviceId, long dataSize, int numberOfChunks) throws IOException {
         LOG.debug("start row group:{}, file position {}", deviceId, out.getChannel().position());
@@ -87,14 +88,15 @@ public class TsFileIOWriter {
 
     /**
      * start a {@linkplain ChunkMetaData ChunkMetaData}.
-     *
-     * @param descriptor           - measurement of this time series
-     * @param compressionCodecName - compression name of this time series
-     * @param tsDataType           - data type
-     * @param statistics           - statistic of the whole series
-     * @param maxTime              - maximum timestamp of the whole series in this stage
-     * @param minTime              - minimum timestamp of the whole series in this stage
-     * @param datasize             -  the serialized size of all pages
+     * @param descriptor            - measurement of this time series
+     * @param compressionCodecName  - compression name of this time series
+     * @param tsDataType            - data type
+     * @param encodingType          - encoding type
+     * @param statistics            - statistic of the whole series
+     * @param maxTime               - maximum timestamp of the whole series in this stage
+     * @param minTime               - minimum timestamp of the whole series in this stage
+     * @param datasize              - the serialized size of all pages
+     * @param numOfPages            - number of pages
      * @return the serialized size of CHunkHeader
      * @throws IOException if I/O error occurs
      */
