@@ -13,7 +13,7 @@ import java.io.Serializable;
 public abstract class TsPrimitiveType implements Serializable {
     /**
      * implemented in subclasses
-     * @return
+     * @return currently only throw an exception
      */
     public boolean getBoolean() {
         throw new UnsupportedOperationException("getBoolean() is not supported for current sub-class");
@@ -21,7 +21,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
     /**
      * implemented in subclasses
-     * @return
+     * @return currently only throw an exception
      */
     public int getInt() {
         throw new UnsupportedOperationException("getInt() is not supported for current sub-class");
@@ -29,7 +29,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
     /**
      * implemented in subclasses
-     * @return
+     * @return currently only throw an exception
      */
     public long getLong() {
         throw new UnsupportedOperationException("getLong() is not supported for current sub-class");
@@ -37,7 +37,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
     /**
      * implemented in subclasses
-     * @return
+     * @return currently only throw an exception
      */
     public float getFloat() {
         throw new UnsupportedOperationException("getFloat() is not supported for current sub-class");
@@ -45,7 +45,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
     /**
      * implemented in subclasses
-     * @return
+     * @return currently only throw an exception
      */
     public double getDouble() {
         throw new UnsupportedOperationException("getDouble() is not supported for current sub-class");
@@ -53,7 +53,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
     /**
      * implemented in subclasses
-     * @return
+     * @return currently only throw an exception
      */
     public Binary getBinary() {
         throw new UnsupportedOperationException("getBinary() is not supported for current sub-class");
@@ -69,13 +69,13 @@ public abstract class TsPrimitiveType implements Serializable {
 
     /**
      * get value in String format
-     * @return
+     * @return value in string format
      */
     public abstract String getStringValue();
 
     /**
      * get corresponding data type of subclasses
-     * @return
+     * @return corresponding data type of subclasses
      */
     public abstract TSDataType getDataType();
 
@@ -94,7 +94,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
         /**
          * init value
-         * @param value
+         * @param value MUST be boolean
          */
         public TsBoolean(boolean value) {
             this.value = value;
@@ -132,7 +132,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
         /**
          * init value
-         * @param value
+         * @param value MUST be int
          */
         public TsInt(int value) {
             this.value = value;
@@ -170,7 +170,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
         /**
          * init value
-         * @param value
+         * @param value MUST be long
          */
         public TsLong(long value) {
             this.value = value;
@@ -208,7 +208,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
         /**
          * init value
-         * @param value
+         * @param value MUST be float
          */
         public TsFloat(float value) {
             this.value = value;
@@ -246,7 +246,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
         /**
          * init value
-         * @param value
+         * @param value MUST be double
          */
         public TsDouble(double value) {
             this.value = value;
@@ -284,7 +284,7 @@ public abstract class TsPrimitiveType implements Serializable {
 
         /**
          * init value
-         * @param value
+         * @param value MUST be Binary
          */
         public TsBinary(Binary value) {
             this.value = value;
@@ -318,8 +318,8 @@ public abstract class TsPrimitiveType implements Serializable {
 
     /**
      * get corresponding subclass of input data type and set its value
-     * @param dataType
-     * @param v
+     * @param dataType  data type
+     * @param v         value
      * @return corresponding implementation of {@code TsPrimitiveType}
      */
     public static TsPrimitiveType getByType(TSDataType dataType, Object v) {

@@ -38,8 +38,8 @@ public abstract class UnCompressor {
     /**
      *
      * @param buffer MUST be DirectByteBuffer
-     * @return
-     * @throws IOException
+     * @return Uncompressed length
+     * @throws IOException IOException
      */
     public abstract int getUncompressedLength(ByteBuffer buffer) throws IOException;
 
@@ -52,12 +52,13 @@ public abstract class UnCompressor {
 
     /**
      *
-     * @param byteArray
-     * @param offset
-     * @param length
-     * @param output
-     * @param outOffset
+     * @param byteArray to be uncompressed bytes
+     * @param offset offset
+     * @param length length
+     * @param output MUST be byte[]
+     * @param outOffset output offset
      * @return the valid length of the output array
+     * @throws IOException IOException
      */
     public abstract  int uncompress(byte[] byteArray, int offset, int length, byte[] output, int outOffset)  throws IOException ;
 
@@ -65,7 +66,8 @@ public abstract class UnCompressor {
      * if the data is large, using this function is better.
      * @param compressed MUST be DirectByteBuffer
      * @param uncompressed MUST be DirectByteBuffer
-     * @return
+     * @return the valid length
+     * @throws IOException IOException
      */
     public abstract int uncompress(ByteBuffer compressed, ByteBuffer uncompressed)   throws IOException ;
 

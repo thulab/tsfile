@@ -51,10 +51,8 @@ public class AndNode implements Node {
     }
 
     /**
-     * If there is no value in current Node, -1 will be returned if {@code next()} is invoked
-     *
-     * @return
-     * @throws IOException
+     * @return If there is no value in current Node, -1 will be returned if {@code next()} is invoked
+     * @throws IOException IOException
      */
     @Override
     public long next() throws IOException {

@@ -21,7 +21,7 @@ public class Binary implements Comparable<Binary>, Serializable {
 
     /**
      * if the bytes v is modified, the modification is visable to this binary.
-     * @param v
+     * @param v value
      */
     public Binary(byte[] v) {
         this.values = v;

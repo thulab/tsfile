@@ -12,6 +12,9 @@ public interface SeriesChunkLoader {
 
     /**
      * read all content of any chunk
+     * @param chunkMetaData chunk meta data
+     * @return SeriesChunk
+     * @throws IOException IOException
      */
     SeriesChunk getMemSeriesChunk(ChunkMetaData chunkMetaData) throws IOException;
 }

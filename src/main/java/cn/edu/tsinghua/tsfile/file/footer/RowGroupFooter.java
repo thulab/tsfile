@@ -61,10 +61,10 @@ public class RowGroupFooter {
     }
 
     /**
-     * @param inputStream
+     * @param inputStream input stream
      * @param markerRead  Whether the marker of the RowGroupFooter is read ahead.
-     * @return
-     * @throws IOException
+     * @return deserialized RowGroupFooter
+     * @throws IOException IOException
      */
     public static RowGroupFooter deserializeFrom(InputStream inputStream, boolean markerRead) throws IOException {
         if (!markerRead) {

@@ -130,7 +130,7 @@ public class ReadWriteForEncodingUtils {
      *
      *
      * @param value value to write into stream
-     * @param buffer where to store the result. buffer.remaining() needs to >= 32.
+     * @param buffer where to store the result. buffer.remaining() needs to larger than or equal to 32.
      *               Notice: (1) this function does not check buffer's remaining().
      *              (2) the position will be updated.
      * @return the number of bytes that the value consume.

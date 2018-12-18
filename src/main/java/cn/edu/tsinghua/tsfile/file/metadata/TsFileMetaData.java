@@ -39,6 +39,8 @@ public class TsFileMetaData {
     }
 
     /**
+     *
+     * @param deviceMap         - device map (String, TsDeviceMetadata)
      * @param measurementSchema - time series info list
      * @param currentVersion    - current version
      */

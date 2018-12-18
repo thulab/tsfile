@@ -62,7 +62,7 @@ public class TsFileWriter {
      * init this TsFileWriter
      *
      * @param file the File to be written by this TsFileWriter
-     * @throws IOException
+     * @throws IOException IOException
      */
     public TsFileWriter(File file) throws IOException {
         this(new TsFileIOWriter(file), new FileSchema(), TSFileDescriptor.getInstance().getConfig());
@@ -73,7 +73,7 @@ public class TsFileWriter {
      *
      * @param file   the File to be written by this TsFileWriter
      * @param schema the schema of this TsFile
-     * @throws IOException
+     * @throws IOException IOException
      */
     public TsFileWriter(File file, FileSchema schema) throws IOException {
         this(new TsFileIOWriter(file), schema, TSFileDescriptor.getInstance().getConfig());
@@ -84,7 +84,7 @@ public class TsFileWriter {
      *
      * @param file the File to be written by this TsFileWriter
      * @param conf the configuration of this TsFile
-     * @throws IOException
+     * @throws IOException IOException
      */
     public TsFileWriter(File file, TSFileConfig conf) throws IOException {
         this(new TsFileIOWriter(file), new FileSchema(), conf);
@@ -96,7 +96,7 @@ public class TsFileWriter {
      * @param file   the File to be written by this TsFileWriter
      * @param schema the schema of this TsFile
      * @param conf   the configuration of this TsFile
-     * @throws IOException
+     * @throws IOException IOException
      */
     public TsFileWriter(File file, FileSchema schema, TSFileConfig conf)
             throws IOException {
@@ -119,6 +119,8 @@ public class TsFileWriter {
 
     /**
      * add a MeasurementSchema to this TsFile
+     * @param measurementSchema measurement schema
+     * @throws WriteProcessException WriteProcessException
      */
     public void addMeasurement(MeasurementSchema measurementSchema)
             throws WriteProcessException {

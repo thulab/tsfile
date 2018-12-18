@@ -42,8 +42,8 @@ public abstract class SeriesReaderFromSingleFile implements SeriesReader {
 
     /**
      * Using this constructor cannot close corresponding FileStream
-     * @param seriesChunkLoader
-     * @param chunkMetaDataList
+     * @param seriesChunkLoader series chunk loader
+     * @param chunkMetaDataList chunk metadata list
      */
     public SeriesReaderFromSingleFile(SeriesChunkLoader seriesChunkLoader, List<ChunkMetaData> chunkMetaDataList) {
         this.seriesChunkLoader = seriesChunkLoader;

@@ -255,6 +255,10 @@ public class ReadWriteIOUtils {
 
     /**
      * unlike InputStream.read(bytes), this method makes sure that you can read length bytes or reach to the end of the stream.
+     * @param inputStream input stream
+     * @param length read length
+     * @return read Bytes
+     * @throws IOException IOException
      */
     public static byte[] readBytes(InputStream inputStream, int length) throws IOException {
         byte[] bytes=new byte[length];
@@ -268,6 +272,9 @@ public class ReadWriteIOUtils {
 
     /**
      * unlike InputStream.read(bytes), this method makes sure that you can read length bytes or reach to the end of the stream.
+     * @param inputStream input stream
+     * @return read Bytes
+     * @throws IOException IOException
      */
     public static byte[] readBytesWithSelfDescriptionLength(InputStream inputStream) throws IOException {
         int length=readInt(inputStream);
@@ -326,11 +333,6 @@ public class ReadWriteIOUtils {
         return length;
     }
 
-
-
-    /**
-     * List<Integer>
-     */
     public static List<Integer> readIntegerList(InputStream inputStream) throws IOException {
         int size = readInt(inputStream);
         if(size <= 0)return null;
@@ -341,6 +343,7 @@ public class ReadWriteIOUtils {
 
         return list;
     }
+
     public static List<Integer> readIntegerList(ByteBuffer buffer) throws IOException {
         int size = readInt(buffer);
         if(size <= 0)return null;
@@ -371,9 +374,12 @@ public class ReadWriteIOUtils {
         return list;
     }
 
-
     /**
-     * CompressionType
+     * write Compression
+     * @param compressionType Compression Type
+     * @param outputStream outputStream
+     * @return bytes length
+     * @throws IOException IOException
      */
     public static int write(CompressionType compressionType, OutputStream outputStream) throws IOException {
         short n = compressionType.serialize();
@@ -394,9 +400,6 @@ public class ReadWriteIOUtils {
     }
 
 
-    /**
-     * TSDataType
-     */
     public static int write(TSDataType dataType, OutputStream outputStream) throws IOException {
         short n = dataType.serialize();
         return write(n, outputStream);
@@ -416,9 +419,6 @@ public class ReadWriteIOUtils {
     }
 
 
-    /**
-     * TSEncoding
-     */
     public static int write(TSEncoding encoding, OutputStream outputStream) throws IOException {
         short n = encoding.serialize();
         return write(n, outputStream);
@@ -438,9 +438,6 @@ public class ReadWriteIOUtils {
     }
 
 
-    /**
-     * TSFreqType
-     */
     public static int write(TSFreqType freqType, OutputStream outputStream) throws IOException {
         short n = freqType.serialize();
         return write(n, outputStream);

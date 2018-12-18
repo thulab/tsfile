@@ -170,7 +170,7 @@ public abstract class Statistics<T> {
      *     boolean - 1 <br>
      *     No - 0 <br>
      *     binary - -1 which means uncertainty
-     *     </>
+     *
      */
     abstract public int sizeOfDatum();
 

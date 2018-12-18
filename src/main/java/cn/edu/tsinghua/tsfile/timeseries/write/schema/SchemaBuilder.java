@@ -26,6 +26,7 @@ public class SchemaBuilder {
     /**
      * add one series to TsFile schema
      *
+     * @param type          compression type
      * @param measurementId (not null) id of the series
      * @param dataType      (not null) series data type
      * @param tsEncoding    (not null) encoding method you specified

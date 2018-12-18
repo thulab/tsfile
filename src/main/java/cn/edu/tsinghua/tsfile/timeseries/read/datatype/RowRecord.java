@@ -23,7 +23,7 @@ public class RowRecord {
 
     /**
      * init this.fields and set time stamp
-     * @param timestamp
+     * @param timestamp timestamp
      */
     public RowRecord(long timestamp) {
         this();
@@ -31,9 +31,9 @@ public class RowRecord {
     }
 
     /**
-     * add one <path, field>
-     * @param path
-     * @param tsPrimitiveType
+     * add one (path, field) tuple to fields map which contains all value fields of the record
+     * @param path a series in delta system
+     * @param tsPrimitiveType time series primitive type
      */
     public void putField(Path path, TsPrimitiveType tsPrimitiveType) {
         fields.put(path, tsPrimitiveType);

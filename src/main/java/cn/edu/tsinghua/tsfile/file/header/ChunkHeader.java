@@ -97,10 +97,10 @@ public class ChunkHeader {
     }
 
     /**
-     * @param inputStream
+     * @param inputStream input stream
      * @param markerRead  Whether the marker of the ChunkHeader has been read
-     * @return
-     * @throws IOException
+     * @return deserialized ChunkHeader
+     * @throws IOException IOException
      */
     public static ChunkHeader deserializeFrom(InputStream inputStream, boolean markerRead) throws IOException {
         if (!markerRead) {

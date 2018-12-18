@@ -48,6 +48,9 @@ public class MeasurementSchema implements Comparable<MeasurementSchema> {
 
   /**
    * set properties as an empty Map
+   * @param measurementId measurement Id
+   * @param type data type
+   * @param encoding enum encoding type
    */
   public MeasurementSchema(String measurementId, TSDataType type, TSEncoding encoding) {
     this(measurementId, type, encoding, CompressionType.valueOf(TSFileDescriptor.getInstance().getConfig().compressor), Collections.emptyMap());
@@ -58,12 +61,13 @@ public class MeasurementSchema implements Comparable<MeasurementSchema> {
 
   /**
    *
-   * @param measurementId
-   * @param type
-   * @param encoding
-   * @param props         information in encoding method.
-   *                      For RLE, Encoder.MAX_POINT_NUMBER
-   *                      For PLAIN, Encoder.MAX_STRING_LENGTH
+   * @param measurementId   measurement Id
+   * @param type            data type
+   * @param encoding        enum encoding type
+   * @param compressionType compression type
+   * @param props           information in encoding method.
+   *                        For RLE, Encoder.MAX_POINT_NUMBER
+   *                        For PLAIN, Encoder.MAX_STRING_LENGTH
    */
   public MeasurementSchema(String measurementId, TSDataType type, TSEncoding encoding, CompressionType compressionType,
                            Map<String, String> props) {

@@ -20,6 +20,8 @@ public class IntDataPoint extends DataPoint {
 
     /**
      * constructor of IntDataPoint, the value type will be set automatically
+     * @param measurementId measurement Id
+     * @param v value
      */
     public IntDataPoint(String measurementId, int v) {
         super(TSDataType.INT32, measurementId);
